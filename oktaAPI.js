@@ -115,6 +115,7 @@
         var s = "", v, i = i || "";
         for (var p in o) {
             if (o[p] === null) v = "null";
+            else if (typeof o[p] == "string") v = '"' + v.replace(/(["\\])/g, "\\$1") + '"'; // Escape " and \
             else if (o[p] instanceof Array) v = "[" + o[p].toString() + "]";
             else if (typeof o[p] == "object") v = "{\n" + toString(o[p], i + "\t") + i + "}";
             else v = o[p];

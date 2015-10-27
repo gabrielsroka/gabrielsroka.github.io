@@ -128,9 +128,9 @@
             else if (o[p] instanceof Array) v = "[" + o[p].toString() + "]";
             else if (typeof o[p] == "object") v = "{\n" + toString(o[p], i + "\t") + i + "}";
             else v = o[p];
-            a.push(i + p + " = " + v);
+            a.push(i + p + " = " + v + "\n");
         }
-        return a.join(",\n");
+        return a.join(",");
     }
 }
 )();

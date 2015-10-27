@@ -1,6 +1,8 @@
-// set apikey in the bookmarklet   VVVVVV
-// javascript:(function(){/*window.apikey="";*/var script=document.body.appendChild(document.createElement("script"));script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
-
+/* 
+set apikey in the bookmarklet VVVVVV
+javascript:(function(){window.apikey="";var script=document.body.appendChild(document.createElement("script"));
+script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
+*/
 (function () {
     function parseUsers(response) {
         var users = JSON.parse(response.responseText), user, u;
@@ -14,11 +16,12 @@
                     "<td>" + name.link("/admin/user/profile/view/" + user.id) + "<td>" + user.profile.login + 
                     "<td>" + user.profile.email + 
                     "<td onmouseover=this.nextSibling.style.display='inline' onmouseout=this.nextSibling.style.display='none'>..." +
-                    "<td style='display: none; position: absolute; background-color: #ffffca'><pre>" + toString(user) + "</pre>");
+                    "<td style='display: none; position: absolute; background-color: #ffffca'>" + 
+                    "<pre>" + toString(user) + "</pre>");
             }
             results.innerHTML = "<br>Activated " + users.length + 
-                "<table class='data-list-table'><tr><th>Source<th>Person<th>Username<th>Email<th>..." + 
-                rows.sort().join("") + "</table>";
+                "<table class='data-list-table'><tr><th>Source<th>Person<th>Username<th>Email<th>..." + rows.sort().join("") + 
+                "</table>";
          } else {
             var hash = {};
             for (u = 0; u < users.length; u++) {
@@ -36,7 +39,7 @@
                 var cell = table.rows[r].insertCell(0);
                 cell.innerHTML = "<span class='icon icon-24 group-logos-24 " + 
                     (user ? user.credentials.provider.type.toLowerCase() : "") + "'>" +
-                    "<pre style='display: none; position: absolute; background-color: #ffffca; z-index: 1000; padding: 8px 10px'>" + 
+                    "<pre style='display: none; position: absolute; background-color: #ffffca; z-index: 1000; padding: 8px'>" + 
                     (user ? toString(user) : "(not found)") + "</pre></span>";
                 cell.onmouseover = function () {this.firstChild.firstChild.style.display = "inline";};
                 cell.onmouseout  = function () {this.firstChild.firstChild.style.display = "none";};

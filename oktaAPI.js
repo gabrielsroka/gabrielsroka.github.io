@@ -9,12 +9,16 @@
             for (u = 0; u < users.length; u++) {
                 user = users[u];
                 var name = user.profile.firstName + " " + user.profile.lastName;
-                rows.push("<tr sortby='" + name + "'><td><span class='icon icon-24 group-logos-24 " + user.credentials.provider.type.toLowerCase() + "'></span>" +
-                    "<td>" + name.link("/admin/user/profile/view/" + user.id) + "<td>" + user.profile.login + "<td>" + user.profile.email + 
+                rows.push("<tr sortby='" + name + "'><td><span class='icon icon-24 group-logos-24 " + 
+                    user.credentials.provider.type.toLowerCase() + "'></span>" + 
+                    "<td>" + name.link("/admin/user/profile/view/" + user.id) + "<td>" + user.profile.login + 
+                    "<td>" + user.profile.email + 
                     "<td onmouseover=this.nextSibling.style.display='inline' onmouseout=this.nextSibling.style.display='none'>..." +
                     "<td style='display: none; position: absolute; background-color: #ffffca'><pre>" + toString(user) + "</pre>");
             }
-            results.innerHTML = "<br>Activated " + users.length + "<table class='data-list-table'><tr><th>Source<th>Person<th>Username<th>Email<th>..." + rows.sort().join("") + "</table>";
+            results.innerHTML = "<br>Activated " + users.length + 
+                "<table class='data-list-table'><tr><th>Source<th>Person<th>Username<th>Email<th>..." + 
+                rows.sort().join("") + "</table>";
          } else {
             var hash = {};
             for (u = 0; u < users.length; u++) {
@@ -22,14 +26,18 @@
                 hash[user.id] = user;
             }
             var table = document.getElementsByClassName("data-list-table")[0];
-            if (table.rows[0].cells[0].innerHTML != "Source") table.rows[0].insertBefore(document.createElement("th"), table.rows[0].cells[0]).innerHTML = "Source";
+            if (table.rows[0].cells[0].innerHTML != "Source") {
+                table.rows[0].insertBefore(document.createElement("th"), table.rows[0].cells[0]).innerHTML = "Source";
+            }
             for (var r = 1; r < table.rows.length - table.tFoot.rows.length; r++) {
                 var href = table.rows[r].cells[0].firstChild.nextSibling.href;
                 var userid = href.substr(href.lastIndexOf("/") + 1);
                 user = hash[userid];
                 var cell = table.rows[r].insertCell(0);
-                cell.innerHTML = "<span class='icon icon-24 group-logos-24 " + (user ? user.credentials.provider.type.toLowerCase() : "") + "'>" +
-                    "<pre style='display: none; position: absolute; background-color: #ffffca; z-index: 1000'>" + (user ? toString(user) : "(not found)") + "</pre></span>";
+                cell.innerHTML = "<span class='icon icon-24 group-logos-24 " + 
+                    (user ? user.credentials.provider.type.toLowerCase() : "") + "'>" +
+                    "<pre style='display: none; position: absolute; background-color: #ffffca; z-index: 1000; padding: 8px 10px'>" + 
+                    (user ? toString(user) : "(not found)") + "</pre></span>";
                 cell.onmouseover = function () {this.firstChild.firstChild.style.display = "inline";};
                 cell.onmouseout  = function () {this.firstChild.firstChild.style.display = "none";};
             }
@@ -51,7 +59,8 @@
                 target = "";
             }
             if (target == person) target = "";
-            lines.push([event.eventId.substr(0, 25), event.published, person, login, target, '"' + event.action.message.replace(/"/g, '""') + '"', ipAddress].join(delim));
+            lines.push([event.eventId.substr(0, 25), event.published, person, login, target, '"' + 
+                event.action.message.replace(/"/g, '""') + '"', ipAddress].join(delim));
         }
         if (results.value == "") {
             results.value = ["Event Id", "Date", "Person", "Login", "Application", "Message", "Client IP\n"].join(delim);
@@ -112,16 +121,16 @@
         return div;
     }
     function toString(o, i) {
-        var s = "", v, i = i || "";
+        var a = []], v, i = i || "";
         for (var p in o) {
             if (o[p] === null) v = "null";
             else if (typeof o[p] == "string") v = '"' + o[p].replace(/(["\\])/g, "\\$1") + '"'; // Escape " and \
             else if (o[p] instanceof Array) v = "[" + o[p].toString() + "]";
             else if (typeof o[p] == "object") v = "{\n" + toString(o[p], i + "\t") + i + "}";
             else v = o[p];
-            s += i + p + " = " + v + "\n";
+            a.push(i + p + " = " + v);
         }
-        return s;
+        return a.join(",\n");
     }
 }
 )();

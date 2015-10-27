@@ -130,7 +130,7 @@
             else v = o[p];
             a.push(i + p + " = " + v);
         }
-        return a.join(",\n") + "\n";
+        return a.join("\n") + "\n";
     }
 }
 )();

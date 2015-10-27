@@ -121,7 +121,7 @@
         return div;
     }
     function toString(o, i) {
-        var a = []], v, i = i || "";
+        var a = [], v, i = i || "";
         for (var p in o) {
             if (o[p] === null) v = "null";
             else if (typeof o[p] == "string") v = '"' + o[p].replace(/(["\\])/g, "\\$1") + '"'; // Escape " and \

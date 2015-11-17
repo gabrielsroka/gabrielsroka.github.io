@@ -10,7 +10,7 @@
             var highlight = "style='background-color: yellow'";
             response = response.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
                 replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").
-                replace(/((Address|Issuer|NameID|NameIdentifier|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="))(.*?)(&lt;|")/g, "$1<span " + highlight + ">$4</span>$5");
+                replace(/((Address|Issuer|NameID|NameIdentifier|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
             results.innerHTML = "<pre>" + indentXml(response, 4) + "</pre>";
         } else {
             results.innerHTML = "Error";

@@ -28,7 +28,7 @@
       function (res) {
         if (res.status === 'SUCCESS') {
           console.log('User %s succesfully authenticated %o', res.user.profile.login, res.user);
-          res.session.setCookieAndRedirect('https://google.com/');
+//          res.session.setCookieAndRedirect('https://google.com/');
         } else {
             console.log(res.status);
         }

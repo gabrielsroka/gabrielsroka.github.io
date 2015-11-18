@@ -2,6 +2,24 @@
 // javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/saml.js"})();
 
 (function () {
+    var $ = window.jQuery || window.jQueryCourage;
+    $("<br><a>View SAML</a>").click(function () {
+        var div = document.body.appendChild(document.createElement("div"));
+        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>&nbsp;SAML Response - X</a>";
+        div.style.position = "absolute";
+        div.style.zIndex = "1000";
+        div.style.left = "4px";
+        div.style.top = "4px";
+        div.style.backgroundColor = "white";
+        var results = div.appendChild(document.createElement("div"));
+        results.innerHTML = "Loading . . .";
+        var request = new XMLHttpRequest();
+        request.open("get", this.parentNode.previousSibling.previousSibling.href);
+        request.onload = function () {
+            parseResponse(request.responseText);
+        };
+        request.send();
+    }).appendTo(".app-button-name");
     function parseResponse(responseText) {
         var match = responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
         if (match) {
@@ -11,29 +29,11 @@
             response = response.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
                 replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").
                 replace(/((Address|Issuer|NameID|NameIdentifier|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
-            results.innerHTML = "<a onclick=this.parentNode.innerHTML=''>Clear</a><pre>" + indentXml(response, 4) + "</pre>";
+            results.innerHTML = "<pre>" + indentXml(response, 4) + "</pre>";
         } else {
             results.innerHTML = "Error";
         }
     }
-    var div = document.body.appendChild(document.createElement("div"));
-    div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>&nbsp;SAML Response - X</a>";
-    div.style.position = "absolute";
-    div.style.zIndex = "1000";
-    div.style.left = "4px";
-    div.style.top = "4px";
-    div.style.backgroundColor = "white";
-    var results = div.appendChild(document.createElement("div"));
-    var $ = window.jQuery || window.jQueryCourage;
-    $("<br><a>View SAML</a>").click(function () {
-        results.innerHTML = "Loading . . .";
-        var request = new XMLHttpRequest();
-        request.open("get", this.parentNode.previousSibling.previousSibling.href);
-        request.onload = function () {
-            parseResponse(request.responseText);
-        };
-        request.send();
-    }).appendTo(".app-button-name");
     function indentXml(xml, size) {
         var lines = xml.split("\n");
         var level = 0;

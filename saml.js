@@ -25,7 +25,7 @@
     div.style.backgroundColor = "white";
     var results = div.appendChild(document.createElement("div"));
     var $ = window.jQuery || window.jQueryCourage;
-    $("<a title='View SAML'>? - </a>").click(function () {
+    $("<br><a>View SAML</a>").click(function () {
         results.innerHTML = "Loading . . .";
         var request = new XMLHttpRequest();
         request.open("get", this.parentNode.previousSibling.previousSibling.href);
@@ -33,7 +33,7 @@
             parseResponse(request.responseText);
         };
         request.send();
-    }).prependTo(".app-button-name");
+    }).appendTo(".app-button-name");
     function indentXml(xml, size) {
         var lines = xml.split("\n");
         var level = 0;

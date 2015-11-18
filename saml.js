@@ -3,6 +3,7 @@
 
 (function () {
     var $ = window.jQuery || window.jQueryCourage;
+    var results;
     $("<br><a>View SAML</a>").click(function () {
         var div = document.body.appendChild(document.createElement("div"));
         div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>&nbsp;SAML Response - X</a>";
@@ -11,7 +12,7 @@
         div.style.left = "4px";
         div.style.top = "4px";
         div.style.backgroundColor = "white";
-        var results = div.appendChild(document.createElement("div"));
+        results = div.appendChild(document.createElement("div"));
         results.innerHTML = "Loading . . .";
         var request = new XMLHttpRequest();
         request.open("get", this.parentNode.previousSibling.previousSibling.href);

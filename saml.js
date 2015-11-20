@@ -7,18 +7,10 @@
     if ($ && $(".app-button-name").length > 0) {
         $("<br><a>View SAML</a>").click(function () {
             var div = createDiv();
-            results = div.appendChild(document.createElement("div"));
-            results.innerHTML = "Loading . . .";
-            var request = new XMLHttpRequest();
-            request.open("get", this.parentNode.previousSibling.previousSibling.href);
-            request.onload = function () {
-                parseResponse(request.responseText);
-            };
-            request.send();
+            getSAML(this.parentNode.previousSibling.previousSibling.href);
         }).appendTo(".app-button-name");
     } else {
         var div = createDiv();
-        results = div.appendChild(document.createElement("div"));
         var form = results.appendChild(document.createElement("form"));
         var url = form.appendChild(document.createElement("input"));
         url.style.width = "700px";
@@ -28,25 +20,18 @@
         input.type = "submit";
         input.value = "Go";
         form.onsubmit = function () {
-            results.innerHTML = "Loading . . .";
-            var request = new XMLHttpRequest();
-            request.open("get", url.value);
-            request.onload = function () {
-                parseResponse(request.responseText);
-            };
-            request.send();
+            getSAML(url.value);
             return false;
         };
     }
-    function createDiv() {
-        var div = document.body.appendChild(document.createElement("div"));
-        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>&nbsp;SAML Response - X</a>";
-        div.style.position = "absolute";
-        div.style.zIndex = "1000";
-        div.style.left = "4px";
-        div.style.top = "4px";
-        div.style.backgroundColor = "white";
-        return div;
+    function getSAML(url) {
+        results.innerHTML = "Loading . . .";
+        var request = new XMLHttpRequest();
+        request.open("get", url);
+        request.onload = function () {
+            parseResponse(request.responseText);
+        };
+        request.send();
     }
     function parseResponse(responseText) {
         var match = responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
@@ -61,6 +46,17 @@
         } else {
             results.innerHTML = "No SAML found. Is this a SWA app?";
         }
+    }
+    function createDiv() {
+        var div = document.body.appendChild(document.createElement("div"));
+        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>&nbsp;SAML Response - X</a>";
+        div.style.position = "absolute";
+        div.style.zIndex = "1000";
+        div.style.left = "4px";
+        div.style.top = "4px";
+        div.style.backgroundColor = "white";
+        results = div.appendChild(document.createElement("div"));
+        return div;
     }
     function indentXml(xml, size) {
         var lines = xml.split("\n");

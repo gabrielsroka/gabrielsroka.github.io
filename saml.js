@@ -4,7 +4,41 @@
 (function () {
     var $ = window.jQuery || window.jQueryCourage;
     var results;
-    $("<br><a>View SAML</a>").click(function () {
+    if ($ && $(".app-button-name").length > 0) {
+        $("<br><a>View SAML</a>").click(function () {
+            var div = createDiv();
+            results = div.appendChild(document.createElement("div"));
+            results.innerHTML = "Loading . . .";
+            var request = new XMLHttpRequest();
+            request.open("get", this.parentNode.previousSibling.previousSibling.href);
+            request.onload = function () {
+                parseResponse(request.responseText);
+            };
+            request.send();
+        }).appendTo(".app-button-name");
+    } else {
+        var div = createDiv();
+        results = div.appendChild(document.createElement("div"));
+        var form = results.appendChild(document.createElement("form"));
+        var url = form.appendChild(document.createElement("input"));
+        url.style.width = "700px";
+        url.placerholder = "URL";
+        url.focus();
+        var input = form.appendChild(document.createElement("input"));
+        input.type = "submit";
+        input.value = "Go";
+        form.onsubmit = function () {
+            results.innerHTML = "Loading . . .";
+            var request = new XMLHttpRequest();
+            request.open("get", url.value);
+            request.onload = function () {
+                parseResponse(request.responseText);
+            };
+            request.send();
+            return false;
+        };
+    }
+    function createDiv() {
         var div = document.body.appendChild(document.createElement("div"));
         div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>&nbsp;SAML Response - X</a>";
         div.style.position = "absolute";
@@ -12,15 +46,8 @@
         div.style.left = "4px";
         div.style.top = "4px";
         div.style.backgroundColor = "white";
-        results = div.appendChild(document.createElement("div"));
-        results.innerHTML = "Loading . . .";
-        var request = new XMLHttpRequest();
-        request.open("get", this.parentNode.previousSibling.previousSibling.href);
-        request.onload = function () {
-            parseResponse(request.responseText);
-        };
-        request.send();
-    }).appendTo(".app-button-name");
+        return div;
+    }
     function parseResponse(responseText) {
         var match = responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
         if (match) {

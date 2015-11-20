@@ -6,11 +6,11 @@
     var results;
     if ($ && $(".app-button-name").length > 0) {
         $("<br><a>View SAML</a>").click(function () {
-            var div = createDiv();
+            createDiv();
             getSAML(this.parentNode.previousSibling.previousSibling.href);
         }).appendTo(".app-button-name");
     } else {
-        var div = createDiv();
+        createDiv();
         var form = results.appendChild(document.createElement("form"));
         var url = form.appendChild(document.createElement("input"));
         url.style.width = "700px";
@@ -56,7 +56,6 @@
         div.style.top = "4px";
         div.style.backgroundColor = "white";
         results = div.appendChild(document.createElement("div"));
-        return div;
     }
     function indentXml(xml, size) {
         var lines = xml.split("\n");

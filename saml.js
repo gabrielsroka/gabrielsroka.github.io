@@ -59,7 +59,7 @@
                 replace(/((Address|Issuer|NameID|NameIdentifier|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
             results.innerHTML = "<pre>" + indentXml(response, 4) + "</pre>";
         } else {
-            results.innerHTML = "Error";
+            results.innerHTML = "No SAML found. Is this a SWA app?";
         }
     }
     function indentXml(xml, size) {

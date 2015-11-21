@@ -1,10 +1,10 @@
 // Drag this to the bookmark toolbar:
-// javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/saml.js"})();
+// javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/saml.js";})();
 
 (function () {
     var $ = window.jQuery || window.jQueryCourage;
     var results;
-    if ($ && $(".app-button-name").length > 0) {
+    if ($ && $(".app-button-name").length > 0) { // Okta homepage
         $("<br><a>View SAML</a>").click(function () {
             createDiv();
             getSAML(this.parentNode.previousSibling.previousSibling.href);
@@ -28,13 +28,11 @@
         results.innerHTML = "Loading . . .";
         var request = new XMLHttpRequest();
         request.open("get", url);
-        request.onload = function () {
-            parseResponse(request.responseText);
-        };
+        request.onload = parseResponse;
         request.send();
     }
-    function parseResponse(responseText) {
-        var match = responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
+    function parseResponse() {
+        var match = this.responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
         if (match) {
             var value = match[2].replace(/&#(x..?);/g, function (m, p) {return String.fromCharCode("0" + p)});
             var response = (match[1] == "SAMLResponse" ? atob(value) : value).replace(/\n/g, "");

@@ -2,13 +2,18 @@
 // javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/saml.js";})();
 
 (function () {
-    var $ = window.jQuery || window.jQueryCourage;
     var results;
-    if ($ && $(".app-button-name").length > 0) { // Okta homepage
-        $("<br><a>View SAML</a>").click(function () {
-            createDiv();
-            getSAML(this.parentNode.previousSibling.previousSibling.href);
-        }).appendTo(".app-button-name");
+    var labels = document.getElementsByClassName("app-button-name");
+    if (labels.length > 0) { // Okta homepage
+       for (var i = 0; i < labels.length; i++) {
+            var a = document.createElement("a");
+            a.onclick = function () {
+                createDiv();
+                getSAML(this.parentNode.previousSibling.previousSibling.href);
+            };
+            a.innerHTML = "<br>View SAML";
+            labels[i].appendChild(a);
+       }
     } else {
         createDiv();
         var form = results.appendChild(document.createElement("form"));

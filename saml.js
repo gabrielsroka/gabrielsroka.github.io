@@ -33,10 +33,10 @@
         results.innerHTML = "Loading . . .";
         var request = new XMLHttpRequest();
         request.open("get", url);
-        request.onload = parseResponse;
+        request.onload = showSAML;
         request.send();
     }
-    function parseResponse() {
+    function showSAML() {
         var match = this.responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
         if (match) {
             var value = match[2].replace(/&#(x..?);/g, function (m, p) {return String.fromCharCode("0" + p)});
@@ -73,5 +73,9 @@
         }
         return lines.join("\n");
     }
+    if (!String.prototype.repeat) String.prototype.repeat = function (n) {
+        var spaces = "                                                ";
+        return spaces.substring(0, n);
+    };
 }
 )();

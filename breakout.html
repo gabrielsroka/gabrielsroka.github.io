@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<meta name="viewport" content="initial-scale=0.75, minimum-scale=0.25">
+<meta charset="utf-8">
 <title>Gamedev Canvas Workshop - lesson 10: finishing up</title>
 <style>
 * {
@@ -27,8 +28,8 @@ var ball = {
     init: function () {
         this.x = canvas.width / 2;
         this.y = canvas.height - 30;
-        this.dx = 2;
-        this.dy = -2;
+        this.dx = 2 * level;
+        this.dy = -2 * level;
     },
     draw: function () {
         ctx.beginPath();
@@ -58,17 +59,18 @@ var bricks = {
     width: 75,
     height: 20,
     padding: 10,
-    offsetTop: 30,
+    offsetTop: 40,
     offsetLeft: 30,
     init: function () {
         this.bricks = [];
+        this.remaining = this.columnCount * this.rowCount;
         for (var c = 0; c < this.columnCount; c++) {
             this.bricks[c] = [];
             for (var r = 0; r < this.rowCount; r++) {
                 this.bricks[c][r] = {
                     x: r * (this.width + this.padding) + this.offsetLeft,
                     y: c * (this.height + this.padding) + this.offsetTop,
-                    inGame: true
+                    out: false
                 };
             }
         }
@@ -77,7 +79,7 @@ var bricks = {
         for (var c = 0; c < this.columnCount; c++) {
             for (var r = 0; r < this.rowCount; r++) {
                 var brick = this.bricks[c][r];
-                if (brick.inGame) {
+                if (!brick.out) {
                     ctx.beginPath();
                     ctx.rect(brick.x, brick.y, this.width, this.height);
                     ctx.fillStyle = "#0095DD";
@@ -90,17 +92,18 @@ var bricks = {
 };
 var score = 0;
 var lives = 3;
+var level = 1;
 var gameOver = false;
-var rightPressed = false;
-var leftPressed = false;
 var frame = 0;
 var startTime = 0;
+var rightPressed = false;
+var leftPressed = false;
 var RIGHT_KEY = 39, LEFT_KEY = 37;
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 document.addEventListener("mousemove", mouseMoveHandler, false);
-onclick = function () {document.location.reload();};
+onclick = function () {if (gameOver) document.location.reload();};
 
 ball.init();
 paddle.init();
@@ -144,14 +147,17 @@ function detectCollision() {
     for (var c = 0; c < bricks.columnCount; c++) {
         for (var r = 0; r < bricks.rowCount; r++) {
             var brick = bricks.bricks[c][r];
-            if (brick.inGame) {
+            if (!brick.out) {
                 if (ball.x > brick.x && ball.x < brick.x + bricks.width && ball.y > brick.y && ball.y < brick.y + bricks.height) {
                     ball.dy = -ball.dy;
-                    brick.inGame = false;
-                    score++;
-                    if (score == bricks.rowCount * bricks.columnCount) {
-                        drawStatus("YOU WIN, CONGRATS!");
-                        gameOver = true;
+                    brick.out = true;
+                    score += level;
+                    bricks.remaining--;
+                    if (bricks.remaining == 0) {
+                        level++;
+                        ball.init();
+                        paddle.init();
+                        bricks.init();
                     }
                 }
             }
@@ -165,6 +171,7 @@ function draw(timestamp) {
     bricks.draw();
     drawScore();
     drawLives();
+    ctx.fillText("Level: " + level, canvas.width - 65, 35);
     detectCollision();
     frame++;
     if (startTime == 0 && timestamp) {
@@ -174,7 +181,7 @@ function draw(timestamp) {
         startTime = timestamp;
         frame = 0;
     }
-    drawStatus("FPS: " + Math.round(frame / (timestamp - startTime) * 1000));
+    ctx.fillText("FPS: " + Math.round(frame / (timestamp - startTime) * 1000), 8, 35);
     if (ball.x + ball.dx > canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
         ball.dx = -ball.dx;
     }

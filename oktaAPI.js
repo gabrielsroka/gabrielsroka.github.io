@@ -73,7 +73,7 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
         results.value += lines.join("\n");
         total += lines.length;
         status.innerHTML = "Loading " + total + " . . .";
-        var links = parseLinks(response.getResponseHeader("Link"));
+        var links = parseLinks(this.getResponseHeader("Link"));
         if (links.next) {
             callAPI(links.next.replace(/.*api.v1./g, ""), showEvents);
         } else {

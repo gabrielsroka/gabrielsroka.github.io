@@ -4,8 +4,8 @@ javascript:(function(){window.apikey="";var script=document.body.appendChild(doc
 script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
 */
 (function () {
-    function parseUsers(response) {
-        var users = JSON.parse(response.responseText), user, u;
+    function showUsers() {
+        var users = JSON.parse(this.responseText), user, u;
          if (location.pathname != "/admin/users") {
             var rows = [];
             for (u = 0; u < users.length; u++) {
@@ -46,8 +46,8 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
             }
         }
     }
-    function parseEvents(response) {
-        var events = JSON.parse(response.responseText); // [].length: 1-2 actors, 0-2 targets, 0-2 categories
+    function showEvents() {
+        var events = JSON.parse(this.responseText); // [].length: 1-2 actors, 0-2 targets, 0-2 categories
         var delim = "\t";
         var lines = [];
         for (var e = 0; e < events.length; e++) {
@@ -75,7 +75,7 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
         status.innerHTML = "Loading " + total + " . . .";
         var links = parseLinks(response.getResponseHeader("Link"));
         if (links.next) {
-            callAPI(links.next.replace(/.*api.v1./g, ""), parseEvents);
+            callAPI(links.next.replace(/.*api.v1./g, ""), showEvents);
         } else {
             status.innerHTML = "Loaded " + total;
         }
@@ -88,7 +88,7 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
         results = div.appendChild(document.createElement("textarea"));
         results.style.width = document.body.clientWidth + "px";
         results.style.height = "500px";
-        callAPI("events?limit=250", parseEvents);
+        callAPI("events?limit=250", showEvents);
         return;
     }
     if (location.pathname != "/admin/users") {
@@ -96,12 +96,12 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
         results = div.appendChild(document.createElement("div"));
         results.innerHTML = "Loading . . .";
     }
-    callAPI("users", parseUsers);
+    callAPI("users", showUsers);
     function callAPI(url, onload) {
         var request = new XMLHttpRequest();
         request.open("get", "/api/v1/" + url);
         request.setRequestHeader("Authorization", "SSWS " + (window.apikey ? apikey : apikey = prompt("Enter API key")));
-        request.onload = function () {onload(this);};
+        request.onload = onload;
         request.send();
     }
     function parseLinks(links) {

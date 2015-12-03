@@ -4,47 +4,64 @@ javascript:(function(){window.apikey="";var script=document.body.appendChild(doc
 script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
 */
 (function () {
-    function showUsers() {
-        var users = JSON.parse(this.responseText), user, u;
-         if (location.pathname != "/admin/users") {
-            var rows = [];
-            for (u = 0; u < users.length; u++) {
-                user = users[u];
-                var name = user.profile.firstName + " " + user.profile.lastName;
-                rows.push("<tr sortby='" + name + "'><td><span class='icon icon-24 group-logos-24 " + 
-                    user.credentials.provider.type.toLowerCase() + "'></span>" + 
-                    "<td>" + name.link("/admin/user/profile/view/" + user.id) + "<td>" + user.profile.login + 
-                    "<td>" + user.profile.email + 
-                    "<td onmouseover=this.nextSibling.style.display='inline' onmouseout=this.nextSibling.style.display='none'>..." +
-                    "<td style='display: none; position: absolute; background-color: #ffffca'>" + 
-                    "<pre>" + toString(user) + "</pre>");
-            }
-            results.innerHTML = "<br>Activated " + users.length + 
-                "<table class='data-list-table'><tr><th>Source<th>Person<th>Username<th>Email<th>..." + rows.sort().join("") + 
-                "</table>";
-         } else {
-            var hash = {};
-            for (u = 0; u < users.length; u++) {
-                user = users[u];
-                hash[user.id] = user;
-            }
-            var table = document.getElementsByClassName("data-list-table")[0];
-            if (table.rows[0].cells[0].innerHTML != "Source") {
-                table.rows[0].insertBefore(document.createElement("th"), table.rows[0].cells[0]).innerHTML = "Source";
-            }
-            for (var r = 1; r < table.rows.length - table.tFoot.rows.length; r++) {
-                var href = table.rows[r].cells[0].firstChild.nextSibling.href;
-                var userid = href.substr(href.lastIndexOf("/") + 1);
-                user = hash[userid];
-                var cell = table.rows[r].insertCell(0);
-                cell.innerHTML = "<span class='icon icon-24 group-logos-24 " + 
-                    (user ? user.credentials.provider.type.toLowerCase() : "") + "'>" +
-                    "<pre style='display: none; position: absolute; background-color: #ffffca; z-index: 1000; padding: 8px'>" + 
-                    (user ? toString(user) : "(not found)") + "</pre></span>";
-                cell.onmouseover = function () {this.firstChild.firstChild.style.display = "inline";};
-                cell.onmouseout  = function () {this.firstChild.firstChild.style.display = "none";};
-            }
+    var div, results, total = 0;
+    if (location.pathname == "/report/system_log") {
+        div = createDiv("Events");
+        var status = div.appendChild(document.createElement("div"));
+        status.innerHTML = "Loading . . .";
+        results = div.appendChild(document.createElement("textarea"));
+        results.style.width = document.body.clientWidth + "px";
+        results.style.height = "500px";
+        callAPI("events?limit=250", showEvents);
+    } else if (location.pathname == "/admin/users") {
+        callAPI("users", enhanceUsers);
+    } else {
+        div = createDiv("People");
+        results = div.appendChild(document.createElement("div"));
+        results.innerHTML = "Loading . . .";
+        callAPI("users", showUsers);
+    }
+    function enhanceUsers() {
+        var users = JSON.parse(this.responseText);
+        var userById = {};
+        for (var u = 0; u < users.length; u++) {
+            var user = users[u];
+            userById[user.id] = user;
         }
+        var table = document.getElementsByClassName("data-list-table")[0];
+        if (table.rows[0].cells[0].innerHTML != "Source") {
+            table.rows[0].insertBefore(document.createElement("th"), table.rows[0].cells[0]).innerHTML = "Source";
+        }
+        for (var r = 1; r < table.rows.length - table.tFoot.rows.length; r++) {
+            var href = table.rows[r].cells[0].firstChild.nextSibling.href;
+            var userid = href.substr(href.lastIndexOf("/") + 1);
+            user = userById[userid];
+            var cell = table.rows[r].insertCell(0);
+            cell.innerHTML = "<span class='icon icon-24 group-logos-24 " + 
+                (user ? user.credentials.provider.type.toLowerCase() : "") + "'>" +
+                "<pre style='display: none; position: absolute; background-color: #ffffca; z-index: 1000; padding: 8px'>" + 
+                (user ? toString(user) : "(not found)") + "</pre></span>";
+            cell.onmouseover = function () {this.firstChild.firstChild.style.display = "inline";};
+            cell.onmouseout  = function () {this.firstChild.firstChild.style.display = "none";};
+        }
+    }
+    function showUsers() {
+        var users = JSON.parse(this.responseText);
+        var rows = [];
+        for (var u = 0; u < users.length; u++) {
+            var user = users[u];
+            var name = user.profile.firstName + " " + user.profile.lastName;
+            rows.push("<tr sortby='" + name + "'><td><span class='icon icon-24 group-logos-24 " + 
+                user.credentials.provider.type.toLowerCase() + "'></span>" + 
+                "<td>" + name.link("/admin/user/profile/view/" + user.id) + "<td>" + user.profile.login + 
+                "<td>" + user.profile.email + 
+                "<td onmouseover=this.nextSibling.style.display='inline' onmouseout=this.nextSibling.style.display='none'>..." +
+                "<td style='display: none; position: absolute; background-color: #ffffca'>" + 
+                "<pre>" + toString(user) + "</pre>");
+        }
+        results.innerHTML = "<br>Activated " + users.length + 
+            "<table class='data-list-table'><tr><th>Source<th>Person<th>Username<th>Email<th>..." + rows.sort().join("") + 
+            "</table>";
     }
     function showEvents() {
         var events = JSON.parse(this.responseText); // [].length: 1-2 actors, 0-2 targets, 0-2 categories
@@ -80,23 +97,6 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
             status.innerHTML = "Loaded " + total;
         }
     }
-    var div, results, total = 0;
-    if (location.pathname == "/report/system_log") {
-        div = createDiv("Events");
-        var status = div.appendChild(document.createElement("div"));
-        status.innerHTML = "Loading . . .";
-        results = div.appendChild(document.createElement("textarea"));
-        results.style.width = document.body.clientWidth + "px";
-        results.style.height = "500px";
-        callAPI("events?limit=250", showEvents);
-        return;
-    }
-    if (location.pathname != "/admin/users") {
-        div = createDiv("People");
-        results = div.appendChild(document.createElement("div"));
-        results.innerHTML = "Loading . . .";
-    }
-    callAPI("users", showUsers);
     function callAPI(url, onload) {
         var request = new XMLHttpRequest();
         request.open("get", "/api/v1/" + url);

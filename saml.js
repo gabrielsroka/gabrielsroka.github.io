@@ -37,10 +37,10 @@
         request.send();
     }
     function showSAML() {
-        var match = this.responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
-        if (match) {
-            var saml = match[2].replace(/&#(x..?);/g, function (m, p1) {return String.fromCharCode("0" + p1)});
-            saml = (match[1] == "SAMLResponse" ? atob(saml) : saml).replace(/\n/g, "");
+        var matches = this.responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
+        if (matches) {
+            var saml = matches[2].replace(/&#(x..?);/g, function (m, p1) {return String.fromCharCode("0" + p1)});
+            saml = (matches[1] == "SAMLResponse" ? atob(saml) : saml).replace(/\n/g, "");
             var highlight = "style='background-color: yellow'";
             saml = saml.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
                 replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").

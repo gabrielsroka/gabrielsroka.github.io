@@ -90,7 +90,7 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
         results.value += lines.join("\n");
         total += lines.length;
         status.innerHTML = "Loading " + total + " . . .";
-        var links = parseLinks(this.getResponseHeader("Link"));
+        var links = getLinks(this.getResponseHeader("Link"));
         if (links.next) {
             callAPI(links.next.replace(/.*api.v1/g, ""), showEvents);
         } else {
@@ -104,14 +104,14 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
         request.onload = onload;
         request.send();
     }
-    function parseLinks(links) {
-        links = links.split(", ");
-        var o = {};
-        for (var i = 0; i < links.length; i++) {
-            var parts = links[i].split("; ");
-            o[parts[1].replace(/rel=|"/g, "")] = parts[0].replace(/[<>]/g, "");
+    function getLinks(headers) {
+        headers = headers.split(", ");
+        var links = {};
+        for (var i = 0; i < headers.length; i++) {
+            var matches = headers[i].match(/<(.*)>; rel="(.*)"/);
+            links[matches[2]] = matches[1];
         }
-        return o;
+        return links;
     }
     function createDiv(title) {
         var div = document.body.appendChild(document.createElement("div"));

@@ -83,7 +83,7 @@ function dot(o, dots) {
     for (var p in ps) {
         o = o[ps[p]];
     }
-    return o;
+    return o || "";
 }
 
 /*

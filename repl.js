@@ -29,18 +29,37 @@ function g(path, method, body) {
     o("/groups/" + (path ? path : ""), method, body);
 }
 function each() {
+    var mx = [];
+    var vs = []
+    for (var a in arguments) {
+        mx.push(arguments[a].length);
+    }
+    var r = [];
     for (var i in _) {
-        var vs = [];
-        for (var a in arguments) {
+        vs = [];
+        for (a in arguments) {
             var ps = arguments[a].split(".");
             var o = _[i];
             for (var p in ps) {
                 o = o[ps[p]];
             }
+            if (o.length > mx[a]) mx[a] = o.length;
             vs.push(o);
         }
-        console.log(vs.join(" "));
+        r.push(vs);
     }
+    var s = "\n";
+    for (a in arguments) {
+        s += arguments[a] + " ".repeat(mx[a] + 2 - arguments[a].length);
+    }
+    s += "\n";
+    for (i in r) {
+        for (a in arguments) {
+            s += r[i][a] + " ".repeat(mx[a] + 2 - r[i][a].length);
+        }
+        s += "\n";
+   }
+   return s;
 }
 
 /*

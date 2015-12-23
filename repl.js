@@ -28,38 +28,62 @@ function u(path, method, body) {
 function g(path, method, body) {
     o("/groups/" + (path ? path : ""), method, body);
 }
-function each() {
-    var mx = [];
-    var vs = []
-    for (var a in arguments) {
-        mx.push(arguments[a].length);
+function order(field, asc) {
+    function comparer(o1, o2, asc) {
+        var order = asc == undefined || asc ? 1 : -1; // sort ascending or descending
+        var comparison;
+        if (o1 == undefined) {
+            comparison = -1;
+        } else if (o2 == undefined) {
+            comparison = 1;
+        } else if (o1 < o2) {
+            comparison = -1;
+        } else if (o1 > o2) {
+            comparison = 1;
+        } else {
+            comparison = 0;
+        }
+        return order * comparison;
+    }
+    _.sort(function (o1, o2) {
+        return comparer(dot(o1, field), dot(o2, field), asc);
+    });
+}
+function each(fields) {
+    function pad(ps) {
+        for (f in fields) {
+            s += ps[f] + " ".repeat(lengths[f] + 2 - ps[f].length);
+        }
+        s += "\n";
+    }
+    var lengths = [];
+    fields = fields.split(",");
+    for (var f in fields) {
+        lengths.push(fields[f].length);
     }
     var r = [];
     for (var i in _) {
-        vs = [];
-        for (a in arguments) {
-            var ps = arguments[a].split(".");
-            var o = _[i];
-            for (var p in ps) {
-                o = o[ps[p]];
-            }
-            if (o.length > mx[a]) mx[a] = o.length;
+        var vs = [];
+        for (f in fields) {
+            var o = dot(_[i], fields[f]);
+            if (o.length > lengths[f]) lengths[f] = o.length;
             vs.push(o);
         }
         r.push(vs);
     }
     var s = "\n";
-    for (a in arguments) {
-        s += arguments[a] + " ".repeat(mx[a] + 2 - arguments[a].length);
-    }
-    s += "\n";
+    pad(fields);
     for (i in r) {
-        for (a in arguments) {
-            s += r[i][a] + " ".repeat(mx[a] + 2 - r[i][a].length);
-        }
-        s += "\n";
+        pad(r[i]);
    }
    return s;
+}
+function dot(o, dots) {
+    var ps = dots.split(".");
+    for (var p in ps) {
+        o = o[ps[p]];
+    }
+    return o;
 }
 
 /*

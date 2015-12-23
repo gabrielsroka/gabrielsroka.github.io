@@ -56,6 +56,7 @@ function each(fields) {
         }
         s += "\n";
     }
+    var s = "\n";
     var lengths = [];
     fields = fields.split(",");
     for (var f in fields) {
@@ -71,7 +72,6 @@ function each(fields) {
         }
         r.push(vs);
     }
-    var s = "\n";
     pad(fields);
     for (i in r) {
         pad(r[i]);
@@ -90,7 +90,8 @@ function dot(o, dots) {
 // get all users
 u()
 _.length
-each("profile.email","profile.firstName", "profile.lastName", "profile.login")
+order("credentials.provider.type")
+each("id,profile.email,profile.firstName,profile.lastName,profile.login,credentials.provider.type,created")
 
 // get me
 u("me")
@@ -106,4 +107,7 @@ g(group.id + "/users/" + me.id, "PUT")
 
 // create user
 u("", "POST", {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a100"}})
+
+// get events
+o("/events?startDate=2015-12-23T00:00:00.0Z")
 */

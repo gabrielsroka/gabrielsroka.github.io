@@ -12,6 +12,7 @@ function o(path, method, body) {
     request.setRequestHeader("Content-Type", "application/json");
     request.setRequestHeader("Accept", "application/json");
     request.onload = function () {
+        console.log("Ready.")
         if (request.responseText) {
             _ = JSON.parse(request.responseText);
             if (_.length == 1) _ = _[0];
@@ -21,12 +22,13 @@ function o(path, method, body) {
         }
     };
     request.send(body ? JSON.stringify(body) : null);
+    return _;
 }
 function u(path, method, body) {
-    o("/users/" + (path ? path : ""), method, body);
+    return o("/users/" + (path ? path : ""), method, body);
 }
 function g(path, method, body) {
-    o("/groups/" + (path ? path : ""), method, body);
+    return o("/groups/" + (path ? path : ""), method, body);
 }
 function t(fields) {
     fields = fields.split(",");

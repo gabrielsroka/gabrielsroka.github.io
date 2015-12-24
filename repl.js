@@ -28,55 +28,18 @@ function u(path, method, body) {
 function g(path, method, body) {
     o("/groups/" + (path ? path : ""), method, body);
 }
-function order(field, asc) {
-    function comparer(o1, o2, asc) {
-        var order = asc == undefined || asc ? 1 : -1; // sort ascending or descending
-        var comparison;
-        if (o1 == undefined) {
-            comparison = -1;
-        } else if (o2 == undefined) {
-            comparison = 1;
-        } else if (o1 < o2) {
-            comparison = -1;
-        } else if (o1 > o2) {
-            comparison = 1;
-        } else {
-            comparison = 0;
-        }
-        return order * comparison;
-    }
-    _.sort(function (o1, o2) {
-        return comparer(dot(o1, field), dot(o2, field), asc);
-    });
-}
-function each(fields) {
-    function pad(ps) {
-        for (f in fields) {
-            s += ps[f] + " ".repeat(lengths[f] + 2 - ps[f].length);
-        }
-        s += "\n";
-    }
-    var s = "\n";
-    var lengths = [];
+function t(fields) {
     fields = fields.split(",");
-    for (var f in fields) {
-        lengths.push(fields[f].length);
-    }
     var r = [];
     for (var i in _) {
-        var vs = [];
+        var vs = {};
         for (f in fields) {
             var o = dot(_[i], fields[f]);
-            if (o.length > lengths[f]) lengths[f] = o.length;
-            vs.push(o);
+            vs[fields[f]] = o;
         }
         r.push(vs);
     }
-    pad(fields);
-    for (i in r) {
-        pad(r[i]);
-   }
-   return s;
+   console.table(r);
 }
 function dot(o, dots) {
     var ps = dots.split(".");
@@ -90,8 +53,7 @@ function dot(o, dots) {
 // get all users
 u()
 _.length
-order("credentials.provider.type")
-each("id,profile.email,profile.firstName,profile.lastName,profile.login,credentials.provider.type,created")
+t("id,profile.email,profile.firstName,profile.lastName,profile.login,credentials.provider.type,created")
 
 // get me
 u("me")

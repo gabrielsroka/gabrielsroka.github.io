@@ -34,8 +34,7 @@ function t(fields) {
     for (var i in _) {
         var vs = {};
         for (f in fields) {
-            var o = dot(_[i], fields[f]);
-            vs[fields[f]] = o;
+            vs[fields[f]] = dot(_[i], fields[f]);
         }
         r.push(vs);
     }
@@ -51,11 +50,6 @@ function dot(o, dots) {
 }
 
 /*
-// get all users
-u()
-_.length
-t("id,profile.email,profile.firstName,profile.lastName,profile.login,credentials.provider.type,created")
-
 // get me
 u("me")
 me=_
@@ -69,8 +63,18 @@ group=_
 g(group.id + "/users/" + me.id, "PUT")
 
 // create user
-u("", "POST", {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a100"}})
+u("", "POST", {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}})
+
+// get users
+u()
+_.length
+t("id,profile.email,profile.firstName,profile.lastName,profile.login,credentials.provider.type,created")
+
+// get groups
+g()
+t("profile.name,profile.description,type")
 
 // get events
 o("/events?startDate=2015-12-23T00:00:00.0Z")
+t("eventId,actors.0.displayName,published,action.message")
 */

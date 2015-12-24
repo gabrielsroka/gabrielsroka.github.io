@@ -44,7 +44,8 @@ function t(fields) {
 function dot(o, dots) {
     var ps = dots.split(".");
     for (var p in ps) {
-        o = o[ps[p]] || "";
+        o = o[ps[p]];
+        if (o == null) break;
     }
     return o;
 }

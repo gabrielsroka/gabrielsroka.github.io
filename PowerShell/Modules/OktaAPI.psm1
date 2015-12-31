@@ -1,10 +1,11 @@
+$headers = @{}
+$baseUrl = ""
+$userAgent = "OktaAPIWindowsPowerShell/0.1"
+
 # Call this before calling Okta API functions.
 function Connect-Okta($token, $baseUrl) {
-    $script:settings = @{
-        headers = @{"Authorization" = "SSWS $token"; "Accept" = "application/json"; "Content-Type" = "application/json"};
-        baseUrl = "$baseUrl/api/v1";
-        userAgent = "OktaAPIWindowsPowerShell/0.1"
-    }
+    $script:headers = @{"Authorization" = "SSWS $token"; "Accept" = "application/json"; "Content-Type" = "application/json"}
+    $script:baseUrl = "$baseUrl/api/v1"
 }
 
 # User functions - http://developer.okta.com/docs/api/resources/users.html
@@ -18,8 +19,8 @@ function Get-OktaUser($id) {
     Invoke-Method GET "/users/$id"
 }
 
-function Get-OktaUsers($q, $filter, $limit = 200) {
-    Invoke-Method GET "/users?q=$q&filter=$filter&limit=$limit"
+function Get-OktaUsers($q, $filter, $limit = 200, $url = "/users?q=$q&filter=$filter&limit=$limit") {
+    Invoke-PagedMethod $url
 }
 
 function Set-OktaUser($id, $user) {
@@ -27,8 +28,16 @@ function Set-OktaUser($id, $user) {
     Invoke-Method POST "/users/$id" $user
 }
 
+function Get-OktaUserGroups($id) {
+    Invoke-Method GET "/users/$id/groups"
+}
+
 function Enable-OktaUser($id, $sendEmail = $true) {
     Invoke-Method POST "/users/$id/lifecycle/activate?sendEmail=$sendEmail"
+}
+
+function Disable-OktaUser($id) {
+    Invoke-Method POST "/users/$id/lifecycle/deactivate"
 }
 
 # Group functions - http://developer.okta.com/docs/api/resources/groups.html
@@ -47,12 +56,16 @@ function Get-OktaGroups($q, $filter, $limit = 200) {
     Invoke-Method GET "/groups?q=$q&filter=$filter&limit=$limit"
 }
 
-function Get-OktaGroupMember($id) {
-    Invoke-Method GET "/groups/$id/users"
+function Get-OktaGroupMember($id, $limit = 200) {
+    Invoke-Method GET "/groups/$id/users?limit=$limit"
 }
 
 function Add-OktaGroupMember($groupid, $userid) {
     $noContent = Invoke-Method PUT "/groups/$groupid/users/$userid"
+}
+
+function Remove-OktaGroupMember($groupid, $userid) {
+    $noContent = Invoke-Method DELETE "/groups/$groupid/users/$userid"
 }
 
 # Event functions - http://developer.okta.com/docs/api/resources/events.html
@@ -64,30 +77,22 @@ function Get-OktaEvents($startDate, $filter, $limit = 1000) {
 # Core functions
 
 function Invoke-Method($method, $path, $body) {
-    $url = $script:settings.baseUrl + $path
+    $url = $baseUrl + $path
     $jsonBody = ConvertTo-Json -compress $body
-    Invoke-RestMethod $url -Method $method -Headers $script:settings.headers -Body $jsonBody -UserAgent $settings.userAgent
+    Invoke-RestMethod $url -Method $method -Headers $headers -Body $jsonBody -UserAgent $userAgent
 }
 
 function Invoke-PagedMethod($url) {
-    if ($url -notMatch '^http') {$url = $script:settings.baseUrl + $url}
-    $script:response = $null # Clear old value.
-    $script:response = Invoke-WebRequest $url -Method GET -Headers $script:settings.headers -UserAgent $settings.userAgent
-    ConvertFrom-Json $script:response.content
-}
-
-function Get-Links() {
+    if ($url -notMatch '^http') {$url = $baseUrl + $url}
+    $response = Invoke-WebRequest $url -Method GET -Headers $headers -UserAgent $userAgent
     $links = @{}
-    foreach ($header in $script:response.Headers.Link.split(",")) {
-        $header -match '<(.*)>; rel="(.*)"'
-        $links[$matches[2]] = $matches[1]
+    if ($response.Headers.link) { # Some searches (eg List Users with Search) do no support pagination.
+        foreach ($header in $response.Headers.Link.split(",")) {
+            $header -match '<(.*)>; rel="(.*)"'
+            $links[$matches[2]] = $matches[1]
+        }
     }
-    $links
-}
-
-function Get-NextUrl() {
-    $links = Get-Links
-    $links.next
+    @{objects = ConvertFrom-Json $response.content; nextUrl = $links.next}
 }
 
 function Get-Error($_) {

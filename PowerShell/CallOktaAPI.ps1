@@ -1,5 +1,6 @@
-. .\OktaAPI.ps1
-. .\OktaAPISettings.ps1
+Import-Module OktaAPI
+
+.\OktaAPISettings.ps1
 
 # This file contains functions with sample code. To use one, call it.
 
@@ -57,7 +58,8 @@ function Add-GroupMember {
 }
 
 function Rename-Users {
-    $users = Get-OktaUsers "test"
+    $page = Get-OktaUsers "test"
+    $users = $page.objects
     # $oktaCredUsers = $users | where {$_.credentials.provider.type -eq "OKTA"}
     foreach ($user in $users) {
         if ($user.credentials.provider.type -eq "OKTA") {
@@ -69,15 +71,16 @@ function Rename-Users {
 
 function Get-PagedUsers {
     $totalUsers = 0
-    $url = "/users?limit=5"
+    $params = @{limit = 25}
     do {
-        $users = Invoke-PagedMethod $url
+        $page = Get-OktaUsers @params
+        $users = $page.objects
         foreach ($user in $users) {
             Write-Host $user.profile.login $user.credentials.provider.type
         }
         $totalUsers += $users.count
-        $url = Get-NextUrl
-    } while ($url)
+        $params = @{url = $page.nextUrl}
+    } while ($page.nextUrl)
     "$totalUsers users found."
 }
 

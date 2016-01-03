@@ -100,7 +100,7 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
     function callAPI(path, onload) {
         var request = new XMLHttpRequest();
         request.open("get", "/api/v1" + path);
-        request.setRequestHeader("Authorization", "SSWS " + (window.apikey ? apikey : apikey = prompt("Enter API key")));
+//        request.setRequestHeader("Authorization", "SSWS " + (window.apikey ? apikey : apikey = prompt("Enter API key")));
         request.onload = onload;
         request.send();
     }

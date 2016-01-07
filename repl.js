@@ -31,14 +31,18 @@ function g(path, method, body) {
     return o("/groups/" + (path ? path : ""), method, body);
 }
 function t(fields) {
-    fields = fields.split(",");
-    var r = [];
-    for (var i in _) {
-        var vs = {};
-        for (f in fields) {
-            vs[fields[f]] = dot(_[i], fields[f]);
+    if (fields) {
+        fields = fields.split(",");
+        var r = [];
+        for (var i in _) {
+            var vs = {};
+            for (f in fields) {
+                vs[fields[f]] = dot(_[i], fields[f]);
+            }
+            r.push(vs);
         }
-        r.push(vs);
+    } else {
+        r = _;
     }
    console.table(r);
 }

@@ -41,8 +41,8 @@
         var matches = this.responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
         if (matches) {
             var saml = matches[2].replace(/&#(x..?);/g, function (m, p1) {return String.fromCharCode("0" + p1)});
-            saml = (matches[1] == "SAMLResponse" ? atob(saml) : saml).replace(/\n/g, "");
-            saml = saml.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
+            if (matches[1] == "SAMLResponse") saml = atob(saml);
+            saml = saml.replace(/\n/g, "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
                 replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").
                 replace(/((Address|Issuer|NameID|NameIdentifier|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
             results.innerHTML = "<pre>" + indentXml(saml, 4) + "</pre>";
@@ -57,12 +57,13 @@
     }
     function createDiv() {
         var div = document.body.appendChild(document.createElement("div"));
-        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>&nbsp;SSO Response - X</a>";
+        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>SSO - X</a>";
         div.style.position = "absolute";
         div.style.zIndex = "1000";
         div.style.left = "4px";
         div.style.top = "4px";
         div.style.backgroundColor = "white";
+        div.style.padding = "8px";
         results = div.appendChild(document.createElement("div"));
     }
     function indentXml(xml, size) {

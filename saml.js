@@ -9,9 +9,9 @@
             var a = document.createElement("a");
             a.onclick = function () {
                 createDiv();
-                getSAML(this.parentNode.previousSibling.previousSibling.href);
+                getSSO(this.parentNode.previousSibling.previousSibling.href);
             };
-            a.innerHTML = "<br>View SAML";
+            a.innerHTML = "<br>View SSO";
             labels[i].appendChild(a);
        }
     } else {
@@ -25,34 +25,40 @@
         input.type = "submit";
         input.value = "View";
         form.onsubmit = function () {
-            getSAML(url.value);
+            getSSO(url.value);
             return false;
         };
     }
-    function getSAML(url) {
+    function getSSO(url) {
         results.innerHTML = "Loading . . .";
         var request = new XMLHttpRequest();
         request.open("get", url);
-        request.onload = showSAML;
+        request.onload = showSSO;
         request.send();
     }
-    function showSAML() {
+    function showSSO() {
+        var highlight = "style='background-color: yellow'";
         var matches = this.responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
         if (matches) {
             var saml = matches[2].replace(/&#(x..?);/g, function (m, p1) {return String.fromCharCode("0" + p1)});
             saml = (matches[1] == "SAMLResponse" ? atob(saml) : saml).replace(/\n/g, "");
-            var highlight = "style='background-color: yellow'";
             saml = saml.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
                 replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").
                 replace(/((Address|Issuer|NameID|NameIdentifier|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
             results.innerHTML = "<pre>" + indentXml(saml, 4) + "</pre>";
         } else {
             results.innerHTML = "No SAML found. Is this a SWA app?";
+            matches = this.responseText.match(/<form(?:.|\n)*<\/form>/);
+            if (matches) {
+                results.innerHTML += "Form:<pre>" + matches[0].replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"')+ "</pre>";
+            } else {
+                results.innerHTML += "<br>Plugin or bookmark?";
+            }
         }
     }
     function createDiv() {
         var div = document.body.appendChild(document.createElement("div"));
-        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>&nbsp;SAML Response - X</a>";
+        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>&nbsp;SSO Response - X</a>";
         div.style.position = "absolute";
         div.style.zIndex = "1000";
         div.style.left = "4px";

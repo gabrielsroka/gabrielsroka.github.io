@@ -47,12 +47,11 @@
                 replace(/((Address|Issuer|NameID|NameIdentifier|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
             results.innerHTML = "<pre>" + indentXml(saml, 4) + "</pre>";
         } else {
-            results.innerHTML = "No SAML found. Is this a SWA app?";
             matches = this.responseText.match(/<form(?:.|\n)*<\/form>/);
             if (matches) {
-                results.innerHTML += "Form:<pre>" + matches[0].replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"')+ "</pre>";
+                results.innerHTML = "Form:<pre>" + matches[0].replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"')+ "</pre>";
             } else {
-                results.innerHTML += "<br>Plugin or bookmark?";
+                results.innerHTML = "Is this a SWA app, plugin or bookmark?";
             }
         }
     }

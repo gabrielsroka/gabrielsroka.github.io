@@ -11,7 +11,7 @@
                 createDiv();
                 getSSO(this.parentNode.previousSibling.previousSibling.href);
             };
-            a.innerHTML = "<br>View SSO";
+            a.innerHTML = "<br>Show SSO";
             labels[i].appendChild(a);
        }
     } else {
@@ -23,7 +23,7 @@
         url.focus();
         var input = form.appendChild(document.createElement("input"));
         input.type = "submit";
-        input.value = "View";
+        input.value = "Show SSO";
         form.onsubmit = function () {
             getSSO(url.value);
             return false;

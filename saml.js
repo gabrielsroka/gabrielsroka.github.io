@@ -49,7 +49,7 @@
         } else {
             matches = this.responseText.match(/<form(?:.|\n)*<\/form>/);
             if (matches) {
-                results.innerHTML = "Form:<pre>" + matches[0].replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"')+ "</pre>";
+                results.innerHTML = "<pre>" + matches[0].replace(/ *</g, "&lt;").replace(/>/g, "&gt;").replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"')+ "</pre>";
             } else {
                 results.innerHTML = "Is this a SWA app, plugin or bookmark?";
             }

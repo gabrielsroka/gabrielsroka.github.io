@@ -1,6 +1,5 @@
 /* 
-set apikey in the bookmarklet VVVVVV
-javascript:(function(){window.apikey="";var script=document.body.appendChild(document.createElement("script"));
+javascript:(function(){var script=document.body.appendChild(document.createElement("script"));
 script.src="https://gabrielsroka.github.io/repl.js";script.onload=function(){document.body.removeChild(this);};})();
 */
 
@@ -81,6 +80,6 @@ g()
 t("profile.name,profile.description,type")
 
 // get events
-o("/events?startDate=2015-12-23T00:00:00.0Z")
+o("/events?startDate=2016-01-23T00:00:00.0-08:00")
 t("eventId,actors.0.displayName,published,action.message")
 */

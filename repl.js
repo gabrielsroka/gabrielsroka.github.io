@@ -4,21 +4,22 @@ script.src="https://gabrielsroka.github.io/repl.js";script.onload=function(){doc
 */
 
 function o(path, method, body) {
-    _ = __ = "Loading ...";
+    _ = __ = _y = "Loading ...";
     var request = new XMLHttpRequest();
     request.open(method ? method : "GET", "/api/v1" + path);
 //    request.setRequestHeader("Authorization", "SSWS " + (window.apikey ? apikey : apikey = prompt("Enter API key")));
     request.setRequestHeader("Content-Type", "application/json");
     request.setRequestHeader("Accept", "application/json");
     request.onload = function () {
-        console.log("Ready.")
         if (request.responseText) {
             _ = JSON.parse(request.responseText);
             if (_.length == 1) _ = _[0];
             __ = JSON.stringify(_, null, 2);
+            _y = __.replace(/([",{}]|\.000)/g, "").replace(/^ *\n/gm, ""); // yaml-ish
         } else {
-            _ = __ = "";
+            _ = __ = _y = "";
         }
+        console.log("Ready.")
     };
     request.send(body ? JSON.stringify(body) : null);
     return _;

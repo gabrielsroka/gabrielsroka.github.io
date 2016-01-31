@@ -26,6 +26,11 @@ parameters:
     type: string
     required: true
     description: "`id`, `login`, login `shortname` (as long as it is unambiguous), or `me`"
+responses:
+  user:
+    description: A [user](http://developer.okta.com/docs/api/resources/users.html#user-model)
+    schema:
+      $ref: "#/definitions/User"
 paths:
   /users:
     post:
@@ -52,9 +57,7 @@ paths:
               - lastName
       responses:
         200:
-          description: New user
-          schema:
-            $ref: "#/definitions/User"
+          $ref: "#/responses/user"
     get:
       summary: List Users
       parameters:
@@ -85,9 +88,7 @@ paths:
         - $ref: "#/parameters/id"
       responses:
         200:
-          description: A [user](http://developer.okta.com/docs/api/resources/users.html#user-model)
-          schema:
-            $ref: "#/definitions/User"
+          $ref: "#/responses/user"
         404:
           description: Not found
           schema:
@@ -111,9 +112,7 @@ paths:
               - lastName
       responses:
         200:
-          description: A [user](http://developer.okta.com/docs/api/resources/users.html#user-model)
-          schema:
-            $ref: "#/definitions/User"
+          $ref: "#/responses/user"
     post:
       summary: Update User with partial update
       externalDocs:
@@ -127,9 +126,7 @@ paths:
             $ref: "#/definitions/body"
       responses:
         200:
-          description: A [user](http://developer.okta.com/docs/api/resources/users.html#user-model)
-          schema:
-            $ref: "#/definitions/User"
+          $ref: "#/responses/user"
 definitions:
   User:
     type: object

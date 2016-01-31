@@ -11,31 +11,10 @@ consumes:
   - application/json
 produces:
   - application/json
-securityDefinitions:
-  SSWS:
-    type: apiKey
-    name: Authorization
-    in: header
-    description: See [Authentication](http://developer.okta.com/docs/api/getting_started/design_principles.html#authentication).
-security:
-  - SSWS: []
-parameters:
-  id:
-    name: id
-    in: path
-    type: string
-    required: true
-    description: "`id`, `login`, login `shortname` (as long as it is unambiguous), or `me`"
-responses:
-  user:
-    description: A [user](http://developer.okta.com/docs/api/resources/users.html#user-model)
-    schema:
-      $ref: "#/definitions/User"
 paths:
   /users:
     post:
-      summary: Create User
-      description: Creates a new user in your Okta organization with or without credentials
+      description: Creates a new user in your Okta organization with or without credentials.
       parameters:
         - name: activate
           in: query
@@ -44,27 +23,23 @@ paths:
         - name: provider
           in: query
           type: boolean
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: "#/definitions/body"
-            required:
-              - profile
-              - login
-              - email
-              - firstName
-              - lastName
+        - $ref: "#/parameters/body"
+          required:
+            - profile
+            - login
+            - email
+            - firstName
+            - lastName
       responses:
         200:
           $ref: "#/responses/user"
     get:
-      summary: List Users
+      description: List Users
       parameters:
         - name: q
           in: query
           type: string
-          description: Searches `firstName`, `lastName`, and `email` properties of users for matching value
+          description: Searches `firstName`, `lastName`, and `email` properties of users for matching value. Does not support pagination.
         - name: limit
           in: query
           type: integer
@@ -79,51 +54,39 @@ paths:
             type: array
             items:
               $ref: "#/definitions/User"
+          headers:
+            Link:
+              description: <url>; rel="(self|next|prev)"
+              type: array
+              items:
+                type: string  
   /users/{id}:
+    parameters:
+      - $ref: "#/parameters/id"
     get:
-      summary: Get User
-      externalDocs:
-        url: http://developer.okta.com/docs/api/resources/users.html#get-user
-      parameters:
-        - $ref: "#/parameters/id"
+      description: See [Get User](http://developer.okta.com/docs/api/resources/users.html#get-user)
       responses:
         200:
           $ref: "#/responses/user"
         404:
-          description: Not found
-          schema:
-            $ref: "#/definitions/Error"
+          $ref: "#/responses/notFound"
     put:
-      summary: Update User and delete unspecified properties
-      externalDocs:
-        url: http://developer.okta.com/docs/api/resources/users.html#update-profile
+      description: See [Update User and delete unspecified properties](http://developer.okta.com/docs/api/resources/users.html#update-profile)
       parameters:
-        - $ref: "#/parameters/id"
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: "#/definitions/body"
-            required:
-              - profile
-              - login
-              - email
-              - firstName
-              - lastName
+        - $ref: "#/parameters/body"
+          required:
+            - profile
+            - login
+            - email
+            - firstName
+            - lastName
       responses:
         200:
           $ref: "#/responses/user"
     post:
-      summary: Update User with partial update
-      externalDocs:
-        url: http://developer.okta.com/docs/api/resources/users.html#update-profile-1
+      description: See [Update User with partial update](http://developer.okta.com/docs/api/resources/users.html#update-profile-1)
       parameters:
-        - $ref: "#/parameters/id"
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: "#/definitions/body"
+        - $ref: "#/parameters/body"
       responses:
         200:
           $ref: "#/responses/user"
@@ -225,3 +188,40 @@ definitions:
           properties:
             errorSummary:
               type: string
+parameters:
+  id:
+    name: id
+    in: path
+    type: string
+    required: true
+    description: "`id`, `login`, login `shortname` (as long as it is unambiguous), or `me`"
+  body:
+    name: "-"
+    in: body
+    required: true
+    schema:
+      $ref: "#/definitions/body"
+responses:
+  user:
+    description: A [user](http://developer.okta.com/docs/api/resources/users.html#user-model)
+    schema:
+      $ref: "#/definitions/User"
+    headers:
+      X-Rate-Limit-Limit:
+        type: integer
+      X-Rate-Limit-Remaining:
+        type: integer
+      X-Rate-Limit-Reset:
+        type: integer
+  notFound:
+    description: Not found
+    schema:
+      $ref: "#/definitions/Error"
+securityDefinitions:
+  SSWS:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: See [Authentication](http://developer.okta.com/docs/api/getting_started/design_principles.html#authentication).
+security:
+  - SSWS: []

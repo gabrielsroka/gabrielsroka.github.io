@@ -7,7 +7,7 @@ function o(path, method, body) {
     _ = __ = _y = "Loading ...";
     var request = new XMLHttpRequest();
     request.open(method ? method : "GET", "/api/v1" + path);
-//    request.setRequestHeader("Authorization", "SSWS " + (window.apikey ? apikey : apikey = prompt("Enter API key")));
+    if (window.apikey) request.setRequestHeader("Authorization", "SSWS " + apikey);
     request.setRequestHeader("Content-Type", "application/json");
     request.setRequestHeader("Accept", "application/json");
     request.onload = function () {

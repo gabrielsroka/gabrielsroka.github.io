@@ -60,8 +60,8 @@ function toYAML(o, i) {
         v = o[p];
         if (v === null) v = "null";
         else if (typeof v == "string") v = v.replace(/(["\\])/g, "\\$1"); // Escape " and \
-        else if (v instanceof Array) v = "\n" + toString(v, i + "  ");
-        else if (typeof v == "object") v = "\n" + toString(v, i + "  ");
+        else if (v instanceof Array) v = "\n" + toYAML(v, i + "  ");
+        else if (typeof v == "object") v = "\n" + toYAML(v, i + "  ");
         if (o instanceof Array) p = "-"; else p += ":";
         a.push(i + p + " " + v);
     }

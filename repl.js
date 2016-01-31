@@ -15,7 +15,7 @@ function o(path, method, body) {
             _ = JSON.parse(request.responseText);
             if (_.length == 1) _ = _[0];
             __ = JSON.stringify(_, null, 2);
-            _y = __.replace(/([",{}]|\.000)/g, "").replace(/^ *\n/gm, ""); // yaml-ish
+            _y = toYAML(_); // YAML-ish
         } else {
             _ = __ = _y = "";
         }
@@ -53,6 +53,19 @@ function dot(o, dots) {
         if (o == null) break;
     }
     return o;
+}
+function toYAML(o, i) {
+    var a = [], v, i = i || "";
+    for (var p in o) {
+        v = o[p];
+        if (v === null) v = "null";
+        else if (typeof v == "string") v = v.replace(/(["\\])/g, "\\$1"); // Escape " and \
+        else if (v instanceof Array) v = "\n" + toString(v, i + "  ");
+        else if (typeof v == "object") v = "\n" + toString(v, i + "  ");
+        if (o instanceof Array) p = "-"; else p += ":";
+        a.push(i + p + " " + v);
+    }
+    return a.join("\n");
 }
 
 /*

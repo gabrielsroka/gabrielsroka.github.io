@@ -222,6 +222,9 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
-    description: See [Authentication](http://developer.okta.com/docs/api/getting_started/design_principles.html#authentication).
+    description: |
+      Example: `SSWS {apikey}`
+
+      See [Authentication](http://developer.okta.com/docs/api/getting_started/design_principles.html#authentication).
 security:
   - SSWS: []

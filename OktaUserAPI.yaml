@@ -24,12 +24,6 @@ paths:
           in: query
           type: boolean
         - $ref: "#/parameters/body"
-          required:
-            - profile
-            - login
-            - email
-            - firstName
-            - lastName
       responses:
         200:
           $ref: "#/responses/user"
@@ -74,12 +68,6 @@ paths:
       description: See [Update User and delete unspecified properties](http://developer.okta.com/docs/api/resources/users.html#update-profile)
       parameters:
         - $ref: "#/parameters/body"
-          required:
-            - profile
-            - login
-            - email
-            - firstName
-            - lastName
       responses:
         200:
           $ref: "#/responses/user"
@@ -223,8 +211,8 @@ securityDefinitions:
     name: Authorization
     in: header
     description: |
-      Example: `SSWS {apikey}`
-
-      See [Authentication](http://developer.okta.com/docs/api/getting_started/design_principles.html#authentication).
+      See [Authentication](http://developer.okta.com/docs/api/getting_started/design_principles.html#authentication). Example:
+      
+      `SSWS {apikey}`
 security:
   - SSWS: []

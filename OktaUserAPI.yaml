@@ -1,3 +1,5 @@
+# To load into Swagger Editor / Preview UI, go to:
+# http://editor.swagger.io/#/?import=http://gabrielsroka.github.io/OktaUserAPI.yaml
 swagger: '2.0'
 info:
   title: Okta Users API

@@ -60,7 +60,7 @@ paths:
     parameters:
       - $ref: "#/parameters/id"
     get:
-      description: See [Get User](http://developer.okta.com/docs/api/resources/users.html#get-user)
+      description: See [Get User](http://developer.okta.com/docs/api/resources/users.html#get-user). Supports CORS.
       responses:
         200:
           $ref: "#/responses/user"

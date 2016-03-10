@@ -12,7 +12,7 @@
 
   <script src="https://gsroka-neto.oktapreview.com/js/sdk/okta-sign-in-1.0.2.min.js" type="text/javascript"></script>
   <link href="https://gsroka-neto.oktapreview.com/js/sdk/okta-sign-in-1.0.2.min.css" type="text/css" rel="stylesheet">
-  <link href="https://gsroka-neto.oktapreview.com/css/login/okta-theme.css" type="text/css" rel="stylesheet">
+  <link href="https://gsroka-neto.oktapreview.com/js/sdk/okta-theme-1.0.2.css" type="text/css" rel="stylesheet">
 </head>
 <body>
   <!-- Render the login widget here -->
@@ -28,7 +28,7 @@
       function (res) {
         if (res.status === 'SUCCESS') {
           console.log('User %s succesfully authenticated %o', res.user.profile.login, res.user);
-//          res.session.setCookieAndRedirect('https://google.com/');
+          res.session.setCookieAndRedirect('https://gabrielsroka.github.io/okta-login.html');
         } else {
             console.log(res.status);
         }

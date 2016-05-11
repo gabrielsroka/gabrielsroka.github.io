@@ -20,6 +20,7 @@
 
   <!-- Script to init the widget -->
   <script>
+    if (location.protocol != "https:") location = location.href.replace(/http/, "https");
     var baseUrl = 'https://gsroka-neto.oktapreview.com';
     var oktaSignIn = new OktaSignIn({baseUrl: baseUrl});
 

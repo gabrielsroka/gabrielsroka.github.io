@@ -20,7 +20,8 @@
 
   <!-- Script to init the widget -->
   <script>
-    if (location.protocol != "https:") location = location.href.replace(/http/, "https");
+    if (location.protocol == "http:") location = location.href.replace(/http/, "https");
+    
     var baseUrl = 'https://gsroka-neto.oktapreview.com';
     var oktaSignIn = new OktaSignIn({baseUrl: baseUrl});
 
@@ -29,7 +30,7 @@
       function (res) {
         if (res.status === 'SUCCESS') {
           console.log('User %s succesfully authenticated %o', res.user.profile.login, res.user);
-          res.session.setCookieAndRedirect('https://gabrielsroka.github.io/okta-login.html?loggedIn');
+          res.session.setCookieAndRedirect(baseUrl);
         } else {
           console.log(res.status);
         }

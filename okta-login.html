@@ -10,9 +10,9 @@
       <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
   <![endif]-->
 
-  <script src="https://gsroka-neto.oktapreview.com/js/sdk/okta-sign-in-1.0.2.min.js" type="text/javascript"></script>
-  <link href="https://gsroka-neto.oktapreview.com/js/sdk/okta-sign-in-1.0.2.min.css" type="text/css" rel="stylesheet">
-  <link href="https://gsroka-neto.oktapreview.com/js/sdk/okta-theme-1.0.2.css" type="text/css" rel="stylesheet">
+  <script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/1.2.0/js/okta-sign-in-1.2.0.min.js" type="text/javascript"></script>
+  <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/1.2.0/css/okta-sign-in-1.2.0.min.css" type="text/css" rel="stylesheet">
+  <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/1.2.0/css/okta-theme-1.2.0.css" type="text/css" rel="stylesheet">
 </head>
 <body>
   <!-- Render the login widget here -->
@@ -28,9 +28,9 @@
       function (res) {
         if (res.status === 'SUCCESS') {
           console.log('User %s succesfully authenticated %o', res.user.profile.login, res.user);
-          res.session.setCookieAndRedirect('https://gabrielsroka.github.io/okta-login.html');
+          res.session.setCookieAndRedirect('https://gabrielsroka.github.io/okta-login.html?loggedIn');
         } else {
-            console.log(res.status);
+          console.log(res.status);
         }
       },
       function (err) {

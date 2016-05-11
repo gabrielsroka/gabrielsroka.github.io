@@ -13,7 +13,6 @@
   <script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/1.2.0/js/okta-sign-in-1.2.0.min.js" type="text/javascript"></script>
   <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/1.2.0/css/okta-sign-in-1.2.0.min.css" type="text/css" rel="stylesheet">
   <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/1.2.0/css/okta-theme-1.2.0.css" type="text/css" rel="stylesheet">
-<script src="https://op1static.oktacdn.com/assets/js/saasure-old-jquery.min.cd48d471f5a5845e264508aa8e385d4c.js" type="text/javascript"></script>  
 </head>
 <body>
   <!-- Render the login widget here -->
@@ -21,17 +20,8 @@
 
   <!-- Script to init the widget -->
   <script>
-  
     if (location.protocol == "http:") location = location.href.replace(/http/, "https");
-    $(function(){
 
-          
-          var repostParams = {"fromURI":[null],"serviceToken":["wU5FzqH4Xxhxc66Hav6niA"]};
-
-    	// This will re-post to the repostURL on pageload
-          saasure.RoutingController.initRepostPage("http\x3A\x2F\x2FWIN\x2DRB979I0JCN7\x2FIWA\x2F", repostParams);
-    });
-    
     var baseUrl = 'https://gsroka-neto.oktapreview.com';
     var oktaSignIn = new OktaSignIn({baseUrl: baseUrl});
 

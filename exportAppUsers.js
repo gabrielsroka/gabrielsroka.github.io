@@ -1,4 +1,4 @@
-// Drag this to the bookmark toolbar:
+// Drag this to the bookmarks toolbar:
 // javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportAppUsers.js";})();
 
 (function () {

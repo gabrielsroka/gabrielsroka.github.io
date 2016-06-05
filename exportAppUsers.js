@@ -2,9 +2,6 @@
 // javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportAppUsers.js";})();
 
 (function () {
-    console.clear();
-    var total = 0;
-    var results = createDiv("App Users");
     var path = location.pathname;
     var pathparts = path.split(/\//);
     if (!(path.match(/admin\/app/) && pathparts.length == 7)) {
@@ -12,8 +9,10 @@
         return;
     }
     var appid = pathparts[5];
+    console.clear();
+    var total = 0;
+    var results = createDiv("App Users");
     callAPI("/apps/" + appid + "/users?limit=20", onload);
-    return "Loading ...";
     function callAPI(path, onload) {
         var request = new XMLHttpRequest();
         request.open("GET", "/api/v1" + path);

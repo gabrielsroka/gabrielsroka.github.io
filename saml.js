@@ -57,7 +57,7 @@
     }
     function createDiv() {
         var div = document.body.appendChild(document.createElement("div"));
-        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>SSO - X</a>";
+        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>SSO - X</a> <a href='https://gabrielsroka.github.io/'>?</a>";
         div.style.position = "absolute";
         div.style.zIndex = "1000";
         div.style.left = "4px";

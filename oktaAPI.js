@@ -115,7 +115,8 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
     }
     function createDiv(title) {
         var div = document.body.appendChild(document.createElement("div"));
-        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>" + title + " - X</a>";
+        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>" + title + " - X</a> " +
+            "<a href='https://gabrielsroka.github.io/' target='_blank'>?</a>";
         div.style.position = "absolute";
         div.style.zIndex = "1000";
         div.style.left = "4px";

@@ -31,7 +31,8 @@
             results.innerHTML = total + " users.";
             var links = getLinks(this.getResponseHeader("Link"));
             if (links.next) {
-                callAPI(links.next.replace(/.*api.v1/, ""), onload);
+                var path = links.next.replace(/.*api.v1/, ""); // links.next is absolute URL for user app. we need relative URL for admin app ("-admin").
+                callAPI(path, onload);
             } else {
                 results.innerHTML = total + " users. Done -- check the console for results.";
             }

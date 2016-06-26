@@ -5,7 +5,7 @@
     var path = location.pathname;
     var pathparts = path.split(/\//);
     if (!(path.match(/admin\/app/) && pathparts.length == 7)) {
-        alert("Error. Click on an app.");
+        alert("Error. Go to Applications > Applications and click on an app.");
         return;
     }
     var appid = pathparts[5];
@@ -23,18 +23,18 @@
     }
     function onload() {
         if (this.responseText) {
-            var users = JSON.parse(this.responseText);
-            for (var i = 0; i < users.length; i++) {
-                console.log(users[i].credentials.userName);
+            var appusers = JSON.parse(this.responseText);
+            for (var i = 0; i < appusers.length; i++) {
+                console.log(appusers[i].credentials.userName);
             }
-            total += users.length;
+            total += appusers.length;
             results.innerHTML = total + " users.";
             var links = getLinks(this.getResponseHeader("Link"));
             if (links.next) {
-                var path = links.next.replace(/.*api.v1/, ""); // links.next is absolute URL for user app. we need relative URL for admin app ("-admin").
+                var path = links.next.replace(/.*api.v1/, ""); // links.next is absolute URL. we need relative URL.
                 callAPI(path, onload);
             } else {
-                results.innerHTML = total + " users. Done -- check the console for results.";
+                results.innerHTML += " Done -- check the console for results.";
             }
         }
     }

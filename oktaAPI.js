@@ -1,6 +1,5 @@
 /* 
-set apikey in the bookmarklet VVVVVV
-javascript:(function(){window.apikey="";var script=document.body.appendChild(document.createElement("script"));
+javascript:(function(){var script=document.body.appendChild(document.createElement("script"));
 script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
 */
 (function () {
@@ -92,15 +91,16 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
         status.innerHTML = "Loading " + total + " . . .";
         var links = getLinks(this.getResponseHeader("Link"));
         if (links.next) {
-            callAPI(links.next.replace(/.*api.v1/g, ""), showEvents);
+            callAPI(links.next.replace(/.*api.v1/g, ""), showEvents); // links.next is an absolute URL; we need a relative URL.
         } else {
             status.innerHTML = "Loaded " + total;
         }
     }
     function callAPI(path, onload) {
         var request = new XMLHttpRequest();
-        request.open("get", "/api/v1" + path);
-//        request.setRequestHeader("Authorization", "SSWS " + (window.apikey ? apikey : apikey = prompt("Enter API key")));
+        request.open("GET", "/api/v1" + path);
+        request.setRequestHeader("Content-Type", "application/json");
+        request.setRequestHeader("Accept", "application/json");
         request.onload = onload;
         request.send();
     }

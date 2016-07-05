@@ -12,7 +12,24 @@
     console.clear();
     var total = 0;
     var results = createDiv("App Users");
-    callAPI("/apps/" + appid + "/users?limit=20", onload);
+    callAPI("/apps/" + appid + "/users?limit=20", showAppUsers);
+    function showAppUsers() {
+        if (this.responseText) {
+            var appusers = JSON.parse(this.responseText);
+            for (var i = 0; i < appusers.length; i++) {
+                console.log(appusers[i].credentials.userName);
+            }
+            total += appusers.length;
+            results.innerHTML = total + " app users.";
+            var links = getLinks(this.getResponseHeader("Link"));
+            if (links.next) {
+                var path = links.next.replace(/.*api.v1/, ""); // links.next is an absolute URL; we need a relative URL.
+                callAPI(path, showAppUsers);
+            } else {
+                results.innerHTML += " Done -- check the console for results.";
+            }
+        }
+    }
     function callAPI(path, onload) {
         var request = new XMLHttpRequest();
         request.open("GET", "/api/v1" + path);
@@ -20,23 +37,6 @@
         request.setRequestHeader("Accept", "application/json");
         request.onload = onload;
         request.send();
-    }
-    function onload() {
-        if (this.responseText) {
-            var appusers = JSON.parse(this.responseText);
-            for (var i = 0; i < appusers.length; i++) {
-                console.log(appusers[i].credentials.userName);
-            }
-            total += appusers.length;
-            results.innerHTML = total + " users.";
-            var links = getLinks(this.getResponseHeader("Link"));
-            if (links.next) {
-                var path = links.next.replace(/.*api.v1/, ""); // links.next is absolute URL. we need relative URL.
-                callAPI(path, onload);
-            } else {
-                results.innerHTML += " Done -- check the console for results.";
-            }
-        }
     }
     function getLinks(headers) {
         headers = headers.split(", ");

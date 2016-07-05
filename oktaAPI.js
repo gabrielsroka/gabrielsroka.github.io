@@ -11,7 +11,9 @@ script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){
         results = div.appendChild(document.createElement("textarea"));
         results.style.width = document.body.clientWidth + "px";
         results.style.height = "500px";
-        callAPI("/events?limit=250", showEvents);
+        var today = new Date();
+        var lastweek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+        callAPI("/events?limit=250&startDate=" + lastweek.toISOString(), showEvents);
     } else if (location.pathname == "/admin/users") {
         callAPI("/users", enhanceUsers);
     } else {

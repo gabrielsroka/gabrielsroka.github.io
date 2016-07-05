@@ -37,15 +37,20 @@
         request.send();
     }
     function showSSO() {
+        function unentity(s) {
+            return s.replace(/&#(x..?);/g, function (m, p1) {return String.fromCharCode("0" + p1)});
+        }
         var highlight = "style='background-color: yellow'";
         var matches = this.responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/);
         if (matches) {
-            var saml = matches[2].replace(/&#(x..?);/g, function (m, p1) {return String.fromCharCode("0" + p1)});
+            var saml = unentity(matches[2]);
             if (matches[1] == "SAMLResponse") saml = atob(saml);
             saml = saml.replace(/\n/g, "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
                 replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").
                 replace(/((Address|Issuer|NameID|NameIdentifier|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
-            results.innerHTML = "<pre>" + indentXml(saml, 4) + "</pre>";
+            matches = this.responseText.match(/<form id="appForm" action="(.*?)"/);
+            var postTo = unentity(matches[1]);
+            results.innerHTML = "Post to:" + postTo + "<pre>" + indentXml(saml, 4) + "</pre>";
         } else {
             matches = this.responseText.match(/<form(?:.|\n)*<\/form>/);
             if (matches) {

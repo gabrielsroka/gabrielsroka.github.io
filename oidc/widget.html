@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Okta Sign-In Widget Sample</title>
+
+    <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <script>window.html5 || document.write('<script src="js/vendor/html5shiv.js"><\/script>')</script>
+    <![endif]-->
+
+    <!-- Core Okta Sign-In Widget-->
+    <link href="https://example.oktapreview.com/js/sdk/okta-signin-widget/1.3.3/css/okta-sign-in-1.3.3.min.css" type="text/css" rel="stylesheet">
+
+    <!-- Customizable CSS options for Okta Sign-In Widget -->
+    <link href="https://example.oktapreview.com/js/sdk/okta-signin-widget/1.3.3/css/okta-theme-1.3.3.css" type="text/css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="css/widget-main.css">
+
+    <!-- JSON Web Token Syntax Highlighting -->
+    <script src="/js/highlight.min.js"></script>
+    <link rel="stylesheet" href="css/highlight.min.css">
+
+    <!-- App Script -->
+    <script data-main="js/widget-app" src="js/require.js"></script>
+
+  </head>
+  <body>
+
+    <!-- Render the login widget here -->
+    <div id="container">
+      <div id="widget"></div>
+      <div id="claims" class="claims">
+        <pre><code class="json"></code></pre>
+      </div>
+      <div id="actions" class="actions center margin-top hide"></div>
+      <div id="api-resources" class="api-resources center margin-top hide"></div>
+      <div id="error" class="error center margin-top "></div>
+    </div>
+  </body>
+</html>

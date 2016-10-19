@@ -5,7 +5,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Example Okta SignIn Widget</title>
-
   <!--[if lt IE 9]>
       <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
   <![endif]-->
@@ -19,6 +18,13 @@
 
   <!-- Script to init the widget -->
   <script>
+  /*
+    see:
+    http://developer.okta.com/code/javascript/okta_sign-in_widget
+    http://developer.okta.com/code/javascript/okta_sign-in_widget_ref
+    https://github.com/okta/okta-signin-widget
+  */
+  
     if (location.protocol == "http:") location = location.href.replace(/http/, "https");
 
     var baseUrl = 'https://gsroka-neto.oktapreview.com';
@@ -35,6 +41,12 @@
         }
       },
       function (err) {
+        // The widget will handle most types of errors - for example, if the user
+        // enters an invalid password or there are issues authenticating.
+        //
+        // This function is invoked with errors the widget cannot recover from:
+        // 1. Known errors: CONFIG_ERROR, UNSUPPORTED_BROWSER_ERROR, OAUTH_ERROR
+        // 2. Uncaught exceptions
         console.log(err);
       }
     );

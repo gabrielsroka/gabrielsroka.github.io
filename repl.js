@@ -67,6 +67,24 @@ function toYAML(o, i) {
     }
     return a.join("\n");
 }
+function x(path, method, body) {
+    var request = new XMLHttpRequest();
+    request.open(method ? method : "GET", "/api/v1" + path);
+    request.setRequestHeader("X-Okta-XsrfToken", document.getElementById("_xsrfToken").innerText);
+    request.setRequestHeader("Content-Type", "application/json");
+    request.setRequestHeader("Accept", "application/json");
+    request.onload = function () {
+        if (request.responseText) {
+            _ = JSON.parse(request.responseText);
+            __ = JSON.stringify(_, null, 2);
+        } else {
+            _ = __ = "";
+        }
+        console.log("Ready.")
+    };
+    request.send(body ? JSON.stringify(body) : null);
+    return _;
+}
 
 /*
 // get me
@@ -81,8 +99,11 @@ group=_
 // add user to group
 g(group.id + "/users/" + me.id, "PUT")
 
-// create user
+// create user (needs apikey)
 u("", "POST", {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}})
+
+// create user with password using XSRF
+x("/users", "POST", {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}, credentials: {password: {value: "Password123"}}});
 
 // get users
 u()

@@ -20,11 +20,11 @@ td {
 <body>
 <form>
 <table>
-<tr><td>First name<td><input id="firstName"><td id="firstNameError" class=error>
-<tr><td>Last name<td><input id="lastName"><td id="lastNameError" class=error>
-<tr><td>Username<td><input id="login"><td id="loginError" class=error>
-<tr><td>Email<td><input id="email"><td id="emailError" class=error>
-<tr><td>Password<td><input id="password" type="password"><td id="passwordError" class=error>
+<tr><td>First name<td><input id="firstName"><td id="firstNameError" class="error">
+<tr><td>Last name<td><input id="lastName"><td id="lastNameError" class="error">
+<tr><td>Username<td><input id="login"><td id="loginError" class="error">
+<tr><td>Email<td><input id="email"><td id="emailError" class="error">
+<tr><td>Password<td><input id="password" type="password"><td id="passwordError" class="error">
 <tr><td>Verify password<td><input id="password2" type="password">
 </table>
 <br>
@@ -37,7 +37,7 @@ td {
 <script>
 /* The oktaAPIsettings.js file should have these 2 variables defined, with YOUR values:
 var baseurl = "https://YOUR_ORG.oktapreview.com";
-var apikey = "YOUR_TOKEN"
+var apitoken = "YOUR_TOKEN"
 */
 
 var firstName = document.getElementById("firstName");
@@ -89,7 +89,7 @@ document.forms[0].onsubmit = function () {
     if (!error) {
         var profile = {firstName: firstName.value, lastName: lastName.value, login: login.value, email: email.value};
         var user = {profile: profile, credentials: {password: {value: password.value}}};
-        newUser(user, true, showResponse);
+        newUser({user: user, onload: showResponse});
     }
     return false; // Cancel form.submit.
 };
@@ -102,7 +102,7 @@ function showResponse() {
         var causes = JSON.parse(this.responseText).errorCauses;
         for (var c = 0; c < causes.length; c++) {
             var summary = causes[c].errorSummary;
-            if (summary.match(/:/)) {
+            if (summary.match(/(firstName|lastName|login|email):/)) {
                 var parts = summary.split(":");
                 document.getElementById(parts[0] + "Error").innerHTML = parts[1];
             } else if (summary.match(/password/i)) {

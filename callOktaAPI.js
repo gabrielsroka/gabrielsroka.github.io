@@ -1,6 +1,6 @@
 /* 
 javascript:(function(){var script=document.body.appendChild(document.createElement("script"));
-script.src="https://gabrielsroka.github.io/oktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
+script.src="https://gabrielsroka.github.io/callOktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
 */
 (function () {
     var div, results, total = 0;

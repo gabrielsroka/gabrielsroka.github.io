@@ -1,5 +1,10 @@
 // User functions - http://developer.okta.com/docs/api/resources/users.html
 
+function newUser(user, activate, onload) {
+    if (activate !== false) activate = true;
+    callAPI("/users?activate=" + activate, onload, "POST", user);
+}
+
 function getUser(id, onload) {
     callAPI("/users/" + id, onload);
 }
@@ -46,7 +51,7 @@ function toString(o, i) {
     for (var p in o) {
         if (o[p] === null) v = "null";
         else if (typeof o[p] == "string") v = '"' + o[p].replace(/(["\\])/g, "\\$1") + '"'; // Escape " and \ 
-        else if (o[p] instanceof Array) v = "[" + o[p].toString() + "]";
+        else if (o[p] instanceof Array) v = "[" + toString(o[p], i) + "]";
         else if (typeof o[p] == "object") v = "{\n" + toString(o[p], i + "\t") + i + "}";
         else v = o[p];
         a.push(i + p + " = " + v);

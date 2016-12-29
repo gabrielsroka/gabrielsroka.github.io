@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+<title>Okta - Add Person</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<style type="text/css">
+body, pre {
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+}
+td {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+</style>
+</head>
+<body>
+<form>
+<table>
+<tr><td>First name<td><input id="firstName">
+<tr><td>Last name<td><input id="lastName">
+<tr><td>Username<td><input id="login">
+<tr><td>Email<td><input id="email">
+<tr><td>Password<td><input id="password" type="password">
+<tr><td>Verify password<td><input id="password2" type="password">
+</table>
+<br>
+<button type="submit">Add Person</button>
+</form>
+<br>
+<div id="results"></div>
+<script src="oktaAPIsettings.js"></script>
+<script src="oktaAPI.js"></script>
+<script>
+/* The oktaAPIsettings.js file should have these 2 variables defined, with YOUR values:
+var baseurl = "https://YOUR_ORG.oktapreview.com";
+var apikey = "YOUR_TOKEN"
+*/
+
+var firstName = document.getElementById("firstName");
+var lastName = document.getElementById("lastName");
+var login = document.getElementById("login");
+var email = document.getElementById("email");
+var password = document.getElementById("password");
+var password2 = document.getElementById("password2");
+var results = document.getElementById("results");
+
+firstName.select();
+
+document.forms[0].onsubmit = function () {
+    results.innerHTML = "";
+    var emailRe = /.+@.+\..+/;
+    if (!firstName.value) {
+        alert("error: first name cannot be left blank");
+        return false;
+    }
+    if (!lastName.value) {
+        alert("error: last name cannot be left blank");
+        return false;
+    }
+    if (!login.value.match(emailRe)) {
+        alert("error: username must be in the form of an email address (e.g. bob@nowhere.com)");
+        return false;
+    }
+    if (!email.value.match(emailRe)) {
+        alert("error: email must be in the form of an email address (e.g. bob@nowhere.com)");
+        return false;
+    }
+    if (password.value != password2.value) {
+        alert("error: passwords don't match");
+        return false;
+    }
+    callAPI("/users", showResponse, "POST", {profile: {firstName: firstName.value, lastName: lastName.value, email: email.value, login: login.value}, credentials: {password: {value: password.value}}});
+    return false; // Cancel form.submit.
+};
+
+function showResponse() {
+    if (this.status == 200) {
+        var message = "OK";
+    } else {
+        message = "<pre>error: " + toString(JSON.parse(this.responseText).errorCauses) + "</pre>";
+    }
+    results.innerHTML = message;
+}
+</script>
+</body>
+</html>

@@ -1,12 +1,19 @@
 // User functions - http://developer.okta.com/docs/api/resources/users.html
 
-function newUser(user, activate, onload) {
-    if (activate !== false) activate = true;
-    callAPI("/users?activate=" + activate, onload, "POST", user);
+/* args: 
+        user - {profile: {firstName: "", lastName: "", login: "", email: ""}}
+        activate
+        provider
+        onload
+*/
+function newUser(args) {
+    if (args.activate == undefined) args.activate = true;
+    if (args.provider == undefined) args.provider = false;
+    callAPI("POST", "/users?" + argsToString(args, "activate,provider"), args.onload, args.user);
 }
 
 function getUser(id, onload) {
-    callAPI("/users/" + id, onload);
+    callAPI("GET", "/users/" + id, onload);
 }
 
 /* args: 
@@ -20,16 +27,16 @@ function getUser(id, onload) {
 function getUsers(args) {
     args.limit = args.limit || 200;
     args.url = args.url || ("/users?" + argsToString(args, "q,filter,limit,search"));
-    callAPI(args.url, args.onload);
+    callAPI("GET", args.url, args.onload);
 }
 
 // Core functions
 
-function callAPI(url, onload, method, body) {
+function callAPI(method, url, onload, body) {
     var request = new XMLHttpRequest();
     if (!url.match(/^http/)) url = baseurl + "/api/v1" + url;
-    request.open(method || "GET", url);
-    request.setRequestHeader("Authorization", "SSWS " + apikey);
+    request.open(method, url);
+    request.setRequestHeader("Authorization", "SSWS " + apitoken);
     request.setRequestHeader("Content-Type", "application/json");
     request.setRequestHeader("Accept", "application/json");
     request.onload = onload;
@@ -64,7 +71,7 @@ function argsToString(args, names) {
     names = names.split(",");
     for (var n = 0; n < names.length; n++) {
         var v = args[names[n]];
-        if (v) a.push(names[n] + "=" + v);
+        if (v != undefined) a.push(names[n] + "=" + v);
     }
     return a.join("&");
 }

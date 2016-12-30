@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+
+  "name": "Okta - Add Person",
+  "description": "Okta - Add Person",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "oktaAddPerson.html"
+  },
+  "permissions": [
+    "https://*.okta.com/",
+    "https://*.oktapreview.com/"
+  ]
+}

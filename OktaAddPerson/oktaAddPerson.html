@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<title>Okta - Add Person</title>
+<style>
+body {
+    font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+    font-size: 100%;
+    width: 600px;
+    height: 400px;
+}
+td {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+.error {
+    color: red;
+}
+</style>
+</head>
+<body>
+<form>
+<table>
+<tr><th>Add Person<th><img src="https://op1static.oktacdn.com/bc/image/fileStoreRecord?id=fs05f5birn0fQNfA20h7"/>
+<tr><td>First name<td><input id="firstName"><td id="firstNameError" class="error">
+<tr><td>Last name<td><input id="lastName"><td id="lastNameError" class="error">
+<tr><td>Username<td><input id="login"><td id="loginError" class="error">
+<tr><td>Email<td><input id="email"><td id="emailError" class="error">
+<tr><td>Password<td><input id="password" type="password"><td id="passwordError" class="error">
+<tr><td>Verify password<td><input id="password2" type="password">
+</table>
+<br>
+<button type="submit">Add Person</button>
+</form>
+<br>
+<div id="results"></div>
+<script src="oktaAPIsettings.js"></script>
+<script src="oktaAPI.js"></script>
+<script src="oktaAddPerson.js"></script>
+</body>
+</html>

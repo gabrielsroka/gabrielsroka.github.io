@@ -5,15 +5,17 @@
     var results;
     var labels = document.getElementsByClassName("app-button-name");
     if (labels.length > 0) { // Button labels on Okta homepage
-       for (var i = 0; i < labels.length; i++) {
-            var a = document.createElement("a");
-            a.onclick = function () {
-                createDiv();
-                getSSO(this.parentNode.previousSibling.previousSibling.href);
-            };
-            a.innerHTML = "<br>Show SSO";
-            labels[i].appendChild(a);
-       }
+        for (var i = 0; i < labels.length; i++) {
+            if (!labels[i].innerHTML.match(/Show SSO/)) {
+                var a = document.createElement("a");
+                a.onclick = function () {
+                    createDiv();
+                    getSSO(this.parentNode.previousSibling.previousSibling.href);
+                };
+                a.innerHTML = "<br>Show SSO";
+                labels[i].appendChild(a);
+            }
+        }
     } else {
         createDiv();
         var form = results.appendChild(document.createElement("form"));

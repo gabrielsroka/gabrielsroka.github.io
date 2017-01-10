@@ -1,3 +1,16 @@
+/*
+https://github.com/gabrielsroka/gabrielsroka.github.io/tree/master/OktaAddPerson
+
+1.	Create a folder on your PC or Mac called "OktaAddPerson" and download the files
+2.	Edit the oktaAPIsettings.js with your URL and API token
+3.	Add extension to Chrome or Firefox:
+    a.	Chrome: Drag the folder to the Chrome Extensions tab (chrome://extensions/ or … > More Tools > Extensions)
+    b.	Firefox: Go to about:debugging, click "Load Temporary Add-on", load any file from the "OktaAddPerson" folder
+
+https://developer.chrome.com/extensions
+https://developer.mozilla.org/en-US/Add-ons/WebExtensions
+*/
+
 var firstName = document.getElementById("firstName");
 var lastName = document.getElementById("lastName");
 var login = document.getElementById("login");
@@ -15,36 +28,7 @@ var results = document.getElementById("results");
 firstName.select();
 
 document.forms[0].onsubmit = function () {
-    firstNameError.innerHTML = "";
-    lastNameError.innerHTML = "";
-    loginError.innerHTML = "";
-    emailError.innerHTML = "";
-    passwordError.innerHTML = "";
-    results.innerHTML = "";
-    
-    var emailRe = /.+@.+\..+/;
-    var error = false;
-    if (!firstName.value) {
-        firstNameError.innerHTML = "First name cannot be left blank";
-        error = true;
-    }
-    if (!lastName.value) {
-        lastNameError.innerHTML = "Last name cannot be left blank";
-        error = true;
-    }
-    if (!login.value.match(emailRe)) {
-        loginError.innerHTML = "Username must be in the form of an email address (e.g. bob@nowhere.com)";
-        error = true;
-    }
-    if (!email.value.match(emailRe)) {
-        emailError.innerHTML = "Email must be in the form of an email address (e.g. bob@nowhere.com)";
-        error = true;
-    }
-    if (password.value != password2.value) {
-        passwordError.innerHTML = "Passwords don't match";
-        error = true;
-    }
-    if (!error) {
+    if (validate()) {
         var user = {
             profile: {firstName: firstName.value, lastName: lastName.value, login: login.value, email: email.value},
             credentials: {password: {value: password.value}}
@@ -53,6 +37,39 @@ document.forms[0].onsubmit = function () {
     }
     return false; // Cancel form.submit.
 };
+
+function validate() {
+    var valid = true;
+    firstNameError.innerHTML = "";
+    lastNameError.innerHTML = "";
+    loginError.innerHTML = "";
+    emailError.innerHTML = "";
+    passwordError.innerHTML = "";
+    results.innerHTML = "";
+    
+    var emailRe = /.+@.+\..+/;
+    if (!firstName.value) {
+        firstNameError.innerHTML = "First name cannot be left blank";
+        valid = false;
+    }
+    if (!lastName.value) {
+        lastNameError.innerHTML = "Last name cannot be left blank";
+        valid = false;
+    }
+    if (!login.value.match(emailRe)) {
+        loginError.innerHTML = "Username must be in the form of an email address (e.g. bob@nowhere.com)";
+        valid = false;
+    }
+    if (!email.value.match(emailRe)) {
+        emailError.innerHTML = "Email must be in the form of an email address (e.g. bob@nowhere.com)";
+        valid = false;
+    }
+    if (password.value != password2.value) {
+        passwordError.innerHTML = "Passwords don't match";
+        valid = false;
+    }
+    return valid;
+}
 
 function showResponse() {
     var OK = 200;

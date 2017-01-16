@@ -1,16 +1,3 @@
-/*
-https://github.com/gabrielsroka/gabrielsroka.github.io/tree/master/OktaAddPerson
-
-1.	Create a folder on your PC or Mac called "OktaAddPerson" and download the files
-2.	Edit the oktaAPIsettings.js with your URL and API token
-3.	Add extension to Chrome or Firefox:
-    a.	Chrome: Drag the folder to the Chrome Extensions tab (chrome://extensions/ or … > More Tools > Extensions)
-    b.	Firefox: Go to about:debugging, click "Load Temporary Add-on", load any file from the "OktaAddPerson" folder
-
-https://developer.chrome.com/extensions
-https://developer.mozilla.org/en-US/Add-ons/WebExtensions
-*/
-
 var firstName = document.getElementById("firstName");
 var lastName = document.getElementById("lastName");
 var login = document.getElementById("login");
@@ -45,7 +32,6 @@ function validate() {
     loginError.innerHTML = "";
     emailError.innerHTML = "";
     passwordError.innerHTML = "";
-    results.innerHTML = "";
     
     var emailRe = /.+@.+\..+/;
     if (!firstName.value) {
@@ -72,6 +58,7 @@ function validate() {
 }
 
 function showResponse() {
+    results.innerHTML = "";
     var OK = 200;
     if (this.status == OK) {
         results.innerHTML = "OK";
@@ -81,9 +68,9 @@ function showResponse() {
             var summary = causes[c].errorSummary;
             if (summary.match(/(firstName|lastName|login|email):/)) {
                 var parts = summary.split(":");
-                document.getElementById(parts[0] + "Error").innerHTML = parts[1];
+                document.getElementById(parts[0] + "Error").innerHTML += parts[1];
             } else if (summary.match(/password/i)) {
-                passwordError.innerHTML = summary;
+                passwordError.innerHTML += summary;
             } else {
                 results.innerHTML += summary;
             }

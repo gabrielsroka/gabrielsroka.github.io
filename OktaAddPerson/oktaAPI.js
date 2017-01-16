@@ -7,8 +7,6 @@
         onload
 */
 function newUser(args) {
-    if (args.activate == undefined) args.activate = true;
-    if (args.provider == undefined) args.provider = false;
     callAPI("POST", "/users?" + argsToString(args, "activate,provider"), args.onload, args.user);
 }
 
@@ -21,11 +19,10 @@ function getUser(id, onload) {
         filter - optional
         limit - optional
         search - optional
-        url - required if all optional args are omitted
+        url - required for pagination, see getLinks()
         onload - required
 */
 function getUsers(args) {
-    args.limit = args.limit || 200;
     args.url = args.url || ("/users?" + argsToString(args, "q,filter,limit,search"));
     callAPI("GET", args.url, args.onload);
 }
@@ -43,6 +40,14 @@ function callAPI(method, url, onload, body) {
     request.send(body ? JSON.stringify(body) : null);
 }
 
+/* Example:
+    getUsers({onload: function () {
+        var links = getLinks(this.getResponseHeader("Link"));
+        if (links.next) {
+            getUsers({url: links.next, ...});
+        }
+    }});
+*/
 function getLinks(headers) {
     headers = headers.split(", ");
     var links = {};

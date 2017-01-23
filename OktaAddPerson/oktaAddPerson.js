@@ -20,7 +20,7 @@ document.forms[0].onsubmit = function () {
             profile: {firstName: firstName.value, lastName: lastName.value, login: login.value, email: email.value},
             credentials: {password: {value: password.value}}
         };
-        newUser({user: user, onload: showResponse});
+        newUser(showResponse, user);
     }
     return false; // Cancel form.submit.
 };
@@ -58,12 +58,12 @@ function validate() {
 }
 
 function showResponse() {
-    results.innerHTML = "";
     var OK = 200;
     if (this.status == OK) {
         results.innerHTML = "OK";
     } else {
         var causes = JSON.parse(this.responseText).errorCauses;
+        results.innerHTML = "";
         for (var c = 0; c < causes.length; c++) {
             var summary = causes[c].errorSummary;
             if (summary.match(/(firstName|lastName|login|email):/)) {

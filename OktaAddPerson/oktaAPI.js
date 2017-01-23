@@ -1,30 +1,24 @@
 // User functions - http://developer.okta.com/docs/api/resources/users.html
 
-/* args: 
-        user - {profile: {firstName: "", lastName: "", login: "", email: ""}}
-        activate
-        provider
-        onload
+/*
+    onload - callback
+    user - {profile: {firstName: "", lastName: "", login: "", email: ""}}
+    query - eg: activate, provider, ...
 */
-function newUser(args) {
-    callAPI("POST", "/users?" + argsToString(args, "activate,provider"), args.onload, args.user);
+function newUser(onload, user, query) {
+    callAPI("POST", "/users?" + queryToString(query), onload, user);
 }
 
-function getUser(id, onload) {
+function getUser(onload, id) {
     callAPI("GET", "/users/" + id, onload);
 }
 
-/* args: 
-        q - optional
-        filter - optional
-        limit - optional
-        search - optional
-        url - required for pagination, see getLinks()
-        onload - required
+/*
+    onload - callback
+    query - eg: q, filter, limit, search, ...
 */
-function getUsers(args) {
-    args.url = args.url || ("/users?" + argsToString(args, "q,filter,limit,search"));
-    callAPI("GET", args.url, args.onload);
+function getUsers(onload, query) {
+    callAPI("GET", "/users?" + queryToString(query), onload);
 }
 
 // Core functions
@@ -41,21 +35,26 @@ function callAPI(method, url, onload, body) {
 }
 
 /* Example:
-    getUsers({onload: function () {
+    getUsers(showUsers, {limit: 10});
+    function showUsers() {
         var links = getLinks(this.getResponseHeader("Link"));
         if (links.next) {
-            getUsers({url: links.next, ...});
+            getNextPage(showUsers, links.next);
         }
-    }});
+    }
 */
-function getLinks(headers) {
-    headers = headers.split(", ");
+function getLinks(header) {
+    var headers = header.split(", ");
     var links = {};
     for (var i = 0; i < headers.length; i++) {
         var matches = headers[i].match(/<(.*)>; rel="(.*)"/);
         links[matches[2]] = matches[1];
     }
     return links;
+}
+
+function getNextPage(onload, url) {
+    callAPI("GET", url, onload);
 }
 
 function toString(o, i) {
@@ -71,12 +70,11 @@ function toString(o, i) {
     return a.join("\n") + "\n";
 }
 
-function argsToString(args, names) {
+function queryToString(query) {
     var a = [];
-    names = names.split(",");
-    for (var n = 0; n < names.length; n++) {
-        var v = args[names[n]];
-        if (v != undefined) a.push(names[n] + "=" + v);
+    for (var n in query) {
+        var v = query[n];
+        if (v != undefined) a.push(n + "=" + v);
     }
     return a.join("&");
 }

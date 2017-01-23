@@ -23,7 +23,7 @@ body, pre {
 var results = document.getElementById("results");
 
 document.forms[0].onsubmit = function () {
-    getUser(document.getElementById("user").value, showUser);
+    getUser(showUser, document.getElementById("user").value);
     return false; // Cancel form.submit.
 };
 

@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title>Okta - Show Users</title>
+<title>Show Okta People</title>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <style type="text/css">
 body, pre {
@@ -16,7 +16,7 @@ td {
 </head>
 <body>
 <form>
-Max users: <input id=rows value=40 size=5>
+Max people: <input id=rows value=40 size=5>
 <button type="submit">Go</button>
 </form>
 <br>
@@ -30,7 +30,7 @@ var rows;
 document.forms[0].onsubmit = function () {
     rows = [];
     results.innerHTML = "Loading ... ";
-    getUsers({limit: 20, onload: showUsers});
+    getUsers(showUsers, {limit: 20});
     return false; // Cancel form.submit.
 };
 
@@ -50,7 +50,7 @@ function showUsers() {
     var links = getLinks(this.getResponseHeader("Link"));
     if (links.next && rows.length < document.getElementById("rows").value) {
         results.innerHTML = "Loading ... " + rows.length;
-        getUsers({url: links.next, onload: showUsers});
+        getNextPage(showUsers, links.next);
     } else {
         results.innerHTML = "Limit " + this.getResponseHeader("X-Rate-Limit-Limit") + "<br>" +
             "Remaining " + this.getResponseHeader("X-Rate-Limit-Remaining") + "<br>" +

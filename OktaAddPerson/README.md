@@ -17,7 +17,7 @@ To run on Mac Dashboard
 * For Widget, rename folder to "Okta Add Person.wdgt", then double-click to install. Switch to Dashboard (F12), click + then click on "Okta Add Person" icon.
 
 
-The .HTA files (essentially, a webpage -- HTML + JavaScript + CSS) will run in Windows in an "embedded IE". It's the same source code as the extension.
+The .HTA files (essentially, a webpage -- HTML + JavaScript + CSS) will run in Windows in an "embedded IE". It's the same source code as the extension: `mshta "%cd%\oktaAddPerson.html"`
 
 See also:
 * https://developer.chrome.com/extensions

@@ -2,17 +2,15 @@
 // javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportAppUsers.js";})();
 
 (function () {
-    var path = location.pathname;
-    var pathparts = path.split(/\//);
-    if (!(path.match(/admin\/app/) && pathparts.length == 7)) {
+    var appid = getAppId();
+    if (appid) {
+        console.clear();
+        var total = 0;
+        var results = createDiv("App Users");
+        callAPI("/apps/" + appid + "/users", showAppUsers);
+    } else {
         alert("Error. Go to Applications > Applications and click on an app.");
-        return;
     }
-    var appid = pathparts[5];
-    console.clear();
-    var total = 0;
-    var results = createDiv("App Users");
-    callAPI("/apps/" + appid + "/users?limit=20", showAppUsers);
     function showAppUsers() {
         if (this.responseText) {
             var appusers = JSON.parse(this.responseText);
@@ -46,6 +44,13 @@
             links[matches[2]] = matches[1];
         }
         return links;
+    }
+    function getAppId() {
+        var path = location.pathname;
+        var pathparts = path.split(/\//);
+        if (path.match(/admin\/app/) && pathparts.length == 7) {
+        	return pathparts[5];
+        }
     }
     function createDiv(title) {
         var div = document.body.appendChild(document.createElement("div"));

@@ -27,30 +27,27 @@ function o(path, method, body, xsrf) {
     request.send(body ? JSON.stringify(body) : null);
     return _;
 }
-function u(path, method, body) {
-    return o("/users/" + (path ? path : ""), method, body);
+function u(path, method, body, xsrf) {
+    return o("/users/" + (path ? path : ""), method, body, xsrf);
 }
-function g(path, method, body) {
-    return o("/groups/" + (path ? path : ""), method, body);
-}
-function x(path, method, body) {
-    return o(path, method, body, true);
+function g(path, method, body, xsrf) {
+    return o("/groups/" + (path ? path : ""), method, body, xsrf);
 }
 function t(fields) {
     if (fields) {
         fields = fields.split(",");
-        var r = [];
+        var rows = [];
         for (var i in _) {
-            var vs = {};
+            var o = {};
             for (var f in fields) {
-                vs[fields[f]] = dot(_[i], fields[f]);
+                o[fields[f]] = dot(_[i], fields[f]);
             }
-            r.push(vs);
+            rows.push(o);
         }
     } else {
-        r = _;
+        rows = _;
     }
-   console.table(r);
+    console.table(rows);
 }
 function dot(o, dots) {
     var ps = dots.split(".");
@@ -77,21 +74,23 @@ function toYAML(o, i) {
 /* Examples
 // get me
 u("me")
-me=_
+user = _
 __
 
 // get group
 g("?q=powershell")
-group=_
+group = _
 
 // add user to group
-g(group.id + "/users/" + me.id, "PUT")
+g(group.id + "/users/" + user.id, "PUT")
 
 // create user (needs apikey)
-u("", "POST", {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}})
+user = {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}}
+u("", "POST", user)
 
 // create user with password using XSRF
-x("/users", "POST", {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}, credentials: {password: {value: "Password123"}}});
+user = {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}, credentials: {password: {value: "Password123"}}}
+u("", "POST", user, true)
 
 // get users
 u()
@@ -103,6 +102,6 @@ g()
 t("profile.name,profile.description,type")
 
 // get events
-o("/events?startDate=2016-01-23T00:00:00.0-08:00")
+o("/events?startDate=2016-01-23T00:00:00.0-08:00&limit=10")
 t("eventId,actors.0.displayName,published,action.message")
 */

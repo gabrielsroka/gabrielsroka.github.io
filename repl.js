@@ -1,13 +1,16 @@
-/* 
+/* Drag this to the bookmarks toolbar:
 javascript:(function(){var script=document.body.appendChild(document.createElement("script"));
 script.src="https://gabrielsroka.github.io/repl.js";script.onload=function(){document.body.removeChild(this);};})();
 */
 
-function o(path, method, body) {
+// see Examples below
+
+function o(path, method, body, xsrf) {
     _ = __ = _y = "Loading ...";
     var request = new XMLHttpRequest();
     request.open(method ? method : "GET", "/api/v1" + path);
     if (window.apikey) request.setRequestHeader("Authorization", "SSWS " + apikey);
+    if (xsrf) request.setRequestHeader("X-Okta-XsrfToken", document.getElementById("_xsrfToken").innerText);
     request.setRequestHeader("Content-Type", "application/json");
     request.setRequestHeader("Accept", "application/json");
     request.onload = function () {
@@ -30,13 +33,16 @@ function u(path, method, body) {
 function g(path, method, body) {
     return o("/groups/" + (path ? path : ""), method, body);
 }
+function x(path, method, body) {
+    return o(path, method, body, true);
+}
 function t(fields) {
     if (fields) {
         fields = fields.split(",");
         var r = [];
         for (var i in _) {
             var vs = {};
-            for (f in fields) {
+            for (var f in fields) {
                 vs[fields[f]] = dot(_[i], fields[f]);
             }
             r.push(vs);
@@ -67,26 +73,8 @@ function toYAML(o, i) {
     }
     return a.join("\n");
 }
-function x(path, method, body) {
-    var request = new XMLHttpRequest();
-    request.open(method ? method : "GET", "/api/v1" + path);
-    request.setRequestHeader("X-Okta-XsrfToken", document.getElementById("_xsrfToken").innerText);
-    request.setRequestHeader("Content-Type", "application/json");
-    request.setRequestHeader("Accept", "application/json");
-    request.onload = function () {
-        if (request.responseText) {
-            _ = JSON.parse(request.responseText);
-            __ = JSON.stringify(_, null, 2);
-        } else {
-            _ = __ = "";
-        }
-        console.log("Ready.")
-    };
-    request.send(body ? JSON.stringify(body) : null);
-    return _;
-}
 
-/*
+/* Examples
 // get me
 u("me")
 me=_

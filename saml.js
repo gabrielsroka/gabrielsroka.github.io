@@ -4,15 +4,16 @@
 (function () {
     var results;
     var labels = document.getElementsByClassName("app-button-name");
+    var label = "Show SSO";
     if (labels.length > 0) { // Button labels on Okta homepage
         for (var i = 0; i < labels.length; i++) {
-            if (!labels[i].innerHTML.match(/Show SSO/)) {
+            if (!labels[i].innerHTML.match(label)) {
                 var a = document.createElement("a");
                 a.onclick = function () {
                     createDiv();
                     getSSO(this.parentNode.previousSibling.previousSibling.href);
                 };
-                a.innerHTML = "<br>Show SSO";
+                a.innerHTML = "<br>" + label;
                 labels[i].appendChild(a);
             }
         }
@@ -25,7 +26,7 @@
         url.focus();
         var input = form.appendChild(document.createElement("input"));
         input.type = "submit";
-        input.value = "Show SSO";
+        input.value = label;
         form.onsubmit = function () {
             getSSO(url.value);
             return false;
@@ -34,7 +35,7 @@
     function getSSO(url) {
         results.innerHTML = "Loading . . .";
         var request = new XMLHttpRequest();
-        request.open("get", url);
+        request.open("GET", url);
         request.onload = showSSO;
         request.send();
     }
@@ -49,7 +50,7 @@
             if (matches[1] == "SAMLResponse") saml = atob(saml);
             saml = saml.replace(/\n/g, "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
                 replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").
-                replace(/((Address|Issuer|NameID|NameIdentifier|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
+                replace(/((Address|Issuer|NameID|NameIdentifier|Name|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
             var postTo = unentity(this.responseText.match(/<form id="appForm" action="(.*?)"/)[1]);
             results.innerHTML = "Post to:" + postTo + "<pre>" + indentXml(saml, 4) + "</pre>";
         } else if (matches = this.responseText.match(/<form(?:.|\n)*<\/form>/)) {

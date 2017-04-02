@@ -11,7 +11,7 @@
             lastName: $("[name='profile.lastName']").val(),
             login: $("[name='profile.login']").val(),
             email: $("[name='profile.email']").val()
-    		};
+        };
         var credentials = {password: {value: password.val()}};
         $.ajax({
             type: "POST",
@@ -19,6 +19,6 @@
             data: JSON.stringify({profile: profile, credentials: credentials}),
             contentType: "application/json"
         }).done(function () {alert("ok");});
-        return false;
+        return false; // cancel the form.submit
     };
 })();

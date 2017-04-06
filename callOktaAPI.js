@@ -1,4 +1,4 @@
-/* 
+/* Drag this to the bookmark bar
 javascript:(function(){var script=document.body.appendChild(document.createElement("script"));
 script.src="https://gabrielsroka.github.io/callOktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
 */
@@ -39,7 +39,7 @@ script.src="https://gabrielsroka.github.io/callOktaAPI.js";script.onload=functio
             user = userById[userid];
             var cell = table.rows[r].insertCell(0);
             cell.innerHTML = "<span class='icon icon-24 group-logos-24 " + 
-                (user ? user.credentials.provider.type.toLowerCase() : "") + "'>" +
+                (user ? "logo-" + user.credentials.provider.type.toLowerCase() : "") + "'>" +
                 "<pre style='display: none; position: absolute; background-color: #ffffca; z-index: 1000; padding: 8px'>" + 
                 (user ? toString(user) : "(not found)") + "</pre></span>";
             cell.onmouseover = function () {this.firstChild.firstChild.style.display = "inline";};
@@ -52,7 +52,7 @@ script.src="https://gabrielsroka.github.io/callOktaAPI.js";script.onload=functio
         for (var u = 0; u < users.length; u++) {
             var user = users[u];
             var name = user.profile.firstName + " " + user.profile.lastName;
-            rows.push("<tr sortby='" + name + "'><td><span class='icon icon-24 group-logos-24 " + 
+            rows.push("<tr sortby='" + name + "'><td><span class='icon icon-24 group-logos-24 logo-" + 
                 user.credentials.provider.type.toLowerCase() + "'></span>" + 
                 "<td>" + name.link("/admin/user/profile/view/" + user.id) + "<td>" + user.profile.login + 
                 "<td>" + user.profile.email + 

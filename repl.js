@@ -33,7 +33,7 @@ function u(path, method, body, xsrf) {
 function g(path, method, body, xsrf) {
     return o("/groups/" + (path ? path : ""), method, body, xsrf);
 }
-function t(fields) {
+function t(fields, where) {
     if (fields) {
         fields = fields.split(",");
         var rows = [];
@@ -42,7 +42,12 @@ function t(fields) {
             for (var f in fields) {
                 o[fields[f]] = dot(_[i], fields[f]);
             }
-            rows.push(o);
+            if (where) {
+                var whereFields = where.split("="), whereField = whereFields[0], whereValue = whereFields[1];
+                if (o[whereField] == whereValue) rows.push(o);
+            } else {
+                rows.push(o);
+            }
         }
     } else {
         rows = _;

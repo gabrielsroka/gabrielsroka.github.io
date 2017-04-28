@@ -52,7 +52,7 @@
                 replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").
                 replace(/((Address|Issuer|NameID|NameIdentifier|Name|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
             var postTo = unentity(this.responseText.match(/<form id="appForm" action="(.*?)"/)[1]);
-            results.innerHTML = "Post to:" + postTo + "<pre>" + indentXml(saml, 4) + "</pre>";
+            results.innerHTML = "<br>Post to: " + postTo + "<br><br><pre>" + indentXml(saml, 4) + "</pre>";
         } else if (matches = this.responseText.match(/<form(?:.|\n)*<\/form>/)) {
             results.innerHTML = "<pre>" + matches[0].replace(/ *</g, "&lt;").replace(/>/g, "&gt;").replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"') + "</pre>";
         } else if (matches = this.responseText.match(/<div class="error-content">(?:.|\n)*?<\/div>/)) {
@@ -63,7 +63,7 @@
     }
     function createDiv() {
         var div = document.body.appendChild(document.createElement("div"));
-        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>SSO - X</a> " +
+        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>SSO - close</a> " +
             "<a href='https://gabrielsroka.github.io/' target='_blank'>?</a>";
         div.style.position = "absolute";
         div.style.zIndex = "1000";

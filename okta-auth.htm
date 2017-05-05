@@ -1,0 +1,246 @@
+
+<!doctype html>
+<meta name="robots" content="noindex">
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Sign In</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <style>
+        body {
+            background: #666;
+        }
+
+        #gsroka_background {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            z-index: -1;
+            /* Ensure div tag stays behind content; -999 might work, too. */
+            background: #666;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            background-position: center center;
+            background-size: cover;
+        }
+
+        .gsroka_login {
+            margin-top: 100px;
+            background: #fff;
+            padding-bottom: 20px;
+            margin-left: 0px;
+            border-radius: 7px;
+        }
+
+        .gsroka_inner_wrapper {
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .gsroka_login h1 {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .gsroka_login a {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .gsroka_header {
+            background: #19acff;
+            padding: 10px 20px;
+            position: relative;
+            margin-bottom: 20px;
+            border-top-left-radius: 7px;
+            border-top-right-radius: 7px;
+        }
+
+        .gsroka_header_bg img {
+            background: #19acff;
+            width: 100%;
+        }
+
+        .gsroka_button {
+            background: #0079B4;
+            border: 1px solid #0079B4;
+            color: #fff;
+            padding: 12px 0px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .gsroka_button:hover {
+            background: #0079B4;
+            color: #fff;
+        }
+
+        .gsroka_login .forgot_password {
+            float: left;
+        }
+
+        .gsroka_login .contact {
+            float: right;
+        }
+
+        .gsroka_login .request_access {
+            float: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="gsroka_background">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12 col-sm-4 col-sm-push-4 gsroka_login_wrapper">
+                    <div class="gsroka_login">
+                        <div class="gsroka_header">
+                            <div class="gsroka_header_bg"></div>
+                        </div>
+                        <div class="gsroka_inner_wrapper">
+                            <!-- <h1>Sign In</h1> -->
+                            <div id="nojs" class="alert alert-danger" role="alert">The Javascript on your browser is not enabled. If you experience challenges signing in, <a href="https://gsroka-neto.oktapreview.com" style="color:#0000EE;">please click here.</a></div>
+                            <div id="success" class="hidden alert alert-success" role="alert">it worked</div>
+                            <div id="error" class="hidden alert alert-danger" role="alert">Login Failed. Try Again...</div>
+                            <form id="loginForm">
+                                <div class="form-group">
+                                    <input class="form-control" required type="username" name="username" id="username" placeholder="Username">
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control" required name="password" id="password" placeholder="Password">
+                                </div>
+                                <button type="submit" class="col-xs-12 col-sm-12 col-md-12  btn btn-default gsroka_button">Sign In</button>
+                            </form>
+                            <p style="text-align:left;padding:15px;color:black;">We've updated the sign in experience to the gsroka Portal. Please use your existing credentials to login. Having trouble? Please click contact below.</p>
+
+                            <div class="forgot_password">
+                                <a href="forgot_password.html">Forgot Password</a>
+                            </div>
+                            <div class="request_access">
+                                <!-- <a href="forgot_password.html">Request Access</a> -->
+                            </div>
+                        </div>
+                        <br clear="all" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.6.10.min.js"></script>
+    <script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-auth-js/1.5.0/OktaAuth.min.js" type="text/javascript"></script>
+    <script>
+        function removeClass(el, className) {
+            if (el.classList)
+                el.classList.remove(className);
+            else
+                el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+        }
+
+        function addClass(el, className) {
+            if (el.classList)
+                el.classList.add(className);
+            else
+                el.className += ' ' + className;
+        }
+
+        function getUrlVars() {
+            var vars = [],
+                hash;
+            var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+            for (var i = 0; i < hashes.length; i++) {
+                hash = hashes[i].split('=');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        }
+
+        var username = document.getElementById('username'),
+            password = document.getElementById('password'),
+            successMsg = document.getElementById('success'),
+            errorMsg = document.getElementById('error'),
+            nojsMsg = document.getElementById('nojs'),
+            internalSuffix = '@gsroka.com';
+
+        // Remove Javascript alert if JS is enabled
+        addClass(nojsMsg, 'hidden');
+
+        function authenticate(e) {
+            var url, redirectUrl;
+            var fullPath = window.location.pathname + window.location.search;
+            var searchStr = window.location.search;
+
+            addClass(successMsg, 'hidden');
+            addClass(errorMsg, 'hidden');
+            e.preventDefault();
+            var fromU = getUrlVars().fromURI;
+
+            if (window.location.href == "https://gabrielsroka.github.io/" && (username.value.indexOf(internalSuffix) != -1)) {
+                url = 'https://gsroka-neto.oktapreview.com';
+                redirectUrl = 'https://gsroka-neto.oktapreview.com/app/UserHome'
+                console.log("home and internal\n\n\n")
+            } else if (window.location.href == "https://gabrielsroka.github.io/" && !(username.value.indexOf(internalSuffix) != -1)) {
+                url = 'https://gsroka-neto.oktapreview.com';
+                redirectUrl = 'https://gsroka-neto.oktapreview.com/app/UserHome'
+                console.log("home an external\n\n\n")
+            } else {
+
+                if (username.value.indexOf(internalSuffix) != -1) {
+                    url = 'https://gsroka-neto.oktapreview.com';
+
+                    if (fromU.indexOf("external") != -1) {
+                        console.log("Internal users with external apps");
+                        redirectUrl = encodeURI('https://gsroka-neto.oktapreview.com/app/gsrokaneto_asamlwizard_2/exk5cq14aqdp9GGo40h7/sso/saml?RelayState=' + fromU)
+                        console.log('encoded redirectUrl')
+                        console.log(redirectUrl)
+                        console.log('encoded fromU')
+                        console.log(fromU)
+                    } else {
+                        console.log("Internal users with internal apps")
+                        redirectUrl = 'https://gsroka-neto.oktapreview.com?fromURI=' + fromU;
+                    }
+                } else {
+                    console.log("External users with external apps or external users with internal apps")
+                    url = 'https://gsroka-neto.oktapreview.com';
+                    redirectUrl = 'https://gsroka-neto.oktapreview.com?fromURI=' + fromU;
+                }
+            }
+            var authClient = new OktaAuth({
+                url: url
+            });
+            authClient.signIn({
+                    username: username.value,
+                    password: password.value
+                })
+                .then(function(transaction) {
+                    switch (transaction.status) {
+                        case 'SUCCESS': // on success
+                            authClient.session.setCookieAndRedirect(transaction.sessionToken, redirectUrl); // Sets a cookie on redirect
+                            console.log('SUCCESS');
+                            console.log(redirectUrl)
+                            break;
+                        default:
+                            throw 'We cannot handle the ' + transaction.status + ' status';
+                    }
+                })
+                .fail(function(err) { // On failure
+                    removeClass(errorMsg, 'hidden');
+                    console.error(err);
+                });
+        } // End of authenticate
+        document.getElementById('loginForm').addEventListener('submit', authenticate);
+    </script>
+</body>
+
+</html>

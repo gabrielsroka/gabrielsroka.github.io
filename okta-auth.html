@@ -186,14 +186,14 @@
             e.preventDefault();
             var fromU = getUrlVars().fromURI;
 
-            if (window.location.href == "https://gabrielsroka.github.io/" && (username.value.indexOf(internalSuffix) != -1)) {
+            if (window.location.href == "https://gabrielsroka.github.io/okta-auth.html" && (username.value.indexOf(internalSuffix) != -1)) {
                 url = 'https://gsroka-neto.oktapreview.com';
                 redirectUrl = 'https://gsroka-neto.oktapreview.com/app/UserHome'
                 console.log("home and internal\n\n\n")
-            } else if (window.location.href == "https://gabrielsroka.github.io/" && !(username.value.indexOf(internalSuffix) != -1)) {
+            } else if (window.location.href == "https://gabrielsroka.github.io/okta-auth.html" && !(username.value.indexOf(internalSuffix) != -1)) {
                 url = 'https://gsroka-neto.oktapreview.com';
                 redirectUrl = 'https://gsroka-neto.oktapreview.com/app/UserHome'
-                console.log("home an external\n\n\n")
+                console.log("home and external\n\n\n")
             } else {
 
                 if (username.value.indexOf(internalSuffix) != -1) {

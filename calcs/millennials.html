@@ -37,19 +37,19 @@ function update() {
         income *= 1 + incomeGrowthPercent / 100;
     }
 
-	$("#results").html(message + "<br><br><table><tr><th>Age<th>Income<th>" + 
-    	savedPercent + "% Saved<th>" + returnPercent + "% Return" + table + "</table>");
+    $("#results").html(message + "<br><br><table><tr><th>Age<th>Income<th>" + 
+    savedPercent + "% Saved<th>" + returnPercent + "% Return" + table + "</table>");
 }
 
 $(function () {
 	// TODO hide slider in IE because it doesn't work.
-	update();
-	$("input").blur(update);
+    update();
+    $("input").blur(update);
     $("#age").blur(function () {
-    	$("#ageRange").val($(this).val());
+        $("#ageRange").val($(this).val());
     }).select();
     $("#ageRange").on("input", function () {
-    	$("#age").val($(this).val());
+        $("#age").val($(this).val());
         update();
     });
 });

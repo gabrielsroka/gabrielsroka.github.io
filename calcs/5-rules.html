@@ -7,8 +7,8 @@
 <script type="text/javascript">
 function update() {
     var age = $("#age").val() * 1;
-    var saved = $("#saved").val();
-    var returnPercent = $("#returnPercent").val();
+    var saved = $("#saved").val() * 1;
+    var returnPercent = $("#returnPercent").val() * 1;
 
     var years = 25;
 
@@ -33,7 +33,7 @@ function update() {
 }
 
 $(function () {
-	// TODO hide slider in IE because it doesn't work.
+// TODO hide slider in IE because it doesn't work.
 	update();
 	$("input").blur(update);
     $("#age").blur(function () {

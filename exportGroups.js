@@ -5,15 +5,15 @@
     var total = 0;
     var results = createDiv("Groups");
     console.clear();
-    console.log("console,id,name,description,type");
+    console.log("ignore,id,name,description,type");
     callAPI("/groups", showGroups);
     function showGroups() {
         if (this.responseText) {
             var groups = JSON.parse(this.responseText);
             for (var i = 0; i < groups.length; i++) {
                 var g = groups[i];
-                // Start with "," because Chrome adds extra info at the beginning of each line.
-                console.log(',"' + g.id + '","' + g.profile.name + '","' + (g.profile.description || "") + '","' + g.type + '"');
+                // Start with ',' because Chrome adds extra info at the beginning of each line.
+                console.log(',' + g.id + ',"' + g.profile.name + '","' + (g.profile.description || "") + '",' + g.type);
             }
             total += groups.length;
             results.innerHTML = total + " groups.";

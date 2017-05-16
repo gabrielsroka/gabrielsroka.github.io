@@ -11,7 +11,7 @@
         if (this.responseText) {
             var groups = JSON.parse(this.responseText);
             for (var i = 0; i < groups.length; i++) {
-                console.log(groups[i].id + "," + groups[i].profile.name + "," + (groups[i].profile.description || "") + "," + groups[i].type);
+                console.log(',"' + groups[i].id + '","' + groups[i].profile.name + '","' + (groups[i].profile.description || "") + '","' + groups[i].type + '"');
             }
             total += groups.length;
             results.innerHTML = total + " groups.";

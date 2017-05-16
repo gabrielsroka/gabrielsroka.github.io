@@ -5,12 +5,13 @@
     var total = 0;
     var results = createDiv("Groups");
     console.clear();
-    console.log("id,name,description,type");
+    console.log("console,id,name,description,type");
     callAPI("/groups", showGroups);
     function showGroups() {
         if (this.responseText) {
             var groups = JSON.parse(this.responseText);
             for (var i = 0; i < groups.length; i++) {
+                // Start with "," because Chrome adds extra info at the beginning of each line.
                 console.log(',"' + groups[i].id + '","' + groups[i].profile.name + '","' + (groups[i].profile.description || "") + '","' + groups[i].type + '"');
             }
             total += groups.length;

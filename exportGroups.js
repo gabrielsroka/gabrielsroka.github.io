@@ -11,8 +11,9 @@
         if (this.responseText) {
             var groups = JSON.parse(this.responseText);
             for (var i = 0; i < groups.length; i++) {
+                var g = groups[i];
                 // Start with "," because Chrome adds extra info at the beginning of each line.
-                console.log(',"' + groups[i].id + '","' + groups[i].profile.name + '","' + (groups[i].profile.description || "") + '","' + groups[i].type + '"');
+                console.log(',"' + g.id + '","' + g.profile.name + '","' + (g.profile.description || "") + '","' + g.type + '"');
             }
             total += groups.length;
             results.innerHTML = total + " groups.";

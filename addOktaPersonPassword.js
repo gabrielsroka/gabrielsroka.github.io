@@ -1,5 +1,16 @@
-// Drag this to the bookmark toolbar:
-// javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/addOktaPersonPassword.js";})();
+/* 
+This bookmarklet modifies the standard Okta Admin Add Person dialog box to allow you to create a user with a password.
+
+Setup:
+1. Drag this to the bookmark toolbar:
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/addOktaPersonPassword.js";})();
+
+Usage:
+1. In Okta Admin, go to Directory > People.
+2. Click Add Person.
+3. Click the bookmark from your toolbar.
+4. Fill out the form including the password and click Save.
+*/
 
 (function () {
     var password = $('[name="profile.secondEmail"]');
@@ -18,7 +29,9 @@
             url: "/api/v1/users",
             data: JSON.stringify({profile: profile, credentials: credentials}),
             contentType: "application/json"
-        }).done(function () {alert("ok");});
-        return false; // cancel the form.submit
+        }).done(function () {
+            alert("New user was added."); // TODO add error checking, improve feedback, add second password field to compare with first.
+        });
+        return false; // Cancel the form.submit.
     };
 })();

@@ -15,7 +15,7 @@ Usage:
 (function () {
     var password = $('[name="profile.secondEmail"]');
     password.prop("type", "password");
-    $('[for="' + password.prop("id") + '"]').html("Password");
+    $('[for="' + password.prop("id") + '"]').html("Password").next().html("");
     $(":submit").click(function () {
         var profile = {
             firstName: $("[name='profile.firstName']").val(),

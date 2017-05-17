@@ -32,7 +32,12 @@ Usage:
         }).done(function () {
             alert("New user was added."); // TODO: improve feedback, add second password field to compare with first.
         }).fail(function (jqXHR) {
-			alert("Error: " + jqXHR.responseJSON.errorCauses[0].errorSummary); // TODO: improve error checking
+            var causes = jqXHR.responseJSON.errorCauses;
+            var errors = "";
+            for (var c = 0; c < causes.length; c++) {
+                errors += causes[c].errorSummary + "\n";
+            }
+            alert("Error:\n" + errors); // TODO: improve error checking
         });
         return false; // Cancel the form.submit.
     });

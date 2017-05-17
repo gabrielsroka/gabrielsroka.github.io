@@ -16,7 +16,7 @@ Usage:
     var password = $('[name="profile.secondEmail"]');
     password.prop("type", "password");
     $('[for="' + password.prop("id") + '"]').html("Password");
-    $(":submit")[0].onclick = function () {
+    $(":submit").click(function () {
         var profile = {
             firstName: $("[name='profile.firstName']").val(),
             lastName: $("[name='profile.lastName']").val(),
@@ -30,8 +30,10 @@ Usage:
             data: JSON.stringify({profile: profile, credentials: credentials}),
             contentType: "application/json"
         }).done(function () {
-            alert("New user was added."); // TODO add error checking, improve feedback, add second password field to compare with first.
+            alert("New user was added."); // TODO: improve feedback, add second password field to compare with first.
+        }).fail(function (jqXHR) {
+			alert("Error: " + jqXHR.responseJSON.errorCauses[0].errorSummary); // TODO: improve error checking
         });
         return false; // Cancel the form.submit.
-    };
+    });
 })();

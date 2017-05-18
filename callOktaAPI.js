@@ -1,5 +1,5 @@
 /* 
-This bookmarklet modifies demonstrates fetching Events, Enhancing the People page, or showing users.
+This bookmarklet demonstrates fetching Events, Enhancing the People page, or showing Users.
 
 Setup:
 1. Drag this to the bookmark toolbar:

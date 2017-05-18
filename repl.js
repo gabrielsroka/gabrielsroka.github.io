@@ -1,5 +1,5 @@
 /* 
-This bookmarklet allows you to call the Okta API via REPL. See Examples at the bottom of this page.
+This bookmarklet allows you to call the Okta API using the browser console as a command line. See Examples below.
 
 Setup:
 1. Drag this to the bookmark toolbar:
@@ -9,7 +9,42 @@ Usage:
 1. Login to Okta Admin.
 2. Open the dev console (F12).
 3. Click the bookmark from your toolbar.
-4. Type in commands. See Example at the bottom of this page.
+4. Type in commands. API commands are asynchronous. When they are done, you'll see "Ready". See Examples below.
+
+Examples:
+// Get me. Result is in _, __ and _y -- each one in a different format.
+u("me")
+user = _
+__
+_y
+
+// Get group.
+g("?q=powershell")
+group = _
+
+// Add user to group.
+g(group.id + "/users/" + user.id, "PUT")
+
+// Create user with password using XSRF.
+user = {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}, credentials: {password: {value: "Password123"}}}
+u("", "POST", user, true)
+
+// Create user (needs apikey).
+user = {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}}
+u("", "POST", user)
+
+// Get users.
+u()
+_.length
+t("id,profile.email,profile.firstName,profile.lastName,profile.login,credentials.provider.type,created")
+
+// Get groups.
+g()
+t("profile.name,profile.description,type")
+
+// Get events.
+o("/events?startDate=2016-01-23T00:00:00.0-08:00&limit=10")
+t("eventId,actors.0.displayName,published,action.message")
 */
 
 function o(path, method, body, xsrf) {
@@ -82,38 +117,3 @@ function toYAML(o, i) {
     }
     return a.join("\n");
 }
-
-/* Examples
-// get me
-u("me")
-user = _
-__
-
-// get group
-g("?q=powershell")
-group = _
-
-// add user to group
-g(group.id + "/users/" + user.id, "PUT")
-
-// create user (needs apikey)
-user = {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}}
-u("", "POST", user)
-
-// create user with password using XSRF
-user = {profile: {login: "a@a.com", email: "a@a.com", firstName: "first", lastName: "a1"}, credentials: {password: {value: "Password123"}}}
-u("", "POST", user, true)
-
-// get users
-u()
-_.length
-t("id,profile.email,profile.firstName,profile.lastName,profile.login,credentials.provider.type,created")
-
-// get groups
-g()
-t("profile.name,profile.description,type")
-
-// get events
-o("/events?startDate=2016-01-23T00:00:00.0-08:00&limit=10")
-t("eventId,actors.0.displayName,published,action.message")
-*/

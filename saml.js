@@ -1,5 +1,15 @@
-// Drag this to the bookmark toolbar:
-// javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/saml.js";})();
+/* 
+This bookmarklet show SAML/WS-Fed assertions and other SSO information.
+
+Setup:
+1. Drag this to the bookmark toolbar:
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/saml.js";})();
+
+Usage:
+1. Login to Okta.
+2. Click the bookmark from your toolbar.
+3. Below each chicklet, there's a Show SSO link. Click one to see the SSO information.
+*/
 
 (function () {
     var results;

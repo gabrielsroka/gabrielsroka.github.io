@@ -1,5 +1,17 @@
-// Drag this to the bookmarks toolbar:
-// javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportAppUsers.js";})();
+/* 
+This bookmarklet exports app users.
+
+Setup:
+1. Drag this to the bookmark toolbar:
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportAppUsers.js";})();
+
+Usage:
+1. In Okta Admin, go to Applications > Applications.
+2. Click on an app.
+3. Open the dev console (F12).
+4. Click the bookmark from your toolbar.
+5. When the export is done, the users are in the console. Save the results to a CSV file.
+*/
 
 (function () {
     var appid = getAppId();

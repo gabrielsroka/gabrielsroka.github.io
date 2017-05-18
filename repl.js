@@ -1,9 +1,16 @@
-/* Drag this to the bookmarks toolbar:
-javascript:(function(){var script=document.body.appendChild(document.createElement("script"));
-script.src="https://gabrielsroka.github.io/repl.js";script.onload=function(){document.body.removeChild(this);};})();
-*/
+/* 
+This bookmarklet allows you to call the Okta API via REPL. See Examples at the bottom of this page.
 
-// see Examples below
+Setup:
+1. Drag this to the bookmark toolbar:
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/repl.js";})();
+
+Usage:
+1. Login to Okta Admin.
+2. Open the dev console (F12).
+3. Click the bookmark from your toolbar.
+4. Type in commands. See Example at the bottom of this page.
+*/
 
 function o(path, method, body, xsrf) {
     _ = __ = _y = "Loading ...";

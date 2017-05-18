@@ -1,10 +1,18 @@
-/* Drag this to the bookmark bar
-javascript:(function(){var script=document.body.appendChild(document.createElement("script"));
-script.src="https://gabrielsroka.github.io/callOktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
+/* 
+This bookmarklet modifies demonstrates fetching Events, Enhancing the People page, or showing users.
+
+Setup:
+1. Drag this to the bookmark toolbar:
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/callOktaAPI.js";})();
+
+Usage:
+1. In Okta Admin, go to Reports > System Log, or Directory > People, or another page.
+2. Click the bookmark from your toolbar.
 */
+
 (function () {
     var div, results, total = 0;
-    if (location.pathname == "/report/system_log") {
+    if (location.pathname == "/report/system_log" || location.pathname == "/report/system_log_2") {
         div = createDiv("Events");
         var status = div.appendChild(document.createElement("div"));
         status.innerHTML = "Loading . . .";

@@ -1,5 +1,16 @@
-// Drag this to the bookmarks toolbar:
-// javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportGroups.js";})();
+/* 
+This bookmarklet exports groups.
+
+Setup:
+1. Drag this to the bookmark toolbar:
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportGroups.js";})();
+
+Usage:
+1. Login to Okta Admin.
+2. Open the dev console (F12).
+3. Click the bookmark from your toolbar.
+4. When the export is done, the groups are in the console. Save the results to a CSV file.
+*/
 
 (function () {
     var total = 0;

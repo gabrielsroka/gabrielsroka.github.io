@@ -34,39 +34,28 @@ This bookmarklet shows SAML/WS-Fed assertions and other SSO information.<br>
 <br>
 <a href="saml.js">source</a><br>
 <br>
-<h3>Export Groups bookmarklet</h3>
-This bookmarklet exports groups.<br>
+<h3>Export Objects bookmarklet</h3>
+This bookmarklet exports objects, such as User, Groups, Directory Users or App Users.<br>
 <br>
 <b>Setup</b><br>
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.<br>
 2. Drag this to the bookmark toolbar:<br>
-<a class=bm href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportGroups.js";})();'>Export Groups</a><br>
+<a class=bm href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportObjects.js";})();'>Export Objects</a><br>
 <br>
 <b>Usage</b><br>
-1. Using Chrome, login to Okta Admin. Chrome allows you to export 1,000s of groups, whereas Firefox and IE stop at 1,000.<br>
-2. Open the dev console (F12).<br>
-3. Click the bookmark from your toolbar.<br>
-4. When the export is done, the groups are in the console. Save the results to a CSV file.<br>
+1. Using Chrome, login to Okta Admin. Chrome allows you to export 1,000s of objects, whereas Firefox and IE stop at 1,000.<br>
+2. Go to one of these:<br>
+<ul>
+<li>Directory > People
+<li>Directory > Groups
+<li>Directory > Directory Integrations and click on a directory.
+<li>Applications > Applications and click on an app.
+</ul>
+3. Open the dev console (F12).<br>
+4. Click the bookmark from your toolbar.<br>
+5. When the export is done, the objects are in the console. Save the results to a CSV file.<br>
 <br>
-<a href="exportGroups.js">source</a><br>
-<br>
-<h3>Export App Users bookmarklet</h3>
-This bookmarklet exports app users.<br>
-<br>
-<b>Setup</b><br>
-1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.<br>
-2. Drag this to the bookmark toolbar:<br>
-<a class=bm href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportAppUsers.js";})();'>Export App Users</a><br>
-<br>
-<b>Usage</b><br>
-1. Using Chrome, login to Okta Admin. Chrome allows you to export 1,000s of users, whereas Firefox and IE stop at 1,000.<br>
-2. Go to Applications > Applications.<br>
-3. Click on an app.<br>
-4. Open the dev console (F12).<br>
-5. Click the bookmark from your toolbar.<br>
-6. When the export is done, the users are in the console. Save the results to a CSV file.<br>
-<br>
-<a href="exportAppUsers.js">source</a><br>
+<a href="exportObjects.js">source</a><br>
 <br>
 <h2>Source Code</h2>
 <a href="repl.js">repl.js source</a><br>

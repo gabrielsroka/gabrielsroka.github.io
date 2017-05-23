@@ -14,7 +14,7 @@
     } else {
         var appid = getAppId();
         if (appid) {
-		    if (location.pathname.match(/office365/)) {
+            if (location.pathname.match(/office365/)) {
                 exportObjects("App Groups", "/apps/" + appid + "/groups", "groupId,licenses", function (group) {
                     return group.id + "," + (group.profile.licenses ? group.profile.licenses.join(";") : "");
                 });

@@ -14,9 +14,15 @@
     } else {
         var appid = getAppId();
         if (appid) {
-            exportObjects("App Users", "/apps/" + appid + "/users", "userName", function (appuser) {
-                return appuser.credentials.userName;
-            });
+			if (location.pathname.match(/office365/)) {
+                exportObjects("App Groups", "/apps/" + appid + "/groups", "groupId,licenses", function (group) {
+                    return group.id + "," + (group.profile.licenses ? group.profile.licenses.join(";") : "");
+                });
+        	} else {
+                exportObjects("App Users", "/apps/" + appid + "/users", "userName", function (appuser) {
+                    return appuser.credentials.userName;
+                });
+            }
         } else {
             results = createDiv("Export");
             results.innerHTML = "<br>Error. Go to one of these:<br><br>" + 

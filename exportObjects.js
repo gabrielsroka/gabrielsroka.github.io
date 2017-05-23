@@ -1,14 +1,15 @@
 (function () {
-    var total = 0;
-    var results;
+    var total;
     var objectType;
+    var results;
     var logger;
+    var groups;
     if (location.pathname == "/admin/users") {
-        exportObjects("Users", "/users", "id,firstName,lastName,login,email", function (user) {
+        getObjects("Users", "/users", "id,firstName,lastName,login,email", function (user) {
             return user.id + ',"' + user.profile.firstName + '","' + user.profile.lastName + '",' + user.profile.email;
         });
     } else if (location.pathname == "/admin/groups") {
-        exportObjects("Groups", "/groups", "id,name,description,type", function (group) {
+        getObjects("Groups", "/groups", "id,name,description,type", function (group) {
             return group.id + ',"' + group.profile.name + '","' + (group.profile.description || "") + '",' + group.type;
         });
     } else {
@@ -16,22 +17,32 @@
         if (appid) {
             results = createDiv("Export");
             var a = results.appendChild(document.createElement("a"));
+            a.innerHTML = "Export Groups";
             a.onclick = function () {
                 document.body.removeChild(results.parentNode);
-                exportObjects("App Groups", "/apps/" + appid + "/groups", "id,licenses", function (group) {
-                    return group.id + "," + (group.profile.licenses ? group.profile.licenses.join(";") : "");
+                getObjects("App Groups", "/apps/" + appid + "/groups?limit=50", "id,licenses", function (appgroup) {
+                    callAPI("/groups/" + appgroup.id, function () {
+                        var group = JSON.parse(this.responseText);
+                        groups.push(group.profile.name + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : ""));
+                        if (groups.length == total) {
+                            console.log("groups");
+                            for (var g = 0; g < groups.length; g++) {
+                                console.log("," + groups[g]);
+                            }
+                        }
+                    });
+                    return appgroup.id + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "");
                 });
             };
-            a.innerHTML = "Export Groups";
             results.appendChild(document.createElement("br"));
             a = results.appendChild(document.createElement("a"));
+            a.innerHTML = "Export Users";
             a.onclick = function () {
                 document.body.removeChild(results.parentNode);
-                exportObjects("App Users", "/apps/" + appid + "/users", "userName", function (appuser) {
+                getObjects("App Users", "/apps/" + appid + "/users", "userName", function (appuser) {
                     return appuser.credentials.userName;
                 });
             };
-            a.innerHTML = "Export Users";
         } else {
             results = createDiv("Export");
             results.innerHTML = "<br>Error. Go to one of these:<br><br>" + 
@@ -41,12 +52,14 @@
                 "<a href='/admin/apps/active'>Applications > Applications</a> and click on an app<br>";
         }
     }
-    function exportObjects(title, path, header, logCallback) {
+    function getObjects(title, path, header, logCallback) {
+        total = 0;
         objectType = title;
         results = createDiv(title);
         logger = logCallback;
         console.clear();
         console.log("ignore," + header);
+        groups = [];
         callAPI(path, showObjects);
     }
     function showObjects() {

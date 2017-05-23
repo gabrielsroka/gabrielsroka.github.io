@@ -23,7 +23,7 @@
                 getObjects("App Groups", "/apps/" + appid + "/groups?limit=50", "id,licenses", function (appgroup) {
                     callAPI("/groups/" + appgroup.id, function () {
                         var group = JSON.parse(this.responseText);
-                        groups.push(group.profile.name + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "")) +
+                        groups.push(group.profile.name + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : ""))+
                             "," + (appgroup.profile.roles ? appgroup.profile.roles.join(";") : ""));
                         if (groups.length == total) {
                             console.log("groups");
@@ -33,7 +33,7 @@
                         }
                     });
                     return appgroup.id + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "") +
-                        "," + (appgroup.profile.roles ? appgroup.profile.roles.join(";") : ""));
+                        "," + (appgroup.profile.roles ? appgroup.profile.roles.join(";") : "");
                 });
             };
             results.appendChild(document.createElement("br"));

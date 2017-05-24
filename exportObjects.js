@@ -20,13 +20,13 @@
             a.innerHTML = "Export Groups";
             a.onclick = function () {
                 document.body.removeChild(results.parentNode);
-                getObjects("App Groups", "/apps/" + appid + "/groups?limit=50", "id,licenses", function (appgroup) {
+                getObjects("App Groups", "/apps/" + appid + "/groups?limit=50", "id,licenses,roles", function (appgroup) {
                     callAPI("/groups/" + appgroup.id, function () {
                         var group = JSON.parse(this.responseText);
                         groups.push(group.profile.name + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "") +
                             "," + (appgroup.profile.roles ? appgroup.profile.roles.join(";") : ""));
                         if (groups.length == total) {
-                            console.log("groups");
+                            console.log("ignore,name,licenses,roles");
                             for (var g = 0; g < groups.length; g++) {
                                 console.log("," + groups[g]);
                             }

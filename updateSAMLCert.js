@@ -1,4 +1,15 @@
-// see http://developer.okta.com/docs/how-to/updating_saml_cert.html
+/* 
+This bookmarklet updates the certificate for SAML apps. see:
+http://developer.okta.com/docs/how-to/updating_saml_cert.html
+
+Setup:
+1. Drag this to the bookmark toolbar:
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/updateSAMLCert.js";})();
+
+Usage:
+1. In Okta Admin, go to Applications > Applications and click on an app.
+2. Click the bookmark from your toolbar.
+*/
 
 (function () {
     var validityYears = 10; // This must be between 2 and 10.

@@ -6,56 +6,16 @@
 <title>Gabriel Sroka</title>
 <style type="text/css">
 body {
-    font-family: Arial, sans-serif;
+    font-family: sans-serif;
     font-size: 1em;
-}
-.bm {
-    padding: 1px;
-    text-decoration: none;
-    color: black;
-    background-color: #ddd;
 }
 </style>
 </head>
 <body>
 <h1>Gabriel Sroka</h1>
-<h3>Show SSO bookmarklet</h3>
-This bookmarklet shows SAML/WS-Fed assertions and other SSO information.<br>
-<br>
-<b>Setup</b><br>
-1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.<br>
-2. Drag this to the bookmark toolbar:<br>
-<a class=bm href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/saml.js";})();'>Show SSO</a><br>
-<br>
-<b>Usage</b><br>
-1. Login to Okta.<br>
-2. Click the bookmark from your toolbar.<br>
-3. Below each chicklet, there's a Show SSO link. Click one to see the SSO information.<br>
-<br>
-<a href="saml.js">source</a><br>
-<br>
-<h3>Export Objects bookmarklet</h3>
-This bookmarklet exports objects, such as Users, Groups, Directory Users, App Users, App Groups.<br>
-<br>
-<b>Setup</b><br>
-1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.<br>
-2. Drag this to the bookmark toolbar:<br>
-<a class=bm href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/exportObjects.js";})();'>Export Objects</a><br>
-<br>
-<b>Usage</b><br>
-1. Using Chrome, login to Okta Admin. Chrome allows you to export 1,000s of objects, whereas Firefox and IE stop at 1,000.<br>
-2. Go to one of these:<br>
-<ul>
-<li>Directory > People
-<li>Directory > Groups
-<li>Directory > Directory Integrations and click on a directory
-<li>Applications > Applications and click on an app
-</ul>
-3. Open the dev console (F12).<br>
-4. Click the bookmark from your toolbar.<br>
-5. When the export is done, the objects are in the console. Save the results to a CSV file.<br>
-<br>
-<a href="exportObjects.js">source</a><br>
+<h2>Bookmarklets</h2>
+<a href="showSSO.html">Show SSO</a><br>
+<a href="exportObjects.html">Export Objects</a><br>
 <br>
 <h2>Source Code</h2>
 <a href="repl.js">repl.js source</a><br>

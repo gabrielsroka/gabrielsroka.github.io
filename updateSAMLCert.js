@@ -19,31 +19,31 @@ Usage:
         alert("Error. Go to Applications > Applications and click on an app.");
         return;
     }
-    $.get("/api/v1/apps/" + appid).done(function (app) {
-        var url = "/api/v1/apps/" + appid + "/credentials/keys/generate?validityYears=" + validityYears;
-        $.post(url).done(function (key) {
-            var body = {
-                name: app.name, 
-                label: app.label, 
-                signOnMode: app.signOnMode, 
-                credentials: {
-                    signing: {
-                        kid: key.kid
-                    }
+    var app;
+    $.get("/api/v1/apps/" + appid).then(function (data) {
+        app = data;
+        return $.post("/api/v1/apps/" + appid + "/credentials/keys/generate?validityYears=" + validityYears);
+    }).then(function (key) {
+        var body = {
+            name: app.name, 
+            label: app.label, 
+            signOnMode: app.signOnMode, 
+            credentials: {
+                signing: {
+                    kid: key.kid
                 }
-            };
-            put("/api/v1/apps/" + appid, body).done(function () {
-                console.log("Download new cert from Okta:");
-                console.log(location.origin + "/admin/org/security/" + appid + "/cert");
-            });
-        }).fail(function (jqXHR) {
-            var causes = jqXHR.responseJSON.errorCauses;
-            var errors = "";
-            for (var c = 0; c < causes.length; c++) {
-                errors += causes[c].errorSummary + "\n";
             }
-            alert("Error:\n" + errors); // TODO: improve error checking
-        });
+        };
+        return put("/api/v1/apps/" + appid, body);
+    }).then(function () {
+        location = "/admin/org/security/" + appid + "/cert";
+    }).fail(function (jqXHR) {
+        var causes = jqXHR.responseJSON.errorCauses;
+        var errors = "";
+        for (var c = 0; c < causes.length; c++) {
+            errors += causes[c].errorSummary + "\n";
+        }
+        alert("Error:\n" + errors);
     });
     function put(url, body) {
         return $.ajax({

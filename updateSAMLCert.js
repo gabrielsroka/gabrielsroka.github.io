@@ -13,50 +13,15 @@ Usage:
 
 (function () {
     var validityYears = 10; // This must be between 2 and 10.
-    
-    function callAPI(method, path, onload, body) {
-        var request = new XMLHttpRequest();
-        request.open(method, path);
-        request.setRequestHeader("X-Okta-XsrfToken", document.getElementById("_xsrfToken").innerText);
-        request.setRequestHeader("Content-Type", "application/json");
-        request.setRequestHeader("Accept", "application/json");
-        request.onload = onload;
-        request.send(body ? JSON.stringify(body) : null);
-    }
-    function showError(responseText) {
-        var causes = JSON.parse(responseText).errorCauses;
-        var errors = [];
-        for (var c = 0; c < causes.length; c++) {
-            errors.push(causes[c].errorSummary);
-        }
-        return errors.join("\n");
-    }
-    function getAppId() {
-        var path = location.pathname;
-        var pathparts = path.split(/\//);
-        if (path.match(/admin\/app/) && pathparts.length == 7) {
-            return pathparts[5];
-        }
-    }
-    var OK = 200, created = 201;
 
     var appid = getAppId();
     if (!appid) {
         alert("Error. Go to Applications > Applications and click on an app.");
         return;
     }
-    callAPI("GET", "/api/v1/apps/" + appid, function () {
-        if (this.status != OK) {
-            alert("get app error: " + showError(this.responseText));
-            return;
-        }
-        var app = JSON.parse(this.responseText);
-        callAPI("POST", "/api/v1/apps/" + appid + "/credentials/keys/generate?validityYears=" + validityYears, function () {
-            if (this.status != created) {
-                alert("create key error: " + showError(this.responseText));
-                return;
-            }
-            var key = JSON.parse(this.responseText);
+    $.get("/api/v1/apps/" + appid).done(function (app) {
+        var url = "/api/v1/apps/" + appid + "/credentials/keys/generate?validityYears=" + validityYears;
+        $.post(url).done(function (key) {
             var body = {
                 name: app.name, 
                 label: app.label, 
@@ -67,15 +32,30 @@ Usage:
                     }
                 }
             };
-            callAPI("PUT", "/api/v1/apps/" + appid, function () {
-                if (this.status != OK) {
-                    alert("update app error: " + showError(this.responseText));
-                    return;
-                }
-                alert("Success! See console for details.");
-                console.log("Download new cert from Okta. Click on this link.");
+            put("/api/v1/apps/" + appid, body).done(function () {
+                console.log("Download new cert from Okta:");
                 console.log(location.origin + "/admin/org/security/" + appid + "/cert");
-            }, body);
+            });
+        }).fail(function (jqXHR) {
+            var causes = jqXHR.responseJSON.errorCauses;
+            var errors = "";
+            for (var c = 0; c < causes.length; c++) {
+                errors += causes[c].errorSummary + "\n";
+            }
+            alert("Error:\n" + errors); // TODO: improve error checking
         });
     });
+    function put(url, body) {
+        return $.ajax({
+            type: "PUT",
+            url: url,
+            data: JSON.stringify(body),
+            contentType: "application/json"
+        });
+    }
+    function getAppId() {
+        if (location.pathname.match(/admin\/app\//)) {
+            return location.pathname.split(/\//)[5];
+        }
+    }
 })();

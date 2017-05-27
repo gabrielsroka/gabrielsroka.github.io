@@ -19,22 +19,21 @@ Usage:
         alert("Error. Go to Applications > Applications and click on an app.");
         return;
     }
-    var app;
-    $.get("/api/v1/apps/" + appid).then(function (data) {
-        app = data;
+    var updatedApp;
+    $.get("/api/v1/apps/" + appid).then(function (app) {
+        updatedApp = {
+            name: app.name,
+            label: app.label,
+            signOnMode: app.signOnMode
+        };
         return $.post("/api/v1/apps/" + appid + "/credentials/keys/generate?validityYears=" + validityYears);
     }).then(function (key) {
-        var body = {
-            name: app.name, 
-            label: app.label, 
-            signOnMode: app.signOnMode, 
-            credentials: {
-                signing: {
-                    kid: key.kid
-                }
+        updatedApp.credentials = {
+            signing: {
+                kid: key.kid
             }
         };
-        return put("/api/v1/apps/" + appid, body);
+        return put("/api/v1/apps/" + appid, updatedApp);
     }).then(function () {
         location = "/admin/org/security/" + appid + "/cert";
     }).fail(function (jqXHR) {
@@ -54,8 +53,8 @@ Usage:
         });
     }
     function getAppId() {
-        if (location.pathname.match(/admin\/app\//)) {
-            return location.pathname.split(/\//)[5];
+        if (location.pathname.match("/admin/app/")) {
+            return location.pathname.split("/")[5];
         }
     }
 })();

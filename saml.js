@@ -13,8 +13,8 @@ Usage:
 
 (function () {
     var results;
-    var labels = document.getElementsByClassName("app-button-name");
     var label = "Show SSO";
+    var labels = document.getElementsByClassName("app-button-name");
     if (labels.length > 0) { // Button labels on Okta homepage
         for (var i = 0; i < labels.length; i++) {
             if (!labels[i].innerHTML.match(label)) {
@@ -56,19 +56,22 @@ Usage:
         var highlight = "style='background-color: yellow'";
         var matches;
         if (matches = this.responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/)) {
-            var saml = unentity(matches[2]);
-            if (matches[1] == "SAMLResponse") saml = atob(saml);
-            saml = saml.replace(/\n/g, "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
+            var assertion = unentity(matches[2]);
+            if (matches[1] == "SAMLResponse") assertion = atob(assertion);
+            console.log(assertion);
+            assertion = assertion.replace(/\n/g, "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
                 replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").
                 replace(/((Address|Issuer|NameID|NameIdentifier|Name|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
             var postTo = unentity(this.responseText.match(/<form id="appForm" action="(.*?)"/)[1]);
-            results.innerHTML = "<br>Post to: " + postTo + "<br><br><pre>" + indentXml(saml, 4) + "</pre>";
+            results.innerHTML = "<br>Post to: " + postTo + "<br><br><pre>" + indentXml(assertion, 4) + "</pre>";
         } else if (matches = this.responseText.match(/<form(?:.|\n)*<\/form>/)) {
-            results.innerHTML = "<pre>" + matches[0].replace(/ *</g, "&lt;").replace(/>/g, "&gt;").replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"') + "</pre>";
+            var form = matches[0].replace(/ *</g, "&lt;").replace(/>/g, "&gt;").
+                replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"');
+            results.innerHTML = "<br><pre>" + form + "</pre>";
         } else if (matches = this.responseText.match(/<div class="error-content">(?:.|\n)*?<\/div>/)) {
-            results.innerHTML = "<pre>" + matches[0] + "</pre>";
+            results.innerHTML = "<br><pre>" + matches[0] + "</pre>";
         } else {
-            results.innerHTML = "Is this a SWA app, plugin or bookmark?";
+            results.innerHTML = "<br>Is this a SWA app, plugin or bookmark?";
         }
     }
     function createDiv() {

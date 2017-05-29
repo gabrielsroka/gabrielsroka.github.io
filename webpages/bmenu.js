@@ -6,7 +6,7 @@
 
 // Install thusly:
 /*
-javascript:(function(){document.body.appendChild(document.createElement("script")).src="http://webpages.charter.net/gabrielsroka/bmenu.js";})();
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/webpages/bmenu.js";})();
 */
 
 // This anonymous function is called when Greasemonkey/bookmarklet loads this file.
@@ -40,7 +40,7 @@ javascript:(function(){document.body.appendChild(document.createElement("script"
     for (var s = 0; s < scripts.length; s++) {
     	loadScript(scripts[s]);
     }
-})("http://webpages.charter.net/gabrielsroka/", ["js", "table", "dialog"],
+})("https://gabrielsroka.github.io/webpages/", ["js", "table", "dialog"],
 function (path) {
     var menus = [ // Do not use ' in links. Use " instead.
         {name: "Alert Cookies", link: 'alert(document.cookie);'},

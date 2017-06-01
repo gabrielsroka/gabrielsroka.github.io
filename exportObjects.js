@@ -4,9 +4,10 @@
     var results;
     var logger;
     var groups;
+    var csv;
     if (location.pathname == "/admin/users") {
         getObjects("Users", "/users", "id,firstName,lastName,login,email", function (user) {
-            return user.id + ',"' + user.profile.firstName + '","' + user.profile.lastName + '",' + user.profile.email;
+            return user.id + ',"' + user.profile.firstName + '","' + user.profile.lastName + '","' + user.profile.login + '","' + user.profile.email + '"';
         });
     } else if (location.pathname == "/admin/groups") {
         getObjects("Groups", "/groups", "id,name,description,type", function (group) {
@@ -20,13 +21,13 @@
             a.innerHTML = "Export Groups";
             a.onclick = function () {
                 document.body.removeChild(results.parentNode);
-                getObjects("App Groups", "/apps/" + appid + "/groups?limit=50", "id,licenses,roles", function (appgroup) {
+                getObjects("App Groups", "/apps/" + appid + "/groups", "id,licenses,roles", function (appgroup) {
                     callAPI("/groups/" + appgroup.id, function () {
                         var group = JSON.parse(this.responseText);
                         groups.push(group.profile.name + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "") +
                             "," + (appgroup.profile.roles ? appgroup.profile.roles.join(";") : ""));
                         if (groups.length == total) {
-                            console.log("ignore,name,licenses,roles");
+                            console.log("name,licenses,roles");
                             for (var g = 0; g < groups.length; g++) {
                                 console.log("," + groups[g]);
                             }
@@ -59,26 +60,29 @@
         objectType = title;
         results = createDiv(title);
         logger = logCallback;
-        console.clear();
-        console.log("ignore," + header);
+        csv = [header];
         groups = [];
-        callAPI(path, showObjects);
+        callAPI(path, exportObjects);
     }
-    function showObjects() {
+    function exportObjects() {
         if (this.responseText) {
             var objects = JSON.parse(this.responseText);
             for (var i = 0; i < objects.length; i++) {
-                // Start with ',' because Chrome adds extra info at the beginning of each line.
-                console.log(',' + logger(objects[i]));
+                csv.push(logger(objects[i]));
             }
             total += objects.length;
             results.innerHTML = total + " " + objectType + ".";
             var links = getLinks(this.getResponseHeader("Link"));
             if (links.next) {
                 var path = links.next.replace(/.*api.v1/, ""); // links.next is an absolute URL; we need a relative URL.
-                callAPI(path, showObjects);
+                callAPI(path, exportObjects);
             } else {
-                results.innerHTML += " Done -- check the console for results.";
+                results.innerHTML += " Done.";
+                var a = document.body.appendChild(document.createElement("a"));
+                a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(csv.join("\n"));
+                var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
+                a.download = "Export " + objectType + " " + date + ".csv";
+                a.click();
             }
         }
     }

@@ -36,7 +36,7 @@ function format(i) {
     var s = Math.round(i).toLocaleString();
     var a = 1000;
     if (a.toLocaleString().length == 4) { // no punctuation
-        return addCommas(i);
+        return addCommas(Math.round(i));
     } else {
         return s;
     }

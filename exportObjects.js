@@ -59,6 +59,7 @@
         total = 0;
         objectType = title;
         results = createDiv(title);
+        results.innerHTML = "Loading ...";
         logger = logCallback;
         csv = [header];
         groups = [];
@@ -71,13 +72,13 @@
                 csv.push(logger(objects[i]));
             }
             total += objects.length;
-            results.innerHTML = total + " " + objectType + ".";
+            results.innerHTML = total + " " + objectType + "...";
             var links = getLinks(this.getResponseHeader("Link"));
             if (links.next) {
                 var path = links.next.replace(/.*api.v1/, ""); // links.next is an absolute URL; we need a relative URL.
                 callAPI(path, exportObjects);
             } else {
-                results.innerHTML += " Done.";
+                results.innerHTML = total + " " + objectType + ". Done.";
                 var a = document.body.appendChild(document.createElement("a"));
                 a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(csv.join("\n"));
                 var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);

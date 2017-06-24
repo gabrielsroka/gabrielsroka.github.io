@@ -6,6 +6,7 @@
     var groups;
     var csv;
     if (location.pathname == "/admin/users") {
+        // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
         getObjects("Users", "/users", "id,firstName,lastName,login,email", function (user) {
             return user.id + ',"' + user.profile.firstName + '","' + user.profile.lastName + '","' + user.profile.login + '","' + user.profile.email + '"';
         });
@@ -79,7 +80,7 @@
                 callAPI(path, exportObjects);
             } else {
                 results.innerHTML = total + " " + objectType + ". Done.";
-                var a = document.body.appendChild(document.createElement("a"));
+                var a = results.appendChild(document.createElement("a"));
                 a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(csv.join("\n"));
                 var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
                 a.download = "Export " + objectType + " " + date + ".csv";
@@ -93,6 +94,9 @@
         request.setRequestHeader("Content-Type", "application/json");
         request.setRequestHeader("Accept", "application/json");
         request.onload = onload;
+        request.onprogress = function (event) {
+            results.innerHTML = event.loaded + " bytes loaded.";
+        };
         request.send();
     }
     function getLinks(headers) {

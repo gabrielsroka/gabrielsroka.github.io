@@ -7,8 +7,8 @@
     var csv;
     if (location.pathname == "/admin/users") {
         // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
-        getObjects("Users", "/users", "id,firstName,lastName,login,email", function (user) {
-            return user.id + ',"' + user.profile.firstName + '","' + user.profile.lastName + '","' + user.profile.login + '","' + user.profile.email + '"';
+        getObjects("Users", "/users", "id,firstName,lastName,login,email,credentialType", function (user) {
+            return user.id + ',"' + user.profile.firstName + '","' + user.profile.lastName + '","' + user.profile.login + '","' + user.profile.email + '",' + user.credentials.provider.type;
         });
     } else if (location.pathname == "/admin/groups") {
         getObjects("Groups", "/groups", "id,name,description,type", function (group) {

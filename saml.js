@@ -23,7 +23,11 @@ Usage:
                     createDiv();
                     getSSO(this.parentNode.previousSibling.previousSibling.href);
                 };
-                a.innerHTML = "<br>" + label;
+                if (labels[i].clientHeight <= 15) {
+                    a.innerHTML = "<br>" + label;
+                } else {
+                    a.innerHTML = " - " + label;
+                }
                 labels[i].appendChild(a);
             }
         }

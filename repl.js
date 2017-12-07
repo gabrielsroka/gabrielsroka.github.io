@@ -36,7 +36,10 @@ u("", "POST", user)
 // Get users.
 u()
 _.length
+// Show users in a table.
 t("id,profile.email,profile.firstName,profile.lastName,profile.login,credentials.provider.type,created")
+// Show users in a table, use a 'where' clause.
+t("id,profile.email,profile.firstName,profile.lastName,profile.login", "profile.firstName=Test")
 
 // Get groups.
 g()

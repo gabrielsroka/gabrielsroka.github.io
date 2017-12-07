@@ -36,10 +36,7 @@ u("", "POST", user)
 // Get users.
 u()
 _.length
-// Show users in a table.
 t("id,profile.email,profile.firstName,profile.lastName,profile.login,credentials.provider.type,created")
-// Show users in a table, use a 'where' clause.
-t("id,profile.email,profile.firstName,profile.lastName,profile.login","profile.firstName=Test")
 
 // Get groups.
 g()
@@ -89,7 +86,7 @@ function t(fields, where) {
             }
             if (where) {
                 var whereFields = where.split("="), whereField = whereFields[0], whereValue = whereFields[1];
-                if (o[whereField] == whereValue) rows.push(o);
+                if (dot(_[i], whereField) == whereValue) rows.push(o);
             } else {
                 rows.push(o);
             }

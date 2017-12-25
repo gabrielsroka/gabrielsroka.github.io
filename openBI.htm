@@ -3,14 +3,27 @@
 <title>Open PowerBI</title>
 </head>
 <body>
+<button id=open>Open</button>
+Opening in <div id=wait>X</div> seconds.
 <script>
-var url = "https://myapps.microsoft.com/?whr=okta.com";
-var appsWindow = open(url);
-var delayInMsec = 10 * 1000;
-setTimeout(redirect, delayInMsec);
-function redirect() {
-    appsWindow.close();
-    open("https://app.powerbi.com/groups/me/dashboards/2de98baf-8cef-4794-91de-1070a307400f");
+document.getElementById("open").onclick = openPowerBI();
+openPowerBI();
+var delayInSec = 10;
+var wait = 0;
+setTimeout(paint, 1000); // 1 second
+function openPowerBI() {
+    var url = "https://myapps.microsoft.com/?whr=okta.com";
+    var appsWindow = open(url);
+    var delayInMsec = delayInSec * 1000;
+    setTimeout(redirect, delayInMsec);
+    function redirect() {
+        appsWindow.close();
+        open("https://app.powerbi.com/groups/me/dashboards/2de98baf-8cef-4794-91de-1070a307400f");
+    }
+}
+function paint() {
+    document.getElementById("wait").innerHTML = delayInSec - wait;
+    wait++;
 }
 </script>
 </body>

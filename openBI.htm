@@ -6,24 +6,26 @@
 PowerBI will open in <span id=wait>X</span> seconds.<br>
 <button id=open>Open</button>
 <script>
-document.getElementById("open").onclick = openPowerBI();
+document.getElementById("open").onclick = openPowerBI;
 openPowerBI();
 function openPowerBI() {
     var url = "https://myapps.microsoft.com/?whr=okta.com";
-    var delayInSec = 10;
-    var delayInMsec = delayInSec * 1000;
+    var delay = 10;
     var wait = 0;
     var appsWindow = open(url);
-    var interval = setInterval(paint, 1000); // 1 second
-    setTimeout(redirect, delayInMsec);
+    var interval = setInterval(paint, secToMsec(1));
+    setTimeout(redirect, secToMsec(delay));
     function redirect() {
         appsWindow.close();
         open("https://app.powerbi.com/groups/me/dashboards/2de98baf-8cef-4794-91de-1070a307400f");
     }
     function paint() {
-        document.getElementById("wait").innerHTML = delayInSec - wait;
+        document.getElementById("wait").innerHTML = delay - wait;
         wait++;
-        if (wait == 0) clearInterval(interval)
+        if (wait == delay) clearInterval(interval);
+    }
+    function secToMsec(sec) {
+        return sec * 1000;
     }
 }
 </script>

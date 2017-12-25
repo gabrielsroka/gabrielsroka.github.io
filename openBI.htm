@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>Open PowerBI</title>
+</head>
+<body>
+<script>
+var url = "https://myapps.microsoft.com/?whr=okta.com";
+var appsWindow = open(url);
+var delayInMsec = 10 * 1000;
+setTimeout(redirect, delayInMsec);
+function redirect() {
+    appsWindow.close();
+    open("https://app.powerbi.com/groups/me/dashboards/2de98baf-8cef-4794-91de-1070a307400f");
+}
+</script>
+</body>
+</html>

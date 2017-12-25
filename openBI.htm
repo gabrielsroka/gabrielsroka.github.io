@@ -3,8 +3,8 @@
 <title>Open PowerBI</title>
 </head>
 <body>
-<button id=open>Open</button><br>
-Opening in <span id=wait>X</span> seconds.
+PowerBI will open in <span id=wait>X</span> seconds.<br>
+<button id=open>Open</button>
 <script>
 document.getElementById("open").onclick = openPowerBI();
 openPowerBI();
@@ -14,7 +14,7 @@ function openPowerBI() {
     var delayInMsec = delayInSec * 1000;
     var wait = 0;
     var appsWindow = open(url);
-    setInterval(paint, 1000); // 1 second
+    var interval = setInterval(paint, 1000); // 1 second
     setTimeout(redirect, delayInMsec);
     function redirect() {
         appsWindow.close();
@@ -23,6 +23,7 @@ function openPowerBI() {
     function paint() {
         document.getElementById("wait").innerHTML = delayInSec - wait;
         wait++;
+        if (wait == 0) clearInterval(interval)
     }
 }
 </script>

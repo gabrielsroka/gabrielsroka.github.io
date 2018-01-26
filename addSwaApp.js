@@ -13,14 +13,14 @@ Usage:
 (function () {
     var me;
     var div = createDiv("Add App");
-    div.innerHTML = "<form><table><tr><td>Label<td><input id=label style='width: 300px'>" + 
+    div.innerHTML = "<form><table><tr><td>Label<td><input id=appLabel style='width: 300px'>" + 
         "<tr><td>Login URL<td><input id=loginUrl value='https://LOGIN.oktapreview.com' style='width: 300px'></table>" + 
         "<button id=submit type=submit>Add</button></form>";
     $("#submit").click(function () {
         $.get("/api/v1/users/me").then(function (user) {
             me = user;
             var app = {
-                label: $("#label").val(),
+                label: $("#appLabel").val(),
                 settings: {
                     signOn: {
                       loginUrl: $("#loginUrl").val()

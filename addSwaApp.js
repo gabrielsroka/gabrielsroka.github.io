@@ -12,18 +12,18 @@ Usage:
 
 (function () {
     var me;
-    var div = createDiv("Add App");
-    div.innerHTML = "<form><table><tr><td>Label<td><input id=appLabel style='width: 300px'>" + 
-        "<tr><td>Login URL<td><input id=loginUrl value='https://LOGIN.oktapreview.com' style='width: 300px'></table>" + 
-        "<button id=submit type=submit>Add</button></form>";
-    $("#submit").click(function () {
+    var div = $(createDiv("Add App"));
+    div.html("<form><table><tr><td>Label<td><input style='width: 300px'>" + 
+        "<tr><td>Login URL<td><input value='https://LOGIN.oktapreview.com' style='width: 300px'></table>" + 
+        "<button type=submit>Add</button></form>");
+    div.find("button").click(function () {
         $.get("/api/v1/users/me").then(function (user) {
             me = user;
             var app = {
-                label: $("#appLabel").val(),
+                label: div.find("input")[0].value,
                 settings: {
                     signOn: {
-                      loginUrl: $("#loginUrl").val()
+                        loginUrl: div.find("input")[1].value
                     }
                 },
                 signOnMode: "AUTO_LOGIN",
@@ -31,7 +31,7 @@ Usage:
                     autoSubmitToolbar: false
                 }
             };
-            div.innerHTML = "Adding App...";
+            div.html("Adding App...");
             // https://developer.okta.com/docs/api/resources/apps#add-custom-swa-application
             return postJson({
                 url: "/api/v1/apps",
@@ -42,14 +42,14 @@ Usage:
                 id: me.id,
                 scope: "USER",
             };
-            div.innerHTML = "Assigning User...";
+            div.html("Assigning User...");
             // https://developer.okta.com/docs/api/resources/apps#assign-user-to-application-for-sso
             return postJson({
                 url: "/api/v1/apps/" + app.id + "/users",
                 data: appUser
             });
         }).then(function (appUser) {
-            div.innerHTML = "Done.";
+            div.html("Done.");
         });
         return false; // Cancel form.
     });

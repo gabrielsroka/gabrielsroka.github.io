@@ -13,17 +13,17 @@ Usage:
 (function () {
     var me;
     var div = $(createDiv("Add App"));
-    div.html("<form><table><tr><td>Label<td><input style='width: 300px'>" + 
-        "<tr><td>Login URL<td><input value='https://LOGIN.oktapreview.com' style='width: 300px'></table>" + 
+    div.html("<form><table><tr><td>Label<td><input class=label style='width: 300px'>" + 
+        "<tr><td>Login URL<td><input class=loginUrl value='https://LOGIN.oktapreview.com' style='width: 300px'></table>" + 
         "<button type=submit>Add</button></form>");
     div.find("button").click(function () {
         $.get("/api/v1/users/me").then(function (user) {
             me = user;
             var app = {
-                label: div.find("input")[0].value,
+                label: div.find("input.label").val(),
                 settings: {
                     signOn: {
-                        loginUrl: div.find("input")[1].value
+                        loginUrl: div.find("input.loginUrl").val()
                     }
                 },
                 signOnMode: "AUTO_LOGIN",

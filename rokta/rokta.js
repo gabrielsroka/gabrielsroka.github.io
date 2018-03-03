@@ -1,34 +1,95 @@
-if (location.host.match(/-admin/)) {
-    var results = createDiv("rokta");
-    results.innerHTML = "<br>";
+var results = createDiv("rokta");
+var a;
 
+if (location.host.match(/-admin/)) {
     if (location.pathname.match("/admin/user/")) {
-        var a = results.appendChild(document.createElement("a"));
+        var id = location.pathname.split("/")[5];
+        var user;
+        callAPI(`/users/${id}`, function () {
+            user = JSON.parse(this.responseText);
+            document.getElementsByClassName("subheader")[0].innerHTML = user.profile.login + " (m: " + user.profile.email + ")";
+        });
+        a = results.appendChild(document.createElement("a"));
         a.innerHTML = "Show User<br>";
         a.onclick = function () {
-            callAPI("/users/" + location.pathname.split("/")[5], enhanceUser);
-            function enhanceUser() {
-                function toString(o, i) {
-                    var a = [], v, i = i || "";
-                    for (var p in o) {
-                        if (o[p] === null) v = "null";
-                        else if (typeof o[p] == "string") v = '"' + o[p].replace(/(["\\])/g, "\\$1") + '"'; // Escape " and \ 
-                        else if (o[p] instanceof Array) v = "[" + o[p].toString() + "]";
-                        else if (typeof o[p] == "object") v = "{\n" + toString(o[p], i + "\t") + i + "}";
-                        else v = o[p];
-                        a.push(i + p + " = " + v);
-                    }
-                    return a.join("\n") + "\n";
+            function toString(o, i) {
+                var a = [], v, i = i || "";
+                for (var p in o) {
+                    if (o[p] === null) v = "null";
+                    else if (typeof o[p] == "string") v = '"' + o[p].replace(/(["\\])/g, "\\$1") + '"'; // Escape " and \ 
+                    else if (o[p] instanceof Array) v = "[" + o[p].toString() + "]";
+                    else if (typeof o[p] == "object") v = "{\n" + toString(o[p], i + "\t") + i + "}";
+                    else v = o[p];
+                    a.push(i + p + " = " + v);
                 }
-                var user = JSON.parse(this.responseText);
-                var results = createDiv("User");
-                results.innerHTML = "<br><span class='icon icon-24 group-logos-24 " + 
-                    (user ? "logo-" + user.credentials.provider.type.toLowerCase() : "") + "'></span>" +
-                    "<pre>" + (user ? toString(user) : "(not found)") + "</pre>";
+                return a.join("\n") + "\n";
+            }
+            var results = createDiv("User");
+            results.innerHTML = "<span class='icon icon-24 group-logos-24 " + 
+                (user ? "logo-" + user.credentials.provider.type.toLowerCase() : "") + "'></span>" +
+                "<pre>" + (user ? toString(user) : "(not found)") + "</pre>";
+        };
+        a = results.appendChild(document.createElement("a"));
+        a.innerHTML = "Administrator Roles<br>";
+        a.onclick = function () {
+            var allRoles = [
+                {type: "SUPER_ADMIN", label: "Super"},
+                {type: "ORG_ADMIN", label: "Organization"},
+                {type: "APP_ADMIN", label: "Application"},
+                {type: "USER_ADMIN", label: "User"},
+                {type: "HELP_DESK_ADMIN", label: "Help Desk"},
+                {type: "READ_ONLY_ADMIN", label: "Read-only"},
+                {type: "MOBILE_ADMIN", label: "Mobile"}
+                // {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"} // You can add this, but then it doesn't show up when you GET.
+            ];
+            var results = createDiv("Administrator Roles");
+            showRoles();
+            function showRoles() {
+                callAPI(`/users/${id}/roles`, function () {
+                    roles = JSON.parse(this.responseText);
+                    if (roles.length == 0) {
+                        results.innerHTML = "This user is not an admin.<br><br>";
+                        allRoles.forEach(role => {
+                            a = results.appendChild(document.createElement("a"));
+                            a.innerHTML = `Grant ${role.label} Administrator<br>`;
+                            a.onclick = function () {
+                                var data = {
+                                    type: role.type
+                                };
+                                // https://developer.okta.com/docs/api/resources/roles#assign-role-to-user
+                                callAPI(`/users/${id}/roles`, () => setTimeout(showRoles, 1000), "POST", data);
+                            };
+                        });
+                    } else {
+                        results.innerHTML = "";
+                        roles.forEach(role => {
+                            a = results.appendChild(document.createElement("a"));
+                            a.innerHTML = `Revoke ${role.label}<br>`;
+                            a.onclick = function () {
+                                // https://developer.okta.com/docs/api/resources/roles#unassign-role-from-user
+                                callAPI(`/users/${id}/roles/${role.id}`, () => setTimeout(showRoles, 1000), "DELETE");
+                            };
+                        });
+                    }
+                });
             }
         };
+        a = results.appendChild(document.createElement("a"));
+        a.innerHTML = "Show All ADs<br>";
+        a.onclick = function () {
+            callAPI(`/apps?filter=user.id+eq+"${id}"&expand=user/${id}&limit=200&q=active_directory`, function () {
+                appUsers = JSON.parse(this.responseText);
+                var rows = "<tr><th>AD Domain<th>Username<th>Email";
+                appUsers.forEach(appUser => {
+                    var user = appUser._embedded.user;
+                    rows += `<tr><td>${appUser.label}<td>${user.credentials.userName}<td>${user.profile.email}`
+                });
+                var results = createDiv("ADs");
+                results.innerHTML = "<table class='data-list-table'>" + rows + "</table>";
+            });
+        };
     }
-    var a = results.appendChild(document.createElement("a"));
+    a = results.appendChild(document.createElement("a"));
     a.innerHTML = "Export Objects<br>";
     a.onclick = function () {
         var total;
@@ -50,7 +111,7 @@ if (location.host.match(/-admin/)) {
             var appid = getAppId();
             if (appid) {
                 results = createDiv("Export");
-                var a = results.appendChild(document.createElement("a"));
+                a = results.appendChild(document.createElement("a"));
                 a.innerHTML = "Export Groups";
                 a.onclick = function () {
                     document.body.removeChild(results.parentNode);
@@ -112,7 +173,7 @@ if (location.host.match(/-admin/)) {
                     callAPI(path, exportObjects);
                 } else {
                     results.innerHTML = total + " " + objectType + ". Done.";
-                    var a = results.appendChild(document.createElement("a"));
+                    a = results.appendChild(document.createElement("a"));
                     a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(csv.join("\n"));
                     var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
                     a.download = "Export " + objectType + " " + date + ".csv";
@@ -139,10 +200,7 @@ if (location.host.match(/-admin/)) {
     };
 } else { // non-admin
     if (location.pathname == "/app/UserHome") {
-        var results = createDiv("rokta");
-        results.innerHTML = "<br>";
-
-        var a = results.appendChild(document.createElement("a"));
+        a = results.appendChild(document.createElement("a"));
         a.innerHTML = "Show SSO<br>";
         a.onclick = function () {
             var results;
@@ -227,28 +285,26 @@ if (location.host.match(/-admin/)) {
                 }
                 return lines.join("\n");
             }
-            if (!String.prototype.repeat) String.prototype.repeat = function (n) {
-                return "                                                ".substring(0, n);
-            };
         };
     }
 }
-    
-function callAPI(path, onload) {
+
+function callAPI(path, onload, method, body) {
     var request = new XMLHttpRequest();
-    request.open("GET", "/api/v1" + path);
+    request.open(method || "GET", "/api/v1" + path);
+    request.setRequestHeader("X-Okta-XsrfToken", document.getElementById("_xsrfToken").innerText);
     request.setRequestHeader("Content-Type", "application/json");
     request.setRequestHeader("Accept", "application/json");
     request.onload = onload;
 //    request.onprogress = function (event) {
 //        results.innerHTML = event.loaded + " bytes loaded.";
 //    };
-    request.send();
+    request.send(body ? JSON.stringify(body) : null);
 }
 function createDiv(title) {
     var div = document.body.appendChild(document.createElement("div"));
     div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>" + title + " - close</a> " +
-        "<a href='https://gabrielsroka.github.io/' target='_blank'>?</a>";
+        "<a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br>";
     div.style.position = "absolute";
     div.style.zIndex = "1000";
     div.style.left = "4px";

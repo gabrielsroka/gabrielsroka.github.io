@@ -1,14 +1,15 @@
 {
   "manifest_version": 2,
-  "name": "rokta",
+  "name": "rockstar",
   "version": "0.1",
   "content_scripts": [
     {
       "matches": [
         "https://*.okta.com/*",
+        "https://*.okta-emea.com/*",
         "https://*.oktapreview.com/*"
       ],
-      "js": ["rokta.js"]
+      "js": ["jquery-1.12.4.min.js", "rockstar.js"]
     }
   ]
 }

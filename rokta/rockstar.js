@@ -1,3 +1,5 @@
+// TODO: search search string in # in URL. reload from there.
+
 var results;
 var a;
 
@@ -51,7 +53,7 @@ if (location.host.match(/-admin/)) {
                 {type: "SUPER_ADMIN", label: "Super"},
                 {type: "ORG_ADMIN", label: "Organization"},
                 {type: "APP_ADMIN", label: "Application"},
-                {type: "USER_ADMIN", label: "User"},
+                {type: "USER_ADMIN", label: "Group"}, // not "User"
                 {type: "HELP_DESK_ADMIN", label: "Help Desk"},
                 {type: "READ_ONLY_ADMIN", label: "Read-only"},
                 {type: "MOBILE_ADMIN", label: "Mobile"}
@@ -81,6 +83,7 @@ if (location.host.match(/-admin/)) {
                         results.innerHTML = "";
                         roles.forEach(role => {
                             a = results.appendChild(document.createElement("a"));
+                            if (role.label == "User Administrator") role.label = "Group Administrator"; // not "User"
                             a.innerHTML = `Revoke ${role.label}<br>`;
                             a.onclick = function () {
                                 // https://developer.okta.com/docs/api/resources/roles#unassign-role-from-user
@@ -99,6 +102,36 @@ if (location.host.match(/-admin/)) {
                 return $.post(settings);
             }
         };
+    } else if (location.pathname == "/admin/access/admins") {
+        a = results.appendChild(document.createElement("a"));
+        a.innerHTML = "Export Administrators<br>";
+        a.onclick = function () {
+            results = createDiv("Administrators");
+            results.innerHTML = "Exporting ...";
+            $.getJSON("/api/internal/administrators?expand=user").then(function (admins) {
+                var lines = ["First,Last,Email,Username,Roles"];
+                admins.forEach(admin => {
+                    var roles = [];
+                    if (admin.superAdmin) roles.push("Super");
+                    if (admin.orgAdmin) roles.push("Organization");
+                    if (admin.appAdmin) roles.push("Application");
+                    if (admin.userAdmin) roles.push("Group"); // not "User"
+                    if (admin.helpDeskAdmin) roles.push("Help Desk");
+                    if (admin.readOnlyAdmin) roles.push("Read Only");
+                    if (admin.mobileAdmin) roles.push("Mobile");
+                    if (admin.apiAccessManagementAdmin) roles.push("API Access Management");
+                    var profile = admin._embedded.user.profile;
+                    lines.push(profile.firstName + "," + profile.lastName + "," + profile.email + "," + profile.login + "," + roles.join(' '));
+                });
+
+                results.innerHTML = "Done.";
+                var a = results.appendChild(document.createElement("a"));
+                a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(lines.join("\n"));
+                var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
+                a.download = "Export Administrators " + date + ".csv";
+                a.click();
+            });
+        };
     }
     a = results.appendChild(document.createElement("a"));
     a.innerHTML = "Export Objects<br>";
@@ -108,7 +141,7 @@ if (location.host.match(/-admin/)) {
         var results;
         var logger;
         var groups;
-        var csv;
+        var lines;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
             getObjects("Users", "/users", "id,firstName,lastName,login,email,credentialType", function (user) {
@@ -123,7 +156,7 @@ if (location.host.match(/-admin/)) {
             if (appid) {
                 results = createDiv("Export");
                 a = results.appendChild(document.createElement("a"));
-                a.innerHTML = "Export Groups";
+                a.innerHTML = "Export App Groups";
                 a.onclick = function () {
                     document.body.removeChild(results.parentNode);
                     getObjects("App Groups", "/apps/" + appid + "/groups", "id,licenses,roles", function (appgroup) {
@@ -144,11 +177,11 @@ if (location.host.match(/-admin/)) {
                 };
                 results.appendChild(document.createElement("br"));
                 a = results.appendChild(document.createElement("a"));
-                a.innerHTML = "Export Users";
+                a.innerHTML = "Export App Users";
                 a.onclick = function () {
                     document.body.removeChild(results.parentNode);
-                    getObjects("App Users", "/apps/" + appid + "/users", "userName", function (appuser) {
-                        return appuser.credentials.userName;
+                    getObjects("App Users", "/apps/" + appid + "/users", "id,userName,scope", function (appuser) {
+                        return appuser.credentials.userName + "," + (appuser.credentials ? appuser.credentials.userName : "") + "," + appuser.scope;
                     });
                 };
             } else {
@@ -166,7 +199,7 @@ if (location.host.match(/-admin/)) {
             results = createDiv(title);
             results.innerHTML = "Loading ...";
             logger = logCallback;
-            csv = [header];
+            lines = [header];
             groups = [];
             callAPI(path, exportObjects);
         }
@@ -174,7 +207,7 @@ if (location.host.match(/-admin/)) {
             if (this.responseText) {
                 var objects = JSON.parse(this.responseText);
                 for (var i = 0; i < objects.length; i++) {
-                    csv.push(logger(objects[i]));
+                    lines.push(logger(objects[i]));
                 }
                 total += objects.length;
                 results.innerHTML = total + " " + objectType + "...";
@@ -195,7 +228,7 @@ if (location.host.match(/-admin/)) {
                 } else {
                     results.innerHTML = total + " " + objectType + ". Done.";
                     a = results.appendChild(document.createElement("a"));
-                    a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(csv.join("\n"));
+                    a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(lines.join("\n"));
                     var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
                     a.download = "Export " + objectType + " " + date + ".csv";
                     a.click();
@@ -233,6 +266,7 @@ if (location.host.match(/-admin/)) {
                     `<td>${user.profile.login}<td>${user.profile.email}`;
             },
             headers: "<tr><th>Source<th>Person<th>Username<th>Primary Email",
+            placeholder: "Search by First/Last/Email...",
             empty: true
         });
     }
@@ -353,14 +387,16 @@ if (location.host.match(/-admin/)) {
             template: user => `<tr class=odd><td>${user.fullName}<td>${user.login}<td><a href="${location.pathname}/user-summary/${user.userId}">${user.userId}</a>` + 
                 `<td>${user.email}<td>${user.tempSignOn}`,
             headers: "<tr><th>Name<th>Login<th>ID<th>Email<th>Temp Sign On",
-            placeholder: "Search 10...",
+            placeholder: "Search by First/Last/Email/Login...",
             $search: "#user-grid_filter",
             $table: "#user-grid",
-            dataType: "text"
+            dataType: "text",
+            properties: "userSearchQuery"
         });
     }
 }
-$.ajaxSetup({headers: {"X-Okta-XsrfToken": document.getElementById("_xsrfToken").innerText}});
+var xsrf = document.getElementById("_xsrfToken");
+if (xsrf) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.innerText}});
 function callAPI(path, onload, method, body) {
     var request = new XMLHttpRequest();
     request.open(method || "GET", "/api/v1" + path);
@@ -396,7 +432,7 @@ function maker(object) {
             var objects;
             if (object.dataType == "text") {
                 var json = JSON.parse(data.substr(11));
-                var properties = json.userSearchQuery.properties;
+                var properties = json[object.properties].properties;
                 objects = [];
                 for (var i = 0; i < json.aaData.length; i++) {
                     var o = {};
@@ -424,7 +460,7 @@ function maker(object) {
 
     var timeoutID = 0;
     $(object.$search || ".data-list .data-list-toolbar")
-        .html(`<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}'>`)
+        .html(`<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'>`)
         .find("input")
         .keyup(function () {
             if (object.search == this.value || this.value.length < 2) return;

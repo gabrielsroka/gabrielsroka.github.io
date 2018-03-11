@@ -11,6 +11,7 @@
                 `<td><a href="/admin/user/profile/view/${user.id}#tab-account">${user.profile.firstName} ${user.profile.lastName}</a>` +
                 `<td>${user.profile.login}<br>${user.profile.email}`;
         },
+        placeholder: "Search Active by First/Last/Email...",
         headers: "<tr><th>Source<th>Person<th>Username & Email"
     });
 
@@ -37,7 +38,7 @@
         searchObjects();
 
         $(object.$search || ".data-list .data-list-toolbar")
-            .html(`<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}'>`)
+            .html(`<input type='text' class='text-field-default' placeholder='${object.placeholder}' style='width: 250px'>`)
             .find("input")
             .keyup(function () {
                 if (object.search == this.value || this.value.length < 2) return;

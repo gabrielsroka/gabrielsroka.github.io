@@ -57,6 +57,7 @@
                         $("#user-list-page").html($("#user-list-page").html().replace(/Groups/g, "People"));
                     });
                 }
+                $('<tr><td colspan=3>Show Menus</td></tr>').appendTo(".data-list-table").click(() => $("#header").toggle());
             });
         }, 400);
         searchObjects();

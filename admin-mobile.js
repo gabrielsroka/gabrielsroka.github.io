@@ -52,7 +52,7 @@
                         $("#user-list-page").html($("#user-list-page").html().replace(/People/g, "Groups"));
                     });
                 } else {
-                    $('<tr><td colspan=2><span class="icon person-24"></span><br><br>Users</td></tr>').appendTo(".data-list-table").click(() => {
+                    $('<tr><td colspan=2><span class="icon person-24"></span><br><br>People</td></tr>').appendTo(".data-list-table").click(() => {
                         maker(users);
                         $(".group-24").removeClass("group-24").addClass("person-24");
                         $("#user-list-page").html($("#user-list-page").html().replace(/Groups/g, "People"));

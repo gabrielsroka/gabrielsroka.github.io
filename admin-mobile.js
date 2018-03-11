@@ -2,7 +2,7 @@
     var users = {
         url: "/api/v1/users",
         data: function () {return {q: this.search, limit: this.limit};},
-        limit: 7,
+        limit: 8,
         comparer: (user1, user2) => (user1.profile.firstName + user1.profile.lastName).localeCompare(user2.profile.firstName + user2.profile.lastName),
         template: user => {
             var creds = user.credentials.provider;
@@ -17,7 +17,7 @@
     var groups = {
         url: "/api/v1/groups",
         data: function () {return {q: this.search, limit: this.limit};},
-        limit: 7,
+        limit: 8,
         comparer: (group1, group2) => group1.profile.name.localeCompare(group2.profile.name),
         template: group => {
             var type = group.type == "OKTA_GROUP" ? "okta" : "active_directory";
@@ -41,7 +41,6 @@
                 data: object.data(),
                 dataType: object.dataType || "json"
             }).then(function (data) {
-                var objects = data;
                 var rows = "";
                 objects.sort(object.comparer).forEach(o => rows += object.template(o));
                 $(".data-list-table").html(`<thead>${object.headers}</thead>${rows}`);

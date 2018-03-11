@@ -40,7 +40,7 @@
                 url: object.url, 
                 data: object.data(),
                 dataType: object.dataType || "json"
-            }).then(function (data) {
+            }).then(function (objects) {
                 var rows = "";
                 objects.sort(object.comparer).forEach(o => rows += object.template(o));
                 $(".data-list-table").html(`<thead>${object.headers}</thead>${rows}`);

@@ -15,11 +15,11 @@
         headers: "<tr><th>Source<th>Person<th>Username & Email"
     });
 
-    $(".preview-mode").remove();
-    $("#header").remove();
-    $(".outside.data-list-toolbar").remove();
-    $(".data-list-sidebar-wrap").remove();
-    $(".data-list-pager-alpha").remove();
+    $(".preview-mode").hide();
+    $("#header").hide();
+    $(".outside.data-list-toolbar").hide();
+    $(".data-list-sidebar-wrap").hide();
+    $(".data-list-pager-alpha").hide();
     $(".data-list-content-wrap")[0].style.width = "100%";
 
     function maker(object) {

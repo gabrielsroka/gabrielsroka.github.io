@@ -5,10 +5,9 @@
 // @version        2018.3.11.1445
 // @include        https://*.oktapreview.com/admin/users
 // @require        https://code.jquery.com/jquery-1.12.4.min.js
-// @require        https://gabrielsroka.github.io/admin-mobile.js
 // ==/UserScript==
 
 (function () {
-//    document.body.appendChild(document.createElement("script")).src = "https://gabrielsroka.github.io/admin-mobile.js";
+    document.body.appendChild(document.createElement("script")).src = "https://gabrielsroka.github.io/admin-mobile.js";
 }
 )();

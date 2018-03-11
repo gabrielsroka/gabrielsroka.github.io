@@ -2,7 +2,7 @@
     var users = {
         url: "/api/v1/users",
         data: function () {return {q: this.search, limit: this.limit};},
-        limit: 10,
+        limit: 7,
         comparer: (user1, user2) => (user1.profile.firstName + user1.profile.lastName).localeCompare(user2.profile.firstName + user2.profile.lastName),
         template: user => {
             var creds = user.credentials.provider;
@@ -17,7 +17,7 @@
     var groups = {
         url: "/api/v1/groups",
         data: function () {return {q: this.search, limit: this.limit};},
-        limit: 10,
+        limit: 7,
         comparer: (group1, group2) => group1.profile.name.localeCompare(group2.profile.name),
         template: group => {
             var type = group.type == "OKTA_GROUP" ? "okta" : "active_directory";
@@ -45,8 +45,19 @@
                 var rows = "";
                 objects.sort(object.comparer).forEach(o => rows += object.template(o));
                 $(".data-list-table").html(`<thead>${object.headers}</thead>${rows}`);
-                $("<tr colspan=1><td>Users</td></tr>").appendTo(".data-list-table").click(() => maker(users));
-                $("<tr colspan=1><td>Groups</td></tr>").appendTo(".data-list-table").click(() => maker(groups));
+                if (object == users) {
+                    $('<tr><td colspan=3><span class="icon group-24"></span><br><br>Groups</td></tr>').appendTo(".data-list-table").click(() => {
+                        maker(groups);
+                        $(".person-24").removeClass("person-24").addClass("group-24");
+                        $("#user-list-page").html($("#user-list-page").html().replace(/People/g, "Groups"));
+                    });
+                } else {
+                    $('<tr><td colspan=2><span class="icon person-24"></span><br><br>Users</td></tr>').appendTo(".data-list-table").click(() => {
+                        maker(users);
+                        $(".group-24").removeClass("group-24").addClass("person-24");
+                        $("#user-list-page").html($("#user-list-page").html().replace(/Groups/g, "People"));
+                    });
+                }
             });
         }, 400);
         searchObjects();

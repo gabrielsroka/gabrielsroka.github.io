@@ -1,7 +1,6 @@
-// TODO: search search string in # in URL. reload from there.
+// TODO: Save search string in # in URL. Reload from there.
 
 var results;
-var a;
 
 if (location.host.match(/-admin/)) {
     results = createDiv("rockstar");
@@ -13,7 +12,7 @@ if (location.host.match(/-admin/)) {
             var ad = user.credentials.provider.type == "ACTIVE_DIRECTORY";
             $(".subheader").html(user.profile.login + ", mail: " + user.profile.email + (ad ? ", " : ""));
             if (ad) {
-                $("<a>").html("AD: " + user.credentials.provider.name).click(() => {
+                function showADs() {
                     $.getJSON(`/api/v1/apps?filter=user.id+eq+"${id}"&expand=user/${id}&limit=200&q=active_directory`).then(appUsers => {
                         var results = createDiv("ADs");
                         var rows = "<tr><th>AD Domain<th>Username<th>Email";
@@ -23,12 +22,12 @@ if (location.host.match(/-admin/)) {
                         });
                         results.innerHTML = "<table class='data-list-table' style='border: 1px solid #ddd;'>" + rows + "</table>";
                     });
-                }).appendTo(".subheader");
+                }
+                $("<a style='cursor: pointer'>").html("AD: " + user.credentials.provider.name).click(showADs).appendTo(".subheader");
+                $("<li class=option><a>Show ADs</a>").appendTo(".okta-dropdown-list").click(showADs);
             }
         });
-        a = results.appendChild(document.createElement("a"));
-        a.innerHTML = "Show User<br>";
-        a.onclick = function () {
+        function showUser() {
             function toString(o, i) {
                 var a = [], v, i = i || "";
                 for (var p in o) {
@@ -45,10 +44,11 @@ if (location.host.match(/-admin/)) {
             }
             var results = createDiv("User");
             results.innerHTML = "<span class='icon icon-24 group-logos-24 logo-" + user.credentials.provider.type.toLowerCase() + "'></span><pre>" + toString(user) + "</pre>";
-        };
-        a = results.appendChild(document.createElement("a"));
-        a.innerHTML = "Administrator Roles<br>";
-        a.onclick = function () {
+        }
+        var a = createA("Show User");
+        a.onclick = showUser;
+        $("<li class=option><a>Show User</a>").appendTo(".okta-dropdown-list").click(showUser);
+        createA("Administrator Roles").onclick = function () {
             var allRoles = [
                 {type: "SUPER_ADMIN", label: "Super"},
                 {type: "ORG_ADMIN", label: "Organization"},
@@ -59,16 +59,14 @@ if (location.host.match(/-admin/)) {
                 {type: "MOBILE_ADMIN", label: "Mobile"}
                 // {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"} // API AM doesn't show up when you GET.
             ];
-            var results = createDiv("Administrator Roles");
+            results = createDiv("Administrator Roles");
             showRoles();
             function showRoles() {
                 $.getJSON(`/api/v1/users/${id}/roles`).then(roles => {
                     if (roles.length == 0) {
                         results.innerHTML = "This user is not an admin.<br><br>";
                         allRoles.forEach(role => {
-                            a = results.appendChild(document.createElement("a"));
-                            a.innerHTML = `Grant ${role.label} Administrator<br>`;
-                            a.onclick = function () {
+                            createA(`Grant ${role.label} Administrator`).onclick = function () {
                                 var data = {
                                     type: role.type
                                 };
@@ -82,10 +80,8 @@ if (location.host.match(/-admin/)) {
                     } else {
                         results.innerHTML = "";
                         roles.forEach(role => {
-                            a = results.appendChild(document.createElement("a"));
                             if (role.label == "User Administrator") role.label = "Group Administrator"; // not "User"
-                            a.innerHTML = `Revoke ${role.label}<br>`;
-                            a.onclick = function () {
+                            createA(`Revoke ${role.label}`).onclick = function () {
                                 // https://developer.okta.com/docs/api/resources/roles#unassign-role-from-user
                                 $.ajax({
                                     url: `/api/v1/users/${id}/roles/${role.id}`,
@@ -103,9 +99,7 @@ if (location.host.match(/-admin/)) {
             }
         };
     } else if (location.pathname == "/admin/access/admins") {
-        a = results.appendChild(document.createElement("a"));
-        a.innerHTML = "Export Administrators<br>";
-        a.onclick = function () {
+        createA("Export Administrators").onclick = function () {
             results = createDiv("Administrators");
             results.innerHTML = "Exporting ...";
             $.getJSON("/api/internal/administrators?expand=user").then(function (admins) {
@@ -133,37 +127,35 @@ if (location.host.match(/-admin/)) {
             });
         };
     }
-    a = results.appendChild(document.createElement("a"));
-    a.innerHTML = "Export Objects<br>";
-    a.onclick = function () {
+    function exportObjects() {
         var total;
         var objectType;
-        var results;
         var logger;
         var groups;
         var lines;
+        var cancel = false;
+        function commatize(...fields) {
+            return fields.map(field => `"${field}"`).join(',');
+        }
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
-            getObjects("Users", "/users", "id,firstName,lastName,login,email,credentialType", function (user) {
-                return user.id + ',"' + user.profile.firstName + '","' + user.profile.lastName + '","' + user.profile.login + '","' + user.profile.email + '",' + user.credentials.provider.type;
+            getObjects("Users", "/api/v1/users", "id,firstName,lastName,login,email,credentialType", function (user) {
+                return commatize(user.id, user.profile.firstName, user.profile.lastName, user.profile.login, user.profile.email, user.credentials.provider.type);
             });
         } else if (location.pathname == "/admin/groups") {
-            getObjects("Groups", "/groups", "id,name,description,type", function (group) {
-                return group.id + ',"' + group.profile.name + '","' + (group.profile.description || "") + '",' + group.type;
+            getObjects("Groups", "/api/v1/groups", "id,name,description,type", function (group) {
+                return commatize(group.id, group.profile.name, group.profile.description || "", group.type);
             });
         } else {
             var appid = getAppId();
             if (appid) {
                 results = createDiv("Export");
-                a = results.appendChild(document.createElement("a"));
-                a.innerHTML = "Export App Groups";
-                a.onclick = function () {
+                createA("Export App Groups").onclick = function () {
                     document.body.removeChild(results.parentNode);
-                    getObjects("App Groups", "/apps/" + appid + "/groups", "id,licenses,roles", function (appgroup) {
-                        callAPI("/groups/" + appgroup.id, function () {
-                            var group = JSON.parse(this.responseText);
-                            groups.push(group.profile.name + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "") +
-                                "," + (appgroup.profile.roles ? appgroup.profile.roles.join(";") : ""));
+                    getObjects("App Groups", `/api/v1/apps/${appid}/groups`, "id,licenses,roles", function (appgroup) {
+                        $.getJSON(`/api/v1/groups/${appgroup.id}`).then(group => {
+                            groups.push(commatize(group.profile.name, appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "",
+                                appgroup.profile.roles ? appgroup.profile.roles.join(";") : ""));
                             if (groups.length == total) {
                                 console.log("name,licenses,roles");
                                 for (var g = 0; g < groups.length; g++) {
@@ -171,17 +163,14 @@ if (location.host.match(/-admin/)) {
                                 }
                             }
                         });
-                        return appgroup.id + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "") +
-                            "," + (appgroup.profile.roles ? appgroup.profile.roles.join(";") : "");
+                        return commatize(appgroup.id, appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "",
+                            appgroup.profile.roles ? appgroup.profile.roles.join(";") : "");
                     });
                 };
-                results.appendChild(document.createElement("br"));
-                a = results.appendChild(document.createElement("a"));
-                a.innerHTML = "Export App Users";
-                a.onclick = function () {
+                createA("Export App Users").onclick = function () {
                     document.body.removeChild(results.parentNode);
-                    getObjects("App Users", "/apps/" + appid + "/users", "id,userName,scope", function (appuser) {
-                        return appuser.credentials.userName + "," + (appuser.credentials ? appuser.credentials.userName : "") + "," + appuser.scope;
+                    getObjects("App Users", "/api/v1/apps/" + appid + "/users", "id,userName,scope", function (appuser) {
+                        return commatize(appuser.id, appuser.credentials ? appuser.credentials.userName : "", appuser.scope);
                     });
                 };
             } else {
@@ -201,38 +190,40 @@ if (location.host.match(/-admin/)) {
             logger = logCallback;
             lines = [header];
             groups = [];
-            callAPI(path, exportObjects);
+            $.getJSON(path).then(exportObjects);
         }
-        function exportObjects() {
-            if (this.responseText) {
-                var objects = JSON.parse(this.responseText);
-                for (var i = 0; i < objects.length; i++) {
-                    lines.push(logger(objects[i]));
-                }
-                total += objects.length;
-                results.innerHTML = total + " " + objectType + "...";
-                var links = getLinks(this.getResponseHeader("Link"));
-                if (links && links.next) {
-                    var path = links.next.replace(/.*api.v1/, ""); // links.next is an absolute URL; we need a relative URL.
-                    if (this.getResponseHeader("X-Rate-Limit-Remaining") && this.getResponseHeader("X-Rate-Limit-Remaining") < 10) {
-                        var interval = setInterval(() => {
-                            results.innerHTML += "<br>Sleeping...";
-                            if ((new Date()).getTime() / 1000 > this.getResponseHeader("X-Rate-Limit-Reset")) {
-                                clearInterval(interval);
-                                callAPI(path, exportObjects);
-                            }
-                        }, 1000);
-                    } else {
-                        callAPI(path, exportObjects);
-                    }
+        function exportObjects(objects, status, jqXHR) {
+            for (var i = 0; i < objects.length; i++) {
+                lines.push(logger(objects[i]));
+            }
+            total += objects.length;
+            results.innerHTML = total + " " + objectType + "...<br><br>";
+            createA("Cancel").onclick = () => cancel = true;
+            if (cancel) {
+                document.body.removeChild(results.parentNode);
+                return;
+            }
+            var links = getLinks(jqXHR.getResponseHeader("Link"));
+            if (links && links.next) {
+                var path = links.next.match(/.*(\/api.v1.*)/)[1]; // links.next is an absolute URL; we need a relative URL.
+                if (jqXHR.getResponseHeader("X-Rate-Limit-Remaining") && jqXHR.getResponseHeader("X-Rate-Limit-Remaining") < 10) {
+                    var interval = setInterval(() => {
+                        results.innerHTML += "<br>Sleeping...";
+                        if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {
+                            clearInterval(interval);
+                            $.getJSON(path).then(exportObjects);
+                        }
+                    }, 1000);
                 } else {
-                    results.innerHTML = total + " " + objectType + ". Done.";
-                    a = results.appendChild(document.createElement("a"));
-                    a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(lines.join("\n"));
-                    var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
-                    a.download = "Export " + objectType + " " + date + ".csv";
-                    a.click();
+                    $.getJSON(path).then(exportObjects);
                 }
+            } else {
+                results.innerHTML = total + " " + objectType + ". Done.";
+                a = results.appendChild(document.createElement("a"));
+                a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(lines.join("\n"));
+                var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
+                a.download = "Export " + objectType + " " + date + ".csv";
+                a.click();
             }
         }
         function getLinks(headers) {
@@ -251,8 +242,13 @@ if (location.host.match(/-admin/)) {
                 return pathparts[5];
             }
         }
-    };
+    }
+    $("<li><a href=/report/system_log>System Log v1</a>").appendTo("#nav-admin-reports-2");
+    var a = createA("Export Objects");
+    a.onclick = exportObjects;
+    $("<li><a style='cursor: pointer'>Export Objects</a>").appendTo("#nav-admin-reports-2").click(exportObjects);
     if (location.pathname == "/admin/users") { // Directory > People
+        $("<li class=option><a>Export Users</a>").appendTo(".okta-dropdown-list").click(exportObjects);
         maker({
             url: "/api/v1/users",
             data: function () {return {q: this.search, limit: this.limit};}, // Do not use an arrow function for a method -- it breaks `this`.
@@ -265,16 +261,14 @@ if (location.host.match(/-admin/)) {
                     `<td><a href="/admin/user/profile/view/${user.id}#tab-account">${user.profile.firstName} ${user.profile.lastName}</a>` +
                     `<td>${user.profile.login}<td>${user.profile.email}`;
             },
-            headers: "<tr><th>Source<th>Person<th>Username<th>Primary Email",
-            placeholder: "Search by First/Last/Email...",
+            headers: "<tr><th>Source<th>Name<th>Username<th>Primary Email",
+            placeholder: "Search Active by First/Last/Email...",
             empty: true
         });
     }
 } else if (location.pathname == "/app/UserHome") { // non-admin
     results = createDiv("rockstar");
-    a = results.appendChild(document.createElement("a"));
-    a.innerHTML = "Show SSO<br>";
-    a.onclick = function () {
+    createA("Show SSO").onclick = function () {
         var results;
         var label = "Show SSO";
         var labels = document.getElementsByClassName("app-button-name");
@@ -291,6 +285,7 @@ if (location.host.match(/-admin/)) {
                     } else {
                         a.innerHTML = " - " + label;
                     }
+                    a.style.cursor = "pointer";
                     labels[i].appendChild(a);
                 }
             }
@@ -311,35 +306,31 @@ if (location.host.match(/-admin/)) {
         }
         function getSSO(url) {
             results.innerHTML = "Loading . . .";
-            var request = new XMLHttpRequest();
-            request.open("GET", url);
-            request.onload = showSSO;
-            request.send();
-        }
-        function showSSO() {
-            function unentity(s) {
-                return s.replace(/&#(x..?);/g, function (m, p1) {return String.fromCharCode("0" + p1)});
-            }
-            var highlight = "style='background-color: yellow'";
-            var matches;
-            if (matches = this.responseText.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/)) {
-                var assertion = unentity(matches[2]);
-                if (matches[1] == "SAMLResponse") assertion = atob(assertion);
-                console.log(assertion);
-                assertion = assertion.replace(/\n/g, "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;").
-                    replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;").
-                    replace(/((Address|Issuer|NameID|NameIdentifier|Name|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
-                var postTo = unentity(this.responseText.match(/<form id="appForm" action="(.*?)"/)[1]);
-                results.innerHTML = "<br>Post to: " + postTo + "<br><br><pre>" + indentXml(assertion, 4) + "</pre>";
-            } else if (matches = this.responseText.match(/<form(?:.|\n)*<\/form>/)) {
-                var form = matches[0].replace(/ *</g, "&lt;").replace(/>/g, "&gt;").
-                    replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"');
-                results.innerHTML = "<br><pre>" + form + "</pre>";
-            } else if (matches = this.responseText.match(/<div class="error-content">(?:.|\n)*?<\/div>/)) {
-                results.innerHTML = "<br><pre>" + matches[0] + "</pre>";
-            } else {
-                results.innerHTML = "<br>Is this a SWA app, plugin or bookmark?";
-            }
+            $.get(url).then(response => {
+                function unentity(s) {
+                    return s.replace(/&#(x..?);/g, function (m, p1) {return String.fromCharCode("0" + p1)});
+                }
+                var highlight = "style='background-color: yellow'";
+                var matches;
+                if (matches = response.match(/name="(SAMLResponse|wresult)".*value="(.*?)"/)) {
+                    var assertion = unentity(matches[2]);
+                    if (matches[1] == "SAMLResponse") assertion = atob(assertion);
+                    console.log(assertion);
+                    assertion = assertion.replace(/\n/g, "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;")
+                        .replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;")
+                        .replace(/((Address|Issuer|NameID|NameIdentifier|Name|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
+                    var postTo = unentity(response.match(/<form id="appForm" action="(.*?)"/)[1]);
+                    results.innerHTML = "Post to: " + postTo + "<br><br><pre>" + indentXml(assertion, 4) + "</pre>";
+                } else if (matches = response.match(/<form(?:.|\n)*<\/form>/)) {
+                    var form = matches[0].replace(/ *</g, "&lt;").replace(/>/g, "&gt;").
+                        replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"');
+                    results.innerHTML = "<pre>" + form + "</pre>";
+                } else if (matches = response.match(/<div class="error-content">(?:.|\n)*?<\/div>/)) {
+                    results.innerHTML = "<pre>" + matches[0] + "</pre>";
+                } else {
+                    results.innerHTML = "Is this a SWA app, plugin or bookmark?";
+                }
+            });
         }
         function getDiv() {
             results = createDiv("SSO");
@@ -395,23 +386,11 @@ if (location.host.match(/-admin/)) {
         });
     }
 }
-var xsrf = document.getElementById("_xsrfToken");
-if (xsrf) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.innerText}});
-function callAPI(path, onload, method, body) {
-    var request = new XMLHttpRequest();
-    request.open(method || "GET", "/api/v1" + path);
-    request.setRequestHeader("X-Okta-XsrfToken", document.getElementById("_xsrfToken").innerText);
-    request.setRequestHeader("Content-Type", "application/json");
-    request.setRequestHeader("Accept", "application/json");
-    request.onload = onload;
-//    request.onprogress = function (event) {
-//        results.innerHTML = event.loaded + " bytes loaded.";
-//    };
-    request.send(body ? JSON.stringify(body) : null);
-}
+var xsrf = $("#_xsrfToken");
+if (xsrf) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
 function createDiv(title) {
     var div = document.body.appendChild(document.createElement("div"));
-    div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)'>" + title + " - close</a> " +
+    div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>" + title + " - close</a> " +
         "<a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br>";
     div.style.position = "absolute";
     div.style.zIndex = "1000";
@@ -422,6 +401,12 @@ function createDiv(title) {
     div.style.border = "1px solid #ddd";
     return div.appendChild(document.createElement("div"));
 }
+function createA(html) {
+    var a = results.appendChild(document.createElement("a"));
+    a.style.cursor = "pointer";
+    a.innerHTML = html + "<br>";
+    return a;
+}
 function maker(object) {
     function searchObjects() {
         $.get({
@@ -431,15 +416,16 @@ function maker(object) {
         }).then(function (data) {
             var objects;
             if (object.dataType == "text") {
-                var json = JSON.parse(data.substr(11));
-                var properties = json[object.properties].properties;
+                var prefix = "while(1){};";
+                data = JSON.parse(data.substr(prefix.length)); // data has a prefix to prevent JSON hijacking. We have to remove the prefix.
+                var properties = data[object.properties].properties;
                 objects = [];
-                for (var i = 0; i < json.aaData.length; i++) {
-                    var o = {};
+                for (var i = 0; i < data.aaData.length; i++) {
+                    var obj = {};
                     for (var p = 0; p < properties.length; p++) {
-                        o[properties[p]] = json.aaData[i][p];
+                        obj[properties[p]] = data.aaData[i][p];
                     }
-                    objects.push(o);
+                    objects.push(obj);
                 }
             } else {
                 objects = data;

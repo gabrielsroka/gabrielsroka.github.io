@@ -27,12 +27,14 @@
         headers: "<tr><th>Source<th>Name"
     };
 
+    var input;
     maker(users);
     $('<a href="/admin/dashboard"><img src="https://gabrielsroka.github.io/menu.png"></a>').insertAfter("#startcontent");
     $(".preview-mode").hide();
     $("#header").hide();
     $(".outside.data-list-toolbar").hide();
     $(".data-list-sidebar-wrap").hide();
+    $(".data-list-toolbar").hide();
     $(".data-list-content-wrap")[0].style.width = "100%";
 
     function maker(object) {
@@ -63,15 +65,15 @@
         }, 400);
         searchObjects();
 
-        $(object.$search || ".data-list .data-list-toolbar")
-            .html(`<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'>`)
-            .find("input")
-            .keyup(function () {
-                if (object.search == this.value || this.value.length < 2) return;
-                object.search = this.value;
-                searchObjects();
-            }
-        );
+        if (!input) {
+            input = $(`<input type='text' class='text-field-default' style='width: 250px'>`).insertAfter("#startcontent");
+        }
+        input.attr("placeholder", object.placeholder || "Search...").off("keyup").val(object.search);
+        input.keyup(function () {
+            if (object.search == this.value || this.value.length < 2) return;
+            object.search = this.value;
+            searchObjects();
+        });
     }
 }
 )();

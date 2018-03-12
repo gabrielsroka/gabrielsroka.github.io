@@ -28,6 +28,7 @@
     };
 
     maker(users);
+    $('<a href="/admin/dashboard"><img src="https://gabrielsroka.github.io/menu.png"></a>').insertAfter("#startcontent");
     $(".preview-mode").hide();
     $("#header").hide();
     $(".outside.data-list-toolbar").hide();

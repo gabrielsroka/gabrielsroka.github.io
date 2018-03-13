@@ -100,7 +100,8 @@
             } else {
                 results.innerHTML = total + " " + objectType + ". Done.";
                 var a = results.appendChild(document.createElement("a"));
-                a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(lines.join("\n"));
+                a.href = URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'}));
+                // a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(lines.join("\n"));
                 var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
                 a.download = "Export " + objectType + " " + date + ".csv";
                 a.click();

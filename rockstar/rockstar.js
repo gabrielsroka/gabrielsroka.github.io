@@ -205,7 +205,8 @@ if (location.host.match(/-admin/)) {
             }
             var links = getLinks(jqXHR.getResponseHeader("Link"));
             if (links && links.next) {
-                var path = new URL(links.next).pathname; // links.next is an absolute URL; we need a relative URL.
+                var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+                var path = nextUrl.pathname + nextUrl.search;
                 if (jqXHR.getResponseHeader("X-Rate-Limit-Remaining") && jqXHR.getResponseHeader("X-Rate-Limit-Remaining") < 10) {
                     var interval = setInterval(() => {
                         results.innerHTML += "<br>Sleeping...";

@@ -120,7 +120,7 @@ if (location.host.match(/-admin/)) {
 
                 results.innerHTML = "Done.";
                 var a = results.appendChild(document.createElement("a"));
-                a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(lines.join("\n"));
+                a.href = URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'}));
                 var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
                 a.download = "Export Administrators " + date + ".csv";
                 a.click();
@@ -205,7 +205,7 @@ if (location.host.match(/-admin/)) {
             }
             var links = getLinks(jqXHR.getResponseHeader("Link"));
             if (links && links.next) {
-                var path = links.next.match(/.*(\/api.v1.*)/)[1]; // links.next is an absolute URL; we need a relative URL.
+                var path = new URL(links.next).pathname; // links.next is an absolute URL; we need a relative URL.
                 if (jqXHR.getResponseHeader("X-Rate-Limit-Remaining") && jqXHR.getResponseHeader("X-Rate-Limit-Remaining") < 10) {
                     var interval = setInterval(() => {
                         results.innerHTML += "<br>Sleeping...";
@@ -220,7 +220,7 @@ if (location.host.match(/-admin/)) {
             } else {
                 results.innerHTML = total + " " + objectType + ". Done.";
                 a = results.appendChild(document.createElement("a"));
-                a.href = "data:application/csv;charset=utf-8," + encodeURIComponent(lines.join("\n"));
+                a.href = URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'}));
                 var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
                 a.download = "Export " + objectType + " " + date + ".csv";
                 a.click();

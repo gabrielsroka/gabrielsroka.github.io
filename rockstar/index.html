@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<title>rockstar</title>
+<style type="text/css">
+body {
+    font-family: Arial, sans-serif;
+    font-size: 1em;
+}
+.bm {
+    padding: 1px;
+    text-decoration: none;
+    color: black;
+    background-color: #ddd;
+}
+</style>
+</head>
+<body>
+<h3>rockstar bookmarklet</h3>
+Many Okta features, eg:<br>
+Show User/AD info<br>
+Export objects, such as Users, Groups, Directory Users, App Users, App Groups.<br>
+Manage and Export Administrators<br>
+Show SSO<br>
+<br>
+<b>Setup</b><br>
+1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.<br>
+2. Drag this to the bookmark toolbar:<br>
+<a class=bm href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/rockstar/rockstar.js";})();'>rockstar</a><br>
+<br>
+<b>Usage</b><br>
+1. Login to Okta or Okta Admin.<br>
+2. Click the rockstar bookmark from your toolbar.<br>
+<br>
+<a href="rockstar.js">source</a><br>
+</body>
+</html>

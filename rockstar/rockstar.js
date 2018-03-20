@@ -4,6 +4,9 @@
     var results;
 
     if (location.host.match(/-admin/)) {
+        $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
+        $("<li><a href='/report/system_log'>System Log v1</a>").appendTo("#nav-admin-reports-2");
+
         results = createDiv("rockstar");
         if (location.pathname.match("/admin/user/")) {
             var id = location.pathname.split("/")[5];
@@ -25,7 +28,7 @@
                         });
                     }
                     $("<a style='cursor: pointer'>").html("AD: " + user.credentials.provider.name).click(showADs).appendTo(".subheader");
-                    $("<li class=option><a>Show ADs</a>").appendTo(".okta-dropdown-list").click(showADs);
+                    $("<li class=option><a><span class='icon directory-16'></span>Show ADs</a>").click(showADs).appendTo(".okta-dropdown-list");
                 }
             });
             function showUser() {
@@ -48,7 +51,8 @@
             }
             var a = createA("Show User");
             a.onclick = showUser;
-            $("<li class=option><a>Show User</a>").appendTo(".okta-dropdown-list").click(showUser);
+            $("<li class=option><a><span class='icon person-16-gray'></span>Show User</a>").click(showUser).appendTo(".okta-dropdown-list");
+            
             createA("Administrator Roles").onclick = function () {
                 var allRoles = [
                     {type: "SUPER_ADMIN", label: "Super"},
@@ -128,6 +132,7 @@
                 });
             };
         }
+        
         function exportObjects() {
             var total;
             var objectType;
@@ -245,16 +250,15 @@
                 }
             }
         }
-        $("<li><a href=/admin/apps/add-app>Add Application</a>").appendTo("#nav-admin-apps-2");
-        $("<li><a href=/report/system_log>System Log v1</a>").appendTo("#nav-admin-reports-2");
         var a = createA("Export Objects");
         a.onclick = exportObjects;
-        $("<li><a style='cursor: pointer'>Export Objects</a>").appendTo("#nav-admin-reports-2").click(exportObjects);
+        $("<li><a style='cursor: pointer'>Export Objects</a>").click(exportObjects).appendTo("#nav-admin-reports-2");
+        
         if (location.pathname == "/admin/users") { // Directory > People
-            $("<li class=option><a>Export Users</a>").appendTo(".okta-dropdown-list").click(exportObjects);
+            $("<li class=option><a><span class='icon download-16'></span>Export Users</a>").click(exportObjects).appendTo(".okta-dropdown-list");
             maker({
                 url: "/api/v1/users",
-                data: function () {return {q: this.search, limit: this.limit};}, // Do not use an arrow function for a method -- it breaks `this`.
+                data: function () {return {q: this.search, limit: this.limit};},
                 limit: 15, // 15 is the max limit when using q.
                 comparer: (user1, user2) => (user1.profile.firstName + user1.profile.lastName).localeCompare(user2.profile.firstName + user2.profile.lastName),
                 template: user => {
@@ -449,7 +453,8 @@
 
         var timeoutID = 0;
         $(object.$search || ".data-list .data-list-toolbar")
-            .html(`<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'>`)
+            .html(`<span class="search-box input-fix"><span class="icon-only icon-16 magnifying-glass-16"></span> ` +
+                `<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'></span>`)
             .find("input")
             .keyup(function () {
                 if (object.search == this.value || this.value.length < 2) return;

@@ -61,7 +61,7 @@
                     {type: "APP_ADMIN", label: "Application"},
                     {type: "USER_ADMIN", label: "Group"}, // not "User"
                     {type: "HELP_DESK_ADMIN", label: "Help Desk"},
-                    {type: "READ_ONLY_ADMIN", label: "Read-only"},
+                    {type: "READ_ONLY_ADMIN", label: "Read-only"}, // not "Read Only"
                     {type: "MOBILE_ADMIN", label: "Mobile"}
                     // {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"} // API AM doesn't show up when you GET.
                 ];
@@ -109,26 +109,27 @@
                 results = createDiv("Administrators");
                 results.innerHTML = "Exporting ...";
                 $.getJSON("/api/internal/administrators?expand=user").then(function (admins) {
-                    var lines = ["First,Last,Email,Username,Roles"];
+                    var lines = ["First,Last,Email,Username,Role"];
                     admins.forEach(admin => {
-                        var roles = [];
-                        if (admin.superAdmin) roles.push("Super");
-                        if (admin.orgAdmin) roles.push("Organization");
-                        if (admin.appAdmin) roles.push("Application");
-                        if (admin.userAdmin) roles.push("Group"); // not "User"
-                        if (admin.helpDeskAdmin) roles.push("Help Desk");
-                        if (admin.readOnlyAdmin) roles.push("Read Only");
-                        if (admin.mobileAdmin) roles.push("Mobile");
-                        if (admin.apiAccessManagementAdmin) roles.push("API Access Management");
                         var profile = admin._embedded.user.profile;
-                        lines.push(profile.firstName + "," + profile.lastName + "," + profile.email + "," + profile.login + "," + roles.join(' '));
+                        function showRole(role) {
+                            lines.push(commatize(profile.firstName, profile.lastName, profile.email, profile.login, role));
+                        }
+                        if (admin.superAdmin) showRole("Super");
+                        if (admin.orgAdmin) showRole("Organization");
+                        if (admin.appAdmin) showRole("Application");
+                        if (admin.userAdmin) showRole("Group"); // not "User"
+                        if (admin.helpDeskAdmin) showRole("Help Desk");
+                        if (admin.readOnlyAdmin) showRole("Read Only");
+                        if (admin.mobileAdmin) showRole("Mobile");
+                        if (admin.apiAccessManagementAdmin) showRole("API Access Management");
                     });
 
                     results.innerHTML = "Done.";
                     var a = results.appendChild(document.createElement("a"));
                     a.href = URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'}));
                     var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
-                    a.download = "Export Administrators " + date + ".csv";
+                    a.download = `Administrators ${location.host.replace("-admin", "")} ${date}.csv`;
                     a.click();
                 });
             };
@@ -141,9 +142,6 @@
             var groups;
             var lines;
             var cancel = false;
-            function commatize(...fields) {
-                return fields.map(field => `"${field}"`).join(',');
-            }
             if (location.pathname == "/admin/users") {
                 // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
                 getObjects("Users", "/api/v1/users", "id,firstName,lastName,login,email,credentialType", function (user) {
@@ -469,5 +467,8 @@
                 timeoutID = setTimeout(searchObjects, 400);
             }
         );
+    }
+    function commatize(...fields) {
+        return fields.map(field => `"${field}"`).join(',');
     }
 })();

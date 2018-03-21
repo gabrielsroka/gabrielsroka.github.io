@@ -34,7 +34,7 @@
             });
             function showUser() {
                 function toString(o, i) {
-                    var a = [], v, i = i || "";
+                    var strings = [], v, i = i || "";
                     for (var p in o) {
                         if (p != "credentials" && p != "_links") {
                             if (o[p] === null) v = "null";
@@ -42,10 +42,10 @@
                             else if (o[p] instanceof Array) v = "[" + o[p].toString() + "]";
                             else if (typeof o[p] == "object") v = "{\n" + toString(o[p], i + "\t") + i + "}";
                             else v = o[p];
-                            a.push(i + p + ": " + v);
+                            strings.push(i + p + ": " + v);
                         }
                     }
-                    return a.join("\n") + "\n";
+                    return strings.join("\n") + "\n";
                 }
                 var results = createDiv("User");
                 results.innerHTML = "<span class='icon icon-24 group-logos-24 logo-" + user.credentials.provider.type.toLowerCase() + "'></span><pre>" + toString(user) + "</pre>";
@@ -108,21 +108,50 @@
             createA("Export Administrators").onclick = function () {
                 results = createDiv("Administrators");
                 results.innerHTML = "Exporting ...";
-                $.getJSON("/api/internal/administrators?expand=user").then(function (admins) {
-                    var lines = ["First,Last,Email,Username,Role"];
+                $.getJSON("/api/internal/administrators?expand=user%2Capps%2CuserAdminGroups%2ChelpDeskAdminGroups").then(function (admins) {
+                    var lines = ["First,Last,Email,Username,Title,Manager,Department,Administrator Role"];
                     admins.forEach(admin => {
                         var profile = admin._embedded.user.profile;
                         function showRole(role) {
-                            lines.push(commatize(profile.firstName, profile.lastName, profile.email, profile.login, role));
+                            var mgr = profile.manager || profile.managerId || "";
+                            var matches;
+                            if (mgr && (matches = mgr.match(/CN=(.*?),OU/))) mgr = matches[1];
+                            mgr = mgr.replace("\\", "");
+                            // FIXME: would like to show user.status, but it comes back as null. TODO: fetch it from /users
+                            lines.push(commatize(profile.firstName, profile.lastName, profile.email, profile.login, profile.title || "", mgr, profile.department || "", role));
                         }
-                        if (admin.superAdmin) showRole("Super");
-                        if (admin.orgAdmin) showRole("Organization");
-                        if (admin.appAdmin) showRole("Application");
-                        if (admin.userAdmin) showRole("Group"); // not "User"
-                        if (admin.helpDeskAdmin) showRole("Help Desk");
-                        if (admin.readOnlyAdmin) showRole("Read Only");
-                        if (admin.mobileAdmin) showRole("Mobile");
-                        if (admin.apiAccessManagementAdmin) showRole("API Access Management");
+                        if (admin.superAdmin) showRole("Super Administrator");
+                        if (admin.orgAdmin) showRole("Organization Administrator");
+                        if (admin.appAdmin) {
+                            var apps = [];
+                            if (admin._embedded.apps && admin._embedded.apps.length > 0) {
+                                admin._embedded.apps.forEach(app => apps.push(app.displayName));
+                            } else {
+                                apps.push("(all)");
+                            }
+                            showRole("Application Administrator: " + apps.join('; '));
+                        }
+                        if (admin.userAdmin) {
+                            var groups = [];
+                            if (admin._embedded.userAdminGroups && admin._embedded.userAdminGroups.length > 0) {
+                                admin._embedded.userAdminGroups.forEach(group => groups.push(group.profile.name));
+                            } else {
+                                groups.push("(all)");
+                            }
+                            showRole("Group Administrator: " + groups.join('; ')); // not "User"
+                        }
+                        if (admin.helpDeskAdmin) {
+                            var groups = [];
+                            if (admin._embedded.helpDeskAdminGroups && admin._embedded.helpDeskAdminGroups.length > 0) {
+                                admin._embedded.helpDeskAdminGroups.forEach(group => groups.push(group.profile.name));
+                            } else {
+                                groups.push("(all)");
+                            }
+                            showRole("Help Desk Administrator: " + groups.join('; '));
+                        }
+                        if (admin.readOnlyAdmin) showRole("Read Only Administrator");
+                        if (admin.mobileAdmin) showRole("Mobile Administrator");
+                        if (admin.apiAccessManagementAdmin) showRole("API Access Management Administrator");
                     });
 
                     results.innerHTML = "Done.";
@@ -230,7 +259,7 @@
                     }
                 } else {
                     results.innerHTML = total + " " + objectType + ". Done.";
-                    a = results.appendChild(document.createElement("a"));
+                    var a = results.appendChild(document.createElement("a"));
                     a.href = URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'}));
                     var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
                     a.download = "Export " + objectType + " " + date + ".csv";

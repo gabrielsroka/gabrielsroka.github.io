@@ -15,6 +15,7 @@
                 user = aUser;
                 var ad = user.credentials.provider.type == "ACTIVE_DIRECTORY";
                 $(".subheader").html(user.profile.login + ", mail: " + user.profile.email + (ad ? ", " : ""));
+                document.title += ` - ${user.profile.firstName} ${user.profile.lastName}`;
                 if (ad) {
                     function showADs() {
                         $.getJSON(`/api/v1/apps?filter=user.id+eq+"${id}"&expand=user/${id}&limit=200&q=active_directory`).then(appUsers => {
@@ -152,6 +153,10 @@
                 getObjects("Groups", "/api/v1/groups", "id,name,description,type", function (group) {
                     return commatize(group.id, group.profile.name, group.profile.description || "", group.type);
                 });
+            } else if (location.pathname == "/admin/apps/active") {
+                getObjects("Apps", "/apps", "id,label,name", function (app) {
+                    return commatize(app.id, app.label, app.name);
+                });
             } else {
                 var appid = getAppId();
                 if (appid) {
@@ -184,8 +189,9 @@
                     results.innerHTML = "<br>Error. Go to one of these:<br><br>" + 
                         "<a href='/admin/users'>Directory > People</a><br>" + 
                         "<a href='/admin/groups'>Directory > Groups</a><br>" +
-                        "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a directory<br>" +
-                        "<a href='/admin/apps/active'>Applications > Applications</a> and click on an app<br>";
+                        "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a Directory<br>" +
+                        "<a href='/admin/apps/active'>Applications > Applications</a> and click on an App<br>" +
+                        "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>";
                 }
             }
             function getObjects(title, path, header, logCallback) {

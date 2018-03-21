@@ -16,6 +16,10 @@
         getObjects("Groups", "/groups", "id,name,description,type", function (group) {
             return group.id + ',"' + group.profile.name + '","' + (group.profile.description || "") + '",' + group.type;
         });
+    } else if (location.pathname == "/admin/apps/active") {
+        getObjects("Apps", "/apps", "id,label,name", function (app) {
+            return app.id + ',"' + app.label + '","' + app.name + '"';
+        });
     } else if (location.pathname == "/report/system_log_2") {
         query = "?since=2018-02-01T23%3A17%3A07Z&until=2018-02-03T05%3A24%3A18Z&limit=20&" + 
             "filter=target.id+eq+%220oaf65hlg1DbLxkhp0x7%22+and+target.type+eq+%22AppInstance%22+and+outcome.result+eq+%22FAILURE%22+and+legacyEventType+eq+%22app.rich_client.multiple_accounts_found%22";

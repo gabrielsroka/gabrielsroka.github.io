@@ -6,24 +6,27 @@
     var groups;
     var lines;
     var query = "";
+    function commatize(...fields) {
+        return fields.map(field => `"${field}"`).join(',');
+    }
     if (location.pathname == "/admin/users") {
         // see also Reports > Reports, Okta Password Health: https://ORG.oktapreview.com/api/v1/users?format=csv
         //query = "?search=profile.secretPasscode pr";
-        getObjects("Users", "/users" + query, "id,firstName,lastName,login,email,credentialType", function (user) {
-            return user.id + ',"' + user.profile.firstName + '","' + user.profile.lastName + '","' + user.profile.login + '","' + user.profile.email + '",' + user.credentials.provider.type;
+        getObjects("Users", "/api/v1/users" + query, "id,firstName,lastName,login,email,credentialType", function (user) {
+            return commatize(user.id, user.profile.firstName, user.profile.lastName, user.profile.login, user.profile.email, user.credentials.provider.type);
         });
     } else if (location.pathname == "/admin/groups") {
-        getObjects("Groups", "/groups", "id,name,description,type", function (group) {
-            return group.id + ',"' + group.profile.name + '","' + (group.profile.description || "") + '",' + group.type;
+        getObjects("Groups", "/api/v1/groups", "id,name,description,type", function (group) {
+            return commatize(group.id, group.profile.name, group.profile.description || "", group.type);
         });
     } else if (location.pathname == "/admin/apps/active") {
-        getObjects("Apps", "/apps", "id,label,name", function (app) {
-            return app.id + ',"' + app.label + '","' + app.name + '"';
+        getObjects("Apps", "/api/v1/apps", "id,label,name", function (app) {
+            return commatize(app.id, app.label, app.name);
         });
     } else if (location.pathname == "/report/system_log_2") {
         query = "?since=2018-02-01T23%3A17%3A07Z&until=2018-02-03T05%3A24%3A18Z&limit=20&" + 
             "filter=target.id+eq+%220oaf65hlg1DbLxkhp0x7%22+and+target.type+eq+%22AppInstance%22+and+outcome.result+eq+%22FAILURE%22+and+legacyEventType+eq+%22app.rich_client.multiple_accounts_found%22";
-        getObjects("Logs", "/logs" + query, "userName", function (event) {
+        getObjects("Logs", "/api/v1/logs" + query, "userName", function (event) {
             return event.debugContext.debugData.userName;
         });
     } else {
@@ -34,8 +37,8 @@
             a.innerHTML = "Export App Groups";
             a.onclick = function () {
                 document.body.removeChild(results.parentNode);
-                getObjects("App Groups", "/apps/" + appid + "/groups", "id,licenses,roles", function (appgroup) {
-                    callAPI("/groups/" + appgroup.id, function () {
+                getObjects("App Groups", "/api/v1/apps/" + appid + "/groups", "id,licenses,roles", function (appgroup) {
+                    callAPI("/api/v1/groups/" + appgroup.id, function () {
                         var group = JSON.parse(this.responseText);
                         groups.push(group.profile.name + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "") + "," + 
                             (appgroup.profile.roles ? appgroup.profile.roles.join(";") : ""));
@@ -46,8 +49,8 @@
                             }
                         }
                     });
-                    return appgroup.id + "," + (appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "") + "," + 
-                        (appgroup.profile.roles ? appgroup.profile.roles.join(";") : "");
+                    return commatize(appgroup.id, appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "",
+                        appgroup.profile.roles ? appgroup.profile.roles.join(";") : "");
                 });
             };
             results.appendChild(document.createElement("br"));
@@ -55,8 +58,8 @@
             a.innerHTML = "Export App Users";
             a.onclick = function () {
                 document.body.removeChild(results.parentNode);
-                getObjects("App Users", "/apps/" + appid + "/users", "id,userName,scope", function (appuser) {
-                    return appuser.id + "," + (appuser.credentials ? appuser.credentials.userName : "") + "," + appuser.scope;
+                getObjects("App Users", "/api/v1/apps/" + appid + "/users", "id,userName,scope", function (appuser) {
+                    return commatize(appuser.id, appuser.credentials ? appuser.credentials.userName : "", appuser.scope);
                 });
             };
         } else {
@@ -90,7 +93,8 @@
             results.innerHTML = total + " " + objectType + "...";
             var links = getLinks(this.getResponseHeader("Link"));
             if (links && links.next) {
-                var path = links.next.replace(/.*api.v1/, ""); // links.next is an absolute URL; we need a relative URL.
+                var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+                var path = nextUrl.pathname + nextUrl.search;
                 if (this.getResponseHeader("X-Rate-Limit-Remaining") && this.getResponseHeader("X-Rate-Limit-Remaining") < 10) {
                     var interval = setInterval(() => {
                         results.innerHTML += "<br>Sleeping...";
@@ -115,7 +119,7 @@
     }
     function callAPI(path, onload) {
         var request = new XMLHttpRequest();
-        request.open("GET", "/api/v1" + path);
+        request.open("GET", path);
         request.setRequestHeader("Content-Type", "application/json");
         request.setRequestHeader("Accept", "application/json");
         request.onload = onload;

@@ -64,8 +64,9 @@
             results.innerHTML = "<br>Error. Go to one of these:<br><br>" + 
                 "<a href='/admin/users'>Directory > People</a><br>" + 
                 "<a href='/admin/groups'>Directory > Groups</a><br>" +
-                "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a directory<br>" +
-                "<a href='/admin/apps/active'>Applications > Applications</a> and click on an app<br>";
+                "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a Directory<br>" +
+                "<a href='/admin/apps/active'>Applications > Applications</a> and click on an App<br>" + 
+                "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>";
         }
     }
     function getObjects(title, path, header, logCallback) {

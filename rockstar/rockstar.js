@@ -154,7 +154,7 @@
                     return commatize(group.id, group.profile.name, group.profile.description || "", group.type);
                 });
             } else if (location.pathname == "/admin/apps/active") {
-                getObjects("Apps", "/apps", "id,label,name", function (app) {
+                getObjects("Apps", "/api/v1/apps", "id,label,name", function (app) {
                     return commatize(app.id, app.label, app.name);
                 });
             } else {

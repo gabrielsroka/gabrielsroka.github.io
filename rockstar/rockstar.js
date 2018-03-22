@@ -109,7 +109,7 @@
                 results = createDiv("Administrators");
                 results.innerHTML = "Exporting ...";
                 $.getJSON("/api/internal/administrators?expand=user%2Capps%2CuserAdminGroups%2ChelpDeskAdminGroups").then(function (admins) {
-                    var lines = ["First,Last,Email,Username,Title,Manager,Department,Administrator Role"];
+                    var lines = ["First name,Last name,Email,Username,Title,Manager,Department,Administrator Role"];
                     admins.forEach(admin => {
                         var profile = admin._embedded.user.profile;
                         function showRole(role) {
@@ -120,35 +120,31 @@
                             // FIXME: would like to show user.status, but it comes back as null. TODO: fetch it from /users
                             lines.push(commatize(profile.firstName, profile.lastName, profile.email, profile.login, profile.title || "", mgr, profile.department || "", role));
                         }
+                        function appNames() {
+                            var apps = admin._embedded.apps;
+                            var appNames = [];
+                            if (apps && apps.length > 0) {
+                                apps.forEach(app => appNames.push(app.displayName));
+                            } else {
+                                appNames.push("(all)");
+                            }
+                            return appNames.join('; ');
+                        }
+                        function groupNames(groupType) {
+                            var groups = admin._embedded[groupType];
+                            var groupNames = [];
+                            if (groups && groups.length > 0) {
+                                groups.forEach(group => groupNames.push(group.profile.name));
+                            } else {
+                                groupNames.push("(all)");
+                            }
+                            return groupNames.join('; ');
+                        }
                         if (admin.superAdmin) showRole("Super Administrator");
                         if (admin.orgAdmin) showRole("Organization Administrator");
-                        if (admin.appAdmin) {
-                            var apps = [];
-                            if (admin._embedded.apps && admin._embedded.apps.length > 0) {
-                                admin._embedded.apps.forEach(app => apps.push(app.displayName));
-                            } else {
-                                apps.push("(all)");
-                            }
-                            showRole("Application Administrator: " + apps.join('; '));
-                        }
-                        if (admin.userAdmin) {
-                            var groups = [];
-                            if (admin._embedded.userAdminGroups && admin._embedded.userAdminGroups.length > 0) {
-                                admin._embedded.userAdminGroups.forEach(group => groups.push(group.profile.name));
-                            } else {
-                                groups.push("(all)");
-                            }
-                            showRole("Group Administrator: " + groups.join('; ')); // not "User"
-                        }
-                        if (admin.helpDeskAdmin) {
-                            var groups = [];
-                            if (admin._embedded.helpDeskAdminGroups && admin._embedded.helpDeskAdminGroups.length > 0) {
-                                admin._embedded.helpDeskAdminGroups.forEach(group => groups.push(group.profile.name));
-                            } else {
-                                groups.push("(all)");
-                            }
-                            showRole("Help Desk Administrator: " + groups.join('; '));
-                        }
+                        if (admin.appAdmin) showRole("Application Administrator: " + appNames());
+                        if (admin.userAdmin) showRole("Group Administrator: " + groupNames("userAdminGroups")); // "Group Admin", not "User Admin"
+                        if (admin.helpDeskAdmin) showRole("Help Desk Administrator: " + groupNames("helpDeskAdminGroups"));
                         if (admin.readOnlyAdmin) showRole("Read Only Administrator");
                         if (admin.mobileAdmin) showRole("Mobile Administrator");
                         if (admin.apiAccessManagementAdmin) showRole("API Access Management Administrator");

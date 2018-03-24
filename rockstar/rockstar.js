@@ -50,8 +50,7 @@
                 var results = createDiv("User");
                 results.innerHTML = "<span class='icon icon-24 group-logos-24 logo-" + user.credentials.provider.type.toLowerCase() + "'></span><pre>" + toString(user) + "</pre>";
             }
-            var a = createA("Show User");
-            a.onclick = showUser;
+            createA("Show User").onclick = showUser;
             $("<li class=option><a><span class='icon person-16-gray'></span>Show User</a>").click(showUser).appendTo(".okta-dropdown-list");
             
             createA("Administrator Roles").onclick = function () {
@@ -106,7 +105,7 @@
             };
         } else if (location.pathname == "/admin/access/admins") {
             createA("Export Administrators").onclick = function () {
-                results = createDiv("Administrators");
+                var results = createDiv("Administrators");
                 results.innerHTML = "Exporting ...";
                 $.getJSON("/api/internal/administrators?expand=user%2Capps%2CuserAdminGroups%2ChelpDeskAdminGroups").then(function (admins) {
                     var lines = ["First name,Last name,Email,Username,Title,Manager,Department,Administrator Role"];
@@ -184,6 +183,12 @@
                 var appid = getAppId();
                 if (appid) {
                     results = createDiv("Export");
+                    createA("Export App Users").onclick = function () {
+                        document.body.removeChild(results.parentNode);
+                        getObjects("App Users", "/api/v1/apps/" + appid + "/users", "id,userName,scope", function (appuser) {
+                            return commatize(appuser.id, appuser.credentials ? appuser.credentials.userName : "", appuser.scope);
+                        });
+                    };
                     createA("Export App Groups").onclick = function () {
                         document.body.removeChild(results.parentNode);
                         getObjects("App Groups", `/api/v1/apps/${appid}/groups`, "id,licenses,roles", function (appgroup) {
@@ -199,12 +204,6 @@
                             });
                             return commatize(appgroup.id, appgroup.profile.licenses ? appgroup.profile.licenses.join(";") : "",
                                 appgroup.profile.roles ? appgroup.profile.roles.join(";") : "");
-                        });
-                    };
-                    createA("Export App Users").onclick = function () {
-                        document.body.removeChild(results.parentNode);
-                        getObjects("App Users", "/api/v1/apps/" + appid + "/users", "id,userName,scope", function (appuser) {
-                            return commatize(appuser.id, appuser.credentials ? appuser.credentials.userName : "", appuser.scope);
                         });
                     };
                 } else {
@@ -279,8 +278,7 @@
                 }
             }
         }
-        var a = createA("Export Objects");
-        a.onclick = exportObjects;
+        createA("Export Objects").onclick = exportObjects;
         $("<li><a style='cursor: pointer'>Export Objects</a>").click(exportObjects).appendTo("#nav-admin-reports-2");
         
         if (location.pathname == "/admin/users") { // Directory > People

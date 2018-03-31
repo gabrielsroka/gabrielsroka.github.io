@@ -8,12 +8,10 @@
     // SU Orgs & Org Users: enhanced search
     // Many: enhanced menus
     // and more to come...
-    
-    // TODO: Save search string in # in URL. Reload from there.
 
     var results;
 
-    if (location.host.match(/-admin/)) { // admin pages
+    if (location.host.match(/-admin/)) { // Admin pages
         results = createDiv("rockstar");
         if (location.pathname == "/admin/users") {
             directoryPeople();
@@ -22,8 +20,9 @@
         } else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
         }
-        
+
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
+        $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
         $("<li><a href='/report/system_log'>System Log v1</a>").appendTo("#nav-admin-reports-2");
         $("<li><a style='cursor: pointer'>Export Objects</a>").click(exportObjects).appendTo("#nav-admin-reports-2");
         createA("Export Objects").onclick = exportObjects;
@@ -35,10 +34,11 @@
         if (location.pathname == "/su/orgs") {
             suOrgs();
         } else if (location.pathname.match("/su/org/")) {
-            suOrgUsers();
+            suOrg();
         }
     }
 
+    // Admin functions
     function directoryPeople() {
         $("<li class=option><a><span class='icon download-16'></span>Export Users</a>").click(exportObjects).appendTo(".okta-dropdown-list");
         searcher({
@@ -64,7 +64,7 @@
         $.getJSON(`/api/v1/users/${userId}`).then(aUser => {
             user = aUser;
             var ad = user.credentials.provider.type == "ACTIVE_DIRECTORY";
-            $(".subheader").html(user.profile.login + ", mail: " + user.profile.email + (ad ? ", " : ""));
+            $(".subheader").html(`${user.profile.login}, mail: ${user.profile.email}${ad ? ", " : ""}`);
             document.title += ` - ${user.profile.firstName} ${user.profile.lastName}`;
             if (ad) {
                 function showADs() {
@@ -75,10 +75,10 @@
                             var user = appUser._embedded.user;
                             rows += `<tr><td>${appUser.label}<td>${user.credentials.userName}<td>${user.profile.email}`;
                         });
-                        results.innerHTML = "<table class='data-list-table' style='border: 1px solid #ddd;'>" + rows + "</table>";
+                        results.innerHTML = `<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`;
                     });
                 }
-                $("<a style='cursor: pointer'>").html("AD: " + user.credentials.provider.name).click(showADs).appendTo(".subheader");
+                $(`<a style='cursor: pointer'>AD: ${user.credentials.provider.name}</a>`).click(showADs).appendTo(".subheader");
                 $("<li class=option><a><span class='icon directory-16'></span>Show ADs</a>").click(showADs).appendTo(".okta-dropdown-list");
             }
         });
@@ -88,7 +88,7 @@
                 for (var p in o) {
                     if (p != "credentials" && p != "_links") {
                         if (o[p] === null) v = "null";
-                        else if (typeof o[p] == "string") v = o[p].replace(/(["\\])/g, "\\$1"); // Escape " and \ 
+                        else if (typeof o[p] == "string") v = o[p].replace(/(["\\])/g, "\\$1"); // Escape " and \
                         else if (o[p] instanceof Array) v = "[" + o[p].toString() + "]";
                         else if (typeof o[p] == "object") v = "{\n" + toString(o[p], i + "\t") + i + "}";
                         else v = o[p];
@@ -98,11 +98,11 @@
                 return strings.join("\n") + "\n";
             }
             var results = createDiv("User");
-            results.innerHTML = "<span class='icon icon-24 group-logos-24 logo-" + user.credentials.provider.type.toLowerCase() + "'></span><pre>" + toString(user) + "</pre>";
+            results.innerHTML = `<span class='icon icon-24 group-logos-24 logo-${user.credentials.provider.type.toLowerCase()}'></span><pre>${toString(user)}</pre>`;
         }
         createA("Show User").onclick = showUser;
         $("<li class=option><a><span class='icon person-16-gray'></span>Show User</a>").click(showUser).appendTo(".okta-dropdown-list");
-        
+
         createA("Administrator Roles").onclick = function () {
             var allRoles = [
                 {type: "SUPER_ADMIN", label: "Super"},
@@ -155,7 +155,7 @@
         };
     }
     function securityAdministrators() {
-        createA("Export Administrators").onclick = function () {
+        createA("Export Administrators").onclick = function () { // TODO: consider merging into exportObjects(). will the Link headers be a problem?
             var results = createDiv("Administrators");
             results.innerHTML = "Exporting ...";
             $.getJSON("/api/internal/administrators?expand=user,apps,userAdminGroups,helpDeskAdminGroups").then(admins => {
@@ -209,7 +209,7 @@
             });
         };
     }
-    
+
     function exportObjects() {
         var total;
         var objectType;
@@ -231,12 +231,12 @@
                 results = createDiv("Export"); // don't var. TODO: fixme
                 createA("Export App Users").onclick = function () {
                     document.body.removeChild(results.parentNode);
-                    getObjects("App Users", "/api/v1/apps/" + appid + "/users", "id,userName,scope", appUser => commatize(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope));
+                    getObjects("App Users", `/api/v1/apps/${appid}/users`, "id,userName,scope", appUser => commatize(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope));
                 };
                 createA("Export App Groups").onclick = function () {
                     document.body.removeChild(results.parentNode);
                     // TODO: use /api/v1/apps/${appid}/groups?expand=group
-                    getObjects("App Groups", `/api/v1/apps/${appid}/groups`, "id,licenses,roles", function (appGroup) {
+                    getObjects("App Groups", `/api/v1/apps/${appid}/groups`, "id,licenses,roles", appGroup => {
                         $.getJSON(`/api/v1/groups/${appGroup.id}`).then(group => {
                             groups.push(commatize(group.profile.name, appGroup.profile.licenses ? appGroup.profile.licenses.join(";") : "",
                                 appGroup.profile.roles ? appGroup.profile.roles.join(";") : ""));
@@ -251,8 +251,8 @@
                 };
             } else {
                 results = createDiv("Export");
-                results.innerHTML = "<br>Error. Go to one of these:<br><br>" + 
-                    "<a href='/admin/users'>Directory > People</a><br>" + 
+                results.innerHTML = "<br>Error. Go to one of these:<br><br>" +
+                    "<a href='/admin/users'>Directory > People</a><br>" +
                     "<a href='/admin/groups'>Directory > Groups</a><br>" +
                     "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a Directory<br>" +
                     "<a href='/admin/apps/active'>Applications > Applications</a> and click on an App<br>" +
@@ -319,7 +319,8 @@
             }
         }
     }
-    
+
+    // User functions
     function userHome() {
         createA("Show SSO").onclick = function () {
             var results;
@@ -361,7 +362,7 @@
                 results.innerHTML = "Loading . . .";
                 $.get(url).then(response => {
                     function unentity(s) {
-                        return s.replace(/&#(x..?);/g, function (m, p1) {return String.fromCharCode("0" + p1)});
+                        return s.replace(/&#(x..?);/g, (m, p1) => String.fromCharCode("0" + p1));
                     }
                     var highlight = "style='background-color: yellow'";
                     var matches;
@@ -377,9 +378,9 @@
                     } else if (matches = response.match(/<form(?:.|\n)*<\/form>/)) {
                         var form = matches[0].replace(/ *</g, "&lt;").replace(/>/g, "&gt;").
                             replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"');
-                        results.innerHTML = "<pre>" + form + "</pre>";
+                        results.innerHTML = `<pre>${form}</pre>`;
                     } else if (matches = response.match(/<div class="error-content">(?:.|\n)*?<\/div>/)) {
-                        results.innerHTML = "<pre>" + matches[0] + "</pre>";
+                        results.innerHTML = `<pre>${matches[0]}</pre>`;
                     } else {
                         results.innerHTML = "Is this a SWA app, plugin or bookmark?";
                     }
@@ -403,14 +404,20 @@
             }
         };
     }
-    
+
+    // SU functions
     function suOrgs() {
         searcher({
             url: "/api/internal/su/orgs",
             data: function () {return {search: this.search, limit: this.limit};},
             limit: 100, // 100 is the max limit for this url.
-            filter: org => org.edition != "Developer",
-            comparer: (org1, org2) => org1.subdomain.localeCompare(org2.subdomain),
+            //filter: org => org.edition != "Developer",
+            comparer: (org1, org2) => {
+                var d1 = org1.edition == "Developer";
+                var d2 = org2.edition == "Developer";
+                if ((d1 && d2) || (!d1 && !d2)) return org1.subdomain.localeCompare(org2.subdomain);
+                return d1 ? 1 : -1;
+            },
             template: org => {
                 var href = `${org.cellURL || ""}/su/org/${org.id}`;
                 return `<tr><td><a href="${href}">${org.subdomain}</a>` +
@@ -424,13 +431,12 @@
             empty: true
         });
     }
-    function suOrgUsers() {
+    function suOrg() {
         searcher({
             url: location.pathname + "/users/search",
             data: function () {return {sSearch: this.search, sColumns: "fullName,login,userId,email,tempSignOn", iDisplayLength: 10};},
             comparer: (user1, user2) => user1.fullName.localeCompare(user2.fullName),
-            template: user => `<tr class=odd><td>${user.fullName}<td>${user.login}<td><a href="${location.pathname}/user-summary/${user.userId}">${user.userId}</a>` + 
-                `<td>${user.email}<td>${user.tempSignOn}`,
+            template: user => `<tr class=odd><td>${user.fullName}<td>${user.login}<td><a href="${location.pathname}/user-summary/${user.userId}">${user.userId}</a><td>${user.email}<td>${user.tempSignOn}`,
             headers: "<tr><th>Name<th>Login<th>ID<th>Email<th>Temp Sign On",
             placeholder: "Search by First/Last/Email/Login...",
             $search: "#user-grid_filter",
@@ -440,12 +446,12 @@
         });
     }
 
+    // General functions
     var xsrf = $("#_xsrfToken");
     if (xsrf) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
     function createDiv(title) {
         var div = document.body.appendChild(document.createElement("div"));
-        div.innerHTML = "<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>" + title + " - close</a> " +
-            "<a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br>";
+        div.innerHTML = `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> <a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br>`;
         div.style.position = "absolute";
         div.style.zIndex = "1000";
         div.style.left = "4px";
@@ -455,26 +461,27 @@
         div.style.border = "1px solid #ddd";
         return div.appendChild(document.createElement("div"));
     }
+    // TODO fix results, use jQuery
     function createA(html) {
         var a = results.appendChild(document.createElement("a"));
         a.style.cursor = "pointer";
         a.innerHTML = html + "<br>";
         return a;
     }
-    function searcher(object) {
+    function searcher(object) { // TODO: Save search string in location.hash # in URL. Reload from there.
         function searchObjects() {
-            $.get({
-                url: object.url, 
-                data: object.data(),
-                dataType: object.dataType || "json"
-            }).then(function (data) {
-                var objects;
-                if (object.dataType == "text") {
+            var settings = {
+                url: object.url,
+                data: object.data()
+            };
+            if (object.dataType == "text") {
+                settings.dataType = "text";
+                $.get(settings).then(text => {
                     const prefix = "while(1){};";
-                    data = data.substr(prefix.length); // data has a prefix to prevent JSON hijacking. We have to remove the prefix.
-                    data = JSON.parse(data);
+                    var json = text.substr(prefix.length); // text has a prefix to prevent JSON hijacking. We have to remove the prefix.
+                    var data = JSON.parse(json);
                     var properties = data[object.properties].properties;
-                    objects = [];
+                    var objects = [];
                     for (var i = 0; i < data.aaData.length; i++) {
                         var obj = {};
                         for (var p = 0; p < properties.length; p++) {
@@ -482,27 +489,30 @@
                         }
                         objects.push(obj);
                     }
+                    showObjects(objects);
+                });
+            } else {
+                settings.dataType = "json";
+                $.getJSON(settings).then(objects => showObjects(objects));
+            }
+        }
+        function showObjects(objects) {
+            var rows = "";
+            if (object.filter) objects = objects.filter(object.filter);
+            objects.sort(object.comparer).forEach(obj => rows += object.template(obj));
+            $(object.$table || ".data-list-table").html(`<thead>${object.headers}</thead>${rows}`);
+            if (object.empty) {
+                if (objects.length == 0) {
+                    $(".data-list-empty-msg").show();
                 } else {
-                    objects = data;
+                    $(".data-list-empty-msg").hide();
                 }
-                var rows = "";
-                if (object.filter) objects = objects.filter(object.filter);
-                objects.sort(object.comparer).forEach(o => rows += object.template(o));
-                $(object.$table || ".data-list-table").html(`<thead>${object.headers}</thead>` + rows);
-                if (object.empty) {
-                    if (objects.length == 0) {
-                        $(".data-list-empty-msg").show();
-                    } else {
-                        $(".data-list-empty-msg").hide();
-                    }
-                }
-            });
+            }
         }
 
         var timeoutID = 0;
         $(object.$search || ".data-list .data-list-toolbar")
-            .html(`<span class="search-box input-fix"><span class="icon-only icon-16 magnifying-glass-16"></span> ` +
-                `<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'></span>`)
+            .html(`<span class="search-box input-fix"><span class="icon-only icon-16 magnifying-glass-16"></span> <input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'></span>`)
             .find("input")
             .keyup(function () {
                 if (object.search == this.value || this.value.length < 2) return;

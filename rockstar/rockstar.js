@@ -9,10 +9,10 @@
     // Many: enhanced menus
     // and more to come...
 
-    var results;
+    var mainPopup;
 
     if (location.host.match(/-admin/)) { // Admin pages
-        results = createDiv("rockstar");
+        mainPopup = createPopup("rockstar");
         if (location.pathname == "/admin/users") {
             directoryPeople();
         } else if (location.pathname.match("/admin/user/")) {
@@ -25,12 +25,12 @@
         $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
         $("<li><a href='/report/system_log'>System Log v1</a>").appendTo("#nav-admin-reports-2");
         $("<li><a style='cursor: pointer'>Export Objects</a>").click(exportObjects).appendTo("#nav-admin-reports-2");
-        createA("Export Objects").onclick = exportObjects;
+        createA("Export Objects", mainPopup).click(exportObjects);
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
-        results = createDiv("rockstar");
+        mainPopup = createPopup("rockstar");
         userHome();
     } else { // SU
-        // Don't show results div.
+        // Don't show mainPopup div.
         if (location.pathname == "/su/orgs") {
             suOrgs();
         } else if (location.pathname.match("/su/org/")) {
@@ -69,13 +69,13 @@
             if (ad) {
                 function showADs() {
                     $.getJSON(`/api/v1/apps?filter=user.id+eq+"${userId}"&expand=user/${userId}&limit=200&q=active_directory`).then(appUsers => {
-                        var results = createDiv("ADs");
+                        var adPopup = createPopup("ADs");
                         var rows = "<tr><th>AD Domain<th>Username<th>Email";
                         appUsers.forEach(appUser => {
                             var user = appUser._embedded.user;
                             rows += `<tr><td>${appUser.label}<td>${user.credentials.userName}<td>${user.profile.email}`;
                         });
-                        results.innerHTML = `<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`;
+                        adPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`);
                     });
                 }
                 $(`<a style='cursor: pointer'>AD: ${user.credentials.provider.name}</a>`).click(showADs).appendTo(".subheader");
@@ -97,13 +97,13 @@
                 }
                 return strings.join("\n") + "\n";
             }
-            var results = createDiv("User");
-            results.innerHTML = `<span class='icon icon-24 group-logos-24 logo-${user.credentials.provider.type.toLowerCase()}'></span><pre>${toString(user)}</pre>`;
+            var userPopup = createPopup("User");
+            userPopup.html(`<span class='icon icon-24 group-logos-24 logo-${user.credentials.provider.type.toLowerCase()}'></span><pre>${toString(user)}</pre>`);
         }
-        createA("Show User").onclick = showUser;
+        createA("Show User", mainPopup).click(showUser);
         $("<li class=option><a><span class='icon person-16-gray'></span>Show User</a>").click(showUser).appendTo(".okta-dropdown-list");
 
-        createA("Administrator Roles").onclick = function () {
+        createA("Administrator Roles", mainPopup).click(function () {
             var allRoles = [
                 {type: "SUPER_ADMIN", label: "Super"},
                 {type: "ORG_ADMIN", label: "Organization"},
@@ -114,57 +114,57 @@
                 {type: "MOBILE_ADMIN", label: "Mobile"}
                 // {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"} // API AM doesn't show up when you GET.
             ];
-            results = createDiv("Administrator Roles"); // don't var, TODO: fixme
+            var rolesPopup = createPopup("Administrator Roles");
             showRoles();
             function showRoles() {
                 $.getJSON(`/api/v1/users/${userId}/roles`).then(roles => {
                     if (roles.length == 0) {
-                        results.innerHTML = "This user is not an admin.<br><br>";
+                        rolesPopup.html("This user is not an admin.<br><br>");
                         allRoles.forEach(role => {
-                            createA(`Grant ${role.label} Administrator`).onclick = function () {
+                            createA(`Grant ${role.label} Administrator`, rolesPopup).click(function () {
                                 var data = {
                                     type: role.type
                                 };
                                 // https://developer.okta.com/docs/api/resources/roles#assign-role-to-user
-                                postJson({
+                                postJSON({
                                     url: `/api/v1/users/${userId}/roles`,
                                     data
                                 }).then(() => setTimeout(showRoles, 1000));
-                            };
+                            });
                         });
                     } else {
-                        results.innerHTML = "";
+                        rolesPopup.html("");
                         roles.forEach(role => {
                             if (role.label == "User Administrator") role.label = "Group Administrator"; // not "User"
-                            createA(`Revoke ${role.label}`).onclick = function () {
+                            createA(`Revoke ${role.label}`, rolesPopup).click(function () {
                                 // https://developer.okta.com/docs/api/resources/roles#unassign-role-from-user
                                 $.ajax({
                                     url: `/api/v1/users/${userId}/roles/${role.id}`,
                                     method: "DELETE"
                                 }).then(() => setTimeout(showRoles, 1000));
-                            };
+                            });
                         });
                     }
                 });
             }
-            function postJson(settings) {
+            function postJSON(settings) {
                 settings.contentType = "application/json";
                 settings.data = JSON.stringify(settings.data);
                 return $.post(settings);
             }
-        };
+        });
     }
     function securityAdministrators() {
-        createA("Export Administrators").onclick = function () { // TODO: consider merging into exportObjects(). will the Link headers be a problem?
-            var results = createDiv("Administrators");
-            results.innerHTML = "Exporting ...";
+        createA("Export Administrators", mainPopup).click(function () { // TODO: consider merging into exportObjects(). will the Link headers be a problem?
+            var adminsPopup = createPopup("Administrators");
+            adminsPopup.html("Exporting ...");
             $.getJSON("/api/internal/administrators?expand=user,apps,userAdminGroups,helpDeskAdminGroups").then(admins => {
                 var lines = ["First name,Last name,Email,Username,Title,Manager,Department,Administrator Role"];
                 admins.forEach(admin => {
                     var profile = admin._embedded.user.profile;
                     var mgr = profile.manager || profile.managerId || "";
-                    var matches;
-                    if (matches = mgr.match(/CN=(.*?),OU/)) mgr = matches[1];
+                    var matches = mgr.match(/CN=(.*?),OU/);
+                    if (matches) mgr = matches[1];
                     mgr = mgr.replace("\\", "");
                     function showRole(role) {
                         // FIXME: would like to show user.status, but it comes back as null. TODO: fetch it from /users
@@ -200,14 +200,14 @@
                     if (admin.apiAccessManagementAdmin) showRole("API Access Management Administrator");
                 });
 
-                results.innerHTML = "Done.";
-                var a = results.appendChild(document.createElement("a"));
-                a.href = URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'}));
+                adminsPopup.html("Done.");
+                var a = $("<a>").appendTo(adminsPopup);
+                a.attr("href",  URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'})));
                 var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
-                a.download = `Administrators ${location.host.replace("-admin", "")} ${date}.csv`;
-                a.click();
+                a.attr("download", `Administrators ${location.host.replace("-admin", "")} ${date}.csv`);
+                a[0].click();
             });
-        };
+        });
     }
 
     function exportObjects() {
@@ -228,13 +228,13 @@
         } else {
             var appid = getAppId();
             if (appid) {
-                results = createDiv("Export"); // don't var. TODO: fixme
-                createA("Export App Users").onclick = function () {
-                    document.body.removeChild(results.parentNode);
+                var exportPopup = createPopup("Export");
+                createA("Export App Users", exportPopup).click(function () {
+                    exportPopup.parent().remove();
                     getObjects("App Users", `/api/v1/apps/${appid}/users`, "id,userName,scope", appUser => commatize(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope));
-                };
-                createA("Export App Groups").onclick = function () {
-                    document.body.removeChild(results.parentNode);
+                });
+                createA("Export App Groups", exportPopup).click(function () {
+                    exportPopup.parent().remove();
                     // TODO: use /api/v1/apps/${appid}/groups?expand=group
                     getObjects("App Groups", `/api/v1/apps/${appid}/groups`, "id,licenses,roles", appGroup => {
                         $.getJSON(`/api/v1/groups/${appGroup.id}`).then(group => {
@@ -248,22 +248,22 @@
                         return commatize(appGroup.id, appGroup.profile.licenses ? appGroup.profile.licenses.join(";") : "",
                             appGroup.profile.roles ? appGroup.profile.roles.join(";") : "");
                     });
-                };
+                });
             } else {
-                results = createDiv("Export");
-                results.innerHTML = "<br>Error. Go to one of these:<br><br>" +
+                exportPopup = createPopup("Export");
+                exportPopup.html("Error. Go to one of these:<br><br>" +
                     "<a href='/admin/users'>Directory > People</a><br>" +
                     "<a href='/admin/groups'>Directory > Groups</a><br>" +
                     "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a Directory<br>" +
                     "<a href='/admin/apps/active'>Applications > Applications</a> and click on an App<br>" +
-                    "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>";
+                    "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>");
             }
         }
         function getObjects(title, path, header, templateCallback) {
             total = 0;
             objectType = title;
-            results = createDiv(title);
-            results.innerHTML = "Loading ...";
+            exportPopup = createPopup(title);
+            exportPopup.html("Loading ...");
             template = templateCallback;
             lines = [header];
             groups = [];
@@ -272,10 +272,10 @@
         function exportObjects(objects, status, jqXHR) {
             objects.forEach(object => lines.push(template(object)));
             total += objects.length;
-            results.innerHTML = total + " " + objectType + "...<br><br>";
-            createA("Cancel").onclick = () => cancel = true;
+            exportPopup.html(total + " " + objectType + "...<br><br>");
+            createA("Cancel", exportPopup).click(() => cancel = true);
             if (cancel) {
-                document.body.removeChild(results.parentNode);
+                exportPopup.parent().remove();
                 return;
             }
             var links = getLinks(jqXHR.getResponseHeader("Link"));
@@ -284,7 +284,7 @@
                 var path = nextUrl.pathname + nextUrl.search;
                 if (jqXHR.getResponseHeader("X-Rate-Limit-Remaining") && jqXHR.getResponseHeader("X-Rate-Limit-Remaining") < 10) {
                     var interval = setInterval(() => {
-                        results.innerHTML += "<br>Sleeping...";
+                        exportPopup.html(exportPopup.html() + "<br>Sleeping...");
                         if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {
                             clearInterval(interval);
                             $.getJSON(path).then(exportObjects);
@@ -294,12 +294,12 @@
                     $.getJSON(path).then(exportObjects);
                 }
             } else {
-                results.innerHTML = total + " " + objectType + ". Done.";
-                var a = results.appendChild(document.createElement("a"));
-                a.href = URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'}));
+                exportPopup.html(total + " " + objectType + ". Done.");
+                var a = $("<a>").appendTo(exportPopup);
+                a.attr("href", URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'})));
                 var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
-                a.download = `Export ${objectType} ${date}.csv`;
-                a.click();
+                a.attr("download", `Export ${objectType} ${date}.csv`);
+                a[0].click();
             }
         }
         function getLinks(headers) {
@@ -322,8 +322,8 @@
 
     // User functions
     function userHome() {
-        createA("Show SSO").onclick = function () {
-            var results;
+        createA("Show SSO", mainPopup).click(function () {
+            var ssoPopup;
             var label = "Show SSO";
             var labels = document.getElementsByClassName("app-button-name");
             if (labels.length > 0) { // Button labels on Okta homepage
@@ -345,7 +345,7 @@
                 }
             } else {
                 getDiv();
-                var form = results.appendChild(document.createElement("form"));
+                var form = ssoPopup.appendChild(document.createElement("form"));
                 var url = form.appendChild(document.createElement("input"));
                 url.style.width = "700px";
                 url.placeholder = "URL";
@@ -359,7 +359,7 @@
                 };
             }
             function getSSO(url) {
-                results.innerHTML = "Loading . . .";
+                ssoPopup.html("Loading . . .");
                 $.get(url).then(response => {
                     function unentity(s) {
                         return s.replace(/&#(x..?);/g, (m, p1) => String.fromCharCode("0" + p1));
@@ -374,20 +374,20 @@
                             .replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;")
                             .replace(/((Address|Issuer|NameID|NameIdentifier|Name|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
                         var postTo = unentity(response.match(/<form id="appForm" action="(.*?)"/)[1]);
-                        results.innerHTML = "Post to: " + postTo + "<br><br><pre>" + indentXml(assertion, 4) + "</pre>";
+                        ssoPopup.html("Post to: " + postTo + "<br><br><pre>" + indentXml(assertion, 4) + "</pre>");
                     } else if (matches = response.match(/<form(?:.|\n)*<\/form>/)) {
                         var form = matches[0].replace(/ *</g, "&lt;").replace(/>/g, "&gt;").
                             replace(/value="(.*?)"/g, 'value="<span title="$1" ' + highlight + '>...</span>"');
-                        results.innerHTML = `<pre>${form}</pre>`;
+                        ssoPopup.html(`<pre>${form}</pre>`);
                     } else if (matches = response.match(/<div class="error-content">(?:.|\n)*?<\/div>/)) {
-                        results.innerHTML = `<pre>${matches[0]}</pre>`;
+                        ssoPopup.html(`<pre>${matches[0]}</pre>`);
                     } else {
-                        results.innerHTML = "Is this a SWA app, plugin or bookmark?";
+                        ssoPopup.html("Is this a SWA app, plugin or bookmark?");
                     }
                 });
             }
             function getDiv() {
-                results = createDiv("SSO");
+                ssoPopup = createPopup("SSO");
             }
             function indentXml(xml, size) {
                 var lines = xml.split("\n");
@@ -402,7 +402,7 @@
                 }
                 return lines.join("\n");
             }
-        };
+        });
     }
 
     // SU functions
@@ -446,10 +446,13 @@
         });
     }
 
-    // General functions
+    // Util functions
     var xsrf = $("#_xsrfToken");
-    if (xsrf) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
-    function createDiv(title) {
+    if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
+    function createPopup(title) {
+        /*return $("<div></div>").append(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
+            `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> <a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br>` +
+            `</div>`).appendTo(document.body);*/
         var div = document.body.appendChild(document.createElement("div"));
         div.innerHTML = `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> <a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br>`;
         div.style.position = "absolute";
@@ -459,14 +462,10 @@
         div.style.backgroundColor = "white";
         div.style.padding = "8px";
         div.style.border = "1px solid #ddd";
-        return div.appendChild(document.createElement("div"));
+        return $(div.appendChild(document.createElement("div")));
     }
-    // TODO fix results, use jQuery
-    function createA(html) {
-        var a = results.appendChild(document.createElement("a"));
-        a.style.cursor = "pointer";
-        a.innerHTML = html + "<br>";
-        return a;
+    function createA(html, parent) {
+        return $(`<div><a style='cursor: pointer'>${html}</a></div>`).appendTo(parent);
     }
     function searcher(object) { // TODO: Save search string in location.hash # in URL. Reload from there.
         function searchObjects() {

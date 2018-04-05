@@ -159,7 +159,7 @@
             var adminsPopup = createPopup("Administrators");
             adminsPopup.html("Exporting ...");
             $.getJSON("/api/internal/administrators?expand=user,apps,userAdminGroups,helpDeskAdminGroups").then(admins => {
-                var lines = ["First name,Last name,Email,Username,Title,Manager,Department,Administrator Role"];
+                var lines = ["First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role"];
                 admins.forEach(admin => {
                     var profile = admin._embedded.user.profile;
                     var mgr = profile.manager || profile.managerId || "";
@@ -168,7 +168,7 @@
                     mgr = mgr.replace("\\", "");
                     function showRole(role) {
                         // FIXME: would like to show user.status, but it comes back as null. TODO: fetch it from /users
-                        lines.push(commatize(profile.firstName, profile.lastName, profile.email, profile.login, profile.title || "", mgr, profile.department || "", role));
+                        lines.push(commatize(profile.firstName, profile.lastName, profile.email, profile.login, admin.userId, profile.title || "", mgr, profile.department || "", role));
                     }
                     function appNames() {
                         var apps = admin._embedded.apps;
@@ -211,6 +211,7 @@
     }
 
     function exportObjects() {
+        var exportPopup;
         var total;
         var objectType;
         var template;
@@ -228,7 +229,7 @@
         } else {
             var appid = getAppId();
             if (appid) {
-                var exportPopup = createPopup("Export");
+                exportPopup = createPopup("Export");
                 createA("Export App Users", exportPopup).click(function () {
                     exportPopup.parent().remove();
                     getObjects("App Users", `/api/v1/apps/${appid}/users`, "id,userName,scope", appUser => commatize(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope));
@@ -450,19 +451,9 @@
     var xsrf = $("#_xsrfToken");
     if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
     function createPopup(title) {
-        /*return $("<div></div>").append(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
-            `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> <a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br>` +
-            `</div>`).appendTo(document.body);*/
-        var div = document.body.appendChild(document.createElement("div"));
-        div.innerHTML = `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> <a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br>`;
-        div.style.position = "absolute";
-        div.style.zIndex = "1000";
-        div.style.left = "4px";
-        div.style.top = "4px";
-        div.style.backgroundColor = "white";
-        div.style.padding = "8px";
-        div.style.border = "1px solid #ddd";
-        return $(div.appendChild(document.createElement("div")));
+        var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
+            `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> <a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br></div>`).appendTo(document.body);
+        return $("<div></div>").appendTo(popup);
     }
     function createA(html, parent) {
         return $(`<div><a style='cursor: pointer'>${html}</a></div>`).appendTo(parent);
@@ -513,7 +504,13 @@
         $(object.$search || ".data-list .data-list-toolbar")
             .html(`<span class="search-box input-fix"><span class="icon-only icon-16 magnifying-glass-16"></span> <input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'></span>`)
             .find("input")
-            .keyup(function () {
+            .keyup(function (event) {
+                const ESC = 27;
+                if (event.which == ESC) {
+                    this.value = object.search = "";
+                    showObjects([]);
+                    return;
+                }
                 if (object.search == this.value || this.value.length < 2) return;
                 object.search = this.value;
                 clearTimeout(timeoutID);

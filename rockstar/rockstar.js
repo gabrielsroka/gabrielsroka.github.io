@@ -2,7 +2,8 @@
     // What does rockstar do?
     // People page: enhanced search, Export Users menu
     // Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles
-    // Administrators page: export
+    // Administrators page: Export Admins
+    // Events: Expand All and Expand Each Row
     // Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, ...
     // User home page: Show SSO (SAML assertion, etc)
     // SU Orgs & Org Users: enhanced search
@@ -19,6 +20,8 @@
             directoryPerson();
         } else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
+        } else if (location.pathname.match("/report/system_log_2")) {
+            systemLog();
         }
 
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
@@ -207,6 +210,15 @@
                 a.attr("download", `Administrators ${location.host.replace("-admin", "")} ${date}.csv`);
                 a[0].click();
             });
+        });
+    }
+    function systemLog() {
+        createA("Expand All", mainPopup).click(() => {
+            $(".row-expander").each(function () {this.click()});
+            $(".expand-all-details a").each(function () {this.click()});
+        });
+        createA("Expand Each Row", mainPopup).click(() => {
+            $(".row-expander").each(function () {this.click()});
         });
     }
 
@@ -448,8 +460,11 @@
     }
 
     // Util functions
-    var xsrf = $("#_xsrfToken");
-    if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
+    $ = window.$ || window.jQueryCourage;
+    if (window.$) {
+        var xsrf = $("#_xsrfToken");
+        if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
+    }
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
             `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> <a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br></div>`).appendTo(document.body);

@@ -11,6 +11,7 @@
     // and more to come...
 
     var mainPopup;
+    $ = window.$ || window.jQueryCourage;
 
     if (location.host.match(/-admin/)) { // Admin pages
         mainPopup = createPopup("rockstar");
@@ -460,11 +461,8 @@
     }
 
     // Util functions
-    $ = window.$ || window.jQueryCourage;
-    if (window.$) {
-        var xsrf = $("#_xsrfToken");
-        if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
-    }
+    var xsrf = $("#_xsrfToken");
+    if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
             `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> <a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br></div>`).appendTo(document.body);

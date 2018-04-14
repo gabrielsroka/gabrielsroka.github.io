@@ -1,15 +1,4 @@
 (function () {
-    // What does rockstar do?
-    // People page: enhanced search, Export Users menu
-    // Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles
-    // Administrators page: Export Admins
-    // Events: Expand All and Expand Each Row
-    // Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, ...
-    // User home page: Show SSO (SAML assertion, etc)
-    // SU Orgs & Org Users: enhanced search
-    // Many: enhanced menus
-    // and more to come...
-
     var mainPopup;
     $ = window.$ || window.jQueryCourage;
 

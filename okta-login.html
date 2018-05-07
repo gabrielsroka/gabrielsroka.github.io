@@ -28,11 +28,11 @@
     if (location.protocol == "http:") location = location.href.replace(/http/, "https");
 
     var baseUrl = 'https://gsroka-neto.oktapreview.com';
-    var oktaSignIn = new OktaSignIn({
+    var signIn = new OktaSignIn({
       baseUrl: baseUrl
     });
 
-    oktaSignIn.renderEl(
+    signIn.renderEl(
       { el: '#okta-login-container' },
       function (res) {
         if (res.status === 'SUCCESS') {
@@ -52,13 +52,13 @@
         console.log(err);
       }
     );
-    setTimeout(function () {
+    signIn.on('pageRendered', function (data) {
       var username = document.getElementById("okta-signin-username");
       if (username.value.match(/@expnsso.com/)) {
           var prefix = username.value.split("@")[0];
           username.value = prefix;
       }
-    }, 0);
+    });
   </script>
 </body>
 </html>

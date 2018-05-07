@@ -52,13 +52,13 @@
         console.log(err);
       }
     );
-    onload = function () {
+    setTimeout(function () {
       var username = document.getElementById("okta-signin-username");
       if (username.value.match(/@expnsso.com/)) {
           var prefix = username.value.split("@")[0];
           username.value = prefix;
       }
-    };
+    }, 0);
   </script>
 </body>
 </html>

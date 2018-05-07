@@ -8,23 +8,6 @@
   <!--[if lt IE 9]>
       <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
   <![endif]-->
-<script>
-var cookieName = "ln";
-var suffix = /@lokta.com/;
-var cookies = document.cookie.split("; ");
-for (var i = 0; i < cookies.length; i++) {
-    var cookie = cookies[i];
-    var parts = cookie.split("=");
-    var name = parts[0];
-    var value = decodeURIComponent(parts[1]);
-    if (name == cookieName) {
-        if (value.match(suffix)) {
-            var prefix = value.split("@")[0];
-            document.cookie = cookieName + "=" + prefix;
-        }
-    }
-}
-</script>
   <script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.8.0/js/okta-sign-in.min.js" type="text/javascript"></script>
   <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.8.0/css/okta-sign-in.min.css" type="text/css" rel="stylesheet">
   <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.8.0/css/okta-theme.css" type="text/css" rel="stylesheet">
@@ -67,6 +50,11 @@ for (var i = 0; i < cookies.length; i++) {
         console.log(err);
       }
     );
+    var username = document.getElementById("okta-signin-username");
+    if (username.value.match(/@expnsso.com/) {
+        var prefix = username.value.split("@")[0];
+        username.value = prefix;
+    }
   </script>
 </body>
 </html>

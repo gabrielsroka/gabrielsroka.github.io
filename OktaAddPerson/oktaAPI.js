@@ -1,4 +1,4 @@
-// User functions - http://developer.okta.com/docs/api/resources/users.html
+// User functions - https://developer.okta.com/docs/api/resources/users
 
 /*
     onload - callback
@@ -6,11 +6,11 @@
     query - eg: activate, provider, ...
 */
 function newUser(onload, user, query) {
-    callAPI("POST", "/users?" + queryToString(query), onload, user);
+    callAPI("POST", "/api/v1/users?" + queryToString(query), onload, user);
 }
 
 function getUser(onload, id) {
-    callAPI("GET", "/users/" + id, onload);
+    callAPI("GET", "/api/v1/users/" + id, onload);
 }
 
 /*
@@ -18,14 +18,14 @@ function getUser(onload, id) {
     query - eg: q, filter, limit, search, ...
 */
 function getUsers(onload, query) {
-    callAPI("GET", "/users?" + queryToString(query), onload);
+    callAPI("GET", "/api/v1/users?" + queryToString(query), onload);
 }
 
 // Core functions
 
 function callAPI(method, url, onload, body) {
     var request = new XMLHttpRequest();
-    if (!url.match(/^http/)) url = baseurl + "/api/v1" + url;
+    if (!url.match(/^http/)) url = baseurl + url;
     request.open(method, url);
     request.setRequestHeader("Authorization", "SSWS " + apitoken);
     request.setRequestHeader("Content-Type", "application/json");
@@ -53,6 +53,7 @@ function getLinks(header) {
     return links;
 }
 
+// see example for getLinks()
 function getNextPage(onload, url) {
     callAPI("GET", url, onload);
 }

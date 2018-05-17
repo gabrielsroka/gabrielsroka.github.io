@@ -53,8 +53,11 @@
       }
     );
     signIn.on('pageRendered', function (data) {
+      if (data.page == "password-expired") {
+          window.location = "https://google.com";
+      }
       var username = document.getElementById("okta-signin-username");
-      if (username.value.match(/@expnsso.com/)) {
+      if (username && username.value.match(/@expnsso.com/)) {
           var prefix = username.value.split("@")[0];
           username.value = prefix;
       }

@@ -65,7 +65,6 @@
         console.log(err);
       }
     );
-    signIn.processCreds();
     signIn.on('pageRendered', function (data) {
       if (data.page == "password-expired") {
           // window.location = "https://google.com"; // This works, but it flickers.

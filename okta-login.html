@@ -39,8 +39,9 @@
           if (transaction.status == "PASSWORD_EXPIRED") {
             window.location = pwdChangeUrl;
             transaction.cancel(); // this is probably not necessary...
+          } else {
+            window.location = baseUrl;
           }
-          window.location = baseUrl;
         });
       }
     };

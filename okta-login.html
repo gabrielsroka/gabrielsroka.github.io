@@ -27,6 +27,7 @@
     if (location.protocol == "http:") location = location.href.replace(/http/, "https");
 
     var baseUrl = 'https://gsroka-neto.oktapreview.com';
+    var pwdChangeUrl = 'https://google.com';
     var config = {
       baseUrl: baseUrl,
       processCreds: function (creds, callback) {
@@ -36,9 +37,10 @@
         })
         .then(function (transaction) {
           if (transaction.status == "PASSWORD_EXPIRED") {
-            window.location = "https://google.com";
+            window.location = pwdChangeUrl;
             transaction.cancel(); // this is probably not necessary...
           }
+          window.location = baseUrl;
         });
       }
     };

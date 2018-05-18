@@ -28,9 +28,22 @@
     if (location.protocol == "http:") location = location.href.replace(/http/, "https");
 
     var baseUrl = 'https://gsroka-neto.oktapreview.com';
-    var signIn = new OktaSignIn({
-      baseUrl: baseUrl
-    });
+    var config = {
+      baseUrl: baseUrl,
+      processCreds: function (creds, callback) {
+        signIn.authClient.signIn({
+          username: creds.username,
+          password: creds.password
+        })
+        .then(function (transaction) {
+          if (transation.status == "PASSWORD_EXPIRED") {
+            window.location = "https://google.com";
+            transaction.cancel(); // this is probably not necessary...
+          }
+        });
+      }
+    };
+    var signIn = new OktaSignIn(config);
 
     signIn.renderEl(
       { el: '#okta-login-container' },
@@ -52,9 +65,10 @@
         console.log(err);
       }
     );
+    signIn.processCreds();
     signIn.on('pageRendered', function (data) {
       if (data.page == "password-expired") {
-          window.location = "https://google.com";
+          // window.location = "https://google.com"; // This works, but it flickers.
       }
       var username = document.getElementById("okta-signin-username");
       if (username && username.value.match(/@expnsso.com/)) {

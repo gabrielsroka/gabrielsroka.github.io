@@ -29,7 +29,11 @@
     var baseUrl = 'https://gsroka-neto.oktapreview.com';
     var pwdChangeUrl = 'https://google.com';
     var config = {
-      baseUrl: baseUrl /*,
+      baseUrl: baseUrl,
+      features: {
+       customExpiredPassword: customExpiredPassword
+      }
+      /*,
       processCreds: function (creds, callback) {
         signIn.authClient.signIn({
           username: creds.username,

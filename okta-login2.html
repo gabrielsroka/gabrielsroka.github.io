@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Example Okta SignIn Widget</title>
+  <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <![endif]-->
+  <script src="okta-sign-in.min.js" type="text/javascript"></script>
+  <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.7.0/css/okta-sign-in.min.css" type="text/css" rel="stylesheet">
+  <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.7.0/css/okta-theme.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+  <!-- Render the login widget here -->
+  <div id="okta-login-container"></div>
+
+  <!-- Script to init the widget -->
+  <script>
+  /*
+    see:
+    http://developer.okta.com/code/javascript/okta_sign-in_widget
+    https://github.com/okta/okta-signin-widget
+  */
+  
+    if (location.protocol == "http:") location = location.href.replace(/http/, "https");
+
+    var baseUrl = 'https://gsroka-neto.oktapreview.com';
+    var pwdChangeUrl = 'https://google.com';
+    var config = {
+      baseUrl: baseUrl,
+      processCreds: function (creds, callback) {
+        signIn.authClient.signIn({
+          username: creds.username,
+          password: creds.password
+        })
+        .then(function (transaction) {
+          if (transaction.status == "PASSWORD_EXPIRED") {
+            //window.location = pwdChangeUrl;
+            //transaction.cancel(); // this is probably not necessary...
+          } else {
+            //window.location = baseUrl;
+          }
+        });
+      }
+    };
+    var signIn = new OktaSignIn(config);
+
+    signIn.renderEl(
+      { el: '#okta-login-container' },
+      function (res) {
+        if (res.status === 'SUCCESS') {
+          console.log('User %s succesfully authenticated %o', res.user.profile.login, res.user);
+          res.session.setCookieAndRedirect(baseUrl);
+        } else {
+          console.log(res.status);
+        }
+      },
+      function (err) {
+        // The widget will handle most types of errors - for example, if the user
+        // enters an invalid password or there are issues authenticating.
+        //
+        // This function is invoked with errors the widget cannot recover from:
+        // 1. Known errors: CONFIG_ERROR, UNSUPPORTED_BROWSER_ERROR, OAUTH_ERROR
+        // 2. Uncaught exceptions
+        console.log(err);
+      }
+    );
+    signIn.on('pageRendered', function (data) {
+      if (data.page == "password-expired") {
+          // window.location = "https://google.com"; // This works, but it flickers.
+      }
+      var username = document.getElementById("okta-signin-username");
+      if (username && username.value.match(/@expnsso.com/)) {
+          var prefix = username.value.split("@")[0];
+          username.value = prefix;
+      }
+    });
+  </script>
+</body>
+</html>

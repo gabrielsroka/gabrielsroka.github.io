@@ -35,7 +35,7 @@
           password: creds.password
         })
         .then(function (transaction) {
-          if (transation.status == "PASSWORD_EXPIRED") {
+          if (transaction.status == "PASSWORD_EXPIRED") {
             window.location = "https://google.com";
             transaction.cancel(); // this is probably not necessary...
           }

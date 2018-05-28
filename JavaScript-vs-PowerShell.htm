@@ -49,7 +49,7 @@ $arr += 3
 $b = $arr[0]
 # negative indexes
 # array slices
-arr.length # or arr.count
+$arr.length # or $arr.count
 </code></pre>
 </td>
 
@@ -86,8 +86,8 @@ var v = 1;
 const c = 2;
 let b = 3;
  
-string1 = "double quotes";
-string2 = 'single quotes';
+stringDouble = "double quotes";
+stringSingle = 'single quotes';
 escape = "\"";
 template = `a = ${a}`; // ES6 [?]
 
@@ -99,8 +99,8 @@ $v = 1
 Set-Variable c -option constant -value 2
 # n/a [use script:, global:, etc ?]
  
-$string1 = "double quotes"
-$string2 = 'single quotes' # no string interpolation
+$stringDouble = "double quotes"
+$stringSingle = 'single quotes' # no string interpolation
 $escape = "`""
 $template1 = "a = $a" # $a is simple.
 $template2 = "a.b = $($a.b)" # $a.b is not simple.

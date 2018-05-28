@@ -1,16 +1,199 @@
+<html>
+<head>
+<title>JavaScript vs. PowerShell</title>
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head>
 <body>
 <table>
 <tr>
+<th>JavaScript
+<th>PowerShell
+
+<tr>
 <td>
-```javascript
+<pre><code class="javascript">
 // This is a single line comment.
 /* This is a comment block. */
-```
+</code></pre>
 </td>
 <td>
-```powershell
+<pre><code class="powershell">
 # This is a single line comment.
 <# This is a comment block. #>
+</code></pre>
 </td>
+
+<tr>
+<td>
+<pre><code class="javascript">
+arr = [1, 2];
+arr = [];
+arr.push(3);
+b = arr[0];
+// no support for negative indexes
+// arr.slice() [?]
+arr.length;
+</code></pre>
+</td>
+<td>
+<pre><code class="powershell">
+$arr = 1, 2
+$arr = @()
+$arr += 3
+$b = $arr[0]
+# negative indexes
+# array slices
+arr.length # or arr.count
+</code></pre>
+</td>
+
+<tr>
+<td>
+<pre><code class="javascript">
+hash = {name1: "value", n2: 2};
+hash = {};
+hash.n3 = 3;
+
+longhash = {
+    name1: "value",
+    n2: 2
+}; 
+</code></pre>
+</td>
+<td>
+<pre><code class="powershell">
+$hash = @{name1 = "value"; n2 = 2}
+$hash = @{}
+$hash.n3 = 3
+
+$longhash = @{ # longhash doesn't use semicolons.
+    name1 = "value"
+    n2 = 2
+}
+</code></pre>
+</td>
+
+<tr>
+<td>
+<pre><code class="javascript">
+var v = 1;
+const c = 2;
+let b = 3;
+ 
+string1 = "double quotes";
+string2 = 'single quotes';
+escape = "\"";
+template = `a = ${a}`; // ES6 [?]
+
+</code></pre>
+</td>
+<td>
+<pre><code class="powershell">
+$v = 1
+Set-Variable c -option constant -value 2
+# n/a [use script:, global:, etc ?]
+ 
+$string1 = "double quotes"
+$string2 = 'single quotes' # no string interpolation
+$escape = "`""
+$template1 = "a = $a" # $a is simple.
+$template2 = "a.b = $($a.b)" # $a.b is not simple.
+</code></pre>
+</td>
+
+<tr>
+<td>
+<pre><code class="javascript">
+// function name is usually a verb.
+function add(a1, a2) {
+    return a1 + a2;
+}
+
+ 
+v = add(a1, a2);
+</code></pre>
+</td>
+<td>
+<pre><code class="powershell">
+# function name is Verb-Noun. Must be declared before it's called.
+function Add-Numbers($a1, $a2) {
+    $a1 + $a2
+    # return is optional.
+}
+ 
+$v = Add-Numbers $a1 $a2
+</code></pre>
+</td>
+
+<tr>
+<td>
+<pre><code class="javascript">
+if (a == b) /* ... */ // Braces are optional but recommended.
+if (a < b)
+</code></pre>
+</td>
+<td>
+<pre><code class="powershell">
+if ($a -eq $b) { <# ... #> } # Braces are required.
+if ($a -lt $b) { <# ... #> }
+</code></pre>
+</td>
+
+<tr>
+<td>
+<pre><code class="javascript">
+b = true;
+ 
+if (a == b) {
+    //
+} else if (b < c) {
+    // 
+} else {
+    //
+}
+ 
+while ( ) { }
+do { } while ( )
+for (i = 0; i < MAX; i++) { }
+for (item of collection) // ES6 [?]
+</code></pre>
+</td>
+<td>
+<pre><code class="powershell">
+$b = $true;
+ 
+if ($a -eq $b) {
+    #
+} elseif ($b -lt $c) {
+    # 
+} else {
+    #
+}
+
+
+
+for ($i = 0; $i -le $MAX; $i++) { }
+foreach ($item in $collection)
+</code></pre>
+</td>
+
+
+
+<tr>
+<td>
+<pre><code class="javascript">
+
+</code></pre>
+</td>
+<td>
+<pre><code class="powershell">
+
+</code></pre>
+</td>
+
 </table>
 </body>
+</html>

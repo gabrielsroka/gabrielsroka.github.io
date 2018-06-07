@@ -1,4 +1,15 @@
 (function () {
+    // What does rockstar do?
+    // People page: enhanced search, Export Users menu
+    // Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles
+    // Administrators page: Export Admins
+    // Events: Expand All and Expand Each Row
+    // Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, ...
+    // User home page: Show SSO (SAML assertion, etc)
+    // SU Orgs & Org Users: enhanced search
+    // Many: enhanced menus
+    // and more to come...
+
     var mainPopup;
     $ = window.$ || window.jQueryCourage;
 
@@ -28,6 +39,10 @@
             suOrgs();
         } else if (location.pathname.match("/su/org/")) {
             suOrg();
+            if (location.pathname.match("system_log_2")) {
+                mainPopup = createPopup("rockstar");
+                systemLog();
+            }
         }
     }
 
@@ -36,10 +51,10 @@
         $("<li class=option><a><span class='icon download-16'></span>Export Users</a>").click(exportObjects).appendTo(".okta-dropdown-list");
         searcher({
             url: "/api/v1/users",
-            data: function () {return {q: this.search, limit: this.limit};},
+            data() {return {q: this.search, limit: this.limit};},
             limit: 15, // 15 is the max limit when using q.
             comparer: (user1, user2) => (user1.profile.firstName + user1.profile.lastName).localeCompare(user2.profile.firstName + user2.profile.lastName),
-            template: user => {
+            template(user) {
                 var creds = user.credentials.provider;
                 var logo = creds.type == "LDAP" ? "ldap_sun_one" : creds.type.toLowerCase();
                 return `<tr><td><span class='icon icon-24 group-logos-24 logo-${logo}'></span> ${creds.name == "OKTA" ? "Okta" : creds.name}` +
@@ -227,7 +242,7 @@
         } else if (location.pathname == "/admin/groups") {
             getObjects("Groups", "/api/v1/groups", "id,name,description,type", group => commatize(group.id, group.profile.name, group.profile.description || "", group.type));
         } else if (location.pathname == "/admin/apps/active") {
-            getObjects("Apps", "/api/v1/apps", "id,label,name", app => commatize(app.id, app.label, app.name));
+            getObjects("Apps", "/api/v1/apps", "id,label,name,userNameTemplate", app => commatize(app.id, app.label, app.name, app.credentials.userNameTemplate.template));
         } else {
             var appid = getAppId();
             if (appid) {
@@ -412,16 +427,16 @@
     function suOrgs() {
         searcher({
             url: "/api/internal/su/orgs",
-            data: function () {return {search: this.search, limit: this.limit};},
+            data() {return {search: this.search, limit: this.limit};},
             limit: 100, // 100 is the max limit for this url.
             //filter: org => org.edition != "Developer",
-            comparer: (org1, org2) => {
+            comparer(org1, org2) {
                 var d1 = org1.edition == "Developer";
                 var d2 = org2.edition == "Developer";
                 if ((d1 && d2) || (!d1 && !d2)) return org1.subdomain.localeCompare(org2.subdomain);
                 return d1 ? 1 : -1;
             },
-            template: org => {
+            template(org) {
                 var href = `${org.cellURL || ""}/su/org/${org.id}`;
                 return `<tr><td><a href="${href}">${org.subdomain}</a>` +
                     `<td>${org.name}` +
@@ -437,7 +452,7 @@
     function suOrg() {
         searcher({
             url: location.pathname + "/users/search",
-            data: function () {return {sSearch: this.search, sColumns: "fullName,login,userId,email,tempSignOn", iDisplayLength: 10};},
+            data() {return {sSearch: this.search, sColumns: "fullName,login,userId,email,tempSignOn", iDisplayLength: 10};},
             comparer: (user1, user2) => user1.fullName.localeCompare(user2.fullName),
             template: user => `<tr class=odd><td>${user.fullName}<td>${user.login}<td><a href="${location.pathname}/user-summary/${user.userId}">${user.userId}</a><td>${user.email}<td>${user.tempSignOn}`,
             headers: "<tr><th>Name<th>Login<th>ID<th>Email<th>Temp Sign On",

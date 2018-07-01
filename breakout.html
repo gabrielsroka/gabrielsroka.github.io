@@ -10,7 +10,7 @@
     margin: 0;
 }
 canvas {
-    background: #eee;
+    background: black;
     display: block;
     margin: 0 auto;
 }
@@ -20,71 +20,61 @@ canvas {
 <canvas id="canvas" width="480" height="320"></canvas>
 <script>
 // Forked from https://github.com/end3r/Gamedev-Canvas-workshop
+// see also https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript
 
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var ball = {
     radius: 10,
-    init: function () {
+    init() {
         this.x = canvas.width / 2;
         this.y = canvas.height - 30;
         this.dx = 2 * game.level;
         this.dy = -2 * game.level;
     },
-    draw: function () {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "#0095DD";
-        ctx.fill();
-        ctx.closePath();
+    draw() {
+        circle(this.x, this.y, this.radius, "white");
     }
 };
 var paddle = {
     height: 10,
     width: 75,
-    init: function () {
+    init() {
         this.x = (canvas.width - this.width) / 2;
+        this.y = canvas.height - this.height;
     },
-    draw: function () {
-        ctx.beginPath();
-        ctx.rect(this.x, canvas.height - this.height, this.width, this.height);
-        ctx.fillStyle = "#0095DD";
-        ctx.fill();
-        ctx.closePath();
+    draw() {
+        rectangle(this.x, this.y, this.width, this.height, "white");
     }
 };
 var bricks = {
-    rowCount: 5,
-    columnCount: 3,
+    rowCount: 3,
+    columnCount: 5,
     width: 75,
     height: 20,
     padding: 10,
     offsetTop: 40,
     offsetLeft: 30,
-    init: function () {
+    init() {
         this.bricks = [];
         this.remaining = this.columnCount * this.rowCount;
         for (var c = 0; c < this.columnCount; c++) {
             this.bricks[c] = [];
             for (var r = 0; r < this.rowCount; r++) {
                 this.bricks[c][r] = {
-                    x: r * (this.width + this.padding) + this.offsetLeft,
-                    y: c * (this.height + this.padding) + this.offsetTop,
+                    x: c * (this.width + this.padding) + this.offsetLeft,
+                    y: r * (this.height + this.padding) + this.offsetTop,
                     out: false
                 };
             }
         }
     },
-    draw: function () {
+    draw() {
         for (var c = 0; c < this.columnCount; c++) {
             for (var r = 0; r < this.rowCount; r++) {
                 var brick = this.bricks[c][r];
                 if (!brick.out) {
-                    ctx.beginPath();
-                    ctx.rect(brick.x, brick.y, this.width, this.height);
-                    ctx.fillStyle = "#0095DD";
-                    ctx.fill();
-                    ctx.closePath();
+                    rectangle(brick.x, brick.y, this.width, this.height, "white");
                 }
             }
         }
@@ -95,12 +85,12 @@ var game = {
     lives: 3,
     level: 1,
     over: false,
-    init: function () {
+    init() {
         ball.init();
         paddle.init();
         bricks.init();
     },
-    detectCollision: function () {
+    detectCollision() {
         for (var c = 0; c < bricks.columnCount; c++) {
             for (var r = 0; r < bricks.rowCount; r++) {
                 var brick = bricks.bricks[c][r];
@@ -119,25 +109,11 @@ var game = {
             }
         }
     },
-    draw: function (timestamp) {
+    draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ball.draw();
         paddle.draw();
         bricks.draw();
-        frame++;
-        if (startTime == 0 && timestamp) {
-            startTime = timestamp;
-        }
-        if (timestamp > (startTime + 1000)) {
-            startTime = timestamp;
-            frame = 0;
-        }
-        ctx.font = "16px Arial";
-        ctx.fillStyle = "#0095DD";
-        ctx.fillText("FPS: " + Math.round(frame / (timestamp - startTime) * 1000), 8, 35);
-        ctx.fillText("Score: " + this.score, 8, 20);
-        ctx.fillText("Lives: " + this.lives, canvas.width - 65, 20);
-        ctx.fillText("Level: " + this.level, canvas.width - 65, 35);
         this.detectCollision();
         if (ball.x + ball.dx > canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
             ball.dx = -ball.dx;
@@ -159,6 +135,11 @@ var game = {
                 }
             }
         }
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText("Score: " + this.score, 8, 20);
+        ctx.fillText("Lives: " + this.lives, canvas.width - 65, 20);
+        ctx.fillText("Level: " + this.level, canvas.width - 65, 35);
         if (rightPressed && paddle.x < canvas.width - paddle.width) {
             paddle.x += 7;
         } else if (leftPressed && paddle.x > 0) {
@@ -166,15 +147,13 @@ var game = {
         }
         ball.x += ball.dx;
         ball.y += ball.dy;
-        if (!this.over) requestAnimationFrame(function (timestamp) {game.draw.call(game, timestamp);});
+        if (!this.over) requestAnimationFrame(function () {game.draw.call(game);});
     }
 };
         
-var frame = 0;
-var startTime = 0;
 var rightPressed = false;
 var leftPressed = false;
-var RIGHT_KEY = 39, LEFT_KEY = 37;
+const RIGHT_KEY = 39, LEFT_KEY = 37;
 
 document.addEventListener("keydown", function (event) {
     if (event.keyCode == RIGHT_KEY) {
@@ -201,6 +180,20 @@ onclick = function () {if (game.over) document.location.reload();};
 game.init();
 game.draw();
 
+function circle(x, y, radius, color) {
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.closePath();
+}
+function rectangle(x, y, width, height, color) {
+    ctx.beginPath();
+    ctx.rect(x, y, width, height);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.closePath();
+}
 </script>
 </body>
 </html>

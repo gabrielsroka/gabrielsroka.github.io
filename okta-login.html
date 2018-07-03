@@ -29,7 +29,7 @@
     var baseUrl = 'https://gsroka-neto.oktapreview.com';
     var pwdChangeUrl = 'https://google.com';
     var config = {
-      baseUrl: baseUrl,
+      baseUrl: baseUrl/*,
       processCreds: function (creds, callback) {
         signIn.authClient.signIn({
           username: creds.username,
@@ -43,7 +43,7 @@
             window.location = baseUrl;
           }
         });
-      }
+      }/*
     };
     var signIn = new OktaSignIn(config);
 

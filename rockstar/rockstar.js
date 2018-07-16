@@ -13,6 +13,10 @@
     var mainPopup;
     $ = window.$ || window.jQueryCourage;
 
+    if (location.href == "https://gabrielsroka.github.io/rockstar/") {
+        alert("To install rockstar, drag and drop it to your toolbar.");
+        return;
+    }
     if (location.host.match(/-admin/)) { // Admin pages
         mainPopup = createPopup("rockstar");
         if (location.pathname == "/admin/users") {

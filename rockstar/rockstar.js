@@ -14,7 +14,7 @@
     $ = window.$ || window.jQueryCourage;
 
     if (location.href == "https://gabrielsroka.github.io/rockstar/") {
-        alert("To install rockstar, drag and drop it to your toolbar.");
+        alert("To install rockstar, open your bookmark toolbar, then drag and drop it.");
         return;
     }
     if (location.host.match(/-admin/)) { // Admin pages

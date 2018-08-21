@@ -9,7 +9,7 @@ body 3 using custom &lt;include&gt; elements
 var incs = document.getElementsByTagName("include");
 for (var i = 0; i < incs.length; i++) {
     var request = new XMLHttpRequest();
-    request.open("get", incs[i].attributes.src, false);
+    request.open("get", incs[i].attributes.src.value, false);
     request.send();
     incs[i].innerHTML = request.responseText;
 }

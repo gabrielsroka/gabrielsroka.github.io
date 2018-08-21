@@ -8,10 +8,13 @@ body 3 using custom &lt;include&gt; elements
 <script>
 var incs = document.getElementsByTagName("include");
 for (var i = 0; i < incs.length; i++) {
+    var inc = incs[i];
     var request = new XMLHttpRequest();
-    request.open("get", incs[i].attributes.src.value, false);
+    request.open("get", inc.attributes.src.value);
+    request.onload = function () {
+        inc.innerHTML = this.responseText;
+    }
     request.send();
-    incs[i].innerHTML = request.responseText;
 }
 </script>
 

@@ -43,9 +43,9 @@
     for (var s = 0; s < scripts.length; s++) {
     	loadScript(scripts[s]);
     }
-})("http://webpages.charter.net/gabrielsroka/scripts/", ["campuses", "js", "table", "dialog", "Request"],
+})("https://gabrielsroka.github.io/webpages/scripts/", ["campuses", "js", "table", "dialog", "Request"],
 function () {
-    var path = "http://webpages.charter.net/gabrielsroka/";
+    var path = "https://gabrielsroka.github.io/webpages/";
     
     function metadataLoaded(metadata) {
         if (typeof metadata == "string") { // Error string.

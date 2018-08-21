@@ -1,0 +1,18 @@
+<body>
+<include src="header.htm"></include>
+
+body 3 using &lt;include&gt; elements
+
+<include src="footer.htm"></include>
+
+<script>
+    var incs = document.getElementsByTagName("include");
+    for (var i = 0; i < incs.length; i++) {
+        var request = new XMLHttpRequest();
+        request.open("get", incs[i].src, false);
+        request.send();
+        incs[i].innerHTML = request.responseText;
+    }
+</script>
+
+</body>

@@ -2,7 +2,7 @@
 
 // ==UserScript==
 // @name           School Loop Plus
-// @namespace      http://webpages.charter.net/gabrielsroka
+// @namespace      https://gabrielsroka.github.io/
 // @description    Show progress reports on main portal page. Add course title to progress report. Enable autocomplete on login. Sort locker by date. Highlight today in month. Show whether sent messages have been read.
 // @version        2012.4.20.1655
 // @include        http*://lbrogers.schoolloop.com/
@@ -15,7 +15,7 @@
 // @include        http*://lbrogers.schoolloop.com/calendar/month*
 // @include        http*://lbrogers.schoolloop.com/loopmail/outbox*
 
-// @require        http://webpages.charter.net/gabrielsroka/scripts/FTClient.js
+// @require        https://gabrielsroka.github.io/webpages/scripts/FTClient.js
 // @require        http://cdn.schoolloop.com/1201171230/static/lib/jquery_old/1.3/jquery-1.3.2.min.js
 // ==/UserScript==
 
@@ -156,7 +156,7 @@ $("a:contains(Rogers Middle School Home)").attr({ rel: "" }); // Kill onmouseove
     // Sort locker by date.
     if (location.href.indexOf("page_view") < 0) return;
     function caretImg(asc) {
-        return "<img src='http://webpages.charter.net/gabrielsroka/images/caret_" + (asc == 1 ? "up" : "down") + ".gif' width='7' height='7'>";
+        return "<img src='https://gabrielsroka.github.io/webpages/images/caret_" + (asc == 1 ? "up" : "down") + ".gif' width='7' height='7'>";
     }
     var tables = document.getElementsByTagName("table");
     for (var t = 0; t < tables.length; t++) {

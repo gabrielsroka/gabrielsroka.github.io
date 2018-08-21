@@ -1,5 +1,5 @@
 // set apikey in the bookmarklet   VVVVVV
-// javascript:(function(){/*window.apikey="";*/var script=document.body.appendChild(document.createElement("script"));script.src="http://webpages.charter.net/gabrielsroka/scripts/oktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
+// javascript:(function(){/*window.apikey="";*/var script=document.body.appendChild(document.createElement("script"));script.src="https://gabrielsroka.github.io/webpages/scripts/oktaAPI.js";script.onload=function(){document.body.removeChild(this);};})();
 
 (function () {
     function parseUsers(response) {

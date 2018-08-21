@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name           Greasemonkey/IE Google Fusion Tables Demo
-// @namespace      http://webpages.charter.net/gabrielsroka
+// @namespace      https://gabrielsroka.github.io/
 // @description    Greasemonkey/IE Google Fusion Tables Demo
 // @version        2012.4.19.1700
-// @include        http://webpages.charter.net/gabrielsroka/GMFTClientDemo.htm
-// @require        http://webpages.charter.net/gabrielsroka/scripts/FTClient.js
+// @include        https://gabrielsroka.github.io/webpages/GMFTClientDemo.htm
+// @require        https://gabrielsroka.github.io/webpages/scripts/FTClient.js
 // ==/UserScript==
 
 document.getElementById("username").focus();

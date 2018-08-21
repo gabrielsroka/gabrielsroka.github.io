@@ -1,5 +1,5 @@
 // Drag this to the bookmark toolbar:
-// javascript:(function(){document.body.appendChild(document.createElement("script")).src="http://webpages.charter.net/gabrielsroka/scripts/saml.js"})();
+// javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/webpages/scripts/saml.js"})();
 
 (function () {
     function parseResponse(responseText) {

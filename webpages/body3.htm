@@ -1,15 +1,15 @@
 <body>
-<include hsrc="header.htm"></include>
+<include src="header.htm"></include>
 
 body 3 using custom &lt;include&gt; elements
 
-<include hsrc="footer.htm"></include>
+<include src="footer.htm"></include>
 
 <script>
 var incs = document.getElementsByTagName("include");
 for (var i = 0; i < incs.length; i++) {
     var request = new XMLHttpRequest();
-    request.open("get", incs[i].hsrc, false);
+    request.open("get", incs[i].attributes.src, false);
     request.send();
     incs[i].innerHTML = request.responseText;
 }

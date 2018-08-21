@@ -6,16 +6,14 @@ body 3 using custom &lt;include&gt; elements
 <include src="footer.htm"></include>
 
 <script>
-var incs = document.getElementsByTagName("include");
-for (var i = 0; i < incs.length; i++) {
-    var inc = incs[i];
+[...document.getElementsByTagName("include")].forEach(include => {
     var request = new XMLHttpRequest();
-    request.open("get", inc.attributes.src.value);
+    request.open("get", include.attributes.src.value);
     request.onload = function () {
-        inc.innerHTML = this.responseText;
-    }
+        include.innerHTML = this.responseText;
+    };
     request.send();
-}
+});
 </script>
 
 </body>

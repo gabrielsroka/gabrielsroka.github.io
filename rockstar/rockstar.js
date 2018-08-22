@@ -253,7 +253,7 @@
                 exportPopup = createPopup("Export");
                 createA("Export App Users", exportPopup).click(function () {
                     exportPopup.parent().remove();
-                    getObjects("App Users", `/api/v1/apps/${appid}/users`, "id,userName,scope", appUser => commatize(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope));
+                    getObjects("App Users", `/api/v1/apps/${appid}/users`, "id,userName,scope,externalId", appUser => commatize(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId));
                 });
                 createA("Export App Groups", exportPopup).click(function () {
                     exportPopup.parent().remove();

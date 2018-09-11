@@ -170,7 +170,7 @@
         createA("Export Administrators", mainPopup).click(function () { // TODO: consider merging into exportObjects(). will the Link headers be a problem?
             var adminsPopup = createPopup("Administrators");
             adminsPopup.html("Exporting ...");
-            $.getJSON("/api/internal/administrators?expand=user,apps,userAdminGroups,helpDeskAdminGroups").then(admins => {
+            $.getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups").then(admins => {
                 var lines = ["First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role"];
                 admins.forEach(admin => {
                     var profile = admin._embedded.user.profile;
@@ -182,19 +182,28 @@
                         // FIXME: would like to show user.status, but it comes back as null. TODO: fetch it from /users
                         lines.push(commatize(profile.firstName, profile.lastName, profile.email, profile.login, admin.userId, profile.title || "", mgr, profile.department || "", role));
                     }
-                    function appNames() {
+                    function appAndInstanceNames() {
+                        var appAndInstanceNames = [];
+
                         var apps = admin._embedded.apps;
-                        var appNames = [];
                         if (apps && apps.length > 0) {
-                            apps.forEach(app => appNames.push(app.displayName));
+                            apps.forEach(app => appAndInstanceNames.push("All " + app.displayName + " apps"));
                         } else {
-                            appNames.push("(all)");
+                            appAndInstanceNames.push("(all)");
                         }
-                        return appNames.join('; ');
+
+                        var instances = admin._embedded.instances;
+                        if (instances && instances.length > 0) {
+                            instances.forEach(instance => appAndInstanceNames.push(instance.displayName));
+                        } else {
+                            appAndInstanceNames.push("(all)");
+                        }
+
+                        return appAndInstanceNames.join('; ');
                     }
                     function groupNames(groupType) {
-                        var groups = admin._embedded[groupType];
                         var groupNames = [];
+                        var groups = admin._embedded[groupType];
                         if (groups && groups.length > 0) {
                             groups.forEach(group => groupNames.push(group.profile.name));
                         } else {
@@ -204,7 +213,7 @@
                     }
                     if (admin.superAdmin) showRole("Super Administrator");
                     if (admin.orgAdmin) showRole("Organization Administrator");
-                    if (admin.appAdmin) showRole("Application Administrator: " + appNames());
+                    if (admin.appAdmin) showRole("Application Administrator: " + appAndInstanceNames());
                     if (admin.userAdmin) showRole("Group Administrator: " + groupNames("userAdminGroups")); // "Group Admin", not "User Admin"
                     if (admin.helpDeskAdmin) showRole("Help Desk Administrator: " + groupNames("helpDeskAdminGroups"));
                     if (admin.readOnlyAdmin) showRole("Read Only Administrator");
@@ -253,7 +262,8 @@
                 exportPopup = createPopup("Export");
                 createA("Export App Users", exportPopup).click(function () {
                     exportPopup.parent().remove();
-                    getObjects("App Users", `/api/v1/apps/${appid}/users`, "id,userName,scope,externalId", appUser => commatize(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId));
+                    getObjects("App Users", `/api/v1/apps/${appid}/users`, "id,userName,scope,externalId", 
+                        appUser => commatize(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId));
                 });
                 createA("Export App Groups", exportPopup).click(function () {
                     exportPopup.parent().remove();
@@ -394,7 +404,8 @@
                         console.log(assertion);
                         assertion = assertion.replace(/\n/g, "").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/&gt;&lt;/g, "&gt;\n&lt;")
                             .replace(/((SignatureValue|X509Certificate)&gt;.{80})(.*)&lt;/g, "$1<span title='$3' " + highlight + ">...</span>&lt;")
-                            .replace(/((Address|Issuer|NameID|NameIdentifier|Name|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, "$1<span " + highlight + ">$4</span>$5");
+                            .replace(/((Address|Issuer|NameID|NameIdentifier|Name|AttributeValue|Audience|Destination|Recipient)(.*&gt;|="|=&quot;))(.*?)(&lt;|"|&quot;)/g, 
+                                "$1<span " + highlight + ">$4</span>$5");
                         var postTo = unentity(response.match(/<form id="appForm" action="(.*?)"/)[1]);
                         ssoPopup.html("Post to: " + postTo + "<br><br><pre>" + indentXml(assertion, 4) + "</pre>");
                     } else if (matches = response.match(/<form(?:.|\n)*<\/form>/)) {
@@ -444,8 +455,8 @@
                 var href = `${org.cellURL || ""}/su/org/${org.id}`;
                 return `<tr><td><a href="${href}">${org.subdomain}</a>` +
                     `<td>${org.name}` +
-                    `<td><a class='link-button' href="${href}/beta-features#tab-ea-features">EA</a> ` +
-                        `<a class='link-button' href="${href}/beta-features#tab-ga-features">GA</a>` +
+                    `<td><a class='link-button' href="${href}/features">New</a> ` +
+                        `<a class='link-button' href="${href}/beta-features#tab-ea-features">Old</a>` +
                     `<td>${org.cell}`;
             },
             headers: "<tr><th>Subdomain<th>Name<th>Features<th>Cell",
@@ -473,7 +484,8 @@
     if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
-            `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> <a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br></div>`).appendTo(document.body);
+            `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> ` + 
+            `<a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br></div>`).appendTo(document.body);
         return $("<div></div>").appendTo(popup);
     }
     function createA(html, parent) {
@@ -523,7 +535,8 @@
 
         var timeoutID = 0;
         $(object.$search || ".data-list .data-list-toolbar")
-            .html(`<span class="search-box input-fix"><span class="icon-only icon-16 magnifying-glass-16"></span> <input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'></span>`)
+            .html(`<span class="search-box input-fix"><span class="icon-only icon-16 magnifying-glass-16"></span> ` +
+                `<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'></span>`)
             .find("input")
             .keyup(function (event) {
                 const ESC = 27;

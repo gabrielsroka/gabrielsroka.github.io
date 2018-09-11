@@ -7,7 +7,12 @@
   <link href="https://ok3static.oktacdn.com/assets/css/widgets/chosen.a7aa2f61c6950df36987b8273c15a6be.css" type="text/css" rel="stylesheet"/>
   <link href="https://ok3static.oktacdn.com/assets/css/enduser/enduser.be9c75cd7f709dbb05ac1ab439ea9ec4.css" type="text/css" rel="stylesheet"/>
   <link href="https://ok3static.oktacdn.com/assets/css/widgets/jquery.qtip.188d7d3c1fd4644f3496390bc187bd08.css" type="text/css" rel="stylesheet"/>
-  </head>
+<style type="text/css">
+img.logo {
+    visibility: visible;
+}
+</style>
+</head>
 <body>
 <div id="links"></div>
 <script>
@@ -18,13 +23,13 @@ var init = {credentials: 'include'};
 fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
 .then(response => response.json())
 .then(links => {
-    links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1);
-    var s = "<ul>";
-    links.forEach(link => s += `<li class='app-button-wrapper'>
-        <a href='${link.linkUrl}' target='_blank' class='app-button'><img src='${link.logoUrl}' style='visibility: visible' class='logo'/></a>
+    var html = "<ul>";
+    links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
+    .forEach(link => html += `<li class='app-button-wrapper'>
+        <a href='${link.linkUrl}' target='_blank' class='app-button'><img src='${link.logoUrl}' class='logo'/></a>
         <p class='app-button-name'>${link.label}`);
-    s += "</ul>";
-    document.getElementById("links").innerHTML = s;
+    html += "</ul>";
+    document.getElementById("links").innerHTML = html;
 });
 </script>
 </body>

@@ -13,12 +13,13 @@
 </style>
 </head>
 <body>
-<div id="links"></div>
+<div id="app"></div>
 <script>
 var baseUrl = 'https://gsroka-neto.oktapreview.com';
-var init = {credentials: 'include'};
+var init = {credentials: 'include'}; // For this work, enable CORS in Okta.
 // var init = {mode: 'cors'}; // this didn't seem to work.
 
+var app = document.getElementById("app");
 fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
 .then(response => response.json())
 .then(links => {
@@ -28,7 +29,10 @@ fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
         <a href='${link.linkUrl}' target='_blank' class='app-button'><img src='${link.logoUrl}' class='logo'/></a>
         <p class='app-button-name'>${link.label}`);
     html += "</ul>";
-    document.getElementById("links").innerHTML = html;
+    app.innerHTML = html;
+}).catch(error => {
+    app.innerHTML = `Are you signed in? <a href='${baseUrl}?fromUrl=${location.href}'>Sign in</a>`;
+    // TODO: show Sign in Widget? SPA? redirect?
 });
 </script>
 </body>

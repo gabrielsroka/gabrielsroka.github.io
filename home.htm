@@ -4,11 +4,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Apps</title>
 <link href="https://ok1static.oktacdn.com/assets/css/widgets/chosen.css" type="text/css" rel="stylesheet" />
-<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' type='text/css' rel='stylesheet '/>
 <link href="https://ok1static.oktacdn.com/assets/css/widgets/jquery.qtip.css" type="text/css" rel="stylesheet" />
 
 <!-- Latest CDN production Javascript and CSS: 2.11.0 -->
 <script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/js/okta-sign-in.min.js" type="text/javascript"></script>
+<link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-sign-in.min.css" type="text/css" rel="stylesheet" />
+
+<!-- Theme file: Customize or replace this file if you want to override our default styles -->
+<link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-theme.css" type="text/css" rel="stylesheet" />
 <style type='text/css'>
 .app-button .logo {
     visibility: visible;
@@ -24,24 +27,21 @@ see:
 http://developer.okta.com/code/javascript/okta_sign-in_widget
 https://github.com/okta/okta-signin-widget
 */
-
 var baseUrl = 'https://gsroka-neto.oktapreview.com';
 var init = { credentials: 'include' }; // For this work, enable CORS in Okta.
 // var init = {mode: 'cors'}; // this didn't seem to work.
-
 var app = document.getElementById("app");
-
 var config = {
     baseUrl: baseUrl
 };
 var signIn = new OktaSignIn(config);
 signIn.session.get(function (res) {
-    // Session exists, show logged in state.
     if (res.status === 'ACTIVE') {
+        // Session exists, show logged in state.
         fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
         .then(response => response.json())
         .then(links => {
-            var html = "<ul>";
+            var html = "<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' type='text/css' rel='stylesheet'/><ul>";
             links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
             .forEach(link => html += `<li class='app-button-wrapper'>
                 <a href='${link.linkUrl}' target='_blank' class='app-button'><img src='${link.logoUrl}' class='logo'/></a>
@@ -50,8 +50,6 @@ signIn.session.get(function (res) {
             app.innerHTML = html;
         });
     } else if (res.status === 'INACTIVE') {
-        app.innerHTML = `<link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-sign-in.min.css" type="text/css" rel="stylesheet" />
-            <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-theme.css" type="text/css" rel="stylesheet" />`;
         // No session, or error retrieving the session. Render the Sign-In Widget.
         signIn.renderEl(
             { el: '#osw-container' },
@@ -77,5 +75,4 @@ signIn.session.get(function (res) {
 });
 </script>
 </body>
-
 </html>

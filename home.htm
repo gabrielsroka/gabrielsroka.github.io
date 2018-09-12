@@ -3,9 +3,8 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Apps</title>
-<link href="https://ok3static.oktacdn.com/assets/css/widgets/chosen.a7aa2f61c6950df36987b8273c15a6be.css" type="text/css" rel="stylesheet"/>
-<link href="https://ok3static.oktacdn.com/assets/css/enduser/enduser.be9c75cd7f709dbb05ac1ab439ea9ec4.css" type="text/css" rel="stylesheet"/>
-<link href="https://ok3static.oktacdn.com/assets/css/widgets/jquery.qtip.188d7d3c1fd4644f3496390bc187bd08.css" type="text/css" rel="stylesheet"/>
+<link href="https://ok1static.oktacdn.com/assets/css/widgets/chosen.css" type="text/css" rel="stylesheet"/>
+<link href="https://ok1static.oktacdn.com/assets/css/widgets/jquery.qtip.css" type="text/css" rel="stylesheet"/>
 
 <!-- Latest CDN production Javascript and CSS: 2.11.0 -->
 <script
@@ -45,7 +44,7 @@ var app = document.getElementById("app");
 fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
 .then(response => response.json())
 .then(links => {
-    var html = "<ul>";
+    var html = "<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' type='text/css' rel='stylesheet'/><ul>";
     links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
     .forEach(link => html += `<li class='app-button-wrapper'>
         <a href='${link.linkUrl}' target='_blank' class='app-button'><img src='${link.logoUrl}' class='logo'/></a>

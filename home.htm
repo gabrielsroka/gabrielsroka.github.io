@@ -6,6 +6,21 @@
 <link href="https://ok3static.oktacdn.com/assets/css/widgets/chosen.a7aa2f61c6950df36987b8273c15a6be.css" type="text/css" rel="stylesheet"/>
 <link href="https://ok3static.oktacdn.com/assets/css/enduser/enduser.be9c75cd7f709dbb05ac1ab439ea9ec4.css" type="text/css" rel="stylesheet"/>
 <link href="https://ok3static.oktacdn.com/assets/css/widgets/jquery.qtip.188d7d3c1fd4644f3496390bc187bd08.css" type="text/css" rel="stylesheet"/>
+
+<!-- Latest CDN production Javascript and CSS: 2.11.0 -->
+<script
+  src="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/js/okta-sign-in.min.js"
+  type="text/javascript"></script>
+<link
+  href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-sign-in.min.css"
+  type="text/css"
+  rel="stylesheet"/>
+
+<!-- Theme file: Customize or replace this file if you want to override our default styles -->
+<link
+  href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-theme.css"
+  type="text/css"
+  rel="stylesheet"/>    
 <style type="text/css">
 .app-button .logo {
     visibility: visible;
@@ -14,7 +29,14 @@
 </head>
 <body>
 <div id="app"></div>
+<div id="okta-login-container"></div>
 <script>
+/*
+see:
+http://developer.okta.com/code/javascript/okta_sign-in_widget
+https://github.com/okta/okta-signin-widget
+*/
+
 var baseUrl = 'https://gsroka-neto.oktapreview.com';
 var init = {credentials: 'include'}; // For this work, enable CORS in Okta.
 // var init = {mode: 'cors'}; // this didn't seem to work.
@@ -31,8 +53,30 @@ fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
     html += "</ul>";
     app.innerHTML = html;
 }).catch(error => {
-    app.innerHTML = `Are you signed in? <a href='${baseUrl}?fromUrl=${location.href}'>Sign in</a>`;
-    // TODO: show Sign in Widget? SPA? redirect?
+    var config = {
+      baseUrl: baseUrl
+    };
+    var signIn = new OktaSignIn(config);
+    signIn.renderEl(
+      { el: '#okta-login-container' },
+      function (res) {
+        if (res.status === 'SUCCESS') {
+          console.log('User %s succesfully authenticated %o', res.user.profile.login, res.user);
+          res.session.setCookieAndRedirect(location.href);
+        } else {
+          console.log(res.status);
+        }
+      },
+      function (err) {
+        // The widget will handle most types of errors - for example, if the user
+        // enters an invalid password or there are issues authenticating.
+        //
+        // This function is invoked with errors the widget cannot recover from:
+        // 1. Known errors: CONFIG_ERROR, UNSUPPORTED_BROWSER_ERROR, OAUTH_ERROR
+        // 2. Uncaught exceptions
+        console.log(err);
+      }
+    );
 });
 </script>
 </body>

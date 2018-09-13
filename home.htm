@@ -14,11 +14,16 @@
 </head>
 <body>
 <br>
+<a id="home" href="#" data-se="home-link" class="h-nav-href">
+<span class="inline-icon icon-home-light"></span>
+<span class="home-link-text">Home</span>
+</a>
+<a id="signout" href="#" class="h-nav-href">Signout</a>
 <div id="app"></div>
 <script>
 /*
 see:
-http://developer.okta.com/code/javascript/okta_sign-in_widget
+https://developer.okta.com/code/javascript/okta_sign-in_widget
 https://github.com/okta/okta-signin-widget
 */
 var baseUrl = "https://gsroka-neto.oktapreview.com";
@@ -65,6 +70,16 @@ signIn.session.get(function (res) {
         );
     }
 });
+document.getElementById("home").href = baseUrl;
+document.getElementById("signout").onclick = function () {
+    signIn.session.close(function (err) {
+      if (err) {
+        // The user has not been logged out, perform some error handling here.
+        return;
+      }
+      location.href = location.href;
+    });
+};
 </script>
 </body>
 </html>

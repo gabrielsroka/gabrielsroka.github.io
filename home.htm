@@ -33,9 +33,7 @@ signIn.session.get(function (res) {
         fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
         .then(response => response.json())
         .then(links => {
-            var html = `<a href="${baseUrl}" data-se="home-link" class="h-nav-href">` +
-                `<span class="inline-icon icon-home-light"></span><span class="home-link-text">Home</span></a>&nbsp;` +
-                `<a id="signout" href="#" class="h-nav-href">Signout</a>` +
+            var html = `<a href="${baseUrl}">Home</a>&nbsp;<a id="signout">Sign out</a><br>` +
                 `<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' type='text/css' rel='stylesheet'/><ul>`;
             links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
             .forEach(link => html += `<li class='app-button-wrapper'>` +

@@ -33,7 +33,7 @@ signIn.session.get(function (res) {
         fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
         .then(response => response.json())
         .then(links => {
-            var html = `<a id="home" href="#" data-se="home-link" class="h-nav-href">` +
+            var html = `<a href="${baseUrl}" data-se="home-link" class="h-nav-href">` +
                 `<span class="inline-icon icon-home-light"></span><span class="home-link-text">Home</span></a>&nbsp;` +
                 `<a id="signout" href="#" class="h-nav-href">Signout</a>` +
                 `<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' type='text/css' rel='stylesheet'/><ul>`;
@@ -44,6 +44,15 @@ signIn.session.get(function (res) {
                 `<p class='app-button-name'>${link.label}`);
             html += "</ul>";
             document.getElementById("app").innerHTML = html;
+            document.getElementById("signout").onclick = function () {
+                signIn.session.close(function (err) {
+                  if (err) {
+                    // The user has not been logged out, perform some error handling here.
+                    return;
+                  }
+                  location.href = location.href;
+                });
+            };
         });
     } else if (res.status == "INACTIVE") { // No session, or error retrieving the session. Render the Sign-In Widget.
         signIn.renderEl(
@@ -68,16 +77,6 @@ signIn.session.get(function (res) {
         );
     }
 });
-document.getElementById("home").href = baseUrl;
-document.getElementById("signout").onclick = function () {
-    signIn.session.close(function (err) {
-      if (err) {
-        // The user has not been logged out, perform some error handling here.
-        return;
-      }
-      location.href = location.href;
-    });
-};
 </script>
 </body>
 </html>

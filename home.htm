@@ -13,8 +13,8 @@
 <link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-theme.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
+<br>
 <div id="app"></div>
-<div id="osw-container"></div>
 <script>
 /*
 see:
@@ -22,16 +22,14 @@ http://developer.okta.com/code/javascript/okta_sign-in_widget
 https://github.com/okta/okta-signin-widget
 */
 var baseUrl = "https://gsroka-neto.oktapreview.com";
-var init = {credentials: "include"}; // For this work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-// var init = {mode: 'cors'}; // this didn't seem to work.
-var app = document.getElementById("app");
 var config = {
     baseUrl: baseUrl
 };
 var signIn = new OktaSignIn(config);
 signIn.session.get(function (res) {
-    if (res.status === 'ACTIVE') {
-        // Session exists, show logged in state.
+    if (res.status == "ACTIVE") { // Session exists, show logged in state.
+        var init = {credentials: "include"}; // For this work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+        // var init = {mode: "cors"}; // This didn't seem to work.
         fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
         .then(response => response.json())
         .then(links => {
@@ -42,12 +40,11 @@ signIn.session.get(function (res) {
                 `<img src='${link.logoUrl}' class='logo' style='visibility: visible;'/></a>` +
                 `<p class='app-button-name'>${link.label}`);
             html += "</ul>";
-            app.innerHTML = html;
+            document.getElementById("app").innerHTML = html;
         });
-    } else if (res.status == "INACTIVE") {
-        // No session, or error retrieving the session. Render the Sign-In Widget.
+    } else if (res.status == "INACTIVE") { // No session, or error retrieving the session. Render the Sign-In Widget.
         signIn.renderEl(
-            { el: '#osw-container' },
+            {el: '#app'},
             function success(res) {
                 if (res.status == "SUCCESS") {
                     console.log("User %s succesfully authenticated %o", res.user.profile.login, res.user);

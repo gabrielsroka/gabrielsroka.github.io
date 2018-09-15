@@ -24,7 +24,7 @@ if (location.search == "?signout") {
         function success(res) {
             if (res.status == "SUCCESS") {
                 console.log("User %s succesfully authenticated %o", res.user.profile.login, res.user);
-                res.session.setCookieAndRedirect(baseUrl + "/home.htm");
+                res.session.setCookieAndRedirect(location.origin + "/home.htm");
             } else {
                 console.log(res.status);
             }

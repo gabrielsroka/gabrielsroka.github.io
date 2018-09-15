@@ -21,6 +21,15 @@ var config = {
     baseUrl: baseUrl
 };
 var signIn = new OktaSignIn(config);
+if (location.search == "?signout") {
+    signIn.session.close(function (err) {
+        if (err) {
+            // The user has not been logged out, perform some error handling here.
+            return;
+        }
+        location.href = "login.htm";
+    });
+}
 signIn.renderEl(
     {el: '#osw-container'},
     function success(res) {

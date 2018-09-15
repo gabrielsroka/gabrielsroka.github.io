@@ -11,6 +11,7 @@
 <br>
 <div id="app"></div>
 <script>
+var baseUrl = "https://gsroka-neto.oktapreview.com";
 var init = {credentials: "include"}; // For this work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
 // var init = {mode: "cors"}; // This didn't seem to work.
 fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)

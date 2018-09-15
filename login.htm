@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in</title>
+<script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/js/okta-sign-in.min.js" type="text/javascript"></script>
+<link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-sign-in.min.css" type="text/css" rel="stylesheet" />
+<link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-theme.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+<br>
+<div id="osw-container"></div>
+<script>
+/*
+see:
+https://developer.okta.com/code/javascript/okta_sign-in_widget
+https://github.com/okta/okta-signin-widget
+*/
+var baseUrl = "https://gsroka-neto.oktapreview.com";
+var config = {
+    baseUrl: baseUrl
+};
+var signIn = new OktaSignIn(config);
+signIn.renderEl(
+    {el: '#osw-container'},
+    function success(res) {
+        if (res.status == "SUCCESS") {
+            console.log("User %s succesfully authenticated %o", res.user.profile.login, res.user);
+            res.session.setCookieAndRedirect("home.htm");
+        } else {
+            console.log(res.status);
+        }
+    },
+    function error(err) {
+        // The widget will handle most types of errors - for example, if the user
+        // enters an invalid password or there are issues authenticating.
+        //
+        // This function is invoked with errors the widget cannot recover from:
+        // 1. Known errors: CONFIG_ERROR, UNSUPPORTED_BROWSER_ERROR, OAUTH_ERROR
+        // 2. Uncaught exceptions
+        console.log(err);
+    }
+);
+</script>
+</body>
+</html>
+  

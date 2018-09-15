@@ -26,8 +26,7 @@ fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
     html += "</ul>";
     document.getElementById("app").innerHTML = `<a href="${baseUrl}" data-se="home-link" class="h-nav-href">` +
         `<span class="inline-icon icon-home-light"></span><span class="home-link-text">Home</span></a>&nbsp;` +
-        `<a id="signout" class="h-nav-href" style="cursor: pointer">Sign out</a><br><br>${html}`;
-    document.getElementById("signout").onclick = () => location.href = "/login.htm";
+        `<a href="/login.htm?signout" class="h-nav-href" style="cursor: pointer">Sign out</a><br><br>${html}`;
 }).catch(error => location.href = "/login.htm");
 </script>
 </body>

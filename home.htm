@@ -20,8 +20,10 @@ fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
     var html = "<ul>";
     links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
     .forEach(link => {
-        var [label, url] = link.label.split(/,/);
+        var [label, url] = link.label.split(/, /);
         if (url) {
+            if (!url.match(/^https/)) url = "https://" + url;
+            if (!url.match(".")) url += ".com";
             html += `<li class='app-button-wrapper' style='width: 64px'><a href='${url}' target='_blank' class='app-button'>
                 <img src='${url}/favicon.ico' style='visibility: visible;' class='logo'/></a>
                 <p class='app-button-name' style='width: 100%'>${label}`;

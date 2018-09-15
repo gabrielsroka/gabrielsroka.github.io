@@ -11,46 +11,29 @@
 <br>
 <div id="osw-container"></div>
 <script>
-/*
-see:
-https://developer.okta.com/code/javascript/okta_sign-in_widget
-https://github.com/okta/okta-signin-widget
-*/
+// see https://developer.okta.com/code/javascript/okta_sign-in_widget
+//     https://github.com/okta/okta-signin-widget
 var baseUrl = "https://gsroka-neto.oktapreview.com";
-var config = {
-    baseUrl: baseUrl
-};
+var config = {baseUrl: baseUrl};
 var signIn = new OktaSignIn(config);
 if (location.search == "?signout") {
-    signIn.session.close(function (err) {
-        if (err) {
-            // The user has not been logged out, perform some error handling here.
-            return;
+    signIn.session.close(() => location.href = "login.htm");
+} else {
+    signIn.renderEl(
+        {el: '#osw-container'},
+        function success(res) {
+            if (res.status == "SUCCESS") {
+                console.log("User %s succesfully authenticated %o", res.user.profile.login, res.user);
+                res.session.setCookieAndRedirect(baseUrl + "/home.htm");
+            } else {
+                console.log(res.status);
+            }
+        },
+        function error(err) {
+            console.log(err);
         }
-        location.href = "login.htm";
-    });
+    );
 }
-signIn.renderEl(
-    {el: '#osw-container'},
-    function success(res) {
-        if (res.status == "SUCCESS") {
-            console.log("User %s succesfully authenticated %o", res.user.profile.login, res.user);
-            res.session.setCookieAndRedirect("home.htm");
-        } else {
-            console.log(res.status);
-        }
-    },
-    function error(err) {
-        // The widget will handle most types of errors - for example, if the user
-        // enters an invalid password or there are issues authenticating.
-        //
-        // This function is invoked with errors the widget cannot recover from:
-        // 1. Known errors: CONFIG_ERROR, UNSUPPORTED_BROWSER_ERROR, OAUTH_ERROR
-        // 2. Uncaught exceptions
-        console.log(err);
-    }
-);
 </script>
 </body>
 </html>
-  

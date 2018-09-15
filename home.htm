@@ -3,80 +3,31 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Apps</title>
-<!-- for home page -->
 <link href="https://ok1static.oktacdn.com/assets/css/widgets/chosen.css" type="text/css" rel="stylesheet" />
 <link href="https://ok1static.oktacdn.com/assets/css/widgets/jquery.qtip.css" type="text/css" rel="stylesheet" />
-
-<!-- for sign in widget -->
-<script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/js/okta-sign-in.min.js" type="text/javascript"></script>
-<link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-sign-in.min.css" type="text/css" rel="stylesheet" />
-<link href="https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.11.0/css/okta-theme.css" type="text/css" rel="stylesheet" />
+<link href="https://ok1static.oktacdn.com/assets/css/enduser/enduser.css" type="text/css" rel="stylesheet" />
 </head>
 <body>
 <br>
 <div id="app"></div>
 <script>
-/*
-see:
-https://developer.okta.com/code/javascript/okta_sign-in_widget
-https://github.com/okta/okta-signin-widget
-*/
-var baseUrl = "https://gsroka-neto.oktapreview.com";
-var config = {
-    baseUrl: baseUrl
-};
-var signIn = new OktaSignIn(config);
-signIn.session.get(function (res) {
-    if (res.status == "ACTIVE") { // Session exists, show logged in state.
-        var init = {credentials: "include"}; // For this work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-        // var init = {mode: "cors"}; // This didn't seem to work.
-        fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
-        .then(response => response.json())
-        .then(links => {
-            var html = `<a href="${baseUrl}" data-se="home-link" class="h-nav-href">` +
-                `<span class="inline-icon icon-home-light"></span><span class="home-link-text">Home</span></a>&nbsp;` +
-                `<a id="signout" class="h-nav-href">Sign out</a><br><br>` +
-                `<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' type='text/css' rel='stylesheet'/><ul>`;
-            links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
-            .forEach(link => html += `<li class='app-button-wrapper'>` +
-                `<a href='${link.linkUrl}' target='_blank' class='app-button'>` + 
-                `<img src='${link.logoUrl}' class='logo' style='visibility: visible;'/></a>` +
-                `<p class='app-button-name'>${link.label}`);
-            html += "</ul>";
-            document.getElementById("app").innerHTML = html;
-            document.getElementById("signout").onclick = function () {
-                signIn.session.close(function (err) {
-                  if (err) {
-                    // The user has not been logged out, perform some error handling here.
-                    return;
-                  }
-                  location.reload();
-                });
-            };
-        });
-    } else if (res.status == "INACTIVE") { // No session, or error retrieving the session. Render the Sign-In Widget.
-        signIn.renderEl(
-            {el: '#app'},
-            function success(res) {
-                if (res.status == "SUCCESS") {
-                    console.log("User %s succesfully authenticated %o", res.user.profile.login, res.user);
-                    res.session.setCookieAndRedirect(location.href);
-                } else {
-                    console.log(res.status);
-                }
-            },
-            function error(err) {
-                // The widget will handle most types of errors - for example, if the user
-                // enters an invalid password or there are issues authenticating.
-                //
-                // This function is invoked with errors the widget cannot recover from:
-                // 1. Known errors: CONFIG_ERROR, UNSUPPORTED_BROWSER_ERROR, OAUTH_ERROR
-                // 2. Uncaught exceptions
-                console.log(err);
-            }
-        );
-    }
-});
+var init = {credentials: "include"}; // For this work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+// var init = {mode: "cors"}; // This didn't seem to work.
+fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
+.then(response => response.json())
+.then(links => {
+    var html = "<ul>";
+    links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
+    .forEach(link => html += `<li class='app-button-wrapper'>` +
+        `<a href='${link.linkUrl}' target='_blank' class='app-button'>` + 
+        `<img src='${link.logoUrl}' class='logo' style='visibility: visible;'/></a>` +
+        `<p class='app-button-name'>${link.label}`);
+    html += "</ul>";
+    document.getElementById("app").innerHTML = `<a href="${baseUrl}" data-se="home-link" class="h-nav-href">` +
+        `<span class="inline-icon icon-home-light"></span><span class="home-link-text">Home</span></a>&nbsp;` +
+        `<a id="signout" class="h-nav-href" style="cursor: pointer">Sign out</a><br><br>${html}`;
+    document.getElementById("signout").onclick = () => location.href = "/login.htm";
+}).catch(error => location.href = "/login.htm");
 </script>
 </body>
 </html>

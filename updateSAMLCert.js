@@ -1,6 +1,6 @@
 /* 
 This bookmarklet updates the certificate for SAML apps. see:
-http://developer.okta.com/docs/how-to/updating_saml_cert.html
+https://developer.okta.com/docs/how-to/updating_saml_cert
 
 Setup:
 1. Drag this to the bookmark toolbar:

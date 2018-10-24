@@ -553,6 +553,6 @@
         );
     }
     function commatize(...fields) {
-        return fields.map(field => `"${field}"`).join(',');
+        return fields.map(field => `"${field.replace(/"/g, '""')}"`).join(',');
     }
 })();

@@ -3,3 +3,5 @@
 3. Go to the Extensions tab 
 4. Click to enable Developer Mode (It will prompt you about this every time you restart Chrome) 
 5. Drag the "rockstar" folder to the Chrome Extensions tab
+
+see also https://gabrielsroka.github.io/rockstar

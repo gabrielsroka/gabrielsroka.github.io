@@ -31,7 +31,6 @@
 
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
         $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
-        $("<li><a href='/report/system_log'>System Log v1</a>").appendTo("#nav-admin-reports-2");
         $("<li><a style='cursor: pointer'>Export Objects</a>").click(exportObjects).appendTo("#nav-admin-reports-2");
         createA("Export Objects", mainPopup).click(exportObjects);
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
@@ -455,8 +454,7 @@
                 var href = `${org.cellURL || ""}/su/org/${org.id}`;
                 return `<tr><td><a href="${href}">${org.subdomain}</a>` +
                     `<td>${org.name}` +
-                    `<td><a class='link-button' href="${href}/features">New</a> ` +
-                        `<a class='link-button' href="${href}/beta-features#tab-ea-features">Old</a>` +
+                    `<td><a class='link-button' href="${href}/features">Features</a> ` +
                     `<td>${org.cell}`;
             },
             headers: "<tr><th>Subdomain<th>Name<th>Features<th>Cell",

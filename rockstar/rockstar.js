@@ -255,6 +255,8 @@
             getObjects("Groups", "/api/v1/groups", "id,name,description,type", group => commatize(group.id, group.profile.name, group.profile.description || "", group.type));
         } else if (location.pathname == "/admin/apps/active") {
             getObjects("Apps", "/api/v1/apps", "id,label,name,userNameTemplate", app => commatize(app.id, app.label, app.name, app.credentials.userNameTemplate.template));
+        } else if (location.pathname == "/admin/access/networks") {
+            getObjects("Zones", "/api/v1/zones", "id,name,gateways", zone => commatize(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
         } else {
             var appid = getAppId();
             if (appid) {

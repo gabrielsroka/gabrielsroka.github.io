@@ -4,7 +4,7 @@
     // Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles
     // Administrators page: Export Admins
     // Events: Expand All and Expand Each Row
-    // Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, ...
+    // Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, Zones, ...
     // User home page: Show SSO (SAML assertion, etc)
     // SU Orgs & Org Users: enhanced search
     // Many: enhanced menus
@@ -166,7 +166,7 @@
         });
     }
     function securityAdministrators() {
-        createA("Export Administrators", mainPopup).click(function () { // TODO: consider merging into exportObjects(). will the Link headers be a problem?
+        createA("Export Administrators", mainPopup).click(function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
             var adminsPopup = createPopup("Administrators");
             adminsPopup.html("Exporting ...");
             $.getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups").then(admins => {
@@ -179,7 +179,7 @@
                     mgr = mgr.replace("\\", "");
                     function showRole(role) {
                         // FIXME: would like to show user.status, but it comes back as null. TODO: fetch it from /users
-                        lines.push(commatize(profile.firstName, profile.lastName, profile.email, profile.login, admin.userId, profile.title || "", mgr, profile.department || "", role));
+                        lines.push(toCSV(profile.firstName, profile.lastName, profile.email, profile.login, admin.userId, profile.title || "", mgr, profile.department || "", role));
                     }
                     function appAndInstanceNames() {
                         var appAndInstanceNames = [];
@@ -220,12 +220,7 @@
                     if (admin.apiAccessManagementAdmin) showRole("API Access Management Administrator");
                 });
 
-                adminsPopup.html("Done.");
-                var a = $("<a>").appendTo(adminsPopup);
-                a.attr("href",  URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'})));
-                var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
-                a.attr("download", `Administrators ${location.host.replace("-admin", "")} ${date}.csv`);
-                a[0].click();
+                downloadCSV(adminsPopup, "", lines, `Administrators ${location.host.replace("-admin", "")}`);
             });
         });
     }
@@ -246,53 +241,52 @@
         var template;
         var groups;
         var lines;
+        var appId;
         var cancel = false;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
-            getObjects("Users", "/api/v1/users", "id,firstName,lastName,login,email,credentialType",
-                user => commatize(user.id, user.profile.firstName, user.profile.lastName, user.profile.login, user.profile.email, user.credentials.provider.type));
+            startExport("Users", "/api/v1/users", "id,firstName,lastName,login,email,credentialType",
+                user => toCSV(user.id, user.profile.firstName, user.profile.lastName, user.profile.login, user.profile.email, user.credentials.provider.type));
         } else if (location.pathname == "/admin/groups") {
-            getObjects("Groups", "/api/v1/groups", "id,name,description,type", group => commatize(group.id, group.profile.name, group.profile.description || "", group.type));
+            startExport("Groups", "/api/v1/groups", "id,name,description,type", group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
         } else if (location.pathname == "/admin/apps/active") {
-            getObjects("Apps", "/api/v1/apps", "id,label,name,userNameTemplate", app => commatize(app.id, app.label, app.name, app.credentials.userNameTemplate.template));
+            startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate", app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template));
         } else if (location.pathname == "/admin/access/networks") {
-            getObjects("Zones", "/api/v1/zones", "id,name,gateways", zone => commatize(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
-        } else {
-            var appid = getAppId();
-            if (appid) {
-                exportPopup = createPopup("Export");
-                createA("Export App Users", exportPopup).click(function () {
-                    exportPopup.parent().remove();
-                    getObjects("App Users", `/api/v1/apps/${appid}/users`, "id,userName,scope,externalId", 
-                        appUser => commatize(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId));
-                });
-                createA("Export App Groups", exportPopup).click(function () {
-                    exportPopup.parent().remove();
-                    // TODO: use /api/v1/apps/${appid}/groups?expand=group
-                    getObjects("App Groups", `/api/v1/apps/${appid}/groups`, "id,licenses,roles", appGroup => {
-                        $.getJSON(`/api/v1/groups/${appGroup.id}`).then(group => {
-                            groups.push(commatize(group.profile.name, appGroup.profile.licenses ? appGroup.profile.licenses.join(";") : "",
-                                appGroup.profile.roles ? appGroup.profile.roles.join(";") : ""));
-                            if (groups.length == total) {
-                                console.log("name,licenses,roles");
-                                groups.forEach(group => console.log(`,${group}`));
-                            }
-                        });
-                        return commatize(appGroup.id, appGroup.profile.licenses ? appGroup.profile.licenses.join(";") : "",
-                            appGroup.profile.roles ? appGroup.profile.roles.join(";") : "");
+            startExport("Zones", "/api/v1/zones", "id,name,gateways", zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
+        } else if (appId = getAppId()) {
+            exportPopup = createPopup("Export");
+            createA("Export App Users", exportPopup).click(function () {
+                exportPopup.parent().remove();
+                startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId", 
+                    appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId));
+            });
+            createA("Export App Groups", exportPopup).click(function () {
+                exportPopup.parent().remove();
+                // TODO: use /api/v1/apps/${appid}/groups?expand=group
+                startExport("App Groups", `/api/v1/apps/${appId}/groups`, "id,licenses,roles", appGroup => {
+                    $.getJSON(`/api/v1/groups/${appGroup.id}`).then(group => {
+                        groups.push(toCSV(group.profile.name, appGroup.profile.licenses ? appGroup.profile.licenses.join(";") : "",
+                            appGroup.profile.roles ? appGroup.profile.roles.join(";") : ""));
+                        if (groups.length == total) {
+                            console.log("name,licenses,roles");
+                            groups.forEach(group => console.log(`,${group}`));
+                        }
                     });
+                    return toCSV(appGroup.id, appGroup.profile.licenses ? appGroup.profile.licenses.join(";") : "",
+                        appGroup.profile.roles ? appGroup.profile.roles.join(";") : "");
                 });
-            } else {
-                exportPopup = createPopup("Export");
-                exportPopup.html("Error. Go to one of these:<br><br>" +
-                    "<a href='/admin/users'>Directory > People</a><br>" +
-                    "<a href='/admin/groups'>Directory > Groups</a><br>" +
-                    "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a Directory<br>" +
-                    "<a href='/admin/apps/active'>Applications > Applications</a> and click on an App<br>" +
-                    "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>");
-            }
+            });
+        } else {
+            exportPopup = createPopup("Export");
+            exportPopup.html("Error. Go to one of these:<br><br>" +
+                "<a href='/admin/users'>Directory > People</a><br>" +
+                "<a href='/admin/groups'>Directory > Groups</a><br>" +
+                "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a Directory<br>" +
+                "<a href='/admin/apps/active'>Applications > Applications</a> and click on an App<br>" +
+                "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>" +
+                "<a href='/admin/access/networks'>Security > Networks</a><br>");
         }
-        function getObjects(title, path, header, templateCallback) {
+        function startExport(title, url, header, templateCallback) {
             total = 0;
             objectType = title;
             exportPopup = createPopup(title);
@@ -300,9 +294,9 @@
             template = templateCallback;
             lines = [header];
             groups = [];
-            $.getJSON(path).then(exportObjects);
+            $.getJSON(url).then(getObjects);
         }
-        function exportObjects(objects, status, jqXHR) {
+        function getObjects(objects, status, jqXHR) {
             objects.forEach(object => lines.push(template(object)));
             total += objects.length;
             exportPopup.html(total + " " + objectType + "...<br><br>");
@@ -314,25 +308,20 @@
             var links = getLinks(jqXHR.getResponseHeader("Link"));
             if (links && links.next) {
                 var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
-                var path = nextUrl.pathname + nextUrl.search;
+                var url = nextUrl.pathname + nextUrl.search;
                 if (jqXHR.getResponseHeader("X-Rate-Limit-Remaining") && jqXHR.getResponseHeader("X-Rate-Limit-Remaining") < 10) {
-                    var interval = setInterval(() => {
+                    var intervalID = setInterval(() => {
                         exportPopup.html(exportPopup.html() + "<br>Sleeping...");
                         if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {
-                            clearInterval(interval);
-                            $.getJSON(path).then(exportObjects);
+                            clearInterval(intervalID);
+                            $.getJSON(url).then(getObjects);
                         }
                     }, 1000);
                 } else {
-                    $.getJSON(path).then(exportObjects);
+                    $.getJSON(url).then(getObjects);
                 }
             } else {
-                exportPopup.html(total + " " + objectType + ". Done.");
-                var a = $("<a>").appendTo(exportPopup);
-                a.attr("href", URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'})));
-                var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
-                a.attr("download", `Export ${objectType} ${date}.csv`);
-                a[0].click();
+                downloadCSV(exportPopup, total + " " + objectType + ". ", lines, `Export ${objectType}`);
             }
         }
         function getLinks(headers) {
@@ -347,7 +336,7 @@
         function getAppId() {
             var path = location.pathname;
             var pathparts = path.split('/');
-            if (path.match(/admin\/app/) && (pathparts.length == 6 || pathparts.length == 7)) {
+            if (path.match("admin/app") && (pathparts.length == 6 || pathparts.length == 7)) {
                 return pathparts[5];
             }
         }
@@ -552,7 +541,15 @@
             }
         );
     }
-    function commatize(...fields) {
+    function toCSV(...fields) {
         return fields.map(field => `"${field && field.replace(/"/g, '""')}"`).join(',');
+    }
+    function downloadCSV(popup, html, lines, filename) {
+        popup.html(html + "Done.");
+        var a = $("<a>").appendTo(popup);
+        a.attr("href", URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'})));
+        var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
+        a.attr("download", `${filename} ${date}.csv`);
+        a[0].click();
     }
 })();

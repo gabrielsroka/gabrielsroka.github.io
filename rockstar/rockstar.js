@@ -250,7 +250,7 @@
         } else if (location.pathname == "/admin/groups") {
             startExport("Groups", "/api/v1/groups", "id,name,description,type", group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
         } else if (location.pathname == "/admin/apps/active") {
-            startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate", app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template));
+            startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features", app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', ')));
         } else if (location.pathname == "/admin/access/networks") {
             startExport("Zones", "/api/v1/zones", "id,name,gateways", zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
         } else if (appId = getAppId()) {

@@ -25,8 +25,9 @@ var ids;
 var start = 0;
 var n = 1;
 
-var pageLen = 30;
-var baseUrl = "https://hacker-news.firebaseio.com/v0/";
+const pageLen = 30;
+const baseUrl = "https://hacker-news.firebaseio.com/v0";
+const ycBase = "https://news.ycombinator.com";
 
 var content = document.getElementById("content");
 document.getElementById("prev").onclick = () => {
@@ -37,7 +38,7 @@ document.getElementById("prev").onclick = () => {
 };
 document.getElementById("next").onclick = showItems;
 
-fetch(baseUrl + "topstories.json")
+fetch(baseUrl + "/topstories.json")
 .then(response => response.json())
 .then(_ids => {
     ids = _ids;
@@ -51,11 +52,11 @@ function showItems() {
         fetch(`${baseUrl}/item/${ids[i]}.json`)
         .then(response => response.json())
         .then(item => { // kids, type
-            var ycUrl = `https://news.ycombinator.com/item?id=${item.id}`;
+            var ycUrl = `${ycBase}/item?id=${item.id}`;
              if (item.url) {
                  var url = item.url;
                  var site = new URL(item.url).hostname.replace(/www\./, "");
-                 var dom = ` (<a href='https://news.ycombinator.com/from?site=${site}' target='_blank'>${site}</a>)`;
+                 var dom = ` (<a href='${ycBase}/from?site=${site}' target='_blank'>${site}</a>)`;
              } else {
                  url = ycUrl;
                  dom = "";
@@ -69,7 +70,7 @@ function showItems() {
                 ago = Math.round(ago / 3600 / 24) + " days";
             }
             content.innerHTML += `<li value=${n++}><a href='${url}' target='_blank'>${item.title}</a>${dom}<br>` +
-                `${item.score} points by <a href='https://news.ycombinator.com/user?id=${item.by}' target='_blank'>${item.by}</a> ${ago} ago | <a href='${ycUrl}' target='_blank'>${item.descendants} comments</a>` +
+                `${item.score} points by <a href='${ycBase}/user?id=${item.by}' target='_blank'>${item.by}</a> <a href='${ycUrl}' target='_blank'>${ago} ago</a> | <a href='${ycUrl}' target='_blank'>${item.descendants} comments</a>` +
                 "</li><br>";
         });
     }

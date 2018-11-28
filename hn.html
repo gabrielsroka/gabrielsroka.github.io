@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
-<head>
+<head lang="en">
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <title>Hacker News</title>
-<style type="text/css">
+<style>
 body {
     font-family: sans-serif;
     font-size: 1em;
@@ -62,7 +62,7 @@ function showItems() {
     for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
         fetch(`${baseUrl}/item/${ids[i]}.json`)
         .then(response => response.json())
-        .then(item => { // kids, type
+        .then(item => { // other item props: kids, type
             var ycUrl = `${ycBase}/item?id=${item.id}`;
             if (item.url) {
                 var url = item.url;
@@ -72,7 +72,7 @@ function showItems() {
                 url = ycUrl;
                 dom = "";
             }
-            var ago = new Date() / 1000 - item.time;
+            var ago = new Date() / 1000 - item.time; // in seconds, 60 s == 1 min, 3600 s = 1 hr, etc.
             if (ago < 3600) {
                 ago = p(Math.round(ago / 60), "minute");
             } else if (ago < 3600 * 24) {
@@ -82,8 +82,8 @@ function showItems() {
             }
             var c = a(ycUrl, item.descendants == 0 ? "discuss" : item.descendants + " comments");
             content.innerHTML += `<li value=${n++}>${a(url, item.title)}${dom}<br>` +
-                `${item.score} points by ${a(ycBase + "/user?id=" + item.by, item.by)} ${a(ycUrl, ago + " ago")} | ${c}` +
-                "</li><br>";
+                `${item.score} points by ${a(ycBase + "/user?id=" + item.by, item.by)} ${a(ycUrl, ago + " ago")} | ${c}<br><br>` +
+                "</li>";
         });
     }
     start = i;

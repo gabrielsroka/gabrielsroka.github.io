@@ -66,7 +66,7 @@ function showItems() {
     for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
         fetch(`${baseUrl}/item/${ids[i]}.json`)
         .then(response => response.json())
-        .then(item => { // other item props: kids, type
+        .then(item => { // other item props: kids
             var ycUrl = `${ycBase}/item?id=${item.id}`;
             if (item.url) {
                 var url = item.url;
@@ -85,8 +85,12 @@ function showItems() {
                 ago = p(Math.round(ago / 3600 / 24), "day");
             }
             var c = a(ycUrl, item.descendants == 0 ? "discuss" : p(item.descendants, "comment"));
+            var s = a(ycUrl, ago + " ago");
+            if (item.type != "job") {
+                s = `${p(item.score, "point")} by ${a(ycBase + "/user?id=" + item.by, item.by)} ${s} | ${c}`;
+            }
             content.innerHTML += `<li value=${n++}>${a(url, item.title)}${dom}<br>` +
-                `${item.score} points by ${a(ycBase + "/user?id=" + item.by, item.by)} ${a(ycUrl, ago + " ago")} | ${c}<br><br>` +
+                `${s}<br><br>` +
                 "</li>";
         });
     }

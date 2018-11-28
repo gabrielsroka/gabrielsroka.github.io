@@ -8,16 +8,21 @@ body {
     font-family: sans-serif;
     font-size: 1em;
 }
-a {
+a:link {
+    color: #000000;
+    text-decoration: none; 
+}
+a:visited {
+    color: #828282;
     text-decoration: none;
-    color: black;
 }
 </style>
 </head>
 <body>
-Hacker News
+<a href="https://news.ycombinator.com">Hacker News</a>
 <ol id=content></ol>
-<span id=prev>Prev</span> | <span id=next>Next</span><br><br><br>
+<span id=prev>Prev</span> | <span id=next>Next</span>
+<br><br><br><br>
 <script>
 // see https://github.com/HackerNews/API
 
@@ -50,6 +55,9 @@ function showItems() {
     function a(href, text) {
         return `<a href='${href}' target='_blank'>${text}</a>`;
     }
+    function p(n, s) {
+        return n + " " + (n == 1 ? s : s + "s");
+    }
     content.innerHTML = "";
     for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
         fetch(`${baseUrl}/item/${ids[i]}.json`)
@@ -59,21 +67,22 @@ function showItems() {
             if (item.url) {
                 var url = item.url;
                 var site = new URL(url).hostname.replace(/^www\./, "");
-                var dom = ` (<a href='${ycBase}/from?site=${site}' target='_blank'>${site}</a>)`;
+                var dom = ` (${a(ycBase + "/from?site=" + site, site)})`;
             } else {
                 url = ycUrl;
                 dom = "";
             }
             var ago = new Date() / 1000 - item.time;
             if (ago < 3600) {
-                ago = Math.round(ago / 60) + " minutes";
+                ago = p(Math.round(ago / 60), "minute");
             } else if (ago < 3600 * 24) {
-                ago = Math.round(ago / 3600) + " hours";
+                ago = p(Math.round(ago / 3600), "hour");
             } else {
-                ago = Math.round(ago / 3600 / 24) + " days";
+                ago = p(Math.round(ago / 3600 / 24), "day");
             }
+            var c = a(ycUrl, item.descendants == 0 ? "discuss" : item.descendants + " comments");
             content.innerHTML += `<li value=${n++}>${a(url, item.title)}${dom}<br>` +
-                `${item.score} points by ${a(ycBase + "/user?id=" + item.by, item.by)} ${a(ycUrl, ago + " ago")} | ${a(ycUrl, item.descendants + " comments")}` +
+                `${item.score} points by ${a(ycBase + "/user?id=" + item.by, item.by)} ${a(ycUrl, ago + " ago")} | ${c}` +
                 "</li><br>";
         });
     }

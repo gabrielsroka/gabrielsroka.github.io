@@ -47,20 +47,23 @@ fetch(baseUrl + "/topstories.json")
 
 // TODO: Items might render out of order. Do we care?
 function showItems() {
+    function a(href, text) {
+        return `<a href='${href}' target='_blank'>${text}</a>`;
+    }
     content.innerHTML = "";
     for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
         fetch(`${baseUrl}/item/${ids[i]}.json`)
         .then(response => response.json())
         .then(item => { // kids, type
             var ycUrl = `${ycBase}/item?id=${item.id}`;
-             if (item.url) {
-                 var url = item.url;
-                 var site = new URL(item.url).hostname.replace(/www\./, "");
-                 var dom = ` (<a href='${ycBase}/from?site=${site}' target='_blank'>${site}</a>)`;
-             } else {
-                 url = ycUrl;
-                 dom = "";
-             }
+            if (item.url) {
+                var url = item.url;
+                var site = new URL(url).hostname.replace(/^www\./, "");
+                var dom = ` (<a href='${ycBase}/from?site=${site}' target='_blank'>${site}</a>)`;
+            } else {
+                url = ycUrl;
+                dom = "";
+            }
             var ago = new Date() / 1000 - item.time;
             if (ago < 3600) {
                 ago = Math.round(ago / 60) + " minutes";
@@ -69,8 +72,8 @@ function showItems() {
             } else {
                 ago = Math.round(ago / 3600 / 24) + " days";
             }
-            content.innerHTML += `<li value=${n++}><a href='${url}' target='_blank'>${item.title}</a>${dom}<br>` +
-                `${item.score} points by <a href='${ycBase}/user?id=${item.by}' target='_blank'>${item.by}</a> <a href='${ycUrl}' target='_blank'>${ago} ago</a> | <a href='${ycUrl}' target='_blank'>${item.descendants} comments</a>` +
+            content.innerHTML += `<li value=${n++}>${a(url, item.title)}${dom}<br>` +
+                `${item.score} points by ${a(ycBase + "}/user?id=" + item.by, item.by)} ${a(ycUrl, ago + " ago")} | ${a(ycUrl, item.descendants + " comments")}` +
                 "</li><br>";
         });
     }

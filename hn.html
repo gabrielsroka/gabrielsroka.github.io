@@ -57,7 +57,7 @@ fetch(baseUrl + "/topstories.json")
 // TODO: Items might render out of order. Do we care?
 function showItems() {
     function a(href, text) {
-        return `<a href='${href}' target='_blank'>${text}</a>`;
+        return `<a href='${href}' target='_blank' rel='noopener'>${text}</a>`;
     }
     function p(n, s) {
         return n + " " + (n == 1 ? s : s + "s");
@@ -84,7 +84,7 @@ function showItems() {
             } else {
                 ago = p(Math.round(ago / 3600 / 24), "day");
             }
-            var c = a(ycUrl, item.descendants == 0 ? "discuss" : item.descendants + " comments");
+            var c = a(ycUrl, item.descendants == 0 ? "discuss" : p(item.descendants, "comment"));
             content.innerHTML += `<li value=${n++}>${a(url, item.title)}${dom}<br>` +
                 `${item.score} points by ${a(ycBase + "/user?id=" + item.by, item.by)} ${a(ycUrl, ago + " ago")} | ${c}<br><br>` +
                 "</li>";

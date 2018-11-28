@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<title>Hacker News</title>
+<style type="text/css">
+body {
+    font-family: sans-serif;
+    font-size: 1em;
+}
+a {
+    text-decoration: none;
+    color: black;
+}
+</style>
+</head>
+<body>
+<ol id=content></ol>
+<span id=prev>Prev</span> | <span id=next>Next</span>
+<script>
+// see https://github.com/HackerNews/API
+
+var ids;
+var start = 0;
+var n = 1;
+
+var pageLen = 15; // TODO: 30
+var baseUrl = "https://hacker-news.firebaseio.com/v0/";
+
+var content = document.getElementById("content");
+document.getElementById("prev").onclick = () => {
+    if (start < pageLen * 2) return;
+    start -= pageLen * 2; n = start + 1; showItems()
+};
+document.getElementById("next").onclick = showItems;
+
+fetch(baseUrl + "topstories.json")
+.then(response => response.json())
+.then(_ids => {
+    ids = _ids;
+    showItems();
+});
+
+function showItems() {
+    content.innerHTML = "";
+    for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
+        fetch(`${baseUrl}/item/${ids[i]}.json`)
+        .then(response => response.json())
+        .then(item => { // kids, type
+            var ycUrl = `https://news.ycombinator.com/item?id=${item.id}`;
+             if (item.url) {
+                 var url = item.url;
+                 var site = new URL(item.url).hostname.replace(/www\./, "");
+                 var t = ` (<a href='https://news.ycombinator.com/from?site=${site}' target='_blank'>${site}</a>)`;
+             } else {
+                 url = ycUrl;
+                 t = ``
+             }
+            var d = new Date() / 1000 - item.time;
+            if (d < 3600) {
+                d = Math.round(d / 60) + " minutes";
+            } else if (d < 3600 * 24) {
+                d = Math.round(d / 3600) + " hours";
+            } else {
+                d = Math.round(d / 3600 / 24) + " days";
+            }
+            content.innerHTML += 
+                `<li value=${n++}><a href='${url}' target='_blank'>${item.title}</a>${t}<br>` +
+                `${item.score} points by <a href='https://news.ycombinator.com/user?id=${item.by}' target='_blank'>${item.by}</a> ${d} ago | <a href='${ycUrl}' target='_blank'>${item.descendants} comments</a>` +
+                "</li><br>";
+        });
+    }
+    start = i;
+}
+</script>
+</body>
+</html>

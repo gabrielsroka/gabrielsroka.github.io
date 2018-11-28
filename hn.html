@@ -15,6 +15,7 @@ a {
 </style>
 </head>
 <body>
+Hacker News
 <ol id=content></ol>
 <span id=prev>Prev</span> | <span id=next>Next</span>
 <script>
@@ -24,13 +25,15 @@ var ids;
 var start = 0;
 var n = 1;
 
-var pageLen = 15; // TODO: 30
+var pageLen = 30;
 var baseUrl = "https://hacker-news.firebaseio.com/v0/";
 
 var content = document.getElementById("content");
 document.getElementById("prev").onclick = () => {
     if (start < pageLen * 2) return;
-    start -= pageLen * 2; n = start + 1; showItems()
+    start -= pageLen * 2;
+    n = start + 1;
+    showItems();
 };
 document.getElementById("next").onclick = showItems;
 
@@ -41,6 +44,7 @@ fetch(baseUrl + "topstories.json")
     showItems();
 });
 
+// TODO: Items might render out of order. Do we care?
 function showItems() {
     content.innerHTML = "";
     for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
@@ -51,22 +55,21 @@ function showItems() {
              if (item.url) {
                  var url = item.url;
                  var site = new URL(item.url).hostname.replace(/www\./, "");
-                 var t = ` (<a href='https://news.ycombinator.com/from?site=${site}' target='_blank'>${site}</a>)`;
+                 var dom = ` (<a href='https://news.ycombinator.com/from?site=${site}' target='_blank'>${site}</a>)`;
              } else {
                  url = ycUrl;
-                 t = ``
+                 dom = "";
              }
-            var d = new Date() / 1000 - item.time;
-            if (d < 3600) {
-                d = Math.round(d / 60) + " minutes";
-            } else if (d < 3600 * 24) {
-                d = Math.round(d / 3600) + " hours";
+            var ago = new Date() / 1000 - item.time;
+            if (ago < 3600) {
+                ago = Math.round(ago / 60) + " minutes";
+            } else if (ago < 3600 * 24) {
+                ago = Math.round(ago / 3600) + " hours";
             } else {
-                d = Math.round(d / 3600 / 24) + " days";
+                ago = Math.round(ago / 3600 / 24) + " days";
             }
-            content.innerHTML += 
-                `<li value=${n++}><a href='${url}' target='_blank'>${item.title}</a>${t}<br>` +
-                `${item.score} points by <a href='https://news.ycombinator.com/user?id=${item.by}' target='_blank'>${item.by}</a> ${d} ago | <a href='${ycUrl}' target='_blank'>${item.descendants} comments</a>` +
+            content.innerHTML += `<li value=${n++}><a href='${url}' target='_blank'>${item.title}</a>${dom}<br>` +
+                `${item.score} points by <a href='https://news.ycombinator.com/user?id=${item.by}' target='_blank'>${item.by}</a> ${ago} ago | <a href='${ycUrl}' target='_blank'>${item.descendants} comments</a>` +
                 "</li><br>";
         });
     }

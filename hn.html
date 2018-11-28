@@ -73,7 +73,7 @@ function showItems() {
                 ago = Math.round(ago / 3600 / 24) + " days";
             }
             content.innerHTML += `<li value=${n++}>${a(url, item.title)}${dom}<br>` +
-                `${item.score} points by ${a(ycBase + "}/user?id=" + item.by, item.by)} ${a(ycUrl, ago + " ago")} | ${a(ycUrl, item.descendants + " comments")}` +
+                `${item.score} points by ${a(ycBase + "/user?id=" + item.by, item.by)} ${a(ycUrl, ago + " ago")} | ${a(ycUrl, item.descendants + " comments")}` +
                 "</li><br>";
         });
     }

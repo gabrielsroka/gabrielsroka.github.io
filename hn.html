@@ -16,6 +16,11 @@ a:visited {
     color: #828282;
     text-decoration: none;
 }
+li {
+    border-bottom: 1px solid silver;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+}
 </style>
 </head>
 <body>
@@ -28,14 +33,12 @@ a:visited {
 <br><br><br><br>
 </nav>
 <script>
-// see https://github.com/HackerNews/API
-
 var ids;
 var start = 0;
 var n = 1;
 
 const pageLen = 30;
-const baseUrl = "https://hacker-news.firebaseio.com/v0";
+const baseUrl = "https://hacker-news.firebaseio.com/v0"; // see https://github.com/HackerNews/API
 const ycBase = "https://news.ycombinator.com";
 
 var content = document.getElementById("content");
@@ -90,8 +93,7 @@ function showItems() {
                 s = `${p(item.score, "point")} by ${a(ycBase + "/user?id=" + item.by, item.by)} ${s} | ${c}`;
             }
             content.innerHTML += `<li value=${n++}>${a(url, item.title)}${dom}<br>` +
-                `${s}<br><br>` +
-                "</li>";
+                `${s}</li>`;
         });
     }
     start = i;

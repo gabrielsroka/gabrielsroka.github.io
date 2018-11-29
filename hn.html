@@ -39,62 +39,60 @@ var n = 1;
 
 const pageLen = 30;
 const baseUrl = "https://hacker-news.firebaseio.com/v0"; // see https://github.com/HackerNews/API
-const ycBase = "https://news.ycombinator.com";
 
 var content = document.getElementById("content");
 document.getElementById("prev").onclick = () => {
     if (start < pageLen * 2) return;
     start -= pageLen * 2;
     n = start + 1;
-    showItems();
+    getItems();
 };
-document.getElementById("next").onclick = showItems;
+document.getElementById("next").onclick = getItems;
 
 fetch(baseUrl + "/topstories.json")
 .then(response => response.json())
 .then(_ids => {
     ids = _ids;
-    showItems();
+    getItems();
 });
 
 // TODO: Items might render out of order. Do we care?
-function showItems() {
-    function a(href, text) {
+function getItems() {
+    function showItem(item) { // other item props: kids
+        const hnBaseUrl = "https://news.ycombinator.com";
+        var hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
+        if (item.url) {
+            var site = new URL(item.url).hostname.replace(/^www\./, "");
+            var ln1 = `${anc(item.url, item.title)} (${anc(hnBaseUrl + "/from?site=" + site, site)})`;
+        } else {
+            ln1 = anc(hnItemUrl, item.title);
+        }
+        var ago = new Date() / 1000 - item.time; // in seconds, 60 s == 1 min, 3600 s = 1 hr, etc.
+        if (ago < 3600) {
+            ago = plu(Math.round(ago / 60), "minute");
+        } else if (ago < 3600 * 24) {
+            ago = plu(Math.round(ago / 3600), "hour");
+        } else {
+            ago = plu(Math.round(ago / 3600 / 24), "day");
+        }
+        var ln2 = anc(hnItemUrl, ago + " ago");
+        if (item.type != "job") {
+            var cmt = anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"));
+            ln2 = `${plu(item.score, "point")} by ${anc(hnBaseUrl + "/user?id=" + item.by, item.by)} ${ln2} | ${cmt}`;
+        }
+        content.innerHTML += `<li value=${n++}>${ln1}<br>${ln2}</li>`;
+    }
+    function anc(href, text) {
         return `<a href='${href}' target='_blank' rel='noopener'>${text}</a>`;
     }
-    function p(n, s) {
+    function plu(n, s) {
         return n + " " + (n == 1 ? s : s + "s");
     }
     content.innerHTML = "";
     for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
         fetch(`${baseUrl}/item/${ids[i]}.json`)
         .then(response => response.json())
-        .then(item => { // other item props: kids
-            var ycUrl = `${ycBase}/item?id=${item.id}`;
-            if (item.url) {
-                var url = item.url;
-                var site = new URL(url).hostname.replace(/^www\./, "");
-                var dom = ` (${a(ycBase + "/from?site=" + site, site)})`;
-            } else {
-                url = ycUrl;
-                dom = "";
-            }
-            var ago = new Date() / 1000 - item.time; // in seconds, 60 s == 1 min, 3600 s = 1 hr, etc.
-            if (ago < 3600) {
-                ago = p(Math.round(ago / 60), "minute");
-            } else if (ago < 3600 * 24) {
-                ago = p(Math.round(ago / 3600), "hour");
-            } else {
-                ago = p(Math.round(ago / 3600 / 24), "day");
-            }
-            var c = a(ycUrl, item.descendants == 0 ? "discuss" : p(item.descendants, "comment"));
-            var s = a(ycUrl, ago + " ago");
-            if (item.type != "job") {
-                s = `${p(item.score, "point")} by ${a(ycBase + "/user?id=" + item.by, item.by)} ${s} | ${c}`;
-            }
-            content.innerHTML += `<li value=${n++}>${a(url, item.title)}${dom}<br>` +
-                `${s}</li>`;
-        });
+        .then(showItem);
     }
     start = i;
 }

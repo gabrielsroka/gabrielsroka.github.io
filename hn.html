@@ -16,7 +16,7 @@ a:visited {
     color: #828282;
     text-decoration: none;
 }
-li {
+.item {
     border-bottom: 1px solid silver;
     margin-bottom: 14px;
     padding-bottom: 14px;
@@ -26,7 +26,7 @@ li {
 <body>
 <header><a href="https://news.ycombinator.com">Hacker News</a></header>
 <main>
-<ol id=content></ol>
+<div id=content></div>
 </main>
 <nav>
 <span id=prev>Prev</span> | <span id=next>Next</span>
@@ -63,7 +63,7 @@ function getItems() {
         var hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
         if (item.url) {
             var site = new URL(item.url).hostname.replace(/^www\./, "");
-            var ln1 = `${anc(item.url, item.title)} (${anc(hnBaseUrl + "/from?site=" + site, site)})`;
+            var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${site}`, site)})`;
         } else {
             ln1 = anc(hnItemUrl, item.title);
         }
@@ -75,12 +75,22 @@ function getItems() {
         } else {
             ago = plu(Math.round(ago / 3600 / 24), "day");
         }
-        var ln2 = anc(hnItemUrl, ago + " ago");
-        if (item.type != "job") {
+        ago = anc(hnItemUrl, ago + " ago");
+        if (item.type == "job") {
+            var pts = "";
+            var by = "";
+            var ln2 = ago;
+        } else {
             var cmt = anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"));
-            ln2 = `${plu(item.score, "point")} by ${anc(hnBaseUrl + "/user?id=" + item.by, item.by)} ${ln2} | ${cmt}`;
+            pts = `${plu(item.score, "point")}`;
+            by = `by ${anc(`${hnBaseUrl}/user?id=${item.by}`, item.by)}`;
+            ln2 = `${ago} | ${cmt}`;
         }
-        content.innerHTML += `<li value=${n++}>${ln1}<br>${ln2}</li>`;
+        if (small) {
+            content.innerHTML += `<div class=item>${ln1}<br>${ln2}</div>`;
+        } else {
+            ol.innerHTML += `<li class=item value=${n++}>${ln1}<br>${pts} ${by} ${ln2}</li>`;
+        }
     }
     function anc(href, text) {
         return `<a href='${href}' target='_blank' rel='noopener'>${text}</a>`;
@@ -88,7 +98,12 @@ function getItems() {
     function plu(n, s) {
         return n + " " + (n == 1 ? s : s + "s");
     }
-    content.innerHTML = "";
+    var small = location.search.match("small");
+    if (small) {
+        content.innerHTML = "<br>";
+    } else {
+        content.innerHTML = "<ol id=ol></ol>";
+    }
     for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
         fetch(`${baseUrl}/item/${ids[i]}.json`)
         .then(response => response.json())

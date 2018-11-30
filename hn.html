@@ -30,7 +30,9 @@ a:visited {
 </main>
 <nav>
 <span id=prev>Prev</span> | <span id=next>Next</span>
-<br><br><br><br>
+<br><br>
+<a href="hn.html">Default</a> | <a href="hn.html?small">Small</a>
+<br><br><br><br><br><br>
 </nav>
 <script>
 var ids;
@@ -40,14 +42,13 @@ var n = 1;
 const pageLen = 30;
 const baseUrl = "https://hacker-news.firebaseio.com/v0"; // see https://github.com/HackerNews/API
 
-var content = document.getElementById("content");
-document.getElementById("prev").onclick = () => {
+prev.onclick = () => {
     if (start < pageLen * 2) return;
     start -= pageLen * 2;
     n = start + 1;
     getItems();
 };
-document.getElementById("next").onclick = getItems;
+next.onclick = getItems;
 
 fetch(baseUrl + "/topstories.json")
 .then(response => response.json())

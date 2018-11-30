@@ -17,9 +17,10 @@ a:visited {
     text-decoration: none;
 }
 .item {
+    font-size: 0.8em;
+    padding-bottom: 1em;
     border-bottom: 1px solid silver;
-    margin-bottom: 14px;
-    padding-bottom: 14px;
+    margin-bottom: 1em;
 }
 </style>
 </head>
@@ -52,8 +53,8 @@ next.onclick = getItems;
 
 fetch(baseUrl + "/topstories.json")
 .then(response => response.json())
-.then(_ids => {
-    ids = _ids;
+.then(itemIds => {
+    ids = itemIds;
     getItems();
 });
 
@@ -82,10 +83,9 @@ function getItems() {
             var by = "";
             var ln2 = ago;
         } else {
-            var cmt = anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"));
             pts = `${plu(item.score, "point")}`;
             by = `by ${anc(`${hnBaseUrl}/user?id=${item.by}`, item.by)}`;
-            ln2 = `${ago} | ${cmt}`;
+            ln2 = `${ago} | ${anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"))}`;
         }
         if (small) {
             content.innerHTML += `<div class=item>${ln1}<br>${ln2}</div>`;

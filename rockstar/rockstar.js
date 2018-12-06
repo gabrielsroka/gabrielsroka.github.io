@@ -36,6 +36,9 @@
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar");
         userHome();
+    } else if (location.pathname.match("^/api/")) { // API pages
+        let pre = document.getElementsByTagName("pre")[0];
+        pre.innerHTML = JSON.stringify(JSON.parse(pre.innerHTML), null, 4); // Pretty Print the JSON.
     } else { // SU
         // Don't show mainPopup div.
         if (location.pathname == "/su/orgs") {
@@ -328,8 +331,8 @@
             headers = headers.split(", ");
             var links = {};
             for (var i = 0; i < headers.length; i++) {
-                var matches = headers[i].match(/<(.*)>; rel="(.*)"/);
-                links[matches[2]] = matches[1];
+                var [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
+                links[name] = url;
             }
             return links;
         }
@@ -425,6 +428,9 @@
                 }
                 return lines.join("\n");
             }
+        });
+        $.getJSON(`/api/v1/sessions/me`).then(session => {
+            $(".icon-clock-light").parent().append("<div>Expires in " + Math.round((new Date(session.expiresAt) - new Date()) / 60 / 1000) + " minutes</div>");
         });
     }
 

@@ -6,8 +6,8 @@
     // Events: Expand All and Expand Each Row
     // Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, Zones, ...
     // User home page: Show SSO (SAML assertion, etc)
-    // SU Orgs & Org Users: enhanced search
     // API: Pretty Print JSON
+    // SU Orgs & Org Users: enhanced search
     // Many: enhanced menus
     // and more to come...
 
@@ -39,7 +39,10 @@
         userHome();
     } else if (location.pathname.match("^/api/")) { // API pages
         let pre = document.getElementsByTagName("pre")[0];
-        pre.innerHTML = JSON.stringify(JSON.parse(pre.innerHTML), null, 4); // Pretty Print the JSON.
+        let o = JSON.parse(pre.innerHTML);
+        let s = JSON.stringify(o, null, 4); // Pretty Print the JSON.
+        if (o.length) s = "(length: " + o.length + ")\n\n" + s;
+        pre.innerHTML = s;
     } else { // SU
         // Don't show mainPopup div.
         if (location.pathname == "/su/orgs") {

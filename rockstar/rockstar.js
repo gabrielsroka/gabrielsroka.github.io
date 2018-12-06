@@ -7,6 +7,7 @@
     // Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, Zones, ...
     // User home page: Show SSO (SAML assertion, etc)
     // SU Orgs & Org Users: enhanced search
+    // API: Pretty Print JSON
     // Many: enhanced menus
     // and more to come...
 
@@ -475,8 +476,10 @@
     }
 
     // Util functions
-    var xsrf = $("#_xsrfToken");
-    if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
+    if ($) {
+        var xsrf = $("#_xsrfToken");
+        if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
+    }
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
             `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> ` + 

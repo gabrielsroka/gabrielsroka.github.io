@@ -59,3 +59,20 @@ Okta = [
 Okta.Publish = [
     Beta = true
 ];
+
+// TODO: merge this code with the above.
+/*
+let
+    GeneratedList = List.Generate(
+        () => [i = 0, res = GetByDateRange(i)],
+        each [i] < iterations,
+        each [i = [i] + 1, res = GetByDateRange(i)],
+        each [res]),
+
+    table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"log"}),
+    table2 = Table.ExpandListColumn(table1, "log"),
+    fieldNames = {"displayMessage", "eventType", "published", "severity"},
+    Logs = Table.ExpandRecordColumn(table2, "log", fieldNames)
+in
+    Logs
+*/

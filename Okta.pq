@@ -1,5 +1,5 @@
 /*
-I got a basic Custom Connector to work. It needs more work, but this should get you started.
+I got a basic Data Connector to work. It needs more work, but this should get you started.
 
 This works with Power BI Desktop (as of now). Excel support may be added by Microsoft in the future.
 
@@ -7,7 +7,7 @@ In your Documents folder, create a folder called "Power BI Desktop\Custom Connec
 Download the code below to Okta.pq and save it in the "Custom Connectors" folder.
 In Power BI Desktop, go to File | Options and settings | Options
 Go the Security tab
-Under Data Extensions, select Allow any extension to load without warning or validation
+Under Data Extensions, select Allow any extension to load without validation or warning
 Restart Power BI Desktop
 
 see https://github.com/Microsoft/DataConnectors for more info
@@ -52,7 +52,7 @@ GetNextLink = (response) =>
 Okta = [
     TestConnection = (dataSourcePath) => {"Okta.Logs"},
     Authentication = [
-        Anonymous = []
+        Implicit = []
     ]
 ];
 

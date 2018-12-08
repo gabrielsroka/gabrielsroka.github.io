@@ -12,9 +12,9 @@ Restart Power BI Desktop
 
 see https://github.com/Microsoft/DataConnectors for more info
 
-One thing I found by researching and experimenting (that I didn't see in the documentation) is you don't have to 
-create a .mez file (which is a Zip file). You can even edit the Okta.pq file while it's loaded in Power BI Desktop -- 
-this makes development much easier.
+One thing I found by researching and experimenting (that I didn't see in the documentation) is you can use the Okta.pq file, 
+you don't have to create a .mez file (which is a Zip file). You can even edit the Okta.pq file while it's loaded in 
+Power BI Desktop -- this makes development much easier.
 */
 
 section Okta;

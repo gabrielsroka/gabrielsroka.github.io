@@ -20,10 +20,10 @@ Power BI Desktop -- this makes development much easier.
 section Okta;
 
 [DataSource.Kind = "Okta", Publish = "Okta.Publish"]
-shared Okta.Logs = (url as text, token as text, limit as text, since as text) =>
+shared Okta.Logs = (url as text, limit as text, since as text) =>
     let
         headers = [
-            Authorization = "SSWS " & token, 
+            Authorization = "SSWS " & Extension.CurrentCredential()[Key], 
             Accept = "application/json", 
             #"Content-Type" = "application/json", 
             #"User-Agent" = "power-bi-desktop/Nov2018 Windows/10.0"
@@ -52,8 +52,9 @@ GetNextLink = (response) =>
 Okta = [
     TestConnection = (dataSourcePath) => {"Okta.Logs"},
     Authentication = [
-        Implicit = []
-    ]
+        Key = [KeyLabel = "Okta API Token", Label = "Okta API Token"]
+    ],
+    Label = "Okta"
 ];
 
 Okta.Publish = [

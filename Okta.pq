@@ -15,47 +15,46 @@ see https://github.com/Microsoft/DataConnectors for more info
 One thing I found by researching and experimenting (that I didn't see in the documentation) is you can use the Okta.pq file, 
 you don't have to create a .mez file (which is a Zip file). You can even edit the Okta.pq file while it's loaded in 
 Power BI Desktop -- this makes development much easier.
+
+When calling Okta.Logs, Okta.Users, etc., org should be "EXAMPLE.okta.com" (leave out the "https://" part -- it looks better in the GUI).
+The parameters marked as optional should always be provided (they're marked as optional so their signatures match and the credentials can be shared.)
 */
 
 section Okta;
 
 // TODO: is it requesting each page multiple times?
 [DataSource.Kind = "Okta", Publish = "Okta.Publish"]
-shared Okta.Logs = (url as text, limit as number, since as date, until as date) =>
+shared Okta.Logs = (org as text, optional limit as number, optional since as date, optional until as date) =>
     let
         iso = "s",
         query = [limit = Text.From(limit), since = Date.ToText(since, iso), until = Date.ToText(until, iso)],
-        firstUrl = url & "/api/v1/logs?" & Uri.BuildQueryString(query),
-        GeneratedList = GetPages(firstUrl),
-        Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"log"}),
-        Logs = Table.ExpandListColumn(Table1, "log")
+        firstUrl = "https://" & org & "/api/v1/logs?" & Uri.BuildQueryString(query),
+        Logs = GetPages(firstUrl, "log")
     in
         Logs;
 
-/*
-shared Okta.Users = (url as text) =>
+[DataSource.Kind = "Okta", Publish = "Okta.Publish"]
+shared Okta.Users = (org as text) =>
     let
-        firstUrl = url & "/api/v1/users",
-        GeneratedList = GetPages(firstUrl),
-        Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"user"}),
-        Users = Table.ExpandListColumn(Table1, "user")
+        firstUrl = "https://" & org & "/api/v1/users",
+        Users = GetPages(firstUrl, "user")
     in
         Users;
-*/
 
-GetPages = (firstUrl) =>
+GetPages = (firstUrl, column) =>
     let
         GeneratedList = List.Generate(
             () => GetPage(firstUrl),
-            each List.Count([objects]) > 0,
-            each GetPage([nextUrl]),
-            each [objects])
+            each List.Count(_) > 0,
+            each GetPage(Value.Metadata(_)[nextUrl])),
+        Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {column}),
+        Objects = Table.ExpandListColumn(Table1, column)
     in
-        GeneratedList;
+        Objects;
 
 GetPage = (url as nullable text) =>
     let
-        page = if url = null then [objects = {}, nextUrl = null] else
+        page = if url = null then {} meta [nextUrl = null] else
             let
                 headers = [
                     Authorization = "SSWS " & Extension.CurrentCredential()[Key], 
@@ -66,7 +65,7 @@ GetPage = (url as nullable text) =>
                 content = Web.Contents(url, [Headers = headers]),
                 nextUrl = GetNextLink(content)
             in
-                [objects = Json.Document(content), nextUrl = nextUrl]
+                Json.Document(content) meta [nextUrl = nextUrl]
     in
         page;
 
@@ -84,12 +83,9 @@ GetNextLink = (response) =>
         try removedBrackets otherwise null;
 
 Okta = [
-    TestConnection = (dataSourcePath) => {"Okta.Logs"},
     Authentication = [
-        Key = [KeyLabel = "Okta API Token", Label = "Okta API Token"]
+        Key = [Label = "Okta API", KeyLabel = "Okta API Token"]
     ]
 ];
 
-Okta.Publish = [
-    Beta = true
-];
+Okta.Publish = [];

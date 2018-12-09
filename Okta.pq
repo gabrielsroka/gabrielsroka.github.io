@@ -20,7 +20,22 @@ Power BI Desktop -- this makes development much easier.
 section Okta;
 
 [DataSource.Kind = "Okta", Publish = "Okta.Publish"]
-shared Okta.Logs = (url as text, limit as text, since as text) =>
+shared Okta.Logs = (url as text, limit as text, since as text, until as text) =>
+    let
+        query = [limit = limit, since = since, until = until],
+        firstUrl = url & "/api/v1/logs?" & Uri.BuildQueryString(query),
+        GeneratedList = List.Generate(
+            () => [page = GetPage(firstUrl)],
+            each [page][nextUrl] <> null,
+            each [page = GetPage([page][nextUrl])],
+            each [page][content]),
+
+        Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"log"}),
+        Logs = Table.ExpandListColumn(Table1, "log")
+    in
+        Logs;
+
+GetPage = (url as text) =>
     let
         headers = [
             Authorization = "SSWS " & Extension.CurrentCredential()[Key], 
@@ -28,18 +43,16 @@ shared Okta.Logs = (url as text, limit as text, since as text) =>
             #"Content-Type" = "application/json", 
             #"User-Agent" = "power-bi-desktop/Nov2018 Windows/10.0"
         ],
-        query = [limit = limit, since = since],
-        content = Web.Contents(url & "/api/v1/logs", [Headers = headers, Query = query]),
+        content = Web.Contents(url, [Headers = headers]),
         nextUrl = GetNextLink(content),
-        content2 = Web.Contents(nextUrl, [Headers = headers]),
-        Logs = Json.Document(content) & Json.Document(content2)
+        page = [content = Json.Document(content), nextUrl = nextUrl]
     in
-        Logs;
+        page;
 
 // Adapted from https://github.com/Microsoft/DataConnectors/blob/master/samples/Github/github.pq
 GetNextLink = (response) =>
     let
-        // extract the "Link" header if it exists
+        // The "Link" header is not accessible in Power Query, hence this Data Connector.
         link = Value.Metadata(response)[Headers][Link]?,
         links = Text.Split(link, ","),
         splitLinks = List.Transform(links, each Text.Split(Text.Trim(_), ";")),
@@ -61,19 +74,19 @@ Okta.Publish = [
     Beta = true
 ];
 
-// TODO: merge this code with the above.
 /*
-let
-    GeneratedList = List.Generate(
-        () => [i = 0, res = GetByDateRange(i)],
-        each [i] < iterations,
-        each [i = [i] + 1, res = GetByDateRange(i)],
-        each [res]),
+// BUG: It's not fetching the last page.
+shared Okta.Users = (url as text) =>
+    let
+        firstUrl = url & "/api/v1/users?limit=3",
+        GeneratedList = List.Generate(
+            () => [page = GetPage(firstUrl)],
+            each [page][nextUrl] <> null,
+            each [page = GetPage([page][nextUrl])],
+            each [page][content]),
 
-    table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"log"}),
-    table2 = Table.ExpandListColumn(table1, "log"),
-    fieldNames = {"displayMessage", "eventType", "published", "severity"},
-    Logs = Table.ExpandRecordColumn(table2, "log", fieldNames)
-in
-    Logs
+        Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"user"}),
+        Users = Table.ExpandListColumn(Table1, "user")
+    in
+        Users;
 */

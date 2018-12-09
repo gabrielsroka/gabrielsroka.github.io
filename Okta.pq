@@ -19,6 +19,7 @@ Power BI Desktop -- this makes development much easier.
 
 section Okta;
 
+// TODO: is this requesting each page multiple times?
 [DataSource.Kind = "Okta", Publish = "Okta.Publish"]
 shared Okta.Logs = (url as text, limit as text, since as text, until as text) =>
     let
@@ -28,7 +29,7 @@ shared Okta.Logs = (url as text, limit as text, since as text, until as text) =>
             () => [page = GetPage(firstUrl)],
             each [page][nextUrl] <> null,
             each [page = GetPage([page][nextUrl])],
-            each [page][content]),
+            each [page][objects]),
 
         Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"log"}),
         Logs = Table.ExpandListColumn(Table1, "log")
@@ -45,7 +46,7 @@ GetPage = (url as text) =>
         ],
         content = Web.Contents(url, [Headers = headers]),
         nextUrl = GetNextLink(content),
-        page = [content = Json.Document(content), nextUrl = nextUrl]
+        page = [objects = Json.Document(content), nextUrl = nextUrl]
     in
         page;
 
@@ -83,7 +84,7 @@ shared Okta.Users = (url as text) =>
             () => [page = GetPage(firstUrl)],
             each [page][nextUrl] <> null,
             each [page = GetPage([page][nextUrl])],
-            each [page][content]),
+            each [page][objects]),
 
         Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"user"}),
         Users = Table.ExpandListColumn(Table1, "user")

@@ -19,24 +19,25 @@ Power BI Desktop -- this makes development much easier.
 
 section Okta;
 
-// TODO: is this requesting each page multiple times?
+// TODO: is it requesting each page multiple times?
 [DataSource.Kind = "Okta", Publish = "Okta.Publish"]
-shared Okta.Logs = (url as text, limit as text, since as text, until as text) =>
+shared Okta.Logs = (url as text, limit as number, since as date, until as date) =>
     let
-        query = [limit = limit, since = since, until = until],
+        iso = "s",
+        query = [limit = Text.From(limit), since = Date.ToText(since, iso), until = Date.ToText(until, iso)],
         firstUrl = url & "/api/v1/logs?" & Uri.BuildQueryString(query),
         GeneratedList = List.Generate(
-            () => [page = GetPage(firstUrl)],
-            each [page][nextUrl] <> null,
-            each [page = GetPage([page][nextUrl])],
-            each [page][objects]),
+            () => GetPage(firstUrl),
+            each List.Count([objects]) > 0,
+            each if [nextUrl] = null then [objects = {}, nextUrl = null] else GetPage([nextUrl]),
+            each [objects]),
 
         Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"log"}),
         Logs = Table.ExpandListColumn(Table1, "log")
     in
         Logs;
 
-GetPage = (url as text) =>
+GetPage = (url as nullable text) =>
     let
         headers = [
             Authorization = "SSWS " & Extension.CurrentCredential()[Key], 
@@ -76,15 +77,14 @@ Okta.Publish = [
 ];
 
 /*
-// BUG: It's not fetching the last page.
 shared Okta.Users = (url as text) =>
     let
         firstUrl = url & "/api/v1/users?limit=3",
         GeneratedList = List.Generate(
-            () => [page = GetPage(firstUrl)],
-            each [page][nextUrl] <> null,
-            each [page = GetPage([page][nextUrl])],
-            each [page][objects]),
+            () => GetPage(firstUrl),
+            each List.Count([objects]) > 0,
+            each if [nextUrl] = null then [objects = {}, nextUrl = null] else GetPage([nextUrl]),
+            each [objects]),
 
         Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"user"}),
         Users = Table.ExpandListColumn(Table1, "user")

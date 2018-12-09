@@ -26,28 +26,47 @@ shared Okta.Logs = (url as text, limit as number, since as date, until as date) 
         iso = "s",
         query = [limit = Text.From(limit), since = Date.ToText(since, iso), until = Date.ToText(until, iso)],
         firstUrl = url & "/api/v1/logs?" & Uri.BuildQueryString(query),
-        GeneratedList = List.Generate(
-            () => GetPage(firstUrl),
-            each List.Count([objects]) > 0,
-            each if [nextUrl] = null then [objects = {}, nextUrl = null] else GetPage([nextUrl]),
-            each [objects]),
-
+        GeneratedList = GetPages(firstUrl),
         Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"log"}),
         Logs = Table.ExpandListColumn(Table1, "log")
     in
         Logs;
 
+/*
+shared Okta.Users = (url as text) =>
+    let
+        firstUrl = url & "/api/v1/users",
+        GeneratedList = GetPages(firstUrl),
+        Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"user"}),
+        Users = Table.ExpandListColumn(Table1, "user")
+    in
+        Users;
+*/
+
+GetPages = (firstUrl) =>
+    let
+        GeneratedList = List.Generate(
+            () => GetPage(firstUrl),
+            each List.Count([objects]) > 0,
+            each GetPage([nextUrl]),
+            each [objects])
+    in
+        GeneratedList;
+
 GetPage = (url as nullable text) =>
     let
-        headers = [
-            Authorization = "SSWS " & Extension.CurrentCredential()[Key], 
-            Accept = "application/json", 
-            #"Content-Type" = "application/json", 
-            #"User-Agent" = "power-bi-desktop/Nov2018 Windows/10.0"
-        ],
-        content = Web.Contents(url, [Headers = headers]),
-        nextUrl = GetNextLink(content),
-        page = [objects = Json.Document(content), nextUrl = nextUrl]
+        page = if url = null then [objects = {}, nextUrl = null] else
+            let
+                headers = [
+                    Authorization = "SSWS " & Extension.CurrentCredential()[Key], 
+                    Accept = "application/json", 
+                    #"Content-Type" = "application/json", 
+                    #"User-Agent" = "power-bi-desktop/Nov2018 Windows/10.0"
+                ],
+                content = Web.Contents(url, [Headers = headers]),
+                nextUrl = GetNextLink(content)
+            in
+                [objects = Json.Document(content), nextUrl = nextUrl]
     in
         page;
 
@@ -68,26 +87,9 @@ Okta = [
     TestConnection = (dataSourcePath) => {"Okta.Logs"},
     Authentication = [
         Key = [KeyLabel = "Okta API Token", Label = "Okta API Token"]
-    ],
-    Label = "Okta"
+    ]
 ];
 
 Okta.Publish = [
     Beta = true
 ];
-
-/*
-shared Okta.Users = (url as text) =>
-    let
-        firstUrl = url & "/api/v1/users?limit=3",
-        GeneratedList = List.Generate(
-            () => GetPage(firstUrl),
-            each List.Count([objects]) > 0,
-            each if [nextUrl] = null then [objects = {}, nextUrl = null] else GetPage([nextUrl]),
-            each [objects]),
-
-        Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {"user"}),
-        Users = Table.ExpandListColumn(Table1, "user")
-    in
-        Users;
-*/

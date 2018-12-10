@@ -17,12 +17,12 @@ you don't have to create a .mez file (which is a Zip file). You can even edit th
 Power BI Desktop -- this makes development much easier.
 
 When calling Okta.Logs, Okta.Users, etc., org should be "EXAMPLE.okta.com" (leave out the "https://" part -- it looks better in the GUI).
-The parameters marked as optional should always be provided (they're marked as optional so their signatures match and the credentials can be shared.)
+The parameters marked as optional should always be provided (they're marked as optional so their signatures match each other
+and the credentials can be shared.)
 */
 
 section Okta;
 
-// TODO: is it requesting each page multiple times?
 [DataSource.Kind = "Okta", Publish = "Okta.Publish"]
 shared Okta.Logs = (org as text, optional limit as number, optional since as date, optional until as date) =>
     let
@@ -48,13 +48,13 @@ GetPages = (firstUrl, column) =>
             each List.Count(_) > 0,
             each GetPage(Value.Metadata(_)[nextUrl])),
         Table1 = Table.FromList(GeneratedList, Splitter.SplitByNothing(), {column}),
-        Objects = Table.ExpandListColumn(Table1, column)
+        Pages = Table.ExpandListColumn(Table1, column)
     in
-        Objects;
+        Pages;
 
 GetPage = (url as nullable text) =>
     let
-        page = if url = null then {} meta [nextUrl = null] else
+        Page = if url = null then {} meta [nextUrl = null] else
             let
                 headers = [
                     Authorization = "SSWS " & Extension.CurrentCredential()[Key], 
@@ -63,11 +63,12 @@ GetPage = (url as nullable text) =>
                     #"User-Agent" = "power-bi-desktop/Nov2018 Windows/10.0"
                 ],
                 content = Web.Contents(url, [Headers = headers]),
-                nextUrl = GetNextLink(content)
+                nextUrl = GetNextLink(content),
+                objects = Json.Document(content)
             in
-                Json.Document(content) meta [nextUrl = nextUrl]
+                objects meta [nextUrl = nextUrl]
     in
-        page;
+        Page;
 
 // Adapted from https://github.com/Microsoft/DataConnectors/blob/master/samples/Github/github.pq
 GetNextLink = (response) =>

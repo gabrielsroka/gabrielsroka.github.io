@@ -10,7 +10,7 @@ This works with Power BI Desktop (as of now). Excel support may be added by Micr
 5. Under Data Extensions, select Allow any extension to load without validation or warning.
 6. Restart Power BI Desktop.
 
-see https://github.com/Microsoft/DataConnectors for more info
+See https://github.com/Microsoft/DataConnectors for more info.
 
 One thing I found by researching and experimenting (that I didn't see in the documentation) is you can use the Okta.pq file, 
 you don't have to create a .mez file (which is a Zip file). You can even edit the Okta.pq file while it's loaded in 
@@ -23,8 +23,26 @@ and the credentials can be shared.)
 
 section Okta;
 
+orgHelp = "org (e.g., ""example.okta.com"", omit ""https://"")";
+
 [DataSource.Kind = "Okta", Publish = "Okta.Publish"]
-shared Okta.Logs = (org as text, optional limit as number, optional since as date, optional until as date) =>
+shared Okta.Logs = Value.ReplaceType(Okta.LogsImpl, Okta.LogsType);
+
+[DataSource.Kind = "Okta", Publish = "Okta.Publish"]
+shared Okta.Users = Value.ReplaceType(Okta.UsersImpl, Okta.UsersType);
+
+Okta.LogsType = type function (
+    org as (type text meta [Documentation.FieldCaption = orgHelp]),
+    optional limit as (type number meta [Documentation.FieldCaption = "limit (1-1000), this is not optional"]),
+    optional since as (type date meta [Documentation.FieldCaption = "since, this is not optional"]),
+    optional until as (type date meta [Documentation.FieldCaption = "until, this is not optional"])
+) as table;
+
+Okta.UsersType = type function (
+    org as (type text meta [Documentation.FieldCaption = orgHelp])
+) as table;
+
+Okta.LogsImpl = (org as text, optional limit as number, optional since as date, optional until as date) as table =>
     let
         iso = "s",
         query = [limit = Text.From(limit), since = Date.ToText(since, iso), until = Date.ToText(until, iso)],
@@ -33,8 +51,7 @@ shared Okta.Logs = (org as text, optional limit as number, optional since as dat
     in
         Logs;
 
-[DataSource.Kind = "Okta", Publish = "Okta.Publish"]
-shared Okta.Users = (org as text) =>
+Okta.UsersImpl = (org as text) as table =>
     let
         firstUrl = "https://" & org & "/api/v1/users",
         Users = GetPages(firstUrl, "user")

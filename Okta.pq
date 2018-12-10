@@ -3,12 +3,12 @@ I got a basic Data Connector to work. It needs more work, but this should get yo
 
 This works with Power BI Desktop (as of now). Excel support may be added by Microsoft in the future.
 
-In your Documents folder, create a folder called "Power BI Desktop\Custom Connectors" (mine already existed).
-Download the code below to Okta.pq and save it in the "Custom Connectors" folder.
-In Power BI Desktop, go to File | Options and settings | Options
-Go the Security tab
-Under Data Extensions, select Allow any extension to load without validation or warning
-Restart Power BI Desktop
+1. In your Documents folder, create a folder called "Power BI Desktop\Custom Connectors" (mine already existed).
+2. Download the code below to Okta.pq and save it in the "Custom Connectors" folder.
+3. In Power BI Desktop, go to File | Options and settings | Options.
+4. Go the Security tab.
+5. Under Data Extensions, select Allow any extension to load without validation or warning.
+6. Restart Power BI Desktop.
 
 see https://github.com/Microsoft/DataConnectors for more info
 
@@ -16,7 +16,7 @@ One thing I found by researching and experimenting (that I didn't see in the doc
 you don't have to create a .mez file (which is a Zip file). You can even edit the Okta.pq file while it's loaded in 
 Power BI Desktop -- this makes development much easier.
 
-When calling Okta.Logs, Okta.Users, etc., org should be "EXAMPLE.okta.com" (leave out the "https://" part -- it looks better in the GUI).
+When calling Okta.Logs, Okta.Users, etc., org should be "EXAMPLE.okta.com" (leave out the "https://" part--it looks better in the GUI).
 The parameters marked as optional should always be provided (they're marked as optional so their signatures match each other
 and the credentials can be shared.)
 */

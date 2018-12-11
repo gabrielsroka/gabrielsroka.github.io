@@ -129,8 +129,8 @@
                 {type: "USER_ADMIN", label: "Group"}, // not "User"
                 {type: "HELP_DESK_ADMIN", label: "Help Desk"},
                 {type: "READ_ONLY_ADMIN", label: "Read-only"}, // not "Read Only"
-                {type: "MOBILE_ADMIN", label: "Mobile"}
-                // {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"} // API AM doesn't show up when you GET.
+                {type: "MOBILE_ADMIN", label: "Mobile"},
+                {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"}
             ];
             var rolesPopup = createPopup("Administrator Roles");
             showRoles();

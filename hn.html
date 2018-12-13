@@ -33,12 +33,15 @@ a:visited {
 <span id=prev>Prev</span> | <span id=next>Next</span>
 <br><br>
 <a href="hn.html">Default</a> | <a href="hn.html?small">Small</a>
-<br><br><br><br><br><br>
+<br><br>
+<span id=itemsSeen></span>
+<br><br><br><br>
 </nav>
 <script>
 var ids;
 var start = 0;
 var n = 1;
+var seen = [];
 
 const pageLen = 30;
 const baseUrl = "https://hacker-news.firebaseio.com/v0"; // see https://github.com/HackerNews/API
@@ -50,6 +53,7 @@ prev.onclick = () => {
     getItems();
 };
 next.onclick = getItems;
+if (!localStorage.seen) localStorage.seen = "[]";
 
 fetch(baseUrl + "/topstories.json")
 .then(response => response.json())
@@ -61,6 +65,7 @@ fetch(baseUrl + "/topstories.json")
 // TODO: Items might render out of order. Do we care?
 function getItems() {
     function showItem(item) { // other item props: kids
+        if (JSON.parse(localStorage.seen).includes(item.id)) return;
         const hnBaseUrl = "https://news.ycombinator.com";
         var hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
         if (item.url) {
@@ -105,7 +110,15 @@ function getItems() {
     } else {
         content.innerHTML = "<ol id=ol></ol>";
     }
+    if (seen.length) {
+        let newSeen = JSON.parse(localStorage.seen);
+        seen.forEach(item => {if (!newSeen.includes(item)) newSeen.push(item)});
+        localStorage.seen = JSON.stringify(newSeen);
+        itemsSeen.innerHTML = newSeen.length + " seen";
+    }
+    seen = [];
     for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
+        seen.push(ids[i]);
         fetch(`${baseUrl}/item/${ids[i]}.json`)
         .then(response => response.json())
         .then(showItem);

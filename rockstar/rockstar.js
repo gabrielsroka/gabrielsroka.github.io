@@ -37,12 +37,10 @@
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar");
         userHome();
-    } else if (location.pathname.match("^/api/")) { // API pages
-        let pre = document.getElementsByTagName("pre")[0];
-        let o = JSON.parse(pre.innerHTML);
-        let s = JSON.stringify(o, null, 4); // Pretty Print the JSON.
-        if (o.length) s = "(length: " + o.length + ")\n\n" + s;
-        pre.innerHTML = s;
+    } else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/api/resources/")) {
+        apiExplorer();
+    } else if (location.pathname.startsWith("/api/")) {
+        formatAPI();
     } else { // SU
         // Don't show mainPopup div.
         if (location.pathname == "/su/orgs") {
@@ -436,6 +434,62 @@
         $.getJSON(`/api/v1/sessions/me`).then(session => {
             $(".icon-clock-light").parent().append("<div>Expires in " + Math.round((new Date(session.expiresAt) - new Date()) / 60 / 1000) + " minutes</div>");
         });
+    }
+
+    // API functions
+    function apiExplorer() {
+        var baseUrl = $(".okta-preview-domain")[0].innerText;
+        if (baseUrl == "https://{yourOktaDomain}") {
+            //baseUrl = "https://EXAMPLE.oktapreview.com";
+            setTimeout(apiExplorer, 1000);
+            return;
+        }
+    
+        // TODO: in the resulting JSON, each "id" should be clickable, too.
+        // TODO: show HTTP response headers (need to make a new request?)
+        // TODO: eg, for /api/v1/users, show q/filter/search params in a textbox.
+    
+        $(".api-uri-get").each(function () {
+            var get = $(this);
+            var url = baseUrl + get.text().replace("GET ", "").replace("${userId}", "me");
+            get.parent().append(` <a href='${url}' target='_blank'>Try me -></a>`);
+        });
+        $(".language-sh").each(function () {
+            var get = $(this);
+            var curl = get.text();
+            if (curl.match(/-X GET/)) {
+                var url = curl.match(/(https.*)"/)[1].replace(/\\/g, "");
+                get.append(` <a href='${url}' target='_blank'>Try me -></a>`);
+            }
+        })
+    }
+    function formatAPI() {
+        let pre = document.getElementsByTagName("pre")[0];
+        let o = JSON.parse(pre.innerHTML);
+        let s = JSON.stringify(o, null, 4); // Pretty Print the JSON.
+        if (o.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
+        if (o.length) { // It's an array.
+            let len = "(length: " + o.length + ")\n\n";
+            var rows = [];
+            var ths = [];
+            for (var p in o[0]) {
+                ths.push("<th>" + p);
+            }
+            rows.push("<tr>" + ths.join(""));
+            o.forEach(row => {
+                var tds = [];
+                for (var p in row) {
+                    tds.push("<td>" + (typeof row[p] == "object" ? "<pre>" + JSON.stringify(row[p], null, 4) + "</pre>" : row[p]));
+                }
+                rows.push("<tr>" + tds.join(""));
+            });
+            document.body.innerHTML = "<style>body {font-family: Arial;}table {border-collapse: collapse;}" +
+                "td,th {border: 1px solid silver;padding: 4px;}th {background-color: #a0caff;text-align: left;}</style>" + 
+                "<div id=table><a href=#json>JSON</a><br><br>" + len + "</div><br><table>" + rows.join("") + "</table><br>" +
+                "<div id=json><a href=#table>Table</a></div><pre>" + len + s + "</pre>";
+        } else {
+            pre.innerHTML = s;
+        }
     }
 
     // SU functions

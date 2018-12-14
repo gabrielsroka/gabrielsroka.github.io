@@ -445,7 +445,7 @@
             return;
         }
     
-        // TODO: in the resulting JSON, each "id" should be clickable, too.
+        // TODO: in the resulting JSON, each "id", url [etc?] should be clickable, too.
         // TODO: show HTTP response headers (need to make a new request?)
         // TODO: eg, for /api/v1/users, show q/filter/search params in a textbox.
     
@@ -464,29 +464,32 @@
         })
     }
     function formatAPI() {
-        let pre = document.getElementsByTagName("pre")[0];
+        let linkify = s => s.replace(/"(https.*)"/g, '"<a href="$1">$1</a>"');
+        let pre = document.getElementsByTagName("pre")[0]; // Don't use jQuery.
         let o = JSON.parse(pre.innerHTML);
-        let s = JSON.stringify(o, null, 4); // Pretty Print the JSON.
+        let s = linkify(JSON.stringify(o, null, 4)); // Pretty Print the JSON.
         if (o.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
         if (o.length) { // It's an array.
             let len = "(length: " + o.length + ")\n\n";
-            var rows = [];
-            var ths = [];
-            for (var p in o[0]) {
+            let rows = [];
+            let ths = [];
+            for (let p in o[0]) {
                 ths.push("<th>" + p);
             }
             rows.push("<tr>" + ths.join(""));
             o.forEach(row => {
-                var tds = [];
-                for (var p in row) {
+                let tds = [];
+                for (let p in row) {
+                    if (p == "id") row[p] = "<a href='" + location.pathname + "/" + row[p] + "'>" + row[p] + "</a>";
                     tds.push("<td>" + (typeof row[p] == "object" ? "<pre>" + JSON.stringify(row[p], null, 4) + "</pre>" : row[p]));
                 }
                 rows.push("<tr>" + tds.join(""));
             });
-            document.body.innerHTML = "<style>body {font-family: Arial;}table {border-collapse: collapse;}" +
-                "td,th {border: 1px solid silver;padding: 4px;}th {background-color: #a0caff;text-align: left;}</style>" + 
-                "<div id=table><a href=#json>JSON</a><br><br>" + len + "</div><br><table>" + rows.join("") + "</table><br>" +
-                "<div id=json><a href=#table>Table</a></div><pre>" + len + s + "</pre>";
+            document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;}" +
+                "td,th {border: 1px solid silver;padding: 4px;} th {background-color: #a0caff;text-align: left;}</style>";
+            document.body.innerHTML = "<div id=table><a href=#json>JSON</a><br><br>" + len + "</div><br>" +
+                "<table>" + linkify(rows.join("")) + "</table><br>" +
+                "<div id=json><a href=#table>Table</a></div><pre>" + len + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>";
         } else {
             pre.innerHTML = s;
         }

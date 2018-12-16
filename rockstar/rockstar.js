@@ -34,12 +34,13 @@
         $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
         $("<li><a style='cursor: pointer'>Export Objects</a>").click(exportObjects).appendTo("#nav-admin-reports-2");
         createA("Export Objects", mainPopup).click(exportObjects);
+        apiExplorer();
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar");
         userHome();
     } else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/api/resources/")) {
-        apiExplorer();
-    } else if (location.pathname.startsWith("/api/")) {
+        tryAPI();
+    } else if (location.pathname.startsWith("/api/") || location.pathname.startsWith("/oauth2/")) {
         formatAPI();
     } else { // SU
         // Don't show mainPopup div.
@@ -372,7 +373,7 @@
                 }
             } else {
                 getDiv();
-                var form = ssoPopup.appendChild(document.createElement("form"));
+                var form = ssoPopup[0].appendChild(document.createElement("form"));
                 var url = form.appendChild(document.createElement("input"));
                 url.style.width = "700px";
                 url.placeholder = "URL";
@@ -382,11 +383,11 @@
                 input.value = label;
                 form.onsubmit = function () {
                     getSSO(url.value);
-                    return false;
+                    return false; // cancel form submit
                 };
             }
             function getSSO(url) {
-                ssoPopup.html("Loading . . .");
+                ssoPopup.html("Loading ...");
                 $.get(url).then(response => {
                     function unentity(s) {
                         return s.replace(/&#(x..?);/g, (m, p1) => String.fromCharCode("0" + p1));
@@ -434,14 +435,82 @@
         $.getJSON(`/api/v1/sessions/me`).then(session => {
             $(".icon-clock-light").parent().append("<div>Expires in " + Math.round((new Date(session.expiresAt) - new Date()) / 60 / 1000) + " minutes</div>");
         });
+        apiExplorer();
     }
 
     // API functions
     function apiExplorer() {
+        createA("API Explorer", mainPopup).click(function () {
+            var apiPopup = createPopup("API Explorer");
+            var form = apiPopup[0].appendChild(document.createElement("form"));
+            var select = form.appendChild(document.createElement("select"));
+            select.innerHTML = "apps,events,groups,idps,logs,sessions/me,users,zones".split(',').map(a => `<option>/api/v1/${a}`).join("");
+            select.onchange = function () {
+                url.value = select.value;
+            };
+            var url = form.appendChild(document.createElement("input"));
+            url.style.width = "700px";
+            url.placeholder = "URL";
+            url.value = "/api/v1/users/me";
+            url.focus();
+            var input = form.appendChild(document.createElement("input"));
+            input.type = "submit";
+            input.value = "Explore";
+            var results = form.appendChild(document.createElement("div"));
+            form.onsubmit = function () {
+                $(results).html("<br>Loading ...");
+                $.getJSON(url.value).then((objects, status, jqXHR) => {
+                    // maybe show X-Rate-Limit-* headers, too.
+                    var links = jqXHR.getResponseHeader("Link") || "";
+                    if (links) links = "Headers<br><table><tr><td>Link<td>" + links.replace(/</g, "&lt;").replace(/, /, "<br>") + "</table><br>";
+                    var s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
+                    $(results).html("<br>" + links + (objects.length ? formatObj(objects) : "") + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>");
+                });
+                return false; // cancel form submit
+            };
+        });
+    }
+    function formatObj(o) {
+        let len = "(length: " + o.length + ")\n\n";
+        let rows = [];
+        let ths = [];
+        for (let p in o[0]) {
+            ths.push("<th>" + p); // TODO: fix L-shaped data.
+        }
+        rows.push("<tr>" + ths.join(""));
+        o.forEach(row => {
+            let tds = [];
+            for (let p in row) {
+                if (p == "id") row[p] = "<a href='" + location.pathname + "/" + row[p] + "'>" + row[p] + "</a>";
+                tds.push("<td>" + (typeof row[p] == "object" ? "<pre>" + JSON.stringify(row[p], null, 4) + "</pre>" : row[p]));
+            }
+            rows.push("<tr>" + tds.join(""));
+        });
+        return "<div id=table><b>Table</b> <a href=#json>JSON</a><br><br>" + len + "</div><br>" +
+            "<table class='data-list-table' style='border: 1px solid #ddd;'>" + linkify(rows.join("")) + "</table><br>" +
+            "<div id=json><a href=#table>Table</a> <b>JSON</b></div><br>" + len;
+    }
+    function linkify(s) {
+        return s.replace(/"(https.*)"/g, '"<a href="$1">$1</a>"');
+    }
+    function formatAPI() {
+        let pre = document.getElementsByTagName("pre")[0]; // Don't use jQuery.
+        let objects = JSON.parse(pre.innerHTML);
+        let s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
+        if (objects.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
+        if (objects.length) { // It's an array.
+            document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #eee;} " +
+                "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #09f; text-align: left;}</style>";
+            document.body.innerHTML = formatObj(objects) + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>";
+        } else {
+            pre.innerHTML = s;
+        }
+    }
+    function tryAPI() {
         var baseUrl = $(".okta-preview-domain")[0].innerText;
         if (baseUrl == "https://{yourOktaDomain}") {
-            //baseUrl = "https://EXAMPLE.oktapreview.com";
-            setTimeout(apiExplorer, 1000);
+            //baseUrl = "https://EXAMPLE.oktapreview.com"; // TODO it should fail after, eg, 10 s and set a default.
+            setTimeout(tryAPI, 1000);
             return;
         }
     
@@ -457,42 +526,12 @@
         $(".language-sh").each(function () {
             var get = $(this);
             var curl = get.text();
-            if (curl.match(/-X GET/)) {
-                var url = curl.match(/(https.*)"/)[1].replace(/\\/g, "");
+            var ms;
+            if (ms = curl.match(/-X GET[^]*(https.*)"/)) { // [^] matches any character, including \n. `.` does not. The /s flag will fix this, eventually.
+                var url = ms[1].replace(/\\/g, "");
                 get.append(` <a href='${url}' target='_blank'>Try me -></a>`);
             }
-        })
-    }
-    function formatAPI() {
-        let linkify = s => s.replace(/"(https.*)"/g, '"<a href="$1">$1</a>"');
-        let pre = document.getElementsByTagName("pre")[0]; // Don't use jQuery.
-        let o = JSON.parse(pre.innerHTML);
-        let s = linkify(JSON.stringify(o, null, 4)); // Pretty Print the JSON.
-        if (o.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
-        if (o.length) { // It's an array.
-            let len = "(length: " + o.length + ")\n\n";
-            let rows = [];
-            let ths = [];
-            for (let p in o[0]) {
-                ths.push("<th>" + p);
-            }
-            rows.push("<tr>" + ths.join(""));
-            o.forEach(row => {
-                let tds = [];
-                for (let p in row) {
-                    if (p == "id") row[p] = "<a href='" + location.pathname + "/" + row[p] + "'>" + row[p] + "</a>";
-                    tds.push("<td>" + (typeof row[p] == "object" ? "<pre>" + JSON.stringify(row[p], null, 4) + "</pre>" : row[p]));
-                }
-                rows.push("<tr>" + tds.join(""));
-            });
-            document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;}" +
-                "td,th {border: 1px solid silver;padding: 4px;} th {background-color: #a0caff;text-align: left;}</style>";
-            document.body.innerHTML = "<div id=table><a href=#json>JSON</a><br><br>" + len + "</div><br>" +
-                "<table>" + linkify(rows.join("")) + "</table><br>" +
-                "<div id=json><a href=#table>Table</a></div><pre>" + len + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>";
-        } else {
-            pre.innerHTML = s;
-        }
+        });
     }
 
     // SU functions

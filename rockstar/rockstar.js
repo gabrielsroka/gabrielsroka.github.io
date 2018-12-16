@@ -18,7 +18,9 @@
         alert("To install rockstar, open your bookmark toolbar, then drag and drop it.");
         return;
     }
-    if (location.host.match(/-admin/)) { // Admin pages
+    if (location.pathname.startsWith("/api/") || location.pathname.startsWith("/oauth2/")) {
+        formatAPI();
+    } else if (location.host.match(/-admin/)) { // Admin pages
         mainPopup = createPopup("rockstar");
         if (location.pathname == "/admin/users") {
             directoryPeople();
@@ -51,9 +53,6 @@
                 systemLog();
             }
         }
-    }
-    if (location.pathname.startsWith("/api/") || location.pathname.startsWith("/oauth2/")) {
-        formatAPI();
     }
 
     // Admin functions
@@ -444,7 +443,7 @@
         createA("API Explorer", mainPopup).click(function () {
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
-            form.innerHTML = "<input id=url list=apilist>"; // hack: list is read-only, must set it at create time. :(
+            form.innerHTML = "<input id=url list=apilist>"; // hack: input.list is read-only, must set it at create time. :(
             url.style.width = "700px";
             url.placeholder = "URL";
             url.focus();
@@ -497,7 +496,7 @@
         let s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
         if (objects.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
         if (objects.length) { // It's an array.
-            document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #eee;} " +
+            document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #fafafa;} " +
                 "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #09f; text-align: left;}</style>";
             document.body.innerHTML = formatObj(objects, location.pathname) + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>";
         } else {

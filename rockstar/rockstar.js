@@ -40,8 +40,6 @@
         userHome();
     } else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/api/resources/")) {
         tryAPI();
-    } else if (location.pathname.startsWith("/api/") || location.pathname.startsWith("/oauth2/")) {
-        formatAPI();
     } else { // SU
         // Don't show mainPopup div.
         if (location.pathname == "/su/orgs") {
@@ -53,6 +51,9 @@
                 systemLog();
             }
         }
+    }
+    if (location.pathname.startsWith("/api/") || location.pathname.startsWith("/oauth2/")) {
+        formatAPI();
     }
 
     // Admin functions
@@ -443,16 +444,13 @@
         createA("API Explorer", mainPopup).click(function () {
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
-            var select = form.appendChild(document.createElement("select"));
-            select.innerHTML = "apps,events,groups,idps,logs,sessions/me,users,zones".split(',').map(a => `<option>/api/v1/${a}`).join("");
-            select.onchange = function () {
-                url.value = select.value;
-            };
-            var url = form.appendChild(document.createElement("input"));
+            form.innerHTML = "<input id=url list=apilist>"; // hack: list is read-only, must set it at create time. :(
             url.style.width = "700px";
             url.placeholder = "URL";
-            url.value = "/api/v1/users/me";
             url.focus();
+            var datalist = form.appendChild(document.createElement("datalist"));
+            datalist.id = "apilist";
+            datalist.innerHTML = "apps,events,groups,idps,logs,sessions/me,users,users/me,zones".split(',').map(a => `<option>/api/v1/${a}`).join("");
             var input = form.appendChild(document.createElement("input"));
             input.type = "submit";
             input.value = "Explore";
@@ -464,13 +462,13 @@
                     var links = jqXHR.getResponseHeader("Link") || "";
                     if (links) links = "Headers<br><table><tr><td>Link<td>" + links.replace(/</g, "&lt;").replace(/, /, "<br>") + "</table><br>";
                     var s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
-                    $(results).html("<br>" + links + (objects.length ? formatObj(objects) : "") + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>");
+                    $(results).html("<br>" + links + (objects.length ? formatObj(objects, url.value) : "") + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + url.value + '/$1">$1</a>"') + "</pre>");
                 });
                 return false; // cancel form submit
             };
         });
     }
-    function formatObj(o) {
+    function formatObj(o, url) {
         let len = "(length: " + o.length + ")\n\n";
         let rows = [];
         let ths = [];
@@ -481,7 +479,7 @@
         o.forEach(row => {
             let tds = [];
             for (let p in row) {
-                if (p == "id") row[p] = "<a href='" + location.pathname + "/" + row[p] + "'>" + row[p] + "</a>";
+                if (p == "id") row[p] = "<a href='" + url + "/" + row[p] + "'>" + row[p] + "</a>";
                 tds.push("<td>" + (typeof row[p] == "object" ? "<pre>" + JSON.stringify(row[p], null, 4) + "</pre>" : row[p]));
             }
             rows.push("<tr>" + tds.join(""));
@@ -501,7 +499,7 @@
         if (objects.length) { // It's an array.
             document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #eee;} " +
                 "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #09f; text-align: left;}</style>";
-            document.body.innerHTML = formatObj(objects) + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>";
+            document.body.innerHTML = formatObj(objects, location.pathname) + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>";
         } else {
             pre.innerHTML = s;
         }

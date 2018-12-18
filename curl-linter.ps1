@@ -63,11 +63,11 @@ function Find-Prefixes($files) {
     foreach ($file in $files) {
         $lines = Get-Content $file
         $prev = ""
-        ""
+        Write-Host ""
         $file.Name
         foreach ($line in $lines) {
             if ($line -match "curl " -and $prev -notmatch "(~~~|```) ?sh") {
-                $prev
+                Write-Host $prev
             }
             $prev = $line
         }
@@ -124,7 +124,6 @@ function Json-Linter() {
 '@
 
     cls
-    $json
     try {
         $o = ConvertFrom-Json $json
     } catch {

@@ -1,15 +1,15 @@
 ﻿function Main() {
+    cls
     cd "C:\Users\Gabriel Sroka\Documents\GitHub\okta\okta.github.io\_source\_docs\api\resources"
     $files = dir *.md
+    Test-Curls $files
     # Find-Prefixes $files
-    Print-Curls $files
 }
 
-function Print-Curls($files) {
-    cls
+function Test-Curls($files) {
+    $endBlock = "(~~~|```)"
     foreach ($file in $files) {
         $lines = Get-Content $file
-        Write-Host ""
         Write-Host $file.Name
         $inCurl = $false
         $i = 0
@@ -19,64 +19,70 @@ function Print-Curls($files) {
                 $inData = $false
                 $data = ""
             }
-            if ($line -match "-d ") {
-                $inData = $true
-            }
             if ($inCurl) {
-                if ($line -match "(~~~|```)") {
+                if ($line -match $endBlock) {
                     $inCurl = $false
                     if ($data -match "'({(.|\n)*})'") {
                         $json = $matches[1]
                         try {
-                            $o = ConvertFrom-Json $json
+                            $null = ConvertFrom-Json $json
                         } catch {
-                            Write-Host $i
+                            Write-Host ($i + 1) "Invalid JSON"
                             Write-Host $json
                             Write-Host ""
                         }
                     }
                 } else {
+                    if ($line -match "-d ") {
+                        $inData = $true
+                    }
                     if ($inData) {
                         $data += $line + "`n"
                     } else {
                         $cont = $line -match " \\$"
-                        $nextEndCurl = $lines[$i + 1] -match "(~~~|```)"
-                        if (($cont -and $nextEndCurl) -or (-not $cont -and -not $nextEndCurl)) {
-                             Write-Host ($i + 1) $line
+                        $nextEndCurl = $lines[$i + 1] -match $endBlock
+                        if ($cont -and $nextEndCurl) {
+                             Write-Host ($i + 1) "Extra ' \'"
+                             Write-Host $line
+                        }
+                        if (-not $cont -and -not $nextEndCurl) {
+                             Write-Host ($i + 1) "Missing or invalid ' \'"
+                             Write-Host $line
                         }
                     }
                 }
             }
             $i++
         }
+        Write-Host ""
     }
 }
 
 
 <# All "curl" commands seem to be in blocks like:
-/(~~~|```) ?sh/
-...
+(~~~|```) ?sh
+curl ...
 (~~~|```)
 #>
 function Find-Prefixes($files) {
-    cls
+    $startBlock = "(~~~|```) ?sh"
     foreach ($file in $files) {
         $lines = Get-Content $file
+        Write-Host $file.Name
         $prev = ""
-        Write-Host ""
-        $file.Name
         foreach ($line in $lines) {
-            if ($line -match "curl " -and $prev -notmatch "(~~~|```) ?sh") {
+            if ($line -match "curl " -and $prev -notmatch $startBlock) {
                 Write-Host $prev
             }
             $prev = $line
         }
+        Write-Host ""
     }
 }
 
-function Json-Linter() {
+function Test-Json() {
     $json = @'
-    {
+      {
         "definitions": {
           "base": {
             "id": "#base",
@@ -120,15 +126,16 @@ function Json-Linter() {
             "required": []
           }
         }
-    }
+      }
 '@
 
-    cls
     try {
-        $o = ConvertFrom-Json $json
+        $null = ConvertFrom-Json $json
     } catch {
         $json
     }
 }
 
+
+# This must be the last line in the file. All functions need to be defined before running Main.
 Main

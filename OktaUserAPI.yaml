@@ -60,21 +60,21 @@ paths:
     parameters:
       - $ref: "#/parameters/id"
     get:
-      description: See [Get User](http://developer.okta.com/docs/api/resources/users.html#get-user). Supports CORS.
+      description: See [Get User](https://developer.okta.com/docs/api/resources/users#get-user). Supports CORS.
       responses:
         200:
           $ref: "#/responses/user"
         404:
           $ref: "#/responses/notFound"
     put:
-      description: See [Update User and delete unspecified properties](http://developer.okta.com/docs/api/resources/users.html#update-profile)
+      description: See [Update User and delete unspecified properties](https://developer.okta.com/docs/api/resources/users#update-profile)
       parameters:
         - $ref: "#/parameters/body"
       responses:
         200:
           $ref: "#/responses/user"
     post:
-      description: See [Update User with partial update](http://developer.okta.com/docs/api/resources/users.html#update-profile-1)
+      description: See [Update User with partial update](https://developer.okta.com/docs/api/resources/users#update-profile)
       parameters:
         - $ref: "#/parameters/body"
       responses:
@@ -160,7 +160,7 @@ definitions:
         $ref: "#/definitions/Credentials"
   Error:
     externalDocs:
-      url: http://developer.okta.com/docs/api/getting_started/design_principles.html#errors
+      url: https://developer.okta.com/docs/api/getting_started/design_principles#errors
     type: object
     properties:
       errorCode:
@@ -193,7 +193,7 @@ parameters:
       $ref: "#/definitions/body"
 responses:
   user:
-    description: A [user](http://developer.okta.com/docs/api/resources/users.html#user-model)
+    description: A [user](https://developer.okta.com/docs/api/resources/users#user-model)
     schema:
       $ref: "#/definitions/User"
     headers:
@@ -213,7 +213,7 @@ securityDefinitions:
     name: Authorization
     in: header
     description: |
-      See [Authentication](http://developer.okta.com/docs/api/getting_started/design_principles.html#authentication). Example:
+      See [Authentication](https://developer.okta.com/docs/api/getting_started/design_principles#authentication). Example:
       
       `SSWS {apikey}`
 security:

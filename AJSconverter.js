@@ -1,5 +1,5 @@
 (function () {
-    // converts JS-like code to 6502 asm
+    // converts JavaScript to 6502 asm
     // for https://skilldrick.github.io/easy6502/simulator
     function source () {
         const width = $05
@@ -18,11 +18,10 @@
         var pixels
 
         main()
-        break
 
         function main() {
             x = $00 // index to chars
-            for (iLine = $04; $00; iLine--) {
+            for (iLine = $04; iLine > $00; iLine--) {
                 printLine()
                 page++
             }
@@ -30,7 +29,7 @@
 
         function printLine() {
             screen = offset
-            for (iChar = $05; $00; iChar--) {
+            for (iChar = $05; iChar > $00; iChar--) {
                 printChar()
                 iChars += height
                 screen += charspacing
@@ -38,10 +37,10 @@
         }
 
         function printChar() {
-            for (x = x; iChars; x++) {
-                pixels = chars + x
+            for (x = x; x < iChars; x++) {
+                pixels = chars [x]
                 a = color
-                for (y = $00; width; y++) {
+                for (y = $00; y < width; y++) {
                     c = pixels << 1
                     if (c == 1) {
                         indirect(screen + y) = a
@@ -87,7 +86,8 @@
         return (consts.includes(s) || s[0] == "$") ? "#" + s : s;
     }
 
-// add: and, jmp (endless loop), cmp, beq, bit, txa, bpl, bcs, sbc, nop, (add,x), lsr, dex, sec
+// TODO: use 0xFF instead of $FF ?
+// TODO: add: and, jmp (endless loop), cmp, beq, bit, txa, bpl, bcs, sbc, nop, (add,x), lsr, dex, sec
     var lines = source.toString().split("\n");
     for (var i = 1; i < lines.length; i++) {
         var line = lines[i].trim();
@@ -123,11 +123,14 @@
             dest.push("  st" + tokens[4] + " " + tokens[0].substring(8) + ")," + tokens[2][0]);
         } else if (tokens[0].endsWith("()")) {
             dest.push("  jsr " + tokens[0].replace("()", ""));
+            if (tokens[0].startsWith("main")) {
+                dest.push("  brk");
+            }
         } else if (tokens[0] == "for") {
             let forVar = tokens[1].substring(1);
             let label = forVar + "Loop";
             let init = tokens[3].substring(0, tokens[3].length - 1);
-            let cond = tokens[4].substring(0, tokens[4].length - 1);
+            let cond = tokens[6].substring(0, tokens[6].length - 1);
             if (forVar.match(/^[xy]$/)) {
                 if (forVar != init) {
                     dest.push("  ld" + forVar + " #" + init);
@@ -155,7 +158,7 @@
         } else if (tokens[0].endsWith("--")) {
             dest.push("  dec " + tokens[0].replace("--", ""));
         } else if (tokens[1] == "=") {
-            dest.push("  lda " + isConst(tokens[2]) + (tokens[4] ? "," + tokens[4] : ""));
+            dest.push("  lda " + isConst(tokens[2]) + (tokens[3] ? "," + tokens[3].substring(1, 2) : ""));
             dest.push("  sta " + tokens[0]);
         } else if (tokens[1] == "+=") {
             dest.push("  lda " + isConst(tokens[2]));

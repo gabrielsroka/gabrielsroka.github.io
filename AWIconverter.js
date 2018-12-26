@@ -1,50 +1,57 @@
 (function () {
+    // converts JS-like code to 6502 asm
     // for https://skilldrick.github.io/easy6502/simulator
-    var source = `; 5x5 font
-        const width = $05
-        const height = $05
-        const charspacing = $66 ; $20 * $03 + $06, 8 - height == 3, width + 1 == 6, nextrow == #$20
-        const nextrow = $20
-        const color = $0a
+    var source = `; print 5x5 font
+const width = $05
+const height = $05
+const nextrow = $20
+const offset = $21 ; down 1 px, right 1 px
+const charspacing = $66 ; $20 * $03 + $06 == nextrow * (8 - height) + (width + 1)
+const screenStartHi = $02 ; $0200 to $05ff, 32 px * 32 px, 4 pages each 8 px tall
+const color = $0a ; red
 
-        var screen
-        var page = #$02
-        var offset = #height
-        var lines
-        var chars
-        var pixels
+var screen ; lo
+var page = #screenStartHi ; hi
+var iChars = #height
+var iLine
+var iChar
+var pixels
 
-        x = #$00
-        for lines = #$04 to #$00 {
-            printLine()
-        }
-        break
+main()
+break
 
-        printLine() {
-            screen = #$21
-            for chars = #$05 to #$00 {
-                printChar()
+main() {
+    x = #$00 ; index to chars
+    for iLine = #$04 to #$00 {
+        printLine()
+        page++
+    }
+}
+
+printLine() {
+    screen = #offset
+    for iChar = #$05 to #$00 {
+        printChar()
+        iChars += #height
+        screen += #charspacing
+    }
+}
+
+printChar() {
+    for x = x to iChars {
+        pixels = chars + x
+        a = #color
+        for y = #$00 to #width {
+            rotateleft pixels
+            if c != 0 {
+                (screen) + y = a
             }
-            page++
         }
+        screen += #nextrow
+    }
+}
 
-        printChar() {
-            for x = x to offset {
-                pixels = charData + x
-                a = #color
-                for y = #$00 to #width {
-                    rotateleft pixels
-                    if c != 0 {
-                        (screen) + y = a
-                    }
-                }
-                screen += #nextrow
-            } 
-            offset += #height
-            screen += #charspacing
-        }
-
-charData:
+chars:
   dcb $70,$80,$98,$88,$70 ; G
   dcb $70,$88,$f8,$88,$88 ; A
   dcb $88,$d8,$a8,$88,$88 ; M
@@ -63,10 +70,10 @@ charData:
   dcb $f8,$80,$f0,$80,$80 ; F
   dcb $88,$88,$f8,$88,$88 ; H
 
-  dcb $f8,$20,$20,$20,$f8 ; I
+  dcb $70,$20,$20,$20,$70 ; I
   dcb $7e,$08,$08,$48,$30 ; J
   dcb $48,$50,$60,$50,$48 ; K
-  dcb $80,$80,$80,$80,$f8 ; L
+  dcb $80,$80,$80,$80,$f0 ; L
   dcb $88,$c8,$a8,$98,$88 ; N
 `;
 
@@ -85,7 +92,7 @@ charData:
                 dest.push("  sta " + tokens[1]);
             }
         } else if (tokens[0] == "const") {
-            dest.push("define " + tokens[1] + " " + tokens[3]);
+            dest.push(line.replace("const", "define").replace(" =", ""));
         } else if (tokens[0] == "break") {
             dest.push("  brk");
         } else if (tokens[0].match(/^[axy]$/)) {
@@ -100,20 +107,21 @@ charData:
                 dest.push("  jsr " + tokens[0].replace("()", ""));
             }
         } else if (tokens[0] == "for") {
+            let label = tokens[1] + "Loop";
             if (tokens[1].match(/^[xy]$/)) {
                 if (tokens[1] != tokens[3]) {
                     dest.push("  ld" + tokens[1] + " " + tokens[3]);
                 }
-                dest.push("next" + tokens[1] + ":");
+                dest.push(label + ":");
                 cmds.push("  in" + tokens[1] + "\n" +
                           "  cp" + tokens[1] + " " + tokens[5] + "\n" +
-                          "  bne next" + tokens[1]);
+                          "  bne " + label);
             } else {
                 dest.push("  lda " + tokens[3]);
                 dest.push("  sta " + tokens[1]);
-                dest.push("next" + tokens[1] + ":");
+                dest.push(label + ":");
                 cmds.push("  dec " + tokens[1] + "\n" +
-                          "  bne next" + tokens[1]);
+                          "  bne " + label);
             }
         } else if (tokens[0] == "if") {
             if (tokens[1] == "c" && tokens[2] == "!=" && tokens[3] == "0") {

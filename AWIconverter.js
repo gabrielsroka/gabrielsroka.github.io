@@ -51,30 +51,31 @@ printChar() {
     }
 }
 
-chars:
-  dcb $70,$80,$98,$88,$70 ; G
-  dcb $70,$88,$f8,$88,$88 ; A
-  dcb $88,$d8,$a8,$88,$88 ; M
-  dcb $f8,$80,$f0,$80,$f8 ; E
-  dcb $00,$00,$00,$00,$00 ; space
+chars = [
+    $70,$80,$98,$88,$70 ; G
+    $70,$88,$f8,$88,$88 ; A
+    $88,$d8,$a8,$88,$88 ; M
+    $f8,$80,$f0,$80,$f8 ; E
+    $00,$00,$00,$00,$00 ; space
 
-  dcb $70,$88,$88,$88,$70 ; O
-  dcb $88,$88,$50,$50,$20 ; V
-  dcb $f8,$80,$f0,$80,$f8 ; E
-  dcb $f0,$88,$f0,$90,$88 ; R
-  dcb $20,$20,$20,$00,$20 ; !
+    $70,$88,$88,$88,$70 ; O
+    $88,$88,$50,$50,$20 ; V
+    $f8,$80,$f0,$80,$f8 ; E
+    $f0,$88,$f0,$90,$88 ; R
+    $20,$20,$20,$00,$20 ; !
 
-  dcb $f0,$88,$f0,$88,$f0 ; B
-  dcb $70,$88,$80,$88,$70 ; C
-  dcb $f0,$88,$88,$88,$f0 ; D
-  dcb $f8,$80,$f0,$80,$80 ; F
-  dcb $88,$88,$f8,$88,$88 ; H
+    $f0,$88,$f0,$88,$f0 ; B
+    $70,$88,$80,$88,$70 ; C
+    $f0,$88,$88,$88,$f0 ; D
+    $f8,$80,$f0,$80,$80 ; F
+    $88,$88,$f8,$88,$88 ; H
 
-  dcb $70,$20,$20,$20,$70 ; I
-  dcb $7e,$08,$08,$48,$30 ; J
-  dcb $48,$50,$60,$50,$48 ; K
-  dcb $80,$80,$80,$80,$f0 ; L
-  dcb $88,$c8,$a8,$98,$88 ; N
+    $70,$20,$20,$20,$70 ; I
+    $7e,$08,$08,$48,$30 ; J
+    $48,$50,$60,$50,$48 ; K
+    $80,$80,$80,$80,$f0 ; L
+    $88,$c8,$a8,$98,$88 ; N
+]
 `;
 
     var dest = [];
@@ -83,7 +84,8 @@ chars:
 
 // add: and, jmp (endless loop), cmp, beq, bit, txa, bpl, bcs, sbc, nop, (add,x), lsr, dex, sec
     var lines = source.split("\n");
-    for (var line of lines) {
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
         var tokens = line.trim().split(" ");
         if (tokens[0] == "var") {
             dest.push("define " + tokens[1] + " $" + vars++);
@@ -135,8 +137,17 @@ chars:
         } else if (tokens[0].endsWith("--")) {
             dest.push("  dec " + tokens[0].replace("--", ""));
         } else if (tokens[1] == "=") {
-            dest.push("  lda " + tokens[2] + (tokens[4] ? "," + tokens[4] : ""));
-            dest.push("  sta " + tokens[0]);
+            if (tokens[2] == "[") {
+                dest.push(tokens[0] + ":");
+                while (true) {
+                    line = lines[++i].trim();
+                    if (line == "]") break;
+                    dest.push(line ? "  dcb " + line : "");
+                }
+            } else {
+                dest.push("  lda " + tokens[2] + (tokens[4] ? "," + tokens[4] : ""));
+                dest.push("  sta " + tokens[0]);
+            }
         } else if (tokens[3] == "=") {
             dest.push("  st" + tokens[4] + " " + tokens[0] + "," + tokens[2]);
         } else if (tokens[1] == "+=") {

@@ -1,7 +1,7 @@
 (function () {
     // converts JS-like code to 6502 asm
     // for https://skilldrick.github.io/easy6502/simulator
-    var source = `; print 5x5 font
+    const source = `; print 5x5 font
 const width = $05
 const height = $05
 const nextrow = $20
@@ -43,7 +43,7 @@ printChar() {
         a = #color
         for y = #$00 to #width {
             rotateleft pixels
-            if c != 0 {
+            if c == 1 {
                 (screen) + y = a
             }
         }
@@ -51,7 +51,7 @@ printChar() {
     }
 }
 
-chars = [
+const chars = [
     $70,$80,$98,$88,$70 ; G
     $70,$88,$f8,$88,$88 ; A
     $88,$d8,$a8,$88,$88 ; M
@@ -85,8 +85,8 @@ chars = [
 // add: and, jmp (endless loop), cmp, beq, bit, txa, bpl, bcs, sbc, nop, (add,x), lsr, dex, sec
     var lines = source.split("\n");
     for (var i = 0; i < lines.length; i++) {
-        var line = lines[i];
-        var tokens = line.trim().split(" ");
+        var line = lines[i].trim();
+        var tokens = line.split(" ");
         if (tokens[0] == "var") {
             dest.push("define " + tokens[1] + " $" + vars++);
             if (tokens[2] == "=") {
@@ -94,7 +94,16 @@ chars = [
                 dest.push("  sta " + tokens[1]);
             }
         } else if (tokens[0] == "const") {
-            dest.push(line.replace("const", "define").replace(" =", ""));
+            if (tokens[3] == "[") {
+                dest.push(tokens[1] + ":");
+                while (true) {
+                    line = lines[++i].trim();
+                    if (line == "]") break;
+                    dest.push(line ? "  dcb " + line : "");
+                }
+            } else {
+                dest.push(line.replace("const", "define").replace(" =", ""));
+            }
         } else if (tokens[0] == "break") {
             dest.push("  brk");
         } else if (tokens[0].match(/^[axy]$/)) {
@@ -126,7 +135,7 @@ chars = [
                           "  bne " + label);
             }
         } else if (tokens[0] == "if") {
-            if (tokens[1] == "c" && tokens[2] == "!=" && tokens[3] == "0") {
+            if (tokens[1] == "c" && tokens[2] == "==" && tokens[3] == "1") {
                 dest.push("  bcc onCC");
                 cmds.push("onCC:");
             }
@@ -137,17 +146,8 @@ chars = [
         } else if (tokens[0].endsWith("--")) {
             dest.push("  dec " + tokens[0].replace("--", ""));
         } else if (tokens[1] == "=") {
-            if (tokens[2] == "[") {
-                dest.push(tokens[0] + ":");
-                while (true) {
-                    line = lines[++i].trim();
-                    if (line == "]") break;
-                    dest.push(line ? "  dcb " + line : "");
-                }
-            } else {
-                dest.push("  lda " + tokens[2] + (tokens[4] ? "," + tokens[4] : ""));
-                dest.push("  sta " + tokens[0]);
-            }
+            dest.push("  lda " + tokens[2] + (tokens[4] ? "," + tokens[4] : ""));
+            dest.push("  sta " + tokens[0]);
         } else if (tokens[3] == "=") {
             dest.push("  st" + tokens[4] + " " + tokens[0] + "," + tokens[2]);
         } else if (tokens[1] == "+=") {

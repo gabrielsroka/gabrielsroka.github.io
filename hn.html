@@ -41,7 +41,7 @@ a:visited {
 var ids;
 var start = 0;
 var n = 1;
-var seen = [];
+var seen = {};
 
 const pageLen = 30;
 const baseUrl = "https://hacker-news.firebaseio.com/v0"; // see https://github.com/HackerNews/API
@@ -53,7 +53,7 @@ prev.onclick = () => {
     getItems();
 };
 next.onclick = getItems;
-if (!localStorage.seen) localStorage.seen = "[]";
+if (!localStorage.seen) localStorage.seen = "{}";
 
 fetch(baseUrl + "/topstories.json")
 .then(response => response.json())
@@ -109,17 +109,24 @@ function getItems() {
     } else {
         content.innerHTML = "<ol id=ol></ol>";
     }
+    var now = new Date().getTime();
     var newSeen = JSON.parse(localStorage.seen);
-    seen.forEach(item => {if (!newSeen.includes(item)) newSeen.push(item)});
+    for (var item in seen) {
+        if (!newSeen[item]) newSeen[item] = now;
+    }
+    const sevenDays = 1000 * 3600 * 24 * 7;
+    for (var item in newSeen) {
+        if (now - newSeen[item] > sevenDays) delete newSeen[item];
+    }
     localStorage.seen = JSON.stringify(newSeen);
-    itemsSeen.innerHTML = newSeen.length + " seen";
-    seen = [];
+    itemsSeen.innerHTML = Object.keys(newSeen).length + " seen";
+    seen = {};
     var unseenIds = [];
-    ids.forEach(id => {if (!newSeen.includes(id)) unseenIds.push(id)});
+    ids.forEach(id => {if (!newSeen[id]) unseenIds.push(id)});
     ids = unseenIds;
     for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
-        seen.push(ids[i]);
-        if (!newSeen.includes(ids[i])) {
+        seen[ids[i]] = now;
+        if (!newSeen[ids[i]]) {
             fetch(`${baseUrl}/item/${ids[i]}.json`)
             .then(response => response.json())
             .then(showItem);

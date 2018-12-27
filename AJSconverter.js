@@ -2,13 +2,13 @@
     // converts JavaScript to 6502 asm
     // for https://skilldrick.github.io/easy6502/simulator
     function source () {
-        const width = $05
-        const height = $05
-        const nextrow = $20
-        const offset = $21 // down 1 px, right 1 px
-        const charspacing = $66 // $20 * $03 + $06 == nextrow * (8 - height) + (width + 1)
-        const screenStartHi = $02 // $0200 to $05ff, 32 px * 32 px, 4 pages each 8 px tall
-        const color = $0a // red
+        const width = 0x05
+        const height = 0x05
+        const nextrow = 0x20
+        const offset = 0x21 // nextrow + 1, down 1 px, right 1 px
+        const charspacing = 0x66 // 0x20 * 0x03 + 0x06 == nextrow * (8 - height) + (width + 1)
+        const screenStartHi = 0x02 // 0x0200 to 0x05ff, 32 px * 32 px, 4 pages each 8 px tall
+        const color = 0x0a // red
 
         var screen // lo
         var page = screenStartHi // hi
@@ -20,8 +20,8 @@
         main()
 
         function main() {
-            x = $00 // index to chars
-            for (iLine = $04; iLine > $00; iLine--) {
+            x = 0x00 // index to chars
+            for (iLine = 0x04; iLine > 0x00; iLine--) {
                 printLine()
                 page++
             }
@@ -29,7 +29,7 @@
 
         function printLine() {
             screen = offset
-            for (iChar = $05; iChar > $00; iChar--) {
+            for (iChar = 0x05; iChar > 0x00; iChar--) {
                 printChar()
                 iChars += height
                 screen += charspacing
@@ -40,8 +40,8 @@
             for (x = x; x < iChars; x++) {
                 pixels = chars [x]
                 a = color
-                for (y = $00; y < width; y++) {
-                    c = pixels << 1
+                for (y = 0x00; y < width; y++) {
+                    pixels <<= 1 // sets c
                     if (c == 1) {
                         indirect(screen + y) = a
                     }
@@ -51,29 +51,29 @@
         }
 
         const chars = [
-            $70,$80,$98,$88,$70, // G
-            $70,$88,$f8,$88,$88, // A
-            $88,$d8,$a8,$88,$88, // M
-            $f8,$80,$f0,$80,$f8, // E
-            $00,$00,$00,$00,$00, // space
+            0x70,0x80,0x98,0x88,0x70, // G
+            0x70,0x88,0xf8,0x88,0x88, // A
+            0x88,0xd8,0xa8,0x88,0x88, // M
+            0xf8,0x80,0xf0,0x80,0xf8, // E
+            0x00,0x00,0x00,0x00,0x00, // space
 
-            $70,$88,$88,$88,$70, // O
-            $88,$88,$50,$50,$20, // V
-            $f8,$80,$f0,$80,$f8, // E
-            $f0,$88,$f0,$90,$88, // R
-            $20,$20,$20,$00,$20, // !
+            0x70,0x88,0x88,0x88,0x70, // O
+            0x88,0x88,0x50,0x50,0x20, // V
+            0xf8,0x80,0xf0,0x80,0xf8, // E
+            0xf0,0x88,0xf0,0x90,0x88, // R
+            0x20,0x20,0x20,0x00,0x20, // !
 
-            $f0,$88,$f0,$88,$f0, // B
-            $70,$88,$80,$88,$70, // C
-            $f0,$88,$88,$88,$f0, // D
-            $f8,$80,$f0,$80,$80, // F
-            $88,$88,$f8,$88,$88, // H
+            0xf0,0x88,0xf0,0x88,0xf0, // B
+            0x70,0x88,0x80,0x88,0x70, // C
+            0xf0,0x88,0x88,0x88,0xf0, // D
+            0xf8,0x80,0xf0,0x80,0x80, // F
+            0x88,0x88,0xf8,0x88,0x88, // H
 
-            $70,$20,$20,$20,$70, // I
-            $7e,$08,$08,$48,$30, // J
-            $48,$50,$60,$50,$48, // K
-            $80,$80,$80,$80,$f0, // L
-            $88,$c8,$a8,$98,$88, // N
+            0x70,0x20,0x20,0x20,0x70, // I
+            0x7e,0x08,0x08,0x48,0x30, // J
+            0x48,0x50,0x60,0x50,0x48, // K
+            0x80,0x80,0x80,0x80,0xf0, // L
+            0x88,0xc8,0xa8,0x98,0x88, // N
         ]
     }
 
@@ -88,7 +88,7 @@
 
 // TODO: use 0xFF instead of $FF ?
 // TODO: add: and, jmp (endless loop), cmp, beq, bit, txa, bpl, bcs, sbc, nop, (add,x), lsr, dex, sec
-    var lines = source.toString().split("\n");
+    var lines = source.toString().replace(/0x/g, "$").split("\n");
     for (var i = 1; i < lines.length; i++) {
         var line = lines[i].trim();
         var tokens = line.split(" ");
@@ -114,8 +114,8 @@
             dest.push("  brk");
         } else if (tokens[0].match(/^[axy]$/)) {
             dest.push("  ld" + tokens[0] + " " + isConst(tokens[2]));
-        } else if (tokens[3] == "<<") {
-            dest.push("  rol " + tokens[2]);
+        } else if (tokens[1] == "<<=") {
+            dest.push("  rol " + tokens[0]);
         } else if (tokens[0] == "function") {
             dest.push(tokens[1].replace("()", "") + ":");
             cmds.push("  rts");

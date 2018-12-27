@@ -41,8 +41,8 @@
                 pixels = chars [x]
                 a = color
                 for (y = 0x00; y < width; y++) {
-                    pixels <<= 1 // sets c
-                    if (c == 1) {
+                    pixels <<= 1 // sets c = pixels & 0x80
+                    if (c == 1) { // carry flag
                         indirect(screen + y) = a
                     }
                 }
@@ -86,7 +86,6 @@
         return (consts.includes(s) || s[0] == "$") ? "#" + s : s;
     }
 
-// TODO: use 0xFF instead of $FF ?
 // TODO: add: and, jmp (endless loop), cmp, beq, bit, txa, bpl, bcs, sbc, nop, (add,x), lsr, dex, sec
     var lines = source.toString().replace(/0x/g, "$").split("\n");
     for (var i = 1; i < lines.length; i++) {
@@ -114,8 +113,6 @@
             dest.push("  brk");
         } else if (tokens[0].match(/^[axy]$/)) {
             dest.push("  ld" + tokens[0] + " " + isConst(tokens[2]));
-        } else if (tokens[1] == "<<=") {
-            dest.push("  rol " + tokens[0]);
         } else if (tokens[0] == "function") {
             dest.push(tokens[1].replace("()", "") + ":");
             cmds.push("  rts");
@@ -165,6 +162,8 @@
             dest.push("  clc");
             dest.push("  adc " + tokens[0]);
             dest.push("  sta " + tokens[0]);
+        } else if (tokens[1] == "<<=") {
+            dest.push("  rol " + tokens[0]);
         } else { // misc or error
             dest.push(line);
         }

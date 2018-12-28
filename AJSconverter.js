@@ -8,11 +8,13 @@
         const offset = 0x21 // nextrow + 1, down 1 px, right 1 px
         const charspacing = 0x66 // 0x20 * 0x03 + 0x06 == nextrow * (8 - height) + (width + 1)
         const screenStartHi = 0x02 // 0x0200 to 0x05ff, 32 px * 32 px, 4 pages each 8 px tall
-        const color = 0x0a // red
+        const bgColor = 0x01 // white
+        const fgColor = 0x00 // black
+        const pages = 0x04
 
         var screen // lo
-        var page = screenStartHi // hi
-        var iChars = height
+        var page   // hi
+        var iChars
         var iLine
         var iChar
         var pixels
@@ -20,6 +22,24 @@
         main()
 
         function main() {
+            clearScreen()
+            printMessage()
+        }
+
+        function clearScreen() {
+            page = screenStartHi
+            a = bgColor
+            for (x = pages; x > 0x00; x--) {
+                for (y = 0x00; y < 0x00; y++) {
+                    indirect(screen + y) = a
+                }
+                page++
+            }
+        }
+
+        function printMessage() {
+            page = screenStartHi
+            iChars = height
             x = 0x00 // index to chars
             for (iLine = 0x04; iLine > 0x00; iLine--) {
                 printLine()
@@ -39,7 +59,7 @@
         function printChar() {
             for (x = x; x < iChars; x++) {
                 pixels = chars [x]
-                a = color
+                a = fgColor
                 for (y = 0x00; y < width; y++) {
                     pixels <<= 1 // sets c = pixels & 0x80
                     if (c == 1) { // carry flag
@@ -81,6 +101,7 @@
     var cmds = [];
     var consts = [];
     var vars = 0;
+    var fnName;
 
     function isConst(s) {
         return (consts.includes(s) || s[0] == "$") ? "#" + s : s;
@@ -114,7 +135,9 @@
         } else if (tokens[0].match(/^[axy]$/)) {
             dest.push("  ld" + tokens[0] + " " + isConst(tokens[2]));
         } else if (tokens[0] == "function") {
-            dest.push(tokens[1].replace("()", "") + ":");
+            fnName = tokens[1].replace("()", "");
+            dest.push(fnName + ":");
+            fnName = fnName[0].toUpperCase() + fnName.substring(1);
             cmds.push("  rts");
         } else if (tokens[0].startsWith("indirect")) {
             dest.push("  st" + tokens[4] + " " + tokens[0].substring(8) + ")," + tokens[2][0]);
@@ -125,16 +148,17 @@
             }
         } else if (tokens[0] == "for") {
             let forVar = tokens[1].substring(1);
-            let label = forVar + "Loop";
+            let label = forVar + "Loop" + fnName;
             let init = tokens[3].substring(0, tokens[3].length - 1);
             let cond = tokens[6].substring(0, tokens[6].length - 1);
+            let iter = tokens[7].match(/\+\+/) ? "in" : "de";
             if (forVar.match(/^[xy]$/)) {
                 if (forVar != init) {
                     dest.push("  ld" + forVar + " #" + init);
                 }
                 dest.push(label + ":");
-                cmds.push("  in" + forVar + "\n" +
-                          "  cp" + forVar + " " + isConst(cond) + "\n" +
+                cmds.push("  " + iter + forVar + "\n" +
+                          (cond == "$00" ? "" : "  cp" + forVar + " " + isConst(cond) + "\n") +
                           "  bne " + label);
             } else {
                 dest.push("  lda " + isConst(init));

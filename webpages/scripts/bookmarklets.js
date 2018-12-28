@@ -2,7 +2,7 @@
 /// <reference path="js.js" />
 
 // Bookmarklets and JavaScript Editor
-// Copyright 2007-2014 Gabriel Sroka
+// Copyright 2007-2019 Gabriel Sroka
 
 var codeId = "code";
 var debug;
@@ -58,7 +58,7 @@ onresize = function () {
 function editor() {
     var div = document.body.appendChild(document.createElement("div"));
     div.id = "hEdit";
-    var android = navigator.userAgent.contains("Android");
+    var android = navigator.userAgent.match("Android");
     function accesskey(k) {
         return (android ? k : '<span class="u">' + k + '</span>');
     }

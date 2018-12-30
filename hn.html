@@ -27,7 +27,7 @@ a:visited {
 <body>
 <header><a href="https://news.ycombinator.com">Hacker News</a></header>
 <main>
-<div id=content></div>
+<div id=contents></div>
 </main>
 <nav>
 <span id=prev>Prev</span> | <span id=next>Next</span>
@@ -92,7 +92,7 @@ function getItems() {
             ln2 = `${ago} | ${anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"))}`;
         }
         if (small) {
-            content.innerHTML += `<div class=item>${ln1}<br>${ln2}</div>`;
+            contents.innerHTML += `<div class=item>${ln1}<br>${ln2}</div>`;
         } else {
             ol.innerHTML += `<li class=item value=${n++}>${ln1}<br>${pts} ${by} ${ln2}</li>`;
         }
@@ -105,9 +105,9 @@ function getItems() {
     }
     var small = location.search.match("small");
     if (small) {
-        content.innerHTML = "<br>";
+        contents.innerHTML = "<br>";
     } else {
-        content.innerHTML = "<ol id=ol></ol>";
+        contents.innerHTML = "<ol id=ol></ol>";
     }
     var now = new Date().getTime();
     var newSeen = JSON.parse(localStorage.seen);

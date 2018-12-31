@@ -27,16 +27,19 @@ a:visited {
 <body>
 <header><a href="https://news.ycombinator.com">Hacker News</a></header>
 <main>
+<div id=loading></div>
 <div id=contents></div>
 </main>
 <nav>
-<span id=prev>Prev</span> | <span id=next>Next</span>
+<a id=prev>Prev</a> | <a id=next>Next</a>
 <br><br>
 <a href="hn.html">Default</a> | <a href="hn.html?small">Small</a>
+</nav>
 <br><br>
+<footer>
 <span id=itemsSeen></span>
 <br><br><br><br>
-</nav>
+</footer>
 <script>
 var ids;
 var start = 0;
@@ -91,6 +94,7 @@ function getItems() {
             by = `by ${anc(`${hnBaseUrl}/user?id=${item.by}`, item.by)}`;
             ln2 = `${ago} | ${anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"))}`;
         }
+        loading.innerHTML = "";
         if (small) {
             contents.innerHTML += `<div class=item>${ln1}<br>${ln2}</div>`;
         } else {
@@ -103,6 +107,7 @@ function getItems() {
     function plu(n, s) {
         return n + " " + (n == 1 ? s : s + "s");
     }
+    loading.innerHTML = "<br>Loading...";
     var small = location.search.match("small");
     if (small) {
         contents.innerHTML = "<br>";

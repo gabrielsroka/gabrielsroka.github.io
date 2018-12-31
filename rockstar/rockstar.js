@@ -18,7 +18,7 @@
         alert("To install rockstar, open your bookmark toolbar, then drag and drop it.");
         return;
     }
-    if (location.pathname.startsWith("/api/") || location.pathname.startsWith("/oauth2/")) {
+    if (location.pathname.match("^/(api|oauth2|\\.well-known)/")) {
         formatAPI();
     } else if (location.host.match(/-admin/)) { // Admin pages
         mainPopup = createPopup("rockstar");
@@ -496,8 +496,8 @@
         let s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
         if (objects.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
         if (objects.length) { // It's an array.
-            document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #fafafa;} " +
-                "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #09f; text-align: left;}</style>";
+            document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #f9f9f9;} " +
+                "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #f2f2f2; text-align: left;}</style>";
             document.body.innerHTML = formatObj(objects, location.pathname) + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>";
         } else {
             pre.innerHTML = s;

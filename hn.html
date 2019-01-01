@@ -107,7 +107,6 @@ function getItems() {
     function plu(n, s) {
         return n + " " + (n == 1 ? s : s + "s");
     }
-    loading.innerHTML = "<br>Loading...";
     var small = location.search.match("small");
     if (small) {
         contents.innerHTML = "<br>";
@@ -137,6 +136,7 @@ function getItems() {
             .then(showItem);
         }
     }
+    loading.innerHTML = ids.length ? "<br>Loading..." : "<br>No more";
     start = i;
 }
 </script>

@@ -5,18 +5,79 @@
 <meta name="google-site-verification" content="llJkMddN4cdVHVOHWmomAx7oSBqj6wU00IUhE4tIUVo" />
 <title>Gabriel Sroka</title>
 <link href="/main.css" rel="stylesheet">
+<style>
+body {
+    width: 800px;
+    margin: auto;
+}
+h1 {
+    background-color: black;
+    color: white;
+    padding: 10px;
+}
+main {
+    width: 90%;
+    margin: auto;
+}
+.box {
+    border: 1px solid;
+    padding: 6px;
+    text-align: center;
+    float: left;
+    width: 28%;
+    margin: 10px;
+}
+.button {
+    padding: 6px;
+    margin: 12px;
+    background-color: black;
+    color: white;
+    display: block;
+    font-weight: bold;
+}
+.button:hover {
+    background-color: #444;
+}
+footer {
+    background-color: black;
+    color: white;
+    padding: 6px;
+    text-align: right;
+}
+
+/* < 800px */
+@media (max-width: 800px) {
+    body {
+        width: auto;
+    }
+    .box {
+        float: none;
+        width: 210px;
+    }
+}
+</style>
 </head>
 <body>
+<header>
 <h1>Gabriel Sroka</h1>
-<h2>Bookmarklets</h2>
-<p><a href="/rockstar/">rockstar</a> - Export Okta Users, Groups, etc. to CSV. Show SAML assertion. Etc.</p>
-<p><a href="/showSSO.html">Show SSO</a></p>
-<p><a href="/exportObjects.html">Export Objects</a></p>
+</header>
+<main>
+<h2>Tools</h2>
+<div class=box>Export Okta Users, Groups, etc. to CSV. Show SAML assertion.
+<a href="/rockstar/" class=button>rockstar</a></div>
+<div class=box>Okta PowerShell Module (unofficial). Call Okta API from PowerShell.
+<a href="https://github.com/gabrielsroka/OktaAPI.psm1" class=button>Okta API</a></div>
+<div class=box>Export Okta Users, Groups, etc. to CSV. (this is the older version)
+<a href="/exportObjects.html" class=button>Export Objects</a></div>
 <br>
 <h2>Links</h2>
 <p><a href="/webpages/bookmarklets.htm">Bookmarklet Editor</a></p>
 <p><a href="https://github.com/gabrielsroka/gabrielsroka.github.io">GitHub</a></p>
 <p><a href="/hn.html">Hacker News</a></p>
 <p><a href="/webpages/">Webpages</a></p>
+</main>
+<footer>
+Copyright &copy; 2019
+</footer>
 </body>
 </html>

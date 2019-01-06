@@ -6,6 +6,7 @@
 <title>Gabriel Sroka</title>
 <link href="/main.css" rel="stylesheet">
 <style>
+/* (width > 800px) : flex */
 body {
     width: 800px;
     margin: auto;
@@ -19,12 +20,13 @@ main {
     width: 90%;
     margin: auto;
 }
+.container {
+    display: flex;
+}
 .box {
     border: 1px solid;
     padding: 6px;
     text-align: center;
-    float: left;
-    width: 28%;
     margin: 10px;
 }
 .button {
@@ -43,6 +45,7 @@ footer {
     color: white;
     padding: 6px;
     text-align: right;
+    font-size: .9em;
 }
 
 /* < 800px */
@@ -50,9 +53,13 @@ footer {
     body {
         width: auto;
     }
-    .box {
-        float: none;
-        width: 210px;
+    h1 {
+        margin: 0;
+    }
+    .container {
+        display: block;
+        margin: auto;
+        width: 240px;
     }
 }
 </style>
@@ -63,13 +70,14 @@ footer {
 </header>
 <main>
 <h2>Tools</h2>
+<div class=container>
 <div class=box>Export Okta Users, Groups, etc. to CSV. Show SAML assertion.
 <a href="/rockstar/" class=button>rockstar</a></div>
 <div class=box>Okta PowerShell Module (unofficial). Call Okta API from PowerShell.
 <a href="https://github.com/gabrielsroka/OktaAPI.psm1" class=button>Okta API</a></div>
 <div class=box>Export Okta Users, Groups, etc. to CSV. (this is the older version)
 <a href="/exportObjects.html" class=button>Export Objects</a></div>
-<br>
+</div>
 <h2>Links</h2>
 <p><a href="/webpages/bookmarklets.htm">Bookmarklet Editor</a></p>
 <p><a href="https://github.com/gabrielsroka/gabrielsroka.github.io">GitHub</a></p>

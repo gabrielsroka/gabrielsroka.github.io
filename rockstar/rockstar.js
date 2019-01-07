@@ -1,14 +1,14 @@
 (function () {
     // What does rockstar do?
-    // People page: enhanced search, Export Users menu
-    // Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles
-    // Administrators page: Export Admins
-    // Events: Expand All and Expand Each Row
-    // Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, Zones, ...
-    // User home page: Show SSO (SAML assertion, etc)
-    // API: Pretty Print JSON
-    // SU Orgs & Org Users: enhanced search
-    // Many: enhanced menus
+    //   Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, Zones, ...
+    //   Administrators page: Export Admins
+    //   User home page: Show SSO (SAML assertion, etc)
+    //   People page: enhanced search, Export Users menu
+    //   Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles
+    //   Events: Expand All and Expand Each Row
+    //   API: Pretty Print JSON
+    //   SU Orgs & Org Users: enhanced search
+    //   Many: enhanced menus
     // and more to come...
 
     var mainPopup;
@@ -443,7 +443,7 @@
         createA("API Explorer", mainPopup).click(function () {
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
-            form.innerHTML = "<input id=url list=apilist>"; // hack: input.list is read-only, must set it at create time. :(
+            form.innerHTML = "<input id=url list=apilist>"; // HACK: input.list is read-only, must set it at create time. :(
             url.style.width = "700px";
             url.placeholder = "URL";
             url.focus();
@@ -457,12 +457,11 @@
             form.onsubmit = function () {
                 $(results).html("<br>Loading ...");
                 $.getJSON(url.value).then((objects, status, jqXHR) => {
-                    // maybe show X-Rate-Limit-* headers, too.
-                    var links = jqXHR.getResponseHeader("Link") || "";
+                    var links = jqXHR.getResponseHeader("Link") || ""; // TODO: maybe show X-Rate-Limit-* headers, too.
                     if (links) links = "Headers<br><table><tr><td>Link<td>" + links.replace(/</g, "&lt;").replace(/, /, "<br>") + "</table><br>";
                     var s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
                     $(results).html("<br>" + links + (objects.length ? formatObj(objects, url.value) : "") + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + url.value + '/$1">$1</a>"') + "</pre>");
-                });
+                }).fail((jqXHR, textStatus, errorThrown) => $(results).html("<br>Error: " + jqXHR.responseJSON.errorSummary));
                 return false; // cancel form submit
             };
         });

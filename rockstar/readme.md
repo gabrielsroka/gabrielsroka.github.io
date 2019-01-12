@@ -19,3 +19,6 @@
 5. Drag the "rockstar" folder to the Chrome Extensions tab.
 
 see also https://gabrielsroka.github.io/rockstar
+
+# Greasemonkey script
+https://gabrielsroka.github.io/rockstar/rockstar.user.js

@@ -330,15 +330,6 @@
                 downloadCSV(exportPopup, total + " " + objectType + ". ", lines, `Export ${objectType}`);
             }
         }
-        function getLinks(headers) {
-            headers = headers.split(", ");
-            var links = {};
-            for (var i = 0; i < headers.length; i++) {
-                var [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
-                links[name] = url;
-            }
-            return links;
-        }
         function getAppId() {
             var path = location.pathname;
             var pathparts = path.split('/');
@@ -450,21 +441,56 @@
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
             datalist.innerHTML = "apps,events,groups,idps,logs,sessions/me,users,users/me,zones".split(',').map(a => `<option>/api/v1/${a}`).join("");
-            var input = form.appendChild(document.createElement("input"));
-            input.type = "submit";
-            input.value = "Explore";
+            var send = form.appendChild(document.createElement("input"));
+            send.type = "submit";
+            send.value = "Send";
             var results = form.appendChild(document.createElement("div"));
             form.onsubmit = function () {
                 $(results).html("<br>Loading ...");
                 $.getJSON(url.value).then((objects, status, jqXHR) => {
-                    var links = jqXHR.getResponseHeader("Link") || ""; // TODO: maybe show X-Rate-Limit-* headers, too.
-                    if (links) links = "Headers<br><table><tr><td>Link<td>" + links.replace(/</g, "&lt;").replace(/, /, "<br>") + "</table><br>";
+                    $(results).html("<br>");
+                    var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
+                    if (linkHeader) {
+                        $(results).html("<br>Headers<br><table><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /, "<br>") + "</table><br>");
+                        var links = getLinks(linkHeader);
+                        if (links.next) {
+                            var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+                            nextUrl = nextUrl.pathname + nextUrl.search;
+                        }
+                    }
                     var s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
-                    $(results).html("<br>" + links + (objects.length ? formatObj(objects, url.value) : "") + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + url.value + '/$1">$1</a>"') + "</pre>");
-                }).fail((jqXHR, textStatus, errorThrown) => $(results).html("<br>Error: " + jqXHR.responseJSON.errorSummary));
+                    var pathname = url.value.split('?')[0];
+                    if (objects.length) {
+                        var table = formatObj(objects, pathname);
+                        $(results).append(table.header);
+                        if (nextUrl) {
+                            $("<a>Next ></a>").click(() => {
+                                url.value = nextUrl;
+                                send.click();
+                            }).appendTo(results);
+                        }
+                        $(results).append("<br>" + table.body + formatPre(s, pathname));
+                    } else {
+                        $(results).append(formatPre(s, pathname));
+                    }
+                }).fail((jqXHR) => $(results).html("<br>Error: " + jqXHR.responseJSON.errorSummary));
                 return false; // cancel form submit
             };
         });
+    }
+    function formatAPI() {
+        let pre = document.getElementsByTagName("pre")[0]; // Don't use jQuery.
+        let objects = JSON.parse(pre.innerHTML);
+        let s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
+        if (objects.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
+        if (objects.length) { // It's an array.
+            document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #f9f9f9;} " +
+                "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #f2f2f2; text-align: left;}</style>";
+            var table = formatObj(objects, location.pathname);
+            document.body.innerHTML = table.header + table.body + formatPre(s, location.pathname);
+        } else {
+            pre.innerHTML = s;
+        }
     }
     function formatObj(o, url) {
         let len = "(length: " + o.length + ")\n\n";
@@ -482,25 +508,15 @@
             }
             rows.push("<tr>" + tds.join(""));
         });
-        return "<div id=table><b>Table</b> <a href=#json>JSON</a><br><br>" + len + "</div><br>" +
-            "<table class='data-list-table' style='border: 1px solid #ddd;'>" + linkify(rows.join("")) + "</table><br>" +
-            "<div id=json><a href=#table>Table</a> <b>JSON</b></div><br>" + len;
+        return {header: "<span id=table><b>Table</b> <a href=#json>JSON</a><br><br>" + len + "</span>",
+            body: "<br><table class='data-list-table' style='border: 1px solid #ddd;'>" + linkify(rows.join("")) + "</table><br>" +
+            "<div id=json><a href=#table>Table</a> <b>JSON</b></div><br>" + len};
+    }
+    function formatPre(s, url) {
+        return "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + url + '/$1">$1</a>"') + "</pre>";
     }
     function linkify(s) {
         return s.replace(/"(https.*)"/g, '"<a href="$1">$1</a>"');
-    }
-    function formatAPI() {
-        let pre = document.getElementsByTagName("pre")[0]; // Don't use jQuery.
-        let objects = JSON.parse(pre.innerHTML);
-        let s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
-        if (objects.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
-        if (objects.length) { // It's an array.
-            document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #f9f9f9;} " +
-                "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #f2f2f2; text-align: left;}</style>";
-            document.body.innerHTML = formatObj(objects, location.pathname) + "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + location.pathname + '/$1">$1</a>"') + "</pre>";
-        } else {
-            pre.innerHTML = s;
-        }
     }
     function tryAPI() {
         var baseUrl = $(".okta-preview-domain")[0].innerText;
@@ -583,6 +599,15 @@
     }
     function createA(html, parent) {
         return $(`<div><a style='cursor: pointer'>${html}</a></div>`).appendTo(parent);
+    }
+    function getLinks(linkHeader) {
+        var headers = linkHeader.split(", ");
+        var links = {};
+        for (var i = 0; i < headers.length; i++) {
+            var [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
+            links[name] = url;
+        }
+        return links;
     }
     function searcher(object) { // TODO: Save search string in location.hash # in URL. Reload from there.
         function searchObjects() {

@@ -34,8 +34,8 @@
 
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
         $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
-        $("<li><a style='cursor: pointer'>Export Objects</a>").click(exportObjects).appendTo("#nav-admin-reports-2");
-        createA("Export Objects", mainPopup).click(exportObjects);
+        createPrefixA("<li>", "Export Objects", "#nav-admin-reports-2", exportObjects);
+        createDivA("Export Objects", mainPopup, exportObjects);
         apiExplorer();
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar");
@@ -57,7 +57,7 @@
 
     // Admin functions
     function directoryPeople() {
-        $("<li class=option><a><span class='icon download-16'></span>Export Users</a>").click(exportObjects).appendTo(".okta-dropdown-list");
+        createPrefixA("<li class=option>", "<span class='icon download-16'></span>Export Users", ".okta-dropdown-list", exportObjects);
         searcher({
             url: "/api/v1/users",
             data() {return {q: this.search, limit: this.limit};},
@@ -95,8 +95,8 @@
                         adPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`);
                     });
                 }
-                $(`<a style='cursor: pointer'>AD: ${user.credentials.provider.name}</a>`).click(showADs).appendTo(".subheader");
-                $("<li class=option><a><span class='icon directory-16'></span>Show ADs</a>").click(showADs).appendTo(".okta-dropdown-list");
+                createA("AD: " + user.credentials.provider.name, ".subheader", showADs);
+                createPrefixA("<li class=option>", "<span class='icon directory-16'></span>Show AD", ".okta-dropdown-list", showADs);
             }
         });
         function showUser() {
@@ -117,10 +117,10 @@
             var userPopup = createPopup("User");
             userPopup.html(`<span class='icon icon-24 group-logos-24 logo-${user.credentials.provider.type.toLowerCase()}'></span><pre>${toString(user)}</pre>`);
         }
-        createA("Show User", mainPopup).click(showUser);
-        $("<li class=option><a><span class='icon person-16-gray'></span>Show User</a>").click(showUser).appendTo(".okta-dropdown-list");
+        createDivA("Show User", mainPopup, showUser);
+        createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);
 
-        createA("Administrator Roles", mainPopup).click(function () {
+        createDivA("Administrator Roles", mainPopup, function () {
             var allRoles = [
                 {type: "SUPER_ADMIN", label: "Super"},
                 {type: "ORG_ADMIN", label: "Organization"},
@@ -138,7 +138,8 @@
                     if (roles.length == 0) {
                         rolesPopup.html("This user is not an admin.<br><br>");
                         allRoles.forEach(role => {
-                            createA(`Grant ${role.label} Administrator`, rolesPopup).click(function () {
+                            createDivA(`Grant ${role.label} Administrator`, rolesPopup, function () {
+                                rolesPopup.html("Loading...");
                                 var data = {
                                     type: role.type
                                 };
@@ -153,7 +154,8 @@
                         rolesPopup.html("");
                         roles.forEach(role => {
                             if (role.label == "User Administrator") role.label = "Group Administrator"; // not "User"
-                            createA(`Revoke ${role.label}`, rolesPopup).click(function () {
+                            createDivA(`Revoke ${role.label}`, rolesPopup, function () {
+                                rolesPopup.html("Loading...");
                                 // https://developer.okta.com/docs/api/resources/roles#unassign-role-from-user
                                 $.ajax({
                                     url: `/api/v1/users/${userId}/roles/${role.id}`,
@@ -172,7 +174,7 @@
         });
     }
     function securityAdministrators() {
-        createA("Export Administrators", mainPopup).click(function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
+        createDivA("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
             var adminsPopup = createPopup("Administrators");
             adminsPopup.html("Exporting ...");
             $.getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups").then(admins => {
@@ -231,11 +233,11 @@
         });
     }
     function systemLog() {
-        createA("Expand All", mainPopup).click(() => {
+        createDivA("Expand All", mainPopup, () => {
             $(".row-expander").each(function () {this.click()});
             $(".expand-all-details a").each(function () {this.click()});
         });
-        createA("Expand Each Row", mainPopup).click(() => {
+        createDivA("Expand Each Row", mainPopup, () => {
             $(".row-expander").each(function () {this.click()});
         });
     }
@@ -261,12 +263,12 @@
             startExport("Zones", "/api/v1/zones", "id,name,gateways", zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
         } else if (appId = getAppId()) {
             exportPopup = createPopup("Export");
-            createA("Export App Users", exportPopup).click(function () {
+            createDivA("Export App Users", exportPopup, function () {
                 exportPopup.parent().remove();
                 startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId", 
                     appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId));
             });
-            createA("Export App Groups", exportPopup).click(function () {
+            createDivA("Export App Groups", exportPopup, function () {
                 exportPopup.parent().remove();
                 // TODO: use /api/v1/apps/${appid}/groups?expand=group
                 startExport("App Groups", `/api/v1/apps/${appId}/groups`, "id,licenses,roles", appGroup => {
@@ -306,7 +308,7 @@
             objects.forEach(object => lines.push(template(object)));
             total += objects.length;
             exportPopup.html(total + " " + objectType + "...<br><br>");
-            createA("Cancel", exportPopup).click(() => cancel = true);
+            createDivA("Cancel", exportPopup, () => cancel = true);
             if (cancel) {
                 exportPopup.parent().remove();
                 return;
@@ -341,7 +343,7 @@
 
     // User functions
     function userHome() {
-        createA("Show SSO", mainPopup).click(function () {
+        createDivA("Show SSO", mainPopup, function () {
             var ssoPopup;
             var label = "Show SSO";
             var labels = document.getElementsByClassName("app-button-name");
@@ -431,7 +433,7 @@
 
     // API functions
     function apiExplorer() {
-        createA("API Explorer", mainPopup).click(function () {
+        createDivA("API Explorer", mainPopup, function () {
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
             form.innerHTML = "<input id=url list=apilist>"; // HACK: input.list is read-only, must set it at create time. :(
@@ -460,20 +462,20 @@
                     }
                     var s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
                     var pathname = url.value.split('?')[0];
-                    if (objects.length) {
+                    if (objects.length) { // It's an array.
                         var table = formatObj(objects, pathname);
                         $(results).append(table.header);
                         if (nextUrl) {
-                            $("<a>Next ></a>").click(() => {
+                            createA("Next >", results, () => {
                                 url.value = nextUrl;
                                 send.click();
-                            }).appendTo(results);
+                            });
                         }
                         $(results).append("<br>" + table.body + formatPre(s, pathname));
                     } else {
                         $(results).append(formatPre(s, pathname));
                     }
-                }).fail((jqXHR) => $(results).html("<br>Error: " + jqXHR.responseJSON.errorSummary));
+                }).fail(jqXHR => $(results).html("<br>Error: " + jqXHR.responseJSON.errorSummary));
                 return false; // cancel form submit
             };
         });
@@ -538,9 +540,9 @@
         $(".language-sh").each(function () {
             var get = $(this);
             var curl = get.text();
-            var ms;
-            if (ms = curl.match(/-X GET[^]*(https.*)"/)) { // [^] matches any character, including \n. `.` does not. The /s flag will fix this, eventually.
-                var url = ms[1].replace(/\\/g, "");
+            var matches;
+            if (matches = curl.match(/-X GET[^]*(https.*)"/)) { // [^] matches any character, including \n. `.` does not. The /s flag will fix this, eventually.
+                var url = matches[1].replace(/\\/g, "");
                 get.append(` <a href='${url}' target='_blank'>Try me -></a>`);
             }
         });
@@ -597,8 +599,14 @@
             `<a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br></div>`).appendTo(document.body);
         return $("<div></div>").appendTo(popup);
     }
-    function createA(html, parent) {
-        return $(`<div><a style='cursor: pointer'>${html}</a></div>`).appendTo(parent);
+    function createA(html, parent, clickHandler) {
+        createPrefixA("", html, parent, clickHandler);
+    }
+    function createPrefixA(prefix, html, parent, clickHandler) {
+        $(`${prefix}<a style='cursor: pointer'>${html}</a>`).appendTo(parent).click(clickHandler);
+    }
+    function createDivA(html, parent, clickHandler) {
+        $(`<div><a style='cursor: pointer'>${html}</a></div>`).appendTo(parent).click(clickHandler);
     }
     function getLinks(linkHeader) {
         var headers = linkHeader.split(", ");

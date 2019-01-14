@@ -6,15 +6,33 @@
 <title>Gabriel Sroka</title>
 <link href="/main.css" rel="stylesheet">
 <style>
-/* (width > 800px) : flex */
+/* Pseudocode:
+.container {
+    display: (width > 800px) ? flex : block;
+}
+*/
 body {
     width: 800px;
     margin: auto;
 }
-h1 {
+nav {
+    display: grid;
     background-color: black;
     color: white;
+}
+nav h1 {
     padding: 10px;
+}
+nav .burger-icon {
+    display: none;
+}
+nav li {
+    display: inline;
+    list-style-type: none;
+    padding: 10px;
+}
+nav a {
+    color: white;
 }
 main {
     width: 90%;
@@ -48,7 +66,7 @@ footer {
     font-size: .9em;
 }
 
-/* < 800px */
+/* <= 800px */
 @media (max-width: 800px) {
     body {
         width: auto;
@@ -61,13 +79,35 @@ footer {
         margin: auto;
         width: 240px;
     }
+    nav .burger-icon {
+        display: inline-block;
+        justify-self: end;
+        grid-column: 4/5;
+        padding: 10px;
+    }
+    nav ul {
+        display: none;
+        grid-column: 1/5;
+        text-align: center;
+    }    
+    nav a {
+        display: block;
+    }
 }
 </style>
 </head>
 <body>
-<header>
+<nav>
 <h1>Gabriel Sroka</h1>
-</header>
+<div class="burger-icon">=</div>
+<ul>
+<li><a href="/rockstar/">rockstar</a>
+<li><a href="/webpages/bookmarklets.htm">Editor</a>
+<li><a href="https://github.com/gabrielsroka/gabrielsroka.github.io">GitHub</a>
+<li><a href="/hn.html">Hacker News</a>
+<li><a href="/webpages/">Webpages</a>
+</ul>
+</nav>
 <main>
 <h2>Tools</h2>
 <div class=container>
@@ -78,14 +118,15 @@ footer {
 <div class=box>Export Okta Users, Groups, etc. to CSV. (this is the older version)
 <a href="/exportObjects.html" class=button>Export Objects</a></div>
 </div>
-<h2>Links</h2>
-<p><a href="/webpages/bookmarklets.htm">Bookmarklet Editor</a></p>
-<p><a href="https://github.com/gabrielsroka/gabrielsroka.github.io">GitHub</a></p>
-<p><a href="/hn.html">Hacker News</a></p>
-<p><a href="/webpages/">Webpages</a></p>
 </main>
 <footer>
 Copyright &copy; 2019
 </footer>
+<script>
+onload = () => {
+    var ul = document.querySelector("nav ul");
+    document.querySelector(".burger-icon").onclick = () => ul.style.display = ul.style.display == "" ? "block" : "";
+};
+</script>
 </body>
 </html>

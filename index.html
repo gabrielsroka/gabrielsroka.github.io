@@ -16,15 +16,21 @@ body {
     margin: auto;
 }
 nav {
-    display: grid;
     background-color: black;
     color: white;
 }
 nav h1 {
+    display: inline-block;
     padding: 10px;
+    margin: 0;
 }
 nav .burger-icon {
     display: none;
+}
+nav .menu {
+    padding: 0 10px 10px;
+    margin: 0;
+    text-align: center;
 }
 nav li {
     display: inline;
@@ -62,8 +68,9 @@ footer {
     background-color: black;
     color: white;
     padding: 6px;
+    margin-top: 10px;
     text-align: right;
-    font-size: .9em;
+    font-size: .8em;
 }
 
 /* <= 800px */
@@ -71,27 +78,21 @@ footer {
     body {
         width: auto;
     }
-    h1 {
-        margin: 0;
+    nav .burger-icon {
+        display: block;
+        float: right;
+        padding: 10px;
+    }
+    nav .menu {
+        display: none;
+    }    
+    nav a {
+        display: block;
     }
     .container {
         display: block;
         margin: auto;
         width: 240px;
-    }
-    nav .burger-icon {
-        display: inline-block;
-        justify-self: end;
-        grid-column: 4/5;
-        padding: 10px;
-    }
-    nav ul {
-        display: none;
-        grid-column: 1/5;
-        text-align: center;
-    }    
-    nav a {
-        display: block;
     }
 }
 </style>
@@ -100,7 +101,7 @@ footer {
 <nav>
 <h1>Gabriel Sroka</h1>
 <div class="burger-icon">=</div>
-<ul>
+<ul class=menu>
 <li><a href="/rockstar/">rockstar</a>
 <li><a href="/webpages/bookmarklets.htm">Editor</a>
 <li><a href="https://github.com/gabrielsroka/gabrielsroka.github.io">GitHub</a>
@@ -124,8 +125,8 @@ Copyright &copy; 2019
 </footer>
 <script>
 onload = () => {
-    var ul = document.querySelector("nav ul");
-    document.querySelector(".burger-icon").onclick = () => ul.style.display = ul.style.display == "" ? "block" : "";
+    var navMenu = document.querySelector("nav .menu");
+    document.querySelector(".burger-icon").onclick = () => navMenu.style.display = navMenu.style.display == "" ? "block" : "";
 };
 </script>
 </body>

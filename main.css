@@ -16,7 +16,18 @@ nav a {
     color: white;
     padding: 10px;
 }
+main {
+    width: 90%;
+    margin: auto;
+}
 a {
     text-decoration: none;
     color: black;
+}
+
+/* <= 800px */
+@media (max-width: 800px) {
+    body {
+        width: auto;
+    }
 }

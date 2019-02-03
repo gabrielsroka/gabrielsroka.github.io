@@ -34,37 +34,9 @@ button {
 var context = canvas.getContext("2d");
 var w, colors, tiles;
 
-onload = () => {
-    reset.onclick();
-    onresize();
-};
-
-function draw() {
-    var i = 0;
-    for (var y = 0; y < 8; y++) {
-        for (var x = 0; x < 8; x++) {
-            var c = tiles[i];
-            context.fillStyle = colors[c];
-            context.fillRect(x * w, y * w, w, w);
-            i++;
-        }
-    }
-}
-
-onclick = () => {
-    draw();
-};
-
-onresize = () => {
-    canvas.width = document.body.clientWidth;
-    canvas.height = canvas.width;
-    w = canvas.width / 8;
-    draw();
-};
-
-reset.onclick = () => {
+onload = reset.onclick = () => {
     colors = [
-        color(243, 244, 238),
+        color(243, 244, 238), // "white"
         color(80, 65, 60),
         color(137, 121, 170),
         color(56, 55, 53),
@@ -91,21 +63,40 @@ reset.onclick = () => {
         0, 8, 11, 0, 3, 2, 0, 0, 
         3, 0, 12, 7, 0, 3, 8, 13
     ];
+    onresize();
+};
+
+onresize = () => {
+    canvas.width = document.body.clientWidth;
+    canvas.height = canvas.width;
+    w = canvas.width / 8;
+    draw();
 };
 
 shuffleTiles.onclick = () => shuffle(tiles);
 shuffleColors.onclick = () => shuffle(colors);
 
-function shuffle(a) {
-    for (var i = a.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * i) + 1; // Don't shuffle index == 0;
-        [a[i], a[j]] = [a[j], a[i]];
+function draw() {
+    var i = 0;
+    for (var y = 0; y < 8; y++) {
+        for (var x = 0; x < 8; x++) {
+            var c = tiles[i];
+            context.fillStyle = colors[c];
+            context.fillRect(x * w, y * w, w, w);
+            i++;
+        }
     }
 }
 
-function color(r, g, b) {
-    return `rgb(${r},${g},${b})`;
+function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * i) + 1; // Don't shuffle index == 0 ("white")
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    draw();
 }
+
+const color = (r, g, b) => `rgb(${r},${g},${b})`;
 </script>
 </body>
 </html>

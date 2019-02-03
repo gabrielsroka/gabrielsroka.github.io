@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
-<meta name="google-site-verification" content="llJkMddN4cdVHVOHWmomAx7oSBqj6wU00IUhE4tIUVo" />
 <title>Ellsworth Kelly - Colors</title>
 <link href="main.css" rel="stylesheet">
 <style>
@@ -36,12 +35,12 @@ function draw() {
 }
 
 onclick = function (event) {
-    draw();
-    if (event.clientX < canvas.width / 2) {
+    if (event.clientX < innerWidth / 2) {
         shuffle(tiles);
     } else {
         shuffle(colors);
     }
+    draw();
 };
 
 onresize = function () {

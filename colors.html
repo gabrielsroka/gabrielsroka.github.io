@@ -21,10 +21,9 @@ var w;
 
 onload = function () {
     onresize();
-    onclick({clientX: 0});
 };
 
-onclick = function (event) {
+function draw() {
     var i = 0;
     for (var y = 0; y < 8; y++) {
         for (var x = 0; x < 8; x++) {
@@ -34,6 +33,10 @@ onclick = function (event) {
             i++;
         }
     }
+}
+
+onclick = function (event) {
+    draw();
     if (event.clientX < canvas.width / 2) {
         shuffle(tiles);
     } else {
@@ -45,6 +48,7 @@ onresize = function () {
     canvas.width = document.body.clientWidth;
     canvas.height = document.body.parentNode.clientHeight - 22;
     w = canvas.width / 8;
+    draw();
 };
 
 var colors = [

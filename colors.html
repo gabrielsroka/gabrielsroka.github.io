@@ -5,8 +5,9 @@
 <title>Ellsworth Kelly - Colors</title>
 <link href="main.css" rel="stylesheet">
 <style>
-h1 {
+p {
     text-align: center;
+    margin: 5px;
 }
 div {
     text-align: center;
@@ -22,10 +23,12 @@ button {
 </style>
 </head>
 <body>
-<h1>Ellsworth Kelly - Colors</h1>
+<p><b>Ellsworth Kelly</b></p>
+<p><i>Colors for a Large Wall</i></p>
+<p>1951</p>
 <canvas id=canvas></canvas>
 <div>
-<button id=reset>Reset</button> <button id=shuffleTiles>Tiles</button> <button id=shuffleColors>Colors</button>
+<button id=shuffleTiles>Tiles</button> <button id=shuffleColors>Colors</button> <button id=reset>Reset</button>
 </div>
 <script>
 var context = canvas.getContext("2d");
@@ -95,7 +98,7 @@ shuffleColors.onclick = () => shuffle(colors);
 
 function shuffle(a) {
     for (var i = a.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * i) + 1;
+        var j = Math.floor(Math.random() * i) + 1; // Don't shuffle index == 0;
         [a[i], a[j]] = [a[j], a[i]];
     }
 }

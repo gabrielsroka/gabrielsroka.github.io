@@ -28,11 +28,10 @@ button {
 <button id=reset>Reset</button> <button id=shuffleTiles>Tiles</button> <button id=shuffleColors>Colors</button>
 </div>
 <script>
-var canvas = document.getElementById("canvas");
 var context = canvas.getContext("2d");
 var w, colors, tiles;
 
-onload = function () {
+onload = () => {
     reset.onclick();
     onresize();
 };
@@ -49,21 +48,21 @@ function draw() {
     }
 }
 
-onclick = function () {
+onclick = () => {
     draw();
 };
 
-onresize = function () {
+onresize = () => {
     canvas.width = document.body.clientWidth;
     canvas.height = canvas.width;
     w = canvas.width / 8;
     draw();
 };
 
-reset.onclick = function () {
+reset.onclick = () => {
     colors = [
-        color(80, 65, 60),
         color(243, 244, 238),
+        color(80, 65, 60),
         color(137, 121, 170),
         color(56, 55, 53),
         color(190, 114, 56),
@@ -80,14 +79,14 @@ reset.onclick = function () {
 
     // indexes into the colors array
     tiles = [
-        0, 1, 2, 1, 3, 4, 1, 5, 
-        1, 6, 3, 1, 7, 1, 8, 3, 
-        3, 1, 1, 9, 1, 1, 1, 4, 
-        10, 1, 5, 1, 11, 3, 12, 1, 
-        1, 12, 3, 1, 1, 10, 1, 9, 
-        6, 1, 1, 5, 1, 1, 6, 3, 
-        1, 8, 11, 1, 3, 2, 1, 1, 
-        3, 1, 12, 7, 1, 3, 8, 13
+        1, 0, 2, 0, 3, 4, 0, 5, 
+        0, 6, 3, 0, 7, 0, 8, 3, 
+        3, 0, 0, 9, 0, 0, 0, 4, 
+        10, 0, 5, 0, 11, 3, 12, 0, 
+        0, 12, 3, 0, 0, 10, 0, 9, 
+        6, 0, 0, 5, 0, 0, 6, 3, 
+        0, 8, 11, 0, 3, 2, 0, 0, 
+        3, 0, 12, 7, 0, 3, 8, 13
     ];
 };
 
@@ -96,10 +95,8 @@ shuffleColors.onclick = () => shuffle(colors);
 
 function shuffle(a) {
     for (var i = a.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var x = a[i];
-        a[i] = a[j];
-        a[j] = x;
+        var j = Math.floor(Math.random() * i) + 1;
+        [a[i], a[j]] = [a[j], a[i]];
     }
 }
 

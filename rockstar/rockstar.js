@@ -19,7 +19,7 @@
         return;
     }
     if (location.pathname.match("^/(api|oauth2|\\.well-known)/")) {
-        formatAPI();
+        formatJSON();
     } else if (location.host.match(/-admin/)) { // Admin pages
         mainPopup = createPopup("rockstar");
         if (location.pathname == "/admin/users") {
@@ -480,7 +480,7 @@
             };
         });
     }
-    function formatAPI() {
+    function formatJSON() {
         let pre = document.getElementsByTagName("pre")[0]; // Don't use jQuery.
         let objects = JSON.parse(pre.innerHTML);
         let s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.

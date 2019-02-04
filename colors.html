@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
-<title>Ellsworth Kelly - Colors</title>
+<title>Ellsworth Kelly - Colors for a Large Wall</title>
 <link href="main.css" rel="stylesheet">
 <style>
 p {
@@ -17,7 +17,6 @@ button {
     margin: 20px;
     width: 80px;
     height: 30px;
-    color: black;
     background-color: white;
 }
 </style>
@@ -67,8 +66,7 @@ onload = reset.onclick = () => {
 };
 
 onresize = () => {
-    canvas.width = document.body.clientWidth;
-    canvas.height = canvas.width;
+    canvas.height = canvas.width = document.body.clientWidth;
     w = canvas.width / 8;
     draw();
 };

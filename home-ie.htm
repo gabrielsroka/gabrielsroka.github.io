@@ -32,13 +32,13 @@
 <script>
 var baseUrl = "https://gsroka-neto.oktapreview.com";
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-var xhr = new XMLHttpRequest();
-xhr.open('GET', baseUrl + '/api/v1/users/me/appLinks');
-xhr.withCredentials = true;
-xhr.onload = function () {
+var request = new XMLHttpRequest();
+request.open('GET', baseUrl + '/api/v1/users/me/appLinks');
+request.withCredentials = true;
+request.onload = function () {
     var links = JSON.parse(xhr.responseText);
     var lis = "";
-    links.sort(function (link1, link2) {return link1.sortOrder < link2.sortOrder ? -1 : 1})
+    links.sort(function (link1, link2) {return link1.sortOrder < link2.sortOrder ? -1 : 1;})
     .forEach(function (link) {
         var parts = link.label.split(/,/);
         var label = parts[0], url = parts[1];
@@ -56,9 +56,8 @@ xhr.onload = function () {
     home.href = baseUrl;
     app.innerHTML = "<ul>" + lis + "</ul>";  
 };
-xhr.send();
-
-// }).catch(error => location.href = "/login.htm");
+request.onerror = function () {location.href = "/login.htm";};
+request.send();
 </script>
 </body>
 </html>

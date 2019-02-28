@@ -35,7 +35,9 @@ var baseUrl = "https://gsroka-neto.oktapreview.com";
 var xhr = new XMLHttpRequest();
 xhr.open('GET', baseUrl + '/api/v1/sessions/me');
 xhr.withCredentials = true;
-xhr.onload = function () {console.log(xhr.responseText);}
+xhr.onload = function () {
+    console.log(xhr.responseText);
+};
 xhr.send();
 </script>
 </body>

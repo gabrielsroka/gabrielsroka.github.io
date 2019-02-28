@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Apps</title>
+<link href="https://ok1static.oktacdn.com/assets/css/widgets/chosen.css" type="text/css" rel="stylesheet" />
+<link href="https://ok1static.oktacdn.com/assets/css/widgets/jquery.qtip.css" type="text/css" rel="stylesheet" />
+<link href="https://ok1static.oktacdn.com/assets/css/enduser/enduser.css" type="text/css" rel="stylesheet" />
+<style>
+.app-button-wrapper {
+    width: 64px;
+}
+.app-button .logo {
+    visibility: visible;
+}
+.app-button-name {
+    width: 100%;
+}
+</style>
+</head>
+<body>
+<br>
+<nav>
+<a id="home"><span class="inline-icon icon-home-light"></span><span>Home</span></a> - 
+<a href="/login.htm?signout">Sign out</a>
+<br>
+</nav>
+<br>
+<main>
+<div id="app"></div>
+</main>
+<script>
+var baseUrl = "https://gsroka-neto.oktapreview.com";
+// For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+var xhr = new XMLHttpRequest();
+xhr.open('GET', baseUrl + '/api/v1/sessions/me');
+xhr.withCredentials = true;
+xhr.onload = function () {console.log(xhr.responseText);}
+xhr.send();
+</script>
+</body>
+</html>

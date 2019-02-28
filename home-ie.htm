@@ -36,7 +36,7 @@ var request = new XMLHttpRequest();
 request.open('GET', baseUrl + '/api/v1/users/me/appLinks');
 request.withCredentials = true;
 request.onload = function () {
-    var links = JSON.parse(xhr.responseText);
+    var links = JSON.parse(this.responseText);
     var lis = "";
     links.sort(function (link1, link2) {return link1.sortOrder < link2.sortOrder ? -1 : 1;})
     .forEach(function (link) {

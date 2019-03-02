@@ -3,12 +3,11 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Apps</title>
-<link href="https://ok1static.oktacdn.com/assets/css/widgets/chosen.css" type="text/css" rel="stylesheet" />
-<link href="https://ok1static.oktacdn.com/assets/css/widgets/jquery.qtip.css" type="text/css" rel="stylesheet" />
 <link href="https://ok1static.oktacdn.com/assets/css/enduser/enduser.css" type="text/css" rel="stylesheet" />
 <style>
 .app-button-wrapper {
     width: 64px;
+    margin-bottom: 20px;
 }
 .app-button .logo {
     visibility: visible;
@@ -43,8 +42,8 @@ fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
         if (url !== undefined) {
             url = url.trim();
             if (url === "") url = label.replace(/ /g, "");
-            if (!url.match(/^https/)) url = "https://" + url;
-            if (!url.match(/\./)) url += ".com";
+            if (!url.startsWith("https")) url = "https://" + url;
+            if (!url.includes(".")) url += ".com";
             lis += `<li class='app-button-wrapper'>` +
                 `<a href='${url}' target='_blank' class='app-button' rel='noopener'>` +
                 `<img src='${url}/favicon.ico' class='logo'/></a>` +

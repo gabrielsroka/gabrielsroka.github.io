@@ -36,7 +36,6 @@ var request = new XMLHttpRequest();
 request.open('GET', baseUrl + '/api/v1/sessions/me');
 request.withCredentials = true;
 request.onload = function () {
-    console.log(this.responseText);
     app.innerHTML = "<pre>" + JSON.stringify(JSON.parse(this.responseText), null, 4) + "</pre>";
 };
 request.send();

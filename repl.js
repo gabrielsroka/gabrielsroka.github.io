@@ -1,5 +1,5 @@
 /* 
-This bookmarklet allows you to call the Okta API using the browser console as a command line. See Examples below.
+Call the Okta API using the browser console as a command line. See Examples below.
 
 Setup:
 1. Drag this to the bookmark toolbar:
@@ -48,9 +48,16 @@ t("profile.name,profile.description,type")
 // Get events.
 o("/events?startDate=2016-01-23T00:00:00.0-08:00&limit=10")
 t("eventId,actors.0.displayName,published,action.message")
+
+// Assign super admin role to a user.
+u("00u4k4920e01sc4t20h7/roles", "POST", {type: "SUPER_ADMIN"}, true)
+
+u("", null, null, true)
 */
 
-function o(path, method, body, xsrf) {
+var _, __, _y;
+
+function o(path, method, body, xsrf, callback) {
     _ = __ = _y = "Loading ...";
     var request = new XMLHttpRequest();
     request.open(method ? method : "GET", "/api/v1" + path);
@@ -67,7 +74,11 @@ function o(path, method, body, xsrf) {
         } else {
             _ = __ = _y = "";
         }
-        console.log("Ready.")
+        if (callback) {
+            callback();
+        } else {
+            console.log("Ready.");
+        }
     };
     request.send(body ? JSON.stringify(body) : null);
     return _;
@@ -79,18 +90,18 @@ function g(path, method, body, xsrf) {
     return o("/groups/" + (path ? path : ""), method, body, xsrf);
 }
 function t(fields, where) {
+    if (where) {
+        var [whereField, whereValue] = where.split("=");
+    }
     if (fields) {
         fields = fields.split(",");
         var rows = [];
         for (var i in _) {
-            var o = {};
-            for (var f in fields) {
-                o[fields[f]] = dot(_[i], fields[f]);
-            }
-            if (where) {
-                var whereFields = where.split("="), whereField = whereFields[0], whereValue = whereFields[1];
-                if (dot(_[i], whereField) == whereValue) rows.push(o);
-            } else {
+            if ((where && dot(_[i], whereField) == whereValue) || !where) {
+                var o = {};
+                for (var f in fields) {
+                    o[fields[f]] = dot(_[i], fields[f]);
+                }
                 rows.push(o);
             }
         }

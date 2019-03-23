@@ -679,7 +679,7 @@
         );
     }
     function toCSV(...fields) {
-        return fields.map(field => `"${field && field.replace(/"/g, '""')}"`).join(',');
+        return fields.map(field => `"${field == undefined ? "" : field.toString().replace(/"/g, '""')}"`).join(',');
     }
     function downloadCSV(popup, html, lines, filename) {
         popup.html(html + "Done.");

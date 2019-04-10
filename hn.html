@@ -42,7 +42,6 @@ a:visited {
 </footer>
 <script>
 var ids;
-var start = 0;
 var n = 1;
 var seen = {};
 
@@ -50,9 +49,6 @@ const pageLen = 30;
 const baseUrl = "https://hacker-news.firebaseio.com/v0"; // see https://github.com/HackerNews/API
 
 prev.onclick = () => {
-    if (start < pageLen * 2) return;
-    start -= pageLen * 2;
-    n = start + 1;
     getItems();
 };
 next.onclick = getItems;
@@ -128,7 +124,7 @@ function getItems() {
     var unseenIds = [];
     ids.forEach(id => {if (!newSeen[id]) unseenIds.push(id)});
     ids = unseenIds;
-    for (var i = start; i < Math.min(start + pageLen, ids.length); i++) {
+    for (var i = 0; i < Math.min(pageLen, ids.length); i++) {
         seen[ids[i]] = now;
         if (!newSeen[ids[i]]) {
             fetch(`${baseUrl}/item/${ids[i]}.json`)
@@ -137,7 +133,6 @@ function getItems() {
         }
     }
     loading.innerHTML = ids.length ? "<br>Loading..." : "<br>No more";
-    start = i;
 }
 </script>
 </body>

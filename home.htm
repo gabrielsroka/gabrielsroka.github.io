@@ -50,7 +50,12 @@ function getLinks() {
     .then(response => response.json())
     .then(links => {
         var newLinks = [];
-        links.forEach(link => newLinks.push({label: link.label, sortOrder: link.sortOrder}));
+        links.forEach(link => {
+            var [label, url] = link.label.split(/,/);
+            if (url !== undefined) {
+                newLinks.push({label: link.label, sortOrder: link.sortOrder});
+            }
+        });
         links = newLinks;
         localStorage.links = JSON.stringify(links);
         showLinks(links);
@@ -62,16 +67,14 @@ function showLinks(links) {
     links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
     .forEach(link => {
         var [label, url] = link.label.split(/,/);
-        if (url !== undefined) {
-            url = url.trim();
-            if (url === "") url = label.replace(/ /g, "");
-            if (!url.startsWith("https")) url = "https://" + url;
-            if (!url.includes(".")) url += ".com";
-            lis += `<li class='app-button-wrapper'>` +
-                `<a href='${url}' target='_blank' class='app-button' rel='noopener'>` +
-                `<img src='${url}/favicon.ico' class='logo'/></a>` +
-                `<p class='app-button-name'>${label}`;
-        }
+        url = url.trim();
+        if (url === "") url = label.replace(/ /g, "");
+        if (!url.startsWith("https")) url = "https://" + url;
+        if (!url.includes(".")) url += ".com";
+        lis += `<li class='app-button-wrapper'>` +
+            `<a href='${url}' target='_blank' class='app-button' rel='noopener'>` +
+            `<img src='${url}/favicon.ico' class='logo'/></a>` +
+            `<p class='app-button-name'>${label}`;
     });
     app.innerHTML = `<ul>${lis}</ul>`;
 }

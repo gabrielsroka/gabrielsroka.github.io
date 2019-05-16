@@ -7,6 +7,7 @@
 <style>
 .app-button-wrapper {
     width: 64px;
+    margin-left: 32px;
     margin-bottom: 20px;
 }
 .app-button .logo {
@@ -29,12 +30,25 @@
 <div id="app"></div>
 </main>
 <script>
-var baseUrl = "https://gsroka-neto.oktapreview.com";
-var init = {credentials: "include"}; // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-// var init = {mode: "cors"}; // This didn't seem to work.
-fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
-.then(response => response.json())
-.then(links => {
+home.href = baseUrl;
+if (localStorage.links) {
+    var links = JSON.parse(localStorage.links);
+    showLinks(links);
+} else {
+    getLinks();
+}
+function getLinks() {
+    var baseUrl = "https://gsroka-neto.oktapreview.com";
+    var init = {credentials: "include"}; // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+    // var init = {mode: "cors"}; // This didn't seem to work.
+    fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
+    .then(response => response.json())
+    .then(links => {
+        localStorage.links = JSON.stringify(links);
+        showLinks(links);
+    }).catch(error => location.href = "/login.htm");
+}
+function showLinks(links) {
     var lis = "";
     links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
     .forEach(link => {
@@ -50,9 +64,8 @@ fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
                 `<p class='app-button-name'>${label}`;
         }
     });
-    home.href = baseUrl;
     app.innerHTML = `<ul>${lis}</ul>`;
-}).catch(error => location.href = "/login.htm");
+}
 </script>
 </body>
 </html>

@@ -31,16 +31,19 @@
 <div id="app"></div>
 </main>
 <script>
+const baseUrl = "https://gsroka-neto.oktapreview.com";
+
 home.href = baseUrl;
 refresh.onclick = getLinks;
+
 if (localStorage.links) {
     var links = JSON.parse(localStorage.links);
     showLinks(links);
 } else {
     getLinks();
 }
+
 function getLinks() {
-    var baseUrl = "https://gsroka-neto.oktapreview.com";
     var init = {credentials: "include"}; // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
     // var init = {mode: "cors"}; // This didn't seem to work.
     fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
@@ -50,6 +53,7 @@ function getLinks() {
         showLinks(links);
     }).catch(error => location.href = "/login.htm");
 }
+
 function showLinks(links) {
     var lis = "";
     links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)

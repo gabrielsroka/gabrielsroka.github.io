@@ -73,7 +73,7 @@ function showLinks(links) {
         if (!url.includes(".")) url += ".com";
         lis += `<li class='app-button-wrapper'>` +
             `<a href='${url}' target='_blank' class='app-button' rel='noopener'>` +
-            `<img src='${url}/favicon.ico' class='logo'/></a>` +
+            `<img src='${new URL(url).origin}/favicon.ico' class='logo'/></a>` +
             `<p class='app-button-name'>${label}`;
     });
     app.innerHTML = `<ul>${lis}</ul>`;

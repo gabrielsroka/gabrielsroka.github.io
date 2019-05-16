@@ -49,6 +49,9 @@ function getLinks() {
     fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
     .then(response => response.json())
     .then(links => {
+        var newLinks = [];
+        links.forEach(link => newLinks.push({label: link.label, sortOrder: link.sortOrder}));
+        links = newLinks;
         localStorage.links = JSON.stringify(links);
         showLinks(links);
     }).catch(error => location.href = "/login.htm");

@@ -7,6 +7,7 @@
 <style>
 .app-button-wrapper {
     width: 64px;
+    margin-left: 32px;
     margin-bottom: 20px;
 }
 .app-button .logo {
@@ -21,6 +22,7 @@
 <br>
 <nav>
 <a id="home"><span class="inline-icon icon-home-light"></span><span>Home</span></a> - 
+<a id="refresh"><span>Refresh</span></a> - 
 <a href="/login.htm?signout">Sign out</a>
 <br>
 </nav>
@@ -29,30 +31,52 @@
 <div id="app"></div>
 </main>
 <script>
-var baseUrl = "https://gsroka-neto.oktapreview.com";
-var init = {credentials: "include"}; // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-// var init = {mode: "cors"}; // This didn't seem to work.
-fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
-.then(response => response.json())
-.then(links => {
+const baseUrl = "https://gsroka-neto.oktapreview.com";
+
+home.href = baseUrl;
+refresh.onclick = getLinks;
+
+if (localStorage.links) {
+    var links = JSON.parse(localStorage.links);
+    showLinks(links);
+} else {
+    getLinks();
+}
+
+function getLinks() {
+    var init = {credentials: "include"}; // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+    // var init = {mode: "cors"}; // This didn't seem to work.
+    fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
+    .then(response => response.json())
+    .then(links => {
+        var newLinks = [];
+        links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
+        .forEach(link => {
+            var [label, url] = link.label.split(/,/);
+            if (url !== undefined) {
+                url = url.trim();
+                if (url === "") url = label.replace(/ /g, "");
+                if (!url.startsWith("https")) url = "https://" + url;
+                if (!url.includes(".")) url += ".com";
+                newLinks.push({label, url});
+            }
+        });
+        links = newLinks;
+        localStorage.links = JSON.stringify(links);
+        showLinks(links);
+    }).catch(error => location.href = "/login.htm");
+}
+
+function showLinks(links) {
     var lis = "";
-    links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
-    .forEach(link => {
-        var [label, url] = link.label.split(/,/);
-        if (url !== undefined) {
-            url = url.trim();
-            if (url === "") url = label.replace(/ /g, "");
-            if (!url.startsWith("https")) url = "https://" + url;
-            if (!url.includes(".")) url += ".com";
-            lis += `<li class='app-button-wrapper'>` +
-                `<a href='${url}' target='_blank' class='app-button' rel='noopener'>` +
-                `<img src='${url}/favicon.ico' class='logo'/></a>` +
-                `<p class='app-button-name'>${label}`;
-        }
+    links.forEach(link => {
+        lis += `<li class='app-button-wrapper'>` +
+            `<a href='${link.url}' target='_blank' class='app-button' rel='noopener'>` +
+            `<img src='${new URL(link.url).origin}/favicon.ico' class='logo'/></a>` +
+            `<p class='app-button-name'>${link.label}`;
     });
-    home.href = baseUrl;
     app.innerHTML = `<ul>${lis}</ul>`;
-}).catch(error => location.href = "/login.htm");
+}
 </script>
 </body>
 </html>

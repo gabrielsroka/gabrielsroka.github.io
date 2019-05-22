@@ -88,13 +88,14 @@ function editor() {
     s += 'Length: <input type="text" value="0" id="tLen" size="4" />';
     s += '</div>';
     s += '<textarea id="taEdit" style="padding: 0px; width: 99%" cols="80" rows="25" ';
-    s += 'onkeydown="getTALength();edit_onkeydown(event);" onkeyup="getTALength()" spellcheck="false">';
+    s += 'onkeydown="getTALength();edit_onkeydown(event);" onkeyup="getTALength()" spellcheck="false" autocapitalize="none">';
     s += '(function () {\n';
     s += '\n';
     s += '}\n';
     s += ')();\n';
     s += '</textarea>';
-    s += '<textarea id="taDebug" style="padding: 0px; width: 99%" cols="80" rows="5" title="debug.print(s); debug.clear();" spellcheck="false"></textarea>';
+    s += '<textarea id="taDebug" style="padding: 0px; width: 99%" cols="80" rows="5" title="debug.print(s); debug.clear();" ';
+    s += 'spellcheck="false" autocapitalize="none"></textarea>';
     s += '<div id="dBottom">';
 
     s += '<a href="http://validator.w3.org/check?uri=referer">Valid HTML5</a> ';

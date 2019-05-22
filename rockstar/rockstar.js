@@ -270,19 +270,10 @@
             });
             createDivA("Export App Groups", exportPopup, function () {
                 exportPopup.parent().remove();
-                // TODO: use /api/v1/apps/${appid}/groups?expand=group
-                startExport("App Groups", `/api/v1/apps/${appId}/groups`, "id,licenses,roles", appGroup => {
-                    $.getJSON(`/api/v1/groups/${appGroup.id}`).then(group => {
-                        groups.push(toCSV(group.profile.name, appGroup.profile.licenses ? appGroup.profile.licenses.join(";") : "",
-                            appGroup.profile.roles ? appGroup.profile.roles.join(";") : ""));
-                        if (groups.length == total) {
-                            console.log("name,licenses,roles");
-                            groups.forEach(group => console.log(`,${group}`));
-                        }
-                    });
-                    return toCSV(appGroup.id, appGroup.profile.licenses ? appGroup.profile.licenses.join(";") : "",
-                        appGroup.profile.roles ? appGroup.profile.roles.join(";") : "");
-                });
+                const atos = a => a ? a.join(";") : "";
+                startExport("App Groups", `/api/v1/apps/${appId}/groups?expand=group`, "id,name,licenses,roles,role,salesforceGroups,featureLicenses,publicGroups", 
+                    appGroup => toCSV(appGroup.id, appGroup._embedded.group.profile.name, atos(appGroup.profile.licenses), atos(appGroup.profile.roles), appGroup.profile.role, 
+                        atos(appGroup.profile.salesforceGroups), atos(appGroup.profile.featureLicenses), atos(appGroup.profile.publicGroups)));
             });
         } else {
             exportPopup = createPopup("Export");

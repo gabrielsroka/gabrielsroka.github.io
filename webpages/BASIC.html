@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+<title>BASIC</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<meta name="author" content="Gabriel Sroka">
+<meta name="copyright" content="Copyright 2007-2019 Gabriel Sroka">
+<meta name="keywords" content="BASIC, BASIC editor">
+<meta name="description" content="BASIC editor">
+</head>
+<body>
+<h1>BASIC</h1>
+<button onclick="run();" accesskey="R" title="Run (Ctrl + Enter or F2)"><u>R</u>un</button><br><br>
+<textarea id="editor" style="padding: 0px; width: 99%" cols="80" rows="20" spellcheck="false" autocapitalize="none">
+REM BASIC IS AWESOME !!!
+J = 1
+FOR I = 1 TO 10
+    IF J = 0 THEN
+        PRINT I
+        J = 1
+    ELSE
+        J = 0
+    END IF
+NEXT I</textarea>
+<textarea id="debug" style="padding: 0px; width: 99%" cols="80" rows="10" spellcheck="false" autocapitalize="none"></textarea>
+<script>
+// 5/26/19 - 10:10 - 10:40
+// 5/27/19 - 9:30 - 11
+
+editor.focus();
+editor.onkeydown = function (event) {
+    var ENTER = 13, F2 = 113;
+    if (event.keyCode == F2 || (event.keyCode == ENTER && event.ctrlKey)) {
+        run();
+    }
+};
+
+debug.print = function (s) {
+    debug.value += (s ? s.toString() : s) + "\r\n";
+    debug.scrollTo(0, debug.scrollHeight);
+};
+    
+debug.clear = function () {
+    debug.value = "";
+};
+
+function run() {
+    debug.clear();
+    console.clear();
+    var lines = editor.value.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (line.startsWith("FOR")) {
+            v = line[4];
+            line = line
+                .replace("FOR", "for (var")
+                .replace(" TO", "; " + v + " <=") +
+                "; " + v + "++) {";
+        } else if (line.startsWith("PRINT")) {
+            line = line.replace("PRINT ", "print(") + ");";
+        } else if (line.startsWith("NEXT")) {
+            line = "}";
+        } else if (line.startsWith("IF")) {
+            line = line
+                .replace("IF ", "if (")
+                .replace(" THEN", ") {")
+                .replace("=", "==");
+        } else if (line.startsWith("ELSE")) {
+            line = line.replace("ELSE", "} else {");
+        } else if (line.startsWith("END IF")) {
+            line = "}";
+        } else if (line.startsWith("REM")) {
+            line = line.replace("REM", "//");
+        } else {
+            line += ";";
+        }
+        lines[i] = line;
+    }
+    lines = lines.join('\n');
+    console.log(lines);
+    eval(lines);
+};
+
+function print(...args) {
+    debug.print(args.join("  "));
+}
+</script>
+</body>
+</html>

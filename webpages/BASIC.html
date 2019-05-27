@@ -11,8 +11,8 @@
 </head>
 <body>
 <h1>BASIC</h1>
-<button onclick="run();" accesskey="R" title="Run (Ctrl + Enter or F2)"><u>R</u>un</button>
-<button onclick="newProgram();" accesskey="N" title="New"><u>N</u>ew</button>
+<button id=run accesskey="R" title="Run (Ctrl + Enter or F2)">Run</button>
+<button id=newProgram accesskey="N" title="New">New</button>
 <select id=prognames></select>
 <br><br>
 <textarea id="editor" style="padding: 0px; width: 99%" cols="80" rows="15" spellcheck="false" autocapitalize="none"></textarea>
@@ -26,6 +26,11 @@ var progname;
 
 if (localStorage.basicPrograms) {
     programs = JSON.parse(localStorage.basicPrograms);
+    for (var [progname, value] of Object.entries(programs)) {
+        if (value) addOption(progname, value);
+    }
+    editor.value = Object.values(programs)[0];
+    progname = Object.keys(programs)[0];
 } else {
     programs = {};
     editor.value = `REM BASIC IS AWESOME !!!
@@ -39,63 +44,16 @@ FOR I = 1 TO 10
     END IF
 NEXT I`;
     progname = "First BASIC program";
+    addOption(progname, editor.value);
     save();
 }
 
-for (var [name, value] of Object.entries(programs)) {
-    if (value) addOption(name, value);
-}
-editor.value = Object.values(programs)[0];
-progname = Object.keys(programs)[0];
-
-prognames.onchange = function () {
-    editor.value = this.value;
-    progname = this.options[this.selectedIndex].text;
-};
-
-function save() {
-    if (editor.value) {
-        programs[progname] = editor.value;
-        prognames.options[prognames.selectedIndex].value = editor.value;
-    } else {
-        delete programs[progname];
-        prognames.options.remove(prognames.selectedIndex);
-    }
-    localStorage.basicPrograms = JSON.stringify(programs);
+if (!navigator.userAgent.match("Android")) {
+    run.innerHTML = "<u>R</u>un";
+    newProgram.innerHTML = "<u>N</u>ew";
 }
 
-editor.focus();
-editor.onkeydown = function (event) {
-    var ENTER = 13, F2 = 113;
-    if (event.keyCode == F2 || (event.keyCode == ENTER && event.ctrlKey)) {
-        run();
-    }
-};
-
-debug.print = function (s) {
-    debug.value += (s ? s.toString() : s) + "\r\n";
-    debug.scrollTo(0, debug.scrollHeight);
-};
-    
-debug.clear = function () {
-    debug.value = "";
-};
-
-function newProgram() {
-    progname = prompt("Program name");
-    addOption(progname, "");
-    prognames.selectedIndex = prognames.options.length - 1;
-    editor.value = "";
-}
-
-function addOption(name, value) {
-    var option = document.createElement("option");
-    option.text = name;
-    option.value = value;
-    prognames.add(option);
-}
-
-function run() {
+run.onclick = function () {
     debug.clear();
     console.clear();
     save();
@@ -133,8 +91,58 @@ function run() {
     eval(lines);
 };
 
+newProgram.onclick = function () {
+    progname = prompt("Program name");
+    if (progname) {
+        addOption(progname, "");
+        prognames.selectedIndex = prognames.options.length - 1;
+        editor.value = "";
+    }
+};
+
+prognames.onchange = function () {
+    editor.value = this.value;
+    progname = this.options[this.selectedIndex].text;
+    debug.clear();
+};
+
+editor.focus();
+editor.onkeydown = function (event) {
+    var ENTER = 13, F2 = 113;
+    if (event.keyCode == F2 || (event.keyCode == ENTER && event.ctrlKey)) {
+        run.onclick();
+    }
+};
+
+debug.print = function (s) {
+    debug.value += (s ? s.toString() : s) + "\r\n";
+    debug.scrollTo(0, debug.scrollHeight);
+};
+    
+debug.clear = function () {
+    debug.value = "";
+};
+
 function print(...args) {
     debug.print(args.join("  "));
+}
+
+function save() {
+    if (editor.value) {
+        programs[progname] = editor.value;
+        prognames.options[prognames.selectedIndex].value = editor.value;
+    } else {
+        delete programs[progname];
+        prognames.options.remove(prognames.selectedIndex);
+    }
+    localStorage.basicPrograms = JSON.stringify(programs);
+}
+
+function addOption(name, value) {
+    var option = document.createElement("option");
+    option.text = name;
+    option.value = value;
+    prognames.add(option);
 }
 </script>
 </body>

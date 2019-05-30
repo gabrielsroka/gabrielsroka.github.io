@@ -64,8 +64,12 @@ run.onclick = function () {
             v = line[4];
             line = line
                 .replace("for", "for (var")
-                .replace(" to", "; " + v + " <=") +
-                "; " + v + "++) {";
+                .replace(" to", "; " + v + " <=");
+            if (line.match('step') {
+ line = line.replace('step', '; ' + v + ' +=') + ') {';
+} else {
+ line += "; " + v + "++) {";
+}
         } else if (line.startsWith("print")) {
             line = line.replace("print ", "print(") + ");";
         } else if (line.startsWith("next")) {
@@ -124,7 +128,7 @@ debug.clear = function () {
 };
 
 function print(...args) {
-    debug.print(args.join("  "));
+    debug.print(args.join(" "));
 }
 
 function save() {

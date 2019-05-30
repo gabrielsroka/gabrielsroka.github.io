@@ -85,8 +85,6 @@ run.onclick = function () {
             line = "}";
         } else if (line.startsWith("rem")) {
             line = line.replace("rem", "//");
-        } else {
-            line += ";";
         }
         lines[i] = line;
     }

@@ -34,6 +34,7 @@ if (localStorage.basicPrograms) {
 } else {
     programs = {};
     editor.value = `rem basic is awesome !!!
+
 j = 1
 for i = 1 to 10
     if j = 0 then
@@ -60,7 +61,7 @@ run.onclick = function () {
     var lines = editor.value.split('\n');
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].trim();
-        if (line.startsWith("for")) {
+        if (line.startsWith("for ")) {
             v = line[4];
             line = line
                 .replace("for", "for (var")
@@ -70,20 +71,21 @@ run.onclick = function () {
             } else {
                 line += "; " + v + "++) {";
             }
-        } else if (line.startsWith("print")) {
+        } else if (line.startsWith("print ")) {
             line = line.replace("print ", "print(") + ");";
         } else if (line.startsWith("next")) {
             line = "}";
-        } else if (line.startsWith("if")) {
+        } else if (line.startsWith("if ") || line.startsWith("else if ")) {
             line = line
+                .replace("else", "} else")
                 .replace("if ", "if (")
                 .replace(" then", ") {")
-                .replace("=", "==");
+                .replace(" = ", "==");
         } else if (line.startsWith("else")) {
             line = line.replace("else", "} else {");
         } else if (line.startsWith("end if")) {
             line = "}";
-        } else if (line.startsWith("rem")) {
+        } else if (line.startsWith("rem ")) {
             line = line.replace("rem", "//");
         }
         lines[i] = line;

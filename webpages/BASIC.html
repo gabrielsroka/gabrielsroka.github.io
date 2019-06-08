@@ -80,7 +80,7 @@ run.onclick = function () {
                 .replace("else", "} else")
                 .replace("if ", "if (")
                 .replace(" then", ") {")
-                .replace(" = ", "==");
+                .replace(" = ", " == ");
         } else if (line.startsWith("else")) {
             line = line.replace("else", "} else {");
         } else if (line.startsWith("end if")) {

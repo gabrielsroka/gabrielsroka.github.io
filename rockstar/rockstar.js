@@ -247,21 +247,21 @@
         var total;
         var objectType;
         var template;
-        var groups;
         var lines;
         var appId;
         var cancel = false;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
             exportPopup = createPopup("Export");
-            const exportHeader = localStorage.exportHeader || "id,firstName,lastName,login,email,credentialType";
-            const exportColumns = localStorage.exportColumns || "id,profile.firstName,profile.lastName,profile.login,profile.email,credentials.provider.type";
+            const exportHeader = localStorage.rockstarExportUserHeader || "id,firstName,lastName,login,email,credentialType";
+            const exportColumns = localStorage.rockstarExportUserColumns || "id, profile.firstName, profile.lastName, profile.login, profile.email, credentials.provider.type";
             exportPopup.append(`Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
-            exportPopup.append(`Columns (eg, id,profile.login):<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
+            exportPopup.append(`Columns (e.g.: id, profile.login, credential.provider.type):<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
             createDivA("Export Users", exportPopup, function () {
-                localStorage.exportHeader = $("#exportheader").val();
-                localStorage.exportColumns = $("#exportcolumns").val();
-                startExport("Users", '/api/v1/users', $("#exportheader").val(), user => toCSV(...fields(user, $("#exportcolumns").val())));
+                localStorage.rockstarExportUserHeader = $("#exportheader").val();
+                localStorage.rockstarExportUserColumns = $("#exportcolumns").val();
+                startExport("Users", '/api/v1/users', $("#exportheader").val(), 
+                    user => toCSV(...fields(user, $("#exportcolumns").val().replace(/ /g, ""))));
             });
         } else if (location.pathname == "/admin/groups") {
             startExport("Groups", "/api/v1/groups", "id,name,description,type", 
@@ -305,7 +305,6 @@
             exportPopup.html("Loading ...");
             template = templateCallback;
             lines = [header];
-            groups = [];
             $.getJSON(url).then(getObjects);
         }
         function getObjects(objects, status, jqXHR) {

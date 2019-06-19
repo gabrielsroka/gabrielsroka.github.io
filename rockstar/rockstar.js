@@ -258,7 +258,7 @@
             const exportColumns = localStorage.exportColumns || "id,profile.firstName,profile.lastName,profile.login,profile.email,credentials.provider.type";
             exportPopup.append(`Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
             exportPopup.append(`Columns (eg, id,profile.login):<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
-            createDivA("Export App Users", exportPopup, function () {
+            createDivA("Export Users", exportPopup, function () {
                 localStorage.exportHeader = $("#exportheader").val();
                 localStorage.exportColumns = $("#exportcolumns").val();
                 startExport("Users", '/api/v1/users', $("#exportheader").val(), user => toCSV(...fields(user, $("#exportcolumns").val())));

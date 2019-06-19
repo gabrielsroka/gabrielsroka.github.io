@@ -256,7 +256,9 @@
             const exportHeader = localStorage.rockstarExportUserHeader || "id,firstName,lastName,login,email,credentialType";
             const exportColumns = localStorage.rockstarExportUserColumns || "id, profile.firstName, profile.lastName, profile.login, profile.email, credentials.provider.type";
             exportPopup.append(`Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
-            exportPopup.append(`Columns (e.g.: id, profile.login, credential.provider.type):<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
+            exportPopup.append(`Columns (e.g.: id, profile.login, credential.provider.type) ` +
+                `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a>:<br>` +
+                `<input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
             createDivA("Export Users", exportPopup, function () {
                 localStorage.rockstarExportUserHeader = $("#exportheader").val();
                 localStorage.rockstarExportUserColumns = $("#exportcolumns").val();
@@ -615,7 +617,7 @@
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
             `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> ` + 
-            `<a href='https://gabrielsroka.github.io/' target='_blank'>?</a><br><br></div>`).appendTo(document.body);
+            `<a href='https://gabrielsroka.github.io/' target='_blank' rel='noopener'>?</a><br><br></div>`).appendTo(document.body);
         return $("<div></div>").appendTo(popup);
     }
     function createA(html, parent, clickHandler) {

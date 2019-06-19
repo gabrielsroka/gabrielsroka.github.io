@@ -255,7 +255,7 @@
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
             exportPopup = createPopup("Export");
             const exportHeader = localStorage.exportHeader || "id,firstName,lastName,login,email,credentialType";
-            const exportColumns = localStorage.exportColumns || "id,profile.firstName,profile.lastName,profile.login,profile.email,user.credentials.provider.type";
+            const exportColumns = localStorage.exportColumns || "id,profile.firstName,profile.lastName,profile.login,profile.email,credentials.provider.type";
             exportPopup.append(`Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
             exportPopup.append(`Columns (eg, id,profile.login):<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
             createDivA("Export App Users", exportPopup, function () {

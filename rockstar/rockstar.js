@@ -253,14 +253,25 @@
         var cancel = false;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
-            startExport("Users", "/api/v1/users", "id,firstName,lastName,login,email,credentialType",
-                user => toCSV(user.id, user.profile.firstName, user.profile.lastName, user.profile.login, user.profile.email, user.credentials.provider.type));
+            exportPopup = createPopup("Export");
+            const exportHeader = localStorage.exportHeader || "id,firstName,lastName,login,email,credentialType";
+            const exportColumns = localStorage.exportColumns || "id,profile.firstName,profile.lastName,profile.login,profile.email,user.credentials.provider.type";
+            exportPopup.append(`Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
+            exportPopup.append(`Columns (eg, id,profile.login):<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
+            createDivA("Export App Users", exportPopup, function () {
+                localStorage.exportHeader = $("#exportheader").val();
+                localStorage.exportColumns = $("#exportcolumns").val();
+                startExport("Users", '/api/v1/users', $("#exportheader").val(), user => toCSV(...fields(user, $("#exportcolumns").val())));
+            });
         } else if (location.pathname == "/admin/groups") {
-            startExport("Groups", "/api/v1/groups", "id,name,description,type", group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
+            startExport("Groups", "/api/v1/groups", "id,name,description,type", 
+                group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
         } else if (location.pathname == "/admin/apps/active") {
-            startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features", app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', ')));
+            startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features", 
+                app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', ')));
         } else if (location.pathname == "/admin/access/networks") {
-            startExport("Zones", "/api/v1/zones", "id,name,gateways", zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
+            startExport("Zones", "/api/v1/zones", "id,name,gateways", 
+                zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
         } else if (appId = getAppId()) {
             exportPopup = createPopup("Export");
             createDivA("Export App Users", exportPopup, function () {
@@ -271,9 +282,11 @@
             createDivA("Export App Groups", exportPopup, function () {
                 exportPopup.parent().remove();
                 const atos = a => a ? a.join(";") : "";
-                startExport("App Groups", `/api/v1/apps/${appId}/groups?expand=group`, "id,name,licenses,roles,role,salesforceGroups,featureLicenses,publicGroups", 
-                    appGroup => toCSV(appGroup.id, appGroup._embedded.group.profile.name, atos(appGroup.profile.licenses), atos(appGroup.profile.roles), appGroup.profile.role, 
-                        atos(appGroup.profile.salesforceGroups), atos(appGroup.profile.featureLicenses), atos(appGroup.profile.publicGroups)));
+                startExport("App Groups", `/api/v1/apps/${appId}/groups?expand=group`, 
+                    "id,name,licenses,roles,role,salesforceGroups,featureLicenses,publicGroups", 
+                    appGroup => toCSV(appGroup.id, appGroup._embedded.group.profile.name, atos(appGroup.profile.licenses), 
+                        atos(appGroup.profile.roles), appGroup.profile.role, atos(appGroup.profile.salesforceGroups), 
+                        atos(appGroup.profile.featureLicenses), atos(appGroup.profile.publicGroups)));
             });
         } else {
             exportPopup = createPopup("Export");
@@ -322,6 +335,22 @@
             } else {
                 downloadCSV(exportPopup, total + " " + objectType + ". ", lines, `Export ${objectType}`);
             }
+        }
+        function fields(o, fields) {
+            fields = fields.split(",");
+            var a = [];
+            for (var f in fields) {
+                a.push(dot(o, fields[f]));
+            }
+            return a;
+        }
+        function dot(o, dots) {
+            var ps = dots.split(".");
+            for (var p in ps) {
+                o = o[ps[p]];
+                if (o == null) break;
+            }
+            return o;
         }
         function getAppId() {
             var path = location.pathname;

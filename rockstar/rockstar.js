@@ -253,19 +253,23 @@
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
             exportPopup = createPopup("Export");
-            const exportHeader = localStorage.rockstarExportUserHeader || "id,firstName,lastName,login,email,credentialType";
-            const exportColumns = localStorage.rockstarExportUserColumns || "id, profile.firstName, profile.lastName, profile.login, profile.email, credentials.provider.type";
-            const exportArgs = localStorage.rockstarExportUserArgs || "";
+            var exportHeader = localStorage.rockstarExportUserHeader || "id,firstName,lastName,login,email,credentialType";
+            var exportColumns = localStorage.rockstarExportUserColumns || "id, profile.firstName, profile.lastName, profile.login, profile.email, credentials.provider.type";
+            var exportArgs = localStorage.rockstarExportUserArgs || "";
             exportPopup.append(`Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
-            exportPopup.append(`Columns (e.g.: id, profile.login, credential.provider.type) ` +
+            exportPopup.append(`Columns (e.g.: <code style='background-color: #f2f2f2'>id, status, profile.login, profile.firstName, credential.provider.type</code>) ` +
                 `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a>:<br>` +
                 `<input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
-            exportPopup.append(`Args (e.g.: ?filter=status eq "DEPROVISIONED"):<br><input id=exportargs value='${exportArgs}' style='width: 900px'><br><br>`);
+            exportPopup.append(`Request Parameters (e.g.: <code style='background-color: #f2f2f2'>filter=status eq "DEPROVISIONED"</code>) ` +
+                `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a>:<br>` +
+                `<input id=exportargs value='${exportArgs}' style='width: 900px'><br><br>`);
             createDivA("Export Users", exportPopup, function () {
+                exportArgs = $("#exportargs").val();
+                if (exportArgs.startsWith("?")) exportArgs = exportArgs.substring(1);
                 localStorage.rockstarExportUserHeader = $("#exportheader").val();
                 localStorage.rockstarExportUserColumns = $("#exportcolumns").val();
-                localStorage.rockstarExportUserArgs = $("#exportargs").val();
-                startExport("Users", `/api/v1/users${$("#exportargs").val()}`, $("#exportheader").val(), 
+                localStorage.rockstarExportUserArgs = exportArgs;
+                startExport("Users", `/api/v1/users?${exportArgs}`, $("#exportheader").val(), 
                     user => toCSV(...fields(user, $("#exportcolumns").val().replace(/ /g, ""))));
             });
         } else if (location.pathname == "/admin/groups") {

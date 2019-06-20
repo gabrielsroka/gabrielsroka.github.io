@@ -255,14 +255,17 @@
             exportPopup = createPopup("Export");
             const exportHeader = localStorage.rockstarExportUserHeader || "id,firstName,lastName,login,email,credentialType";
             const exportColumns = localStorage.rockstarExportUserColumns || "id, profile.firstName, profile.lastName, profile.login, profile.email, credentials.provider.type";
+            const exportArgs = localStorage.rockstarExportUserArgs || "";
             exportPopup.append(`Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
             exportPopup.append(`Columns (e.g.: id, profile.login, credential.provider.type) ` +
                 `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a>:<br>` +
                 `<input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
+            exportPopup.append(`Args:<br><input id=exportargs value='${exportArgs}' style='width: 900px'><br><br>`);
             createDivA("Export Users", exportPopup, function () {
                 localStorage.rockstarExportUserHeader = $("#exportheader").val();
                 localStorage.rockstarExportUserColumns = $("#exportcolumns").val();
-                startExport("Users", '/api/v1/users', $("#exportheader").val(), 
+                localStorage.rockstarExportUserArgs = $("#exportargs").val();
+                startExport("Users", `/api/v1/users${$("#exportargs").val()}`, $("#exportheader").val(), 
                     user => toCSV(...fields(user, $("#exportcolumns").val().replace(/ /g, ""))));
             });
         } else if (location.pathname == "/admin/groups") {

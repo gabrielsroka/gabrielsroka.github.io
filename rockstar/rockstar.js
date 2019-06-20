@@ -260,7 +260,7 @@
             exportPopup.append(`Columns (e.g.: id, profile.login, credential.provider.type) ` +
                 `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a>:<br>` +
                 `<input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
-            exportPopup.append(`Args:<br><input id=exportargs value='${exportArgs}' style='width: 900px'><br><br>`);
+            exportPopup.append(`Args (e.g.: ?filter=status eq "DEPROVISIONED"):<br><input id=exportargs value='${exportArgs}' style='width: 900px'><br><br>`);
             createDivA("Export Users", exportPopup, function () {
                 localStorage.rockstarExportUserHeader = $("#exportheader").val();
                 localStorage.rockstarExportUserColumns = $("#exportcolumns").val();

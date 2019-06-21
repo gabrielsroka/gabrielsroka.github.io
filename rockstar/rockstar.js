@@ -40,8 +40,8 @@
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar");
         userHome();
-    } else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/reference/api/")) {
-        tryAPI();
+    //} else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/reference/api/")) {
+    //    tryAPI();
     } else { // SU
         // Don't show mainPopup div.
         if (location.pathname == "/su/orgs") {
@@ -548,13 +548,16 @@
     function linkify(s) {
         return s.replace(/"(https.*)"/g, '"<a href="$1">$1</a>"');
     }
+    /*
+    // This doesn't seem to work since the new dev site went up.
     function tryAPI() {
-        var baseUrl = $(".okta-preview-domain")[0].innerText;
-        if (baseUrl == "https://{yourOktaDomain}") {
+        var baseUrl = $(".orgUrl")[0];
+        if (!baseUrl || baseUrl == "https://{yourOktaDomain}") {
             //baseUrl = "https://EXAMPLE.oktapreview.com"; // TODO it should fail after, eg, 10 s and set a default.
             setTimeout(tryAPI, 1000);
             return;
         }
+        baseUrl = baseUrl.innerText;
     
         // TODO: in the resulting JSON, each "id", url [etc?] should be clickable, too.
         // TODO: show HTTP response headers (need to make a new request?)
@@ -575,6 +578,7 @@
             }
         });
     }
+    */
 
     // SU functions
     function suOrgs() {

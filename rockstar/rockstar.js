@@ -40,7 +40,7 @@
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar");
         userHome();
-    } else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/api/resources/")) {
+    } else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/reference/api/")) {
         tryAPI();
     } else { // SU
         // Don't show mainPopup div.

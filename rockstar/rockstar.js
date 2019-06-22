@@ -253,11 +253,49 @@
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
             exportPopup = createPopup("Export");
-            var exportHeader = localStorage.rockstarExportUserHeader || "id,firstName,lastName,login,email,credentialType";
-            var exportColumns = localStorage.rockstarExportUserColumns || "id, profile.firstName, profile.lastName, profile.login, profile.email, credentials.provider.type";
+
+            var props = $("<select>").appendTo(exportPopup).change(function () {
+                var {text, value} = this.selectedOptions[0];
+                if (value) {
+                    var header = $("#exportheader").val();
+                    var columns = $("#exportcolumns").val();
+                    $("#exportheader").val((header ? header + ", " : "") + text);
+                    $("#exportcolumns").val((columns ? columns + ", " : "") + value);
+                }
+            });
+            
+            $.getJSON("/api/v1/meta/schemas/user/default")
+            .then(schema => {
+                var user = {
+                    "": "Attributes",
+                    id: "User Id", 
+                    status: "Status", 
+                    created: "Created Date", 
+                    activated: "Activated Date", 
+                    statusChanged: "Status Changed Date", 
+                    lastLogin: "Last Login Date", 
+                    lastUpdated: "Last Updated Date", 
+                    passwordChanged: "Password Changed Date", 
+                    transitioningToStatus: "Transitioning to Status", 
+                    "credentials.provider.type": "Credential Provider Type",
+                    "credentials.provider.name": "Credential Provider Name"
+                };
+                var base = schema.definitions.base.properties;
+                var custom = schema.definitions.custom.properties;
+                for (var p in user) addOption(p, user[p]);
+                for (p in base) addOption("profile." + p, base[p].title);
+                for (p in custom) addOption("profile." + p, custom[p].title);
+            
+                function addOption(value, text) {
+                    props.append(`<option value='${value}'>${text}</option>`);
+                }
+            });
+
+            var exportHeader = localStorage.rockstarExportUserHeader || "User Id, Username, First name, Last name, Primary email, Credential Provider Type";
+            var exportColumns = localStorage.rockstarExportUserColumns || "id, profile.login, profile.firstName, profile.lastName, profile.email, credentials.provider.type";
             var exportArgs = localStorage.rockstarExportUserArgs || "";
-            exportPopup.append(`Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
-            exportPopup.append(`Columns (e.g.: <code style='background-color: #f2f2f2'>id, status, profile.login, profile.firstName, credential.provider.type</code>) ` +
+            exportPopup.append(`<br><br>Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
+            exportPopup.append(`Columns (e.g.: <code style='background-color: #f2f2f2'>id, status, profile.login, profile.firstName, credentials.provider.type</code>) ` +
                 `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a>:<br>` +
                 `<input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
             exportPopup.append(`Request Parameters (e.g.: <code style='background-color: #f2f2f2'>filter=status eq "DEPROVISIONED"</code>) ` +
@@ -269,7 +307,7 @@
                 localStorage.rockstarExportUserHeader = $("#exportheader").val();
                 localStorage.rockstarExportUserColumns = $("#exportcolumns").val();
                 localStorage.rockstarExportUserArgs = exportArgs;
-                startExport("Users", `/api/v1/users?${exportArgs}`, $("#exportheader").val(), 
+                startExport("Users", `/api/v1/users?${exportArgs}`, $("#exportheader").val().replace(/, /g, ","), 
                     user => toCSV(...fields(user, $("#exportcolumns").val().replace(/ /g, ""))));
             });
         } else if (location.pathname == "/admin/groups") {
@@ -325,11 +363,13 @@
                 exportPopup.parent().remove();
                 return;
             }
-            var links = getLinks(jqXHR.getResponseHeader("Link"));
+            var link = jqXHR.getResponseHeader("Link");
+            var links = link ? getLinks(link) : null;
             if (links && links.next) {
                 var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
                 var url = nextUrl.pathname + nextUrl.search;
-                if (jqXHR.getResponseHeader("X-Rate-Limit-Remaining") && jqXHR.getResponseHeader("X-Rate-Limit-Remaining") < 10) {
+                var remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
+                if (remaining && remaining < 10) {
                     var intervalID = setInterval(() => {
                         exportPopup.html(exportPopup.html() + "<br>Sleeping...");
                         if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {

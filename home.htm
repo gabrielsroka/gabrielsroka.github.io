@@ -31,6 +31,7 @@
 <div id="app"></div>
 </main>
 <script>
+// For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
 const baseUrl = "https://gsroka-neto.oktapreview.com";
 
 home.href = baseUrl;
@@ -43,28 +44,28 @@ if (localStorage.links) {
     getLinks();
 }
 
-function getLinks() {
-    var init = {credentials: "include"}; // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-    // var init = {mode: "cors"}; // This didn't seem to work.
-    fetch(`${baseUrl}/api/v1/users/me/appLinks`, init)
-    .then(response => response.json())
-    .then(links => {
-        var newLinks = [];
-        links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
-        .forEach(link => {
-            var [label, url] = link.label.split(/,/);
-            if (url !== undefined) {
-                url = url.trim();
-                if (url === "") url = label.replace(/ /g, "");
-                if (!url.startsWith("https")) url = "https://" + url;
-                if (!url.includes(".")) url += ".com";
-                newLinks.push({label, url});
-            }
-        });
-        links = newLinks;
+async function getLinks() {
+    try {
+        var init = {credentials: "include"};
+        // var init = {mode: "cors"}; // This didn't seem to work.
+        var response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
+        var links = await response.json();
+        links = links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
+            .map(link => {
+                var [label, url] = link.label.split(/,/);
+                if (url !== undefined) {
+                    url = url.trim();
+                    if (url === "") url = label.replace(/ /g, "");
+                    if (!url.startsWith("https")) url = "https://" + url;
+                    if (!url.includes(".")) url += ".com";
+                    return {label, url};
+                }
+            });
         localStorage.links = JSON.stringify(links);
         showLinks(links);
-    }).catch(error => location.href = "/login.htm");
+    } catch (e) {
+        location.href = "/login.htm";
+    }
 }
 
 function showLinks(links) {

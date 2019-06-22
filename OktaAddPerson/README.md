@@ -4,7 +4,7 @@ https://github.com/gabrielsroka/gabrielsroka.github.io/tree/master/OktaAddPerson
 2. Edit the oktaAPIsettings.js with your URL and API token
 
 Extension for Chrome and Firefox. The extension is oktaAddPerson.html with a few supporting .js files and the manifest.json.
-* For Chrome, open Extensions tab (chrome://extensions/ or ... > More Tools > Extensions), enable Developer More, then drag the folder to the Extensions tab
+* For Chrome, open Extensions tab (chrome://extensions/ or ... > More Tools > Extensions), enable Developer Mode, then drag the folder to the Extensions tab
 * For Firefox, go to about:debugging, click "Load Temporary Add-on", load any file from the "OktaAddPerson" folder
 
 oktaAddPerson.html will run in a browser from file://

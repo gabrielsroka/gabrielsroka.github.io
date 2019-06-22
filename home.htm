@@ -50,7 +50,8 @@ async function getLinks() {
         // var init = {mode: "cors"}; // This didn't seem to work.
         var response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
         var links = await response.json();
-        links = links.sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
+        links = links
+            .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
             .map(link => {
                 var [label, url] = link.label.split(/,/);
                 if (url !== undefined) {
@@ -60,7 +61,8 @@ async function getLinks() {
                     if (!url.includes(".")) url += ".com";
                     return {label, url};
                 }
-            });
+            })
+            .filter(link => link != undefined);
         localStorage.links = JSON.stringify(links);
         showLinks(links);
     } catch (e) {

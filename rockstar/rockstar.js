@@ -314,8 +314,22 @@
             startExport("Groups", "/api/v1/groups", "id,name,description,type", 
                 group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
         } else if (location.pathname == "/admin/apps/active") {
-            startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features", 
-                app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', ')));
+            exportPopup = createPopup("Export");
+            createDivA("Export Apps", exportPopup, function () {
+                startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features", 
+                    app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', ')));
+            });
+            createDivA("Export App Notes", exportPopup, function () {
+                startExport("App Notes", "/api/v1/apps", "id,label,name,userNameTemplate,features,endUserAppNotes,adminAppNotes", async app => {
+                    var response = await fetch(`/admin/app/${app.name}/instance/${app.id}/settings/general`);
+                    var html = await response.text();
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, "text/html");
+                    var enduserAppNotes = doc.getElementById("settings.enduserAppNotes") ? doc.getElementById("settings.enduserAppNotes").innerHTML : "";
+                    var adminAppNotes = doc.getElementById("settings.adminAppNotes") ? doc.getElementById("settings.adminAppNotes").innerHTML : "";
+                    return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), enduserAppNotes, adminAppNotes);
+                });
+            });
         } else if (location.pathname == "/admin/access/networks") {
             startExport("Zones", "/api/v1/zones", "id,name,gateways", 
                 zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
@@ -355,7 +369,14 @@
             $.getJSON(url).then(getObjects);
         }
         function getObjects(objects, status, jqXHR) {
-            objects.forEach(object => lines.push(template(object)));
+            objects.forEach(object => {
+                var line = template(object);
+                if (line.then) {
+                    line.then(ln => lines.push(ln));
+                } else {
+                    lines.push(line);
+                }
+            });
             total += objects.length;
             exportPopup.html(total + " " + objectType + "...<br><br>");
             createDivA("Cancel", exportPopup, () => cancel = true);
@@ -381,7 +402,17 @@
                     $.getJSON(url).then(getObjects);
                 }
             } else {
-                downloadCSV(exportPopup, total + " " + objectType + ". ", lines, `Export ${objectType}`);
+                if ((total + 1) == lines.length) { // lines includes the header.
+                    downloadCSV(exportPopup, total + " " + objectType + ". ", lines, `Export ${objectType}`);
+                } else {
+                    exportPopup.html("Processing...");
+                    var intervalID = setInterval(() => {
+                        if ((total + 1) == lines.length) {
+                            downloadCSV(exportPopup, total + " " + objectType + ". ", lines, `Export ${objectType}`);
+                            clearInterval(intervalID);
+                        }
+                    }, 300);
+                }
             }
         }
         function fields(o, fields) {

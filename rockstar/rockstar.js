@@ -249,6 +249,7 @@
         var template;
         var lines;
         var appId;
+        var groupId;
         var cancel = false;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
@@ -349,6 +350,9 @@
                         atos(appGroup.profile.roles), appGroup.profile.role, atos(appGroup.profile.salesforceGroups), 
                         atos(appGroup.profile.featureLicenses), atos(appGroup.profile.publicGroups)));
             });
+        } else if (groupId = getGroupId()) {
+            startExport("Group Members", `/api/v1/groups/${groupId}/users`, "id,login,firstName,lastName", 
+                user => toCSV(user.id, user.profile.login, user.profile.firstName, user.profile.lastName));            
         } else {
             exportPopup = createPopup("Export");
             exportPopup.html("Error. Go to one of these:<br><br>" +
@@ -436,6 +440,13 @@
             var pathparts = path.split('/');
             if (path.match("admin/app") && (pathparts.length == 6 || pathparts.length == 7)) {
                 return pathparts[5];
+            }
+        }
+        function getGroupId() {
+            var path = location.pathname;
+            var pathparts = path.split('/');
+            if (path.match("admin/group") && (pathparts.length == 4)) {
+                return pathparts[3];
             }
         }
     }

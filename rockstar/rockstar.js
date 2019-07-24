@@ -709,8 +709,8 @@
     }
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
-            `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>${title} - close</a> ` + 
-            `<a href='https://gabrielsroka.github.io/' target='_blank' rel='noopener'>?</a><br><br></div>`).appendTo(document.body);
+            `${title} -  <a href='https://gabrielsroka.github.io/' target='_blank' rel='noopener'>?</a> ` + 
+            `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>X</a><br><br></div>`).appendTo(document.body);
         return $("<div></div>").appendTo(popup);
     }
     function createA(html, parent, clickHandler) {

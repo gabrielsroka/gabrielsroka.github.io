@@ -253,7 +253,7 @@
         var cancel = false;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
-            exportPopup = createPopup("Export");
+            exportPopup = createPopup("Export Users");
 
             var props = $("<select>").appendTo(exportPopup).change(function () {
                 var {text, value} = this.selectedOptions[0];
@@ -296,13 +296,13 @@
             var exportColumns = localStorage.rockstarExportUserColumns || "id, profile.login, profile.firstName, profile.lastName, profile.email, credentials.provider.type";
             var exportArgs = localStorage.rockstarExportUserArgs || "";
             exportPopup.append(`<br><br>Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
-            exportPopup.append(`Columns (e.g.: <code style='background-color: #f2f2f2'>id, status, profile.login, profile.firstName, credentials.provider.type</code>) ` +
-                `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a>:<br>` +
-                `<input id=exportcolumns value='${exportColumns}' style='width: 900px'><br><br>`);
-            exportPopup.append(`Request Parameters (e.g.: <code style='background-color: #f2f2f2'>filter=status eq "DEPROVISIONED"</code>) ` +
-                `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a>:<br>` +
-                `<input id=exportargs value='${exportArgs}' style='width: 900px'><br><br>`);
-            createDivA("Export Users", exportPopup, function () {
+            exportPopup.append(`Columns:<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br>` +
+                `(e.g.: <code>id, status, profile.login, profile.firstName, credentials.provider.type</code>) ` +
+                `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a><br><br>`);
+            exportPopup.append(`Request Parameters:<br><input id=exportargs value='${exportArgs}' style='width: 900px'><br>` +
+                `(e.g.: <code>filter=status eq "DEPROVISIONED"</code>) ` +
+                `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br><br>`);
+            createDivA("Export", exportPopup, function () {
                 exportArgs = $("#exportargs").val();
                 if (exportArgs.startsWith("?")) exportArgs = exportArgs.substring(1);
                 localStorage.rockstarExportUserHeader = $("#exportheader").val();
@@ -310,7 +310,7 @@
                 localStorage.rockstarExportUserArgs = exportArgs;
                 startExport("Users", `/api/v1/users?${exportArgs}`, $("#exportheader").val().replace(/, /g, ","), 
                     user => toCSV(...fields(user, $("#exportcolumns").val().replace(/ /g, ""))));
-            });
+            }, "class='link-button'");
         } else if (location.pathname == "/admin/groups") {
             startExport("Groups", "/api/v1/groups", "id,name,description,type", 
                 group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
@@ -407,12 +407,12 @@
                 }
             } else {
                 if ((total + 1) == lines.length) { // lines includes the header.
-                    downloadCSV(exportPopup, total + " " + objectType + ". ", lines, `Export ${objectType}`);
+                    downloadCSV(exportPopup, total + " " + objectType + " exported. ", lines, `Export ${objectType}`);
                 } else {
                     exportPopup.html("Processing...");
                     var intervalID = setInterval(() => {
                         if ((total + 1) == lines.length) {
-                            downloadCSV(exportPopup, total + " " + objectType + ". ", lines, `Export ${objectType}`);
+                            downloadCSV(exportPopup, total + " " + objectType + " exported. ", lines, `Export ${objectType}`);
                             clearInterval(intervalID);
                         }
                     }, 300);
@@ -709,8 +709,8 @@
     }
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
-            `${title} - <a href='https://gabrielsroka.github.io/' target='_blank' rel='noopener'>&nbsp;?&nbsp;</a> ` + 
-            `<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer'>&nbsp;X&nbsp;</a><br><br></div>`).appendTo(document.body);
+            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/' target='_blank' rel='noopener'>&nbsp;?&nbsp;</a> ` + 
+            `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer'>&nbsp;X&nbsp;</a></div><br><br></div>`).appendTo(document.body);
         return $("<div></div>").appendTo(popup);
     }
     function createA(html, parent, clickHandler) {
@@ -719,8 +719,8 @@
     function createPrefixA(prefix, html, parent, clickHandler) {
         $(`${prefix}<a style='cursor: pointer'>${html}</a>`).appendTo(parent).click(clickHandler);
     }
-    function createDivA(html, parent, clickHandler) {
-        $(`<div><a style='cursor: pointer'>${html}</a></div>`).appendTo(parent).click(clickHandler);
+    function createDivA(html, parent, clickHandler, aParts = "") {
+        $(`<div><a style='cursor: pointer' ${aParts}>${html}</a></div>`).appendTo(parent).click(clickHandler);
     }
     function getLinks(linkHeader) {
         var headers = linkHeader.split(", ");

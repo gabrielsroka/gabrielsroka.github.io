@@ -297,10 +297,10 @@
                 var exportArgs = localStorage.rockstarExportUserArgs || "";
                 exportPopup.append(`<br><br>Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
                 exportPopup.append(`Columns:<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br>` +
-                    `(e.g.: <code>id, status, profile.login, profile.firstName, credentials.provider.type</code>) ` +
+                    `e.g. <code>id, status, profile.login, profile.firstName, credentials.provider.type</code> ` +
                     `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a><br><br>`);
                 exportPopup.append(`Request Parameters:<br><input id=exportargs value='${exportArgs}' style='width: 900px'><br>` +
-                    `(e.g.: <code>filter=status eq "DEPROVISIONED"</code>) ` +
+                    `e.g. <code>filter=status eq "DEPROVISIONED"</code> ` +
                     `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br><br>`);
                 createDivA("Export", exportPopup, function () {
                     exportArgs = $("#exportargs").val();

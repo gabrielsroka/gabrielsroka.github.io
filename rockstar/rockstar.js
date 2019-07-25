@@ -34,8 +34,8 @@
 
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
         $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
-        createPrefixA("<li>", "Export Objects", "#nav-admin-reports-2", exportObjects);
-        createDivA("Export Objects", mainPopup, exportObjects);
+        exportObjects();
+        //createPrefixA("<li>", "Export Objects", "#nav-admin-reports-2", exportObjects);
         apiExplorer();
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar");
@@ -57,7 +57,7 @@
 
     // Admin functions
     function directoryPeople() {
-        createPrefixA("<li class=option>", "<span class='icon download-16'></span>Export Users", ".okta-dropdown-list", exportObjects);
+        //createPrefixA("<li class=option>", "<span class='icon download-16'></span>Export Users", ".okta-dropdown-list", exportObjects);
         searcher({
             url: "/api/v1/users",
             data() {return {q: this.search, limit: this.limit};},
@@ -250,77 +250,79 @@
         var lines;
         var appId;
         var groupId;
-        var cancel = false;
+        var cancel;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
-            exportPopup = createPopup("Export Users");
-
-            var props = $("<select>").appendTo(exportPopup).change(function () {
-                var {text, value} = this.selectedOptions[0];
-                if (value) {
-                    var header = $("#exportheader").val();
-                    var columns = $("#exportcolumns").val();
-                    $("#exportheader").val((header ? header + ", " : "") + text);
-                    $("#exportcolumns").val((columns ? columns + ", " : "") + value);
-                }
+            createDivA("Export Users", mainPopup, function () {
+                exportPopup = createPopup("Export Users");
+                var props = $("<select>").appendTo(exportPopup).change(function () {
+                    var {text, value} = this.selectedOptions[0];
+                    if (value) {
+                        var header = $("#exportheader").val();
+                        var columns = $("#exportcolumns").val();
+                        $("#exportheader").val((header ? header + ", " : "") + text);
+                        $("#exportcolumns").val((columns ? columns + ", " : "") + value);
+                    }
+                });
+                
+                $.getJSON("/api/v1/meta/schemas/user/default")
+                .then(schema => {
+                    var user = {
+                        "": "Attributes",
+                        id: "User Id", 
+                        status: "Status", 
+                        created: "Created Date", 
+                        activated: "Activated Date", 
+                        statusChanged: "Status Changed Date", 
+                        lastLogin: "Last Login Date", 
+                        lastUpdated: "Last Updated Date", 
+                        passwordChanged: "Password Changed Date", 
+                        transitioningToStatus: "Transitioning to Status", 
+                        "credentials.provider.type": "Credential Provider Type",
+                        "credentials.provider.name": "Credential Provider Name"
+                    };
+                    var base = schema.definitions.base.properties;
+                    var custom = schema.definitions.custom.properties;
+                    for (var p in user) addOption(p, user[p]);
+                    for (p in base) addOption("profile." + p, base[p].title);
+                    for (p in custom) addOption("profile." + p, custom[p].title);
+                
+                    function addOption(value, text) {
+                        props.append(`<option value='${value}'>${text}</option>`);
+                    }
+                });
+    
+                var exportHeader = localStorage.rockstarExportUserHeader || "User Id, Username, First name, Last name, Primary email, Credential Provider Type";
+                var exportColumns = localStorage.rockstarExportUserColumns || "id, profile.login, profile.firstName, profile.lastName, profile.email, credentials.provider.type";
+                var exportArgs = localStorage.rockstarExportUserArgs || "";
+                exportPopup.append(`<br><br>Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
+                exportPopup.append(`Columns:<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br>` +
+                    `(e.g.: <code>id, status, profile.login, profile.firstName, credentials.provider.type</code>) ` +
+                    `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a><br><br>`);
+                exportPopup.append(`Request Parameters:<br><input id=exportargs value='${exportArgs}' style='width: 900px'><br>` +
+                    `(e.g.: <code>filter=status eq "DEPROVISIONED"</code>) ` +
+                    `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br><br>`);
+                createDivA("Export", exportPopup, function () {
+                    exportArgs = $("#exportargs").val();
+                    if (exportArgs.startsWith("?")) exportArgs = exportArgs.substring(1);
+                    localStorage.rockstarExportUserHeader = $("#exportheader").val();
+                    localStorage.rockstarExportUserColumns = $("#exportcolumns").val();
+                    localStorage.rockstarExportUserArgs = exportArgs;
+                    startExport("Users", `/api/v1/users?${exportArgs}`, $("#exportheader").val().replace(/, /g, ","), 
+                        user => toCSV(...fields(user, $("#exportcolumns").val().replace(/ /g, ""))));
+                }, "class='link-button'");
             });
-            
-            $.getJSON("/api/v1/meta/schemas/user/default")
-            .then(schema => {
-                var user = {
-                    "": "Attributes",
-                    id: "User Id", 
-                    status: "Status", 
-                    created: "Created Date", 
-                    activated: "Activated Date", 
-                    statusChanged: "Status Changed Date", 
-                    lastLogin: "Last Login Date", 
-                    lastUpdated: "Last Updated Date", 
-                    passwordChanged: "Password Changed Date", 
-                    transitioningToStatus: "Transitioning to Status", 
-                    "credentials.provider.type": "Credential Provider Type",
-                    "credentials.provider.name": "Credential Provider Name"
-                };
-                var base = schema.definitions.base.properties;
-                var custom = schema.definitions.custom.properties;
-                for (var p in user) addOption(p, user[p]);
-                for (p in base) addOption("profile." + p, base[p].title);
-                for (p in custom) addOption("profile." + p, custom[p].title);
-            
-                function addOption(value, text) {
-                    props.append(`<option value='${value}'>${text}</option>`);
-                }
-            });
-
-            var exportHeader = localStorage.rockstarExportUserHeader || "User Id, Username, First name, Last name, Primary email, Credential Provider Type";
-            var exportColumns = localStorage.rockstarExportUserColumns || "id, profile.login, profile.firstName, profile.lastName, profile.email, credentials.provider.type";
-            var exportArgs = localStorage.rockstarExportUserArgs || "";
-            exportPopup.append(`<br><br>Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
-            exportPopup.append(`Columns:<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br>` +
-                `(e.g.: <code>id, status, profile.login, profile.firstName, credentials.provider.type</code>) ` +
-                `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a><br><br>`);
-            exportPopup.append(`Request Parameters:<br><input id=exportargs value='${exportArgs}' style='width: 900px'><br>` +
-                `(e.g.: <code>filter=status eq "DEPROVISIONED"</code>) ` +
-                `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br><br>`);
-            createDivA("Export", exportPopup, function () {
-                exportArgs = $("#exportargs").val();
-                if (exportArgs.startsWith("?")) exportArgs = exportArgs.substring(1);
-                localStorage.rockstarExportUserHeader = $("#exportheader").val();
-                localStorage.rockstarExportUserColumns = $("#exportcolumns").val();
-                localStorage.rockstarExportUserArgs = exportArgs;
-                startExport("Users", `/api/v1/users?${exportArgs}`, $("#exportheader").val().replace(/, /g, ","), 
-                    user => toCSV(...fields(user, $("#exportcolumns").val().replace(/ /g, ""))));
-            }, "class='link-button'");
         } else if (location.pathname == "/admin/groups") {
-            startExport("Groups", "/api/v1/groups", "id,name,description,type", 
+            createDivA("Export Groups", mainPopup, function () {
+                startExport("Groups", "/api/v1/groups", "id,name,description,type", 
                 group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
+            });
         } else if (location.pathname == "/admin/apps/active") {
-            exportPopup = createPopup("Export");
-            createDivA("Export Apps", exportPopup, function () {
+            createDivA("Export Apps", mainPopup, function () {
                 startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features", 
                     app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', ')));
             });
-            createDivA("Export App Notes", exportPopup, function () {
+            createDivA("Export App Notes", mainPopup, function () {
                 startExport("App Notes", "/api/v1/apps", "id,label,name,userNameTemplate,features,endUserAppNotes,adminAppNotes", async app => {
                     var response = await fetch(`/admin/app/${app.name}/instance/${app.id}/settings/general`);
                     var html = await response.text();
@@ -332,17 +334,16 @@
                 });
             });
         } else if (location.pathname == "/admin/access/networks") {
-            startExport("Zones", "/api/v1/zones", "id,name,gateways", 
-                zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
+            createDivA("Export Networks", mainPopup, function () {
+                startExport("Zones", "/api/v1/zones", "id,name,gateways", 
+                    zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
+            });
         } else if (appId = getAppId()) {
-            exportPopup = createPopup("Export");
-            createDivA("Export App Users", exportPopup, function () {
-                exportPopup.parent().remove();
+            createDivA("Export App Users", mainPopup, function () {
                 startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId", 
                     appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId));
             });
-            createDivA("Export App Groups", exportPopup, function () {
-                exportPopup.parent().remove();
+            createDivA("Export App Groups", mainPopup, function () {
                 const atos = a => a ? a.join(";") : "";
                 startExport("App Groups", `/api/v1/apps/${appId}/groups?expand=group`, 
                     "id,name,licenses,roles,role,salesforceGroups,featureLicenses,publicGroups", 
@@ -351,17 +352,20 @@
                         atos(appGroup.profile.featureLicenses), atos(appGroup.profile.publicGroups)));
             });
         } else if (groupId = getGroupId()) {
-            startExport("Group Members", `/api/v1/groups/${groupId}/users`, "id,login,firstName,lastName", 
-                user => toCSV(user.id, user.profile.login, user.profile.firstName, user.profile.lastName));            
-        } else {
-            exportPopup = createPopup("Export");
-            exportPopup.html("Error. Go to one of these:<br><br>" +
-                "<a href='/admin/users'>Directory > People</a><br>" +
-                "<a href='/admin/groups'>Directory > Groups</a><br>" +
-                "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a Directory<br>" +
-                "<a href='/admin/apps/active'>Applications > Applications</a> and click on an App<br>" +
-                "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>" +
-                "<a href='/admin/access/networks'>Security > Networks</a><br>");
+            createDivA("Export Group Members", mainPopup, function () {
+                startExport("Group Members", `/api/v1/groups/${groupId}/users`, "id,login,firstName,lastName", 
+                    user => toCSV(user.id, user.profile.login, user.profile.firstName, user.profile.lastName));
+            });
+        // TODO: what to do here?
+        // } else {
+        //     exportPopup = createPopup("Export");
+        //     exportPopup.html("Error. Go to one of these:<br><br>" +
+        //         "<a href='/admin/users'>Directory > People</a><br>" +
+        //         "<a href='/admin/groups'>Directory > Groups</a><br>" +
+        //         "<a href='/admin/people/directories'>Directory > Directory Integrations</a> and click on a Directory<br>" +
+        //         "<a href='/admin/apps/active'>Applications > Applications</a> and click on an App<br>" +
+        //         "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>" +
+        //         "<a href='/admin/access/networks'>Security > Networks</a><br>");
         }
         function startExport(title, url, header, templateCallback) {
             total = 0;
@@ -371,6 +375,7 @@
             template = templateCallback;
             lines = [header];
             $.getJSON(url).then(getObjects);
+            cancel = false;
         }
         function getObjects(objects, status, jqXHR) {
             objects.forEach(object => {

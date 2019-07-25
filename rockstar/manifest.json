@@ -9,7 +9,8 @@
         "https://*.okta-emea.com/*",
         "https://*.oktapreview.com/*"
       ],
-      "js": ["jquery-1.12.4.min.js", "rockstar.js"]
+      "js": ["jquery-1.12.4.min.js", "rockstar.js"],
+      "css": ["rockstar.css"]
     }
   ]
 }

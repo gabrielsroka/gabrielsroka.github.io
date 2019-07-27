@@ -1,12 +1,12 @@
 (function () {
     // What does rockstar do?
-    //   Export Objects to CSV: eg, Users, Groups, Directory Users, App Users, App Groups, Apps, Zones, ...
+    //   Export Objects to CSV: eg, Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, App Notes, Network Zones
     //   Administrators page: Export Admins
     //   User home page: Show SSO (SAML assertion, etc)
-    //   People page: enhanced search, Export Users menu
+    //   People page: enhanced search
     //   Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles
     //   Events: Expand All and Expand Each Row
-    //   API: Pretty Print JSON
+    //   API: API Explorer, Pretty Print JSON
     //   SU Orgs & Org Users: enhanced search
     //   Many: enhanced menus
     // and more to come...
@@ -81,13 +81,13 @@
         $.getJSON(`/api/v1/users/${userId}`).then(aUser => {
             user = aUser;
             var ad = user.credentials.provider.type == "ACTIVE_DIRECTORY";
-            $(".subheader").html(`${user.profile.login}, mail: ${user.profile.email}${ad ? ", " : ""}`);
+            $(".subheader").html(`${user.profile.login}, email: ${user.profile.email}${ad ? ", " : ""}`);
             document.title += ` - ${user.profile.firstName} ${user.profile.lastName}`;
             if (ad) {
                 function showADs() {
                     $.getJSON(`/api/v1/apps?filter=user.id+eq+"${userId}"&expand=user/${userId}&limit=200&q=active_directory`).then(appUsers => {
-                        var adPopup = createPopup("ADs");
-                        var rows = "<tr><th>AD Domain<th>Username<th>Email";
+                        var adPopup = createPopup("Active Directory");
+                        var rows = "<tr><th>Domain<th>Username<th>Email";
                         appUsers.forEach(appUser => {
                             var user = appUser._embedded.user;
                             rows += `<tr><td>${appUser.label}<td>${user.credentials.userName}<td>${user.profile.email}`;
@@ -255,20 +255,12 @@
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
             createDivA("Export Users", mainPopup, function () {
                 exportPopup = createPopup("Export Users");
-                var props = $("<select>").appendTo(exportPopup).change(function () {
-                    var {text, value} = this.selectedOptions[0];
-                    if (value) {
-                        var header = $("#exportheader").val();
-                        var columns = $("#exportcolumns").val();
-                        $("#exportheader").val((header ? header + ", " : "") + text);
-                        $("#exportcolumns").val((columns ? columns + ", " : "") + value);
-                    }
-                });
+                exportPopup.append("<br>Columns to export");
+                var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 300px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
                 
                 $.getJSON("/api/v1/meta/schemas/user/default")
                 .then(schema => {
                     var user = {
-                        "": "Attributes",
                         id: "User Id", 
                         status: "Status", 
                         created: "Created Date", 
@@ -283,33 +275,46 @@
                     };
                     var base = schema.definitions.base.properties;
                     var custom = schema.definitions.custom.properties;
-                    for (var p in user) addOption(p, user[p]);
-                    for (p in base) addOption("profile." + p, base[p].title);
-                    for (p in custom) addOption("profile." + p, custom[p].title);
+                    const defaultColumns = "id,status,profile.login,profile.firstName,profile.lastName,profile.email";
+                    var exportColumns = (localStorage.rockstarExportUserColumns || defaultColumns).replace(/ /g, "").split(",");
+                    for (var p in user) addCheckbox(p, user[p]);
+                    for (p in base) addCheckbox("profile." + p, base[p].title);
+                    for (p in custom) addCheckbox("profile." + p, custom[p].title);
                 
-                    function addOption(value, text) {
-                        props.append(`<option value='${value}'>${text}</option>`);
+                    function addCheckbox(value, text) {
+                        var checked = exportColumns.includes(value) ? "checked" : "";
+                        checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${value}' ${checked}>${text}</label><br>`);
                     }
                 });
     
-                var exportHeader = localStorage.rockstarExportUserHeader || "User Id, Username, First name, Last name, Primary email, Credential Provider Type";
-                var exportColumns = localStorage.rockstarExportUserColumns || "id, profile.login, profile.firstName, profile.lastName, profile.email, credentials.provider.type";
                 var exportArgs = localStorage.rockstarExportUserArgs || "";
-                exportPopup.append(`<br><br>Headers:<br><input id=exportheader value='${exportHeader}' style='width: 900px'><br><br>`);
-                exportPopup.append(`Columns:<br><input id=exportcolumns value='${exportColumns}' style='width: 900px'><br>` +
-                    `e.g. <code>id, status, profile.login, profile.firstName, credentials.provider.type</code> ` +
-                    `<a href='https://developer.okta.com/docs/reference/api/users/#user-model' target='_blank' rel='noopener'>Help</a><br><br>`);
-                exportPopup.append(`Request Parameters:<br><input id=exportargs value='${exportArgs}' style='width: 900px'><br>` +
-                    `e.g. <code>filter=status eq "DEPROVISIONED"</code> ` +
-                    `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br><br>`);
+                exportPopup.append(`<br><br>Query, Filter, or Search&nbsp;&nbsp;` +
+                    `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br>` +
+                    `<input id=exportargs list=parlist value='${exportArgs}' style='width: 300px'><br><br>` + 
+                    `<div id=error>&nbsp;</div><br>` +
+                    `<datalist id=parlist><option>q=Smith<option>filter=status eq "DEPROVISIONED"<option>filter=profile.lastName eq "Smith"` +
+                    `<option>search=status eq "DEPROVISIONED"<option>search=profile.lastName eq "Smith"</datalist>`);
                 createDivA("Export", exportPopup, function () {
                     exportArgs = $("#exportargs").val();
                     if (exportArgs.startsWith("?")) exportArgs = exportArgs.substring(1);
-                    localStorage.rockstarExportUserHeader = $("#exportheader").val();
-                    localStorage.rockstarExportUserColumns = $("#exportcolumns").val();
-                    localStorage.rockstarExportUserArgs = exportArgs;
-                    startExport("Users", `/api/v1/users?${exportArgs}`, $("#exportheader").val().replace(/, /g, ","), 
-                        user => toCSV(...fields(user, $("#exportcolumns").val().replace(/ /g, ""))));
+                    var exportHeaders = [];
+                    var exportColumns = [];
+                    checkboxDiv.find("label").each(function () {
+                        var checkbox = this.childNodes[0];
+                        if (checkbox.checked) {
+                            exportHeaders.push(this.childNodes[1].textContent);
+                            exportColumns.push(checkbox.value);
+                        }
+                    });
+                    if (exportHeaders.length) {
+                        $("#error").html("&nbsp;");
+                        exportHeaders = exportHeaders.join(",");
+                        localStorage.rockstarExportUserColumns = exportColumns.join(",");
+                        localStorage.rockstarExportUserArgs = exportArgs;
+                        startExport("Users", `/api/v1/users?${exportArgs}`, exportHeaders, user => toCSV(...fields(user, exportColumns)));
+                    } else {
+                        $("#error").html("Select at least 1 column.");
+                    }
                 }, "class='link-button'");
             });
         } else if (location.pathname == "/admin/groups") {
@@ -374,7 +379,7 @@
             exportPopup.html("Loading ...");
             template = templateCallback;
             lines = [header];
-            $.getJSON(url).then(getObjects);
+            $.getJSON(url).then(getObjects).fail(failObjects);
             cancel = false;
         }
         function getObjects(objects, status, jqXHR) {
@@ -404,11 +409,11 @@
                         exportPopup.html(exportPopup.html() + "<br>Sleeping...");
                         if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {
                             clearInterval(intervalID);
-                            $.getJSON(url).then(getObjects);
+                            $.getJSON(url).then(getObjects).fail(failObjects);
                         }
                     }, 1000);
                 } else {
-                    $.getJSON(url).then(getObjects);
+                    $.getJSON(url).then(getObjects).fail(failObjects);
                 }
             } else {
                 if ((total + 1) == lines.length) { // lines includes the header.
@@ -424,8 +429,10 @@
                 }
             }
         }
+        function failObjects(jqXHR) {
+            exportPopup.html("<br>Error: " + jqXHR.responseJSON.errorSummary);
+        }
         function fields(o, fields) {
-            fields = fields.split(",");
             var a = [];
             for (var f in fields) {
                 a.push(dot(o, fields[f]));
@@ -714,7 +721,7 @@
     }
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/' target='_blank' rel='noopener'>&nbsp;?&nbsp;</a> ` + 
+            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener'>&nbsp;?&nbsp;</a> ` + 
             `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer'>&nbsp;X&nbsp;</a></div><br><br></div>`).appendTo(document.body);
         return $("<div></div>").appendTo(popup);
     }

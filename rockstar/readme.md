@@ -1,5 +1,5 @@
 # Enhance Okta with these features:
-- Export Objects to CSV: eg, Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, ...
+- Export Objects to CSV: eg, Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, App Notes.
 - Administrators page: Export Admins
 - User home page: Show SSO (SAML assertion, etc)
 - People page: enhanced search

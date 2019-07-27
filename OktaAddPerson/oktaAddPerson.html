@@ -7,8 +7,8 @@
 body {
     font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
     font-size: 100%;
-    width: 600px;
-    height: 400px;
+    width: 320px; /* max is about 800 */
+    height: 400px; /* max is about 600 */
     background-color: white;
 }
 td {
@@ -30,9 +30,8 @@ td {
 <tr><td>Email<td><input id="email"><td id="emailError" class="error">
 <tr><td>Password<td><input id="password" type="password"><td id="passwordError" class="error">
 <tr><td>Verify password<td><input id="password2" type="password">
+<tr><td><td><br><button type="submit">Add Person</button>
 </table>
-<br>
-<button type="submit">Add Person</button>
 </form>
 <br>
 <div id="results"></div>

@@ -178,7 +178,8 @@
             var adminsPopup = createPopup("Administrators");
             adminsPopup.html("Exporting ...");
             $.getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups").then(admins => {
-                var lines = ["First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role"];
+                const header = "First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role";
+                var lines = [];
                 admins.forEach(admin => {
                     var profile = admin._embedded.user.profile;
                     var mgr = profile.manager || profile.managerId || "";
@@ -228,7 +229,7 @@
                     if (admin.apiAccessManagementAdmin) showRole("API Access Management Administrator");
                 });
 
-                downloadCSV(adminsPopup, "", lines, `Administrators ${location.host.replace("-admin", "")}`);
+                downloadCSV(adminsPopup, "", header, lines, `Administrators ${location.host.replace("-admin", "")}`);
             });
         });
     }
@@ -247,6 +248,7 @@
         var total;
         var objectType;
         var template;
+        var header;
         var lines;
         var appId;
         var groupId;
@@ -258,8 +260,7 @@
                 exportPopup.append("<br>Columns to export");
                 var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 300px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
                 
-                $.getJSON("/api/v1/meta/schemas/user/default")
-                .then(schema => {
+                $.getJSON("/api/v1/meta/schemas/user/default").then(schema => {
                     var user = {
                         id: "User Id", 
                         status: "Status", 
@@ -299,12 +300,9 @@
                     if (exportArgs.startsWith("?")) exportArgs = exportArgs.substring(1);
                     var exportHeaders = [];
                     var exportColumns = [];
-                    checkboxDiv.find("label").each(function () {
-                        var checkbox = this.childNodes[0];
-                        if (checkbox.checked) {
-                            exportHeaders.push(this.childNodes[1].textContent);
-                            exportColumns.push(checkbox.value);
-                        }
+                    checkboxDiv.find("input:checked").each(function () {
+                        exportHeaders.push(this.parentNode.textContent);
+                        exportColumns.push(this.value);
                     });
                     if (exportHeaders.length) {
                         $("#error").html("&nbsp;");
@@ -372,15 +370,16 @@
         //         "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>" +
         //         "<a href='/admin/access/networks'>Security > Networks</a><br>");
         }
-        function startExport(title, url, header, templateCallback) {
+        function startExport(title, url, headerRow, templateCallback) {
             total = 0;
             objectType = title;
             exportPopup = createPopup(title);
             exportPopup.html("Loading ...");
             template = templateCallback;
-            lines = [header];
-            $.getJSON(url).then(getObjects).fail(failObjects);
+            header = headerRow;
+            lines = [];
             cancel = false;
+            $.getJSON(url).then(getObjects).fail(failObjects);
         }
         function getObjects(objects, status, jqXHR) {
             objects.forEach(object => {
@@ -393,14 +392,22 @@
             });
             total += objects.length;
             exportPopup.html(total + " " + objectType + "...<br><br>");
-            createDivA("Cancel", exportPopup, () => cancel = true);
+            createDivA("Cancel", exportPopup, () => cancel = true, "class='link-button'");
             if (cancel) {
                 exportPopup.parent().remove();
                 return;
             }
             var link = jqXHR.getResponseHeader("Link");
             var links = link ? getLinks(link) : null;
+            var paginate = false;
             if (links && links.next) {
+                if (links.next.match("/users.*search=")) {
+                    paginate = total < 50000; // /api/v1/users/search= only supports 50k users.
+                } else {
+                    paginate = true;
+                }
+            }
+            if (paginate) {
                 var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
                 var url = nextUrl.pathname + nextUrl.search;
                 var remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
@@ -416,13 +423,13 @@
                     $.getJSON(url).then(getObjects).fail(failObjects);
                 }
             } else {
-                if ((total + 1) == lines.length) { // lines includes the header.
-                    downloadCSV(exportPopup, total + " " + objectType + " exported. ", lines, `Export ${objectType}`);
+                if (total == lines.length) {
+                    downloadCSV(exportPopup, total + " " + objectType + " exported. ", header, lines, `Export ${objectType}`);
                 } else {
-                    exportPopup.html("Processing...");
+                    exportPopup.html("Processing..."); // Wait for other fetches to finish.
                     var intervalID = setInterval(() => {
-                        if ((total + 1) == lines.length) {
-                            downloadCSV(exportPopup, total + " " + objectType + " exported. ", lines, `Export ${objectType}`);
+                        if (total == lines.length) {
+                            downloadCSV(exportPopup, total + " " + objectType + " exported. ", header, lines, `Export ${objectType}`);
                             clearInterval(intervalID);
                         }
                     }, 300);
@@ -564,7 +571,7 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
-            datalist.innerHTML = "apps,events,groups,idps,logs,sessions/me,users,users/me,zones".split(',').map(a => `<option>/api/v1/${a}`).join("");
+            datalist.innerHTML = "apps,groups,idps,logs,sessions/me,users,users/me,zones".split(',').map(a => `<option>/api/v1/${a}`).join("");
             var send = form.appendChild(document.createElement("input"));
             send.type = "submit";
             send.value = "Send";
@@ -807,10 +814,10 @@
     function toCSV(...fields) {
         return fields.map(field => `"${field == undefined ? "" : field.toString().replace(/"/g, '""')}"`).join(',');
     }
-    function downloadCSV(popup, html, lines, filename) {
+    function downloadCSV(popup, html, header, lines, filename) {
         popup.html(html + "Done.");
         var a = $("<a>").appendTo(popup);
-        a.attr("href", URL.createObjectURL(new Blob([lines.join("\n")], {type: 'text/csv'})));
+        a.attr("href", URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/csv'})));
         var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
         a.attr("download", `${filename} ${date}.csv`);
         a[0].click();

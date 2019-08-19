@@ -341,10 +341,17 @@
                 startExport("Zones", "/api/v1/zones", "id,name,gateways", 
                     zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
             });
+        } else if (location.pathname.match("/admin/devices-inventory")) {
+            createDivA("Export Devices", mainPopup, function () {
+                startExport("Devices", "/api/v1/devices", "id,displayName,platform,manufacturer,model,osVersion,serialNumber,imei,meid,udid,sid", 
+                    device => toCSV(device.id, device.profile.displayName, device.profile.platform, device.profile.manufacturer, device.profile.model,
+                        device.profile.osVersion, device.profile.serialNumber, device.profile.imei, device.profile.meid, device.profile.udid, device.profile.sid));
+            });
         } else if (appId = getAppId()) {
             createDivA("Export App Users", mainPopup, function () {
-                startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId", 
-                    appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId));
+                startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId,firstName,lastName", 
+                    appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId, 
+                    appUser.profile.firstName,appUser.profile.lastName));
             });
             createDivA("Export App Groups", mainPopup, function () {
                 const atos = a => a ? a.join(";") : "";

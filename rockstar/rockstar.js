@@ -315,10 +315,14 @@
                     }
                 }, "class='link-button'");
             });
-        } else if (location.pathname == "/admin/groups") {
+        } else if (location.pathname.match("/admin/groups")) {
             createDivA("Export Groups", mainPopup, function () {
                 startExport("Groups", "/api/v1/groups", "id,name,description,type", 
-                group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
+                    group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
+            });
+            createDivA("Export Group Rules", mainPopup, function () {
+                startExport("Groups", "/api/v1/groups/rules", "id,name,status,if,assignToGroupIds", 
+                    rule => toCSV(rule.id, rule.name, rule.status, rule.conditions.expression.value, rule.actions.assignUserToGroups.groupIds.join(";")));
             });
         } else if (location.pathname == "/admin/apps/active") {
             createDivA("Export Apps", mainPopup, function () {
@@ -351,7 +355,7 @@
             createDivA("Export App Users", mainPopup, function () {
                 startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId,firstName,lastName", 
                     appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId, 
-                    appUser.profile.firstName,appUser.profile.lastName));
+                        appUser.profile.firstName, appUser.profile.lastName));
             });
             createDivA("Export App Groups", mainPopup, function () {
                 const atos = a => a ? a.join(";") : "";

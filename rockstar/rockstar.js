@@ -129,7 +129,8 @@
                 {type: "HELP_DESK_ADMIN", label: "Help Desk"},
                 {type: "READ_ONLY_ADMIN", label: "Read-only"}, // not "Read Only"
                 {type: "MOBILE_ADMIN", label: "Mobile"},
-                {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"}
+                {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"},
+                {type: "REPORT_ADMIN", label: "Report"}
             ];
             var rolesPopup = createPopup("Administrator Roles");
             showRoles();

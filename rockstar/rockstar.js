@@ -603,7 +603,7 @@
                     }
                     var s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
                     var pathname = url.value.split('?')[0];
-                    if (objects.length) { // It's an array.
+                    if ($.isArray(objects)) {
                         var table = formatObj(objects, pathname);
                         $(results).append(table.header);
                         if (nextUrl) {
@@ -626,7 +626,7 @@
         let objects = JSON.parse(pre.innerHTML);
         let s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
         if (objects.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
-        if (objects.length) { // It's an array.
+        if ($.isArray(objects)) {
             document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #f9f9f9;} " +
                 "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #f2f2f2; text-align: left;}</style>";
             var table = formatObj(objects, location.pathname);

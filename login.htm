@@ -5,10 +5,24 @@
 <title>Sign in</title>
 <script src="https://global.oktacdn.com/okta-signin-widget/3.2.0/js/okta-sign-in.min.js" type="text/javascript"></script>
 <link href="https://global.oktacdn.com/okta-signin-widget/3.2.0/css/okta-sign-in.min.css" type="text/css" rel="stylesheet" />
+<style>
+#login-bg-image {
+    background-image: url('https://picography.co/wp-content/uploads/2018/09/picography-desert-road-mountain-sunset-small-768x512.jpg'); 
+    top: 0; 
+    bottom: 0; 
+    left: 0; 
+    right: 0;
+    position: fixed;
+    background-position: 50%;
+    background-size: cover;
+}
+</style>
 </head>
 <body>
 <br>
+<div id="login-bg-image">
 <div id="osw-container"></div>
+</div>
 <script>
 // see https://developer.okta.com/code/javascript/okta_sign-in_widget
 //     https://github.com/okta/okta-signin-widget
@@ -21,7 +35,9 @@ var config = {
 };
 var signIn = new OktaSignIn(config);
 if (location.search == "?signout") {
-    signIn.session.close(function () {location.href = "login.htm";});
+    signIn.session.close(function () {
+        location.href = "login.htm";
+    });
 } else {
     signIn.renderEl(
         {el: '#osw-container'},

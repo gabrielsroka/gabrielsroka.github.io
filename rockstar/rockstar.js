@@ -327,8 +327,8 @@
             });
         } else if (location.pathname == "/admin/apps/active") {
             createDivA("Export Apps", mainPopup, function () {
-                startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features", 
-                    app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', ')));
+                startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode", 
+                    app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode));
             });
             createDivA("Export App Notes", mainPopup, function () {
                 startExport("App Notes", "/api/v1/apps", "id,label,name,userNameTemplate,features,endUserAppNotes,adminAppNotes", async app => {

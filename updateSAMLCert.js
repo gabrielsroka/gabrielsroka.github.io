@@ -35,12 +35,7 @@ Usage:
         await put("/api/v1/apps/" + appId, updatedApp);
         location = "/admin/org/security/" + appId + "/cert";
     } catch (jqXHR) {
-        var causes = jqXHR.responseJSON.errorCauses;
-        var errors = "";
-        for (var c = 0; c < causes.length; c++) {
-            errors += causes[c].errorSummary + "\n";
-        }
-        alert("Error:\n" + errors);
+        alert("Error: " + jqXHR.responseJSON.errorCauses.map(e => e.errorSummary).join("\n"));
     }
     function put(url, body) {
         return $.ajax({

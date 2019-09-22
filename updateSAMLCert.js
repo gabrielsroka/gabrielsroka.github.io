@@ -11,7 +11,7 @@ Usage:
 2. Click the bookmark from your toolbar.
 */
 
-(function () {
+(async function () {
     var validityYears = 10; // This must be between 2 and 10.
 
     var appId = getAppId();
@@ -19,31 +19,29 @@ Usage:
         alert("Error. Go to Applications > Applications and click on an app.");
         return;
     }
-    var updatedApp;
-    $.get("/api/v1/apps/" + appId).then(function (app) {
-        updatedApp = {
+    try {
+        var app = await $.get("/api/v1/apps/" + appId);
+        var key = await $.post("/api/v1/apps/" + appId + "/credentials/keys/generate?validityYears=" + validityYears);
+        var updatedApp = {
             name: app.name,
             label: app.label,
-            signOnMode: app.signOnMode
-        };
-        return $.post("/api/v1/apps/" + appId + "/credentials/keys/generate?validityYears=" + validityYears);
-    }).then(function (key) {
-        updatedApp.credentials = {
-            signing: {
-                kid: key.kid
+            signOnMode: app.signOnMode,
+            credentials: {
+                signing: {
+                    kid: key.kid
+                }
             }
         };
-        return put("/api/v1/apps/" + appId, updatedApp);
-    }).then(function () {
+        await put("/api/v1/apps/" + appId, updatedApp);
         location = "/admin/org/security/" + appId + "/cert";
-    }).fail(function (jqXHR) {
+    } catch (jqXHR) {
         var causes = jqXHR.responseJSON.errorCauses;
         var errors = "";
         for (var c = 0; c < causes.length; c++) {
             errors += causes[c].errorSummary + "\n";
         }
         alert("Error:\n" + errors);
-    });
+    }
     function put(url, body) {
         return $.ajax({
             type: "PUT",

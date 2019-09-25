@@ -36,11 +36,8 @@ var config = {
 var signIn = new OktaSignIn(config);
 if (location.search == "?signout") {
     signIn.authClient.signOut()
-    .then(function () {
-        location.href = "login.htm";
-    }).fail(function () {
-        location.href = "login.htm";
-    });
+        .then(() => location.href = "login.htm")
+        .fail(() => location.href = "login.htm");
 } else {
     signIn.renderEl(
         {el: '#osw-container'},

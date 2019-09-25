@@ -44,6 +44,10 @@ if (localStorage.links) {
     getLinks();
 }
 
+// It's expecting appLinks whose labels match the following pattern:
+//     label,[url]
+// eg: "NY Times,nytimes.com", or even "NY Times,"
+// If url is blank, it will figure it out from the label. It will remove spaces, and add "https://" and ".com", etc.
 async function getLinks() {
     try {
         var init = {credentials: "include"};

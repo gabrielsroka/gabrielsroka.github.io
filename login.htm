@@ -35,7 +35,10 @@ var config = {
 };
 var signIn = new OktaSignIn(config);
 if (location.search == "?signout") {
-    signIn.authClient.signOut().then(function () {
+    signIn.authClient.signOut()
+    .then(function () {
+        location.href = "login.htm";
+    }).fail(function () {
         location.href = "login.htm";
     });
 } else {

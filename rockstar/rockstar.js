@@ -127,7 +127,7 @@
                 {type: "APP_ADMIN", label: "Application"},
                 {type: "USER_ADMIN", label: "Group"}, // not "User"
                 {type: "HELP_DESK_ADMIN", label: "Help Desk"},
-                {type: "READ_ONLY_ADMIN", label: "Read-only"}, // not "Read Only"
+                {type: "READ_ONLY_ADMIN", label: "Read Only"},
                 {type: "MOBILE_ADMIN", label: "Mobile"},
                 {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"},
                 {type: "REPORT_ADMIN", label: "Report"}
@@ -220,14 +220,15 @@
                         }
                         return groupNames.join('; ');
                     }
-                    if (admin.superAdmin) showRole("Super Administrator");
-                    if (admin.orgAdmin) showRole("Organization Administrator");
-                    if (admin.appAdmin) showRole("Application Administrator: " + appAndInstanceNames());
-                    if (admin.userAdmin) showRole("Group Administrator: " + groupNames("userAdminGroups")); // "Group Admin", not "User Admin"
-                    if (admin.helpDeskAdmin) showRole("Help Desk Administrator: " + groupNames("helpDeskAdminGroups"));
-                    if (admin.readOnlyAdmin) showRole("Read Only Administrator");
-                    if (admin.mobileAdmin) showRole("Mobile Administrator");
-                    if (admin.apiAccessManagementAdmin) showRole("API Access Management Administrator");
+                    if (admin.superAdmin || admin.orgAdministratorGroup.superAdmin) showRole("Super Administrator");
+                    if (admin.orgAdmin || admin.orgAdministratorGroup.orgAdmin) showRole("Organization Administrator");
+                    if (admin.appAdmin || admin.orgAdministratorGroup.appAdmin) showRole("Application Administrator: " + appAndInstanceNames());
+                    if (admin.userAdmin || admin.orgAdministratorGroup.userAdmin) showRole("Group Administrator: " + groupNames("userAdminGroups")); // "Group Admin", not "User Admin"
+                    if (admin.helpDeskAdmin || admin.orgAdministratorGroup.helpDeskAdmin) showRole("Help Desk Administrator: " + groupNames("helpDeskAdminGroups"));
+                    if (admin.readOnlyAdmin || admin.orgAdministratorGroup.readOnlyAdmin) showRole("Read Only Administrator");
+                    if (admin.mobileAdmin || admin.orgAdministratorGroup.mobileAdmin) showRole("Mobile Administrator");
+                    if (admin.apiAccessManagementAdmin || admin.orgAdministratorGroup.apiAccessManagementAdmin) showRole("API Access Management Administrator");
+                    if (admin.reportAdmin || admin.orgAdministratorGroup.reportAdmin) showRole("Report Administrator");
                 });
 
                 downloadCSV(adminsPopup, "", header, lines, `Administrators ${location.host.replace("-admin", "")}`);

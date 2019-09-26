@@ -66,8 +66,7 @@ async function getLinks() {
                 if (!url.startsWith("https")) url = "https://" + url;
                 if (!url.includes(".")) url += ".com";
                 return {label, url};
-            })
-            .filter(link => link != undefined);
+            });
         localStorage.links = JSON.stringify(links);
         showLinks(links);
     } catch (e) {

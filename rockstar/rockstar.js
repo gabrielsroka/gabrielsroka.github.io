@@ -369,8 +369,8 @@
             });
         } else if (groupId = getGroupId()) {
             createDivA("Export Group Members", mainPopup, function () {
-                startExport("Group Members", `/api/v1/groups/${groupId}/users`, "id,login,firstName,lastName", 
-                    user => toCSV(user.id, user.profile.login, user.profile.firstName, user.profile.lastName));
+                startExport("Group Members", `/api/v1/groups/${groupId}/users`, "id,login,firstName,lastName,status", 
+                    user => toCSV(user.id, user.profile.login, user.profile.firstName, user.profile.lastName, user.status));
             });
         // TODO: what to do here?
         // } else {

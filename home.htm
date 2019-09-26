@@ -45,8 +45,8 @@ if (localStorage.links) {
 }
 
 // It's expecting appLinks whose labels match the following pattern:
-//     label,[url]
-// eg: "NY Times,nytimes.com", or even "NY Times,"
+//     label[, url]
+// eg: "NY Times, nytimes.com", or just "NY Times"
 // If url is blank, it will figure it out from the label. It will remove spaces, and add "https://" and ".com", etc.
 async function getLinks() {
     try {
@@ -58,13 +58,14 @@ async function getLinks() {
             .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
             .map(link => {
                 var [label, url] = link.label.split(/,/);
-                if (url !== undefined) {
+                if (url) {
                     url = url.trim();
-                    if (url === "") url = label.replace(/ /g, "");
-                    if (!url.startsWith("https")) url = "https://" + url;
-                    if (!url.includes(".")) url += ".com";
-                    return {label, url};
+                } else {
+                    url = label.replace(/ /g, "");
                 }
+                if (!url.startsWith("https")) url = "https://" + url;
+                if (!url.includes(".")) url += ".com";
+                return {label, url};
             })
             .filter(link => link != undefined);
         localStorage.links = JSON.stringify(links);

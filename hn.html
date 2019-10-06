@@ -69,8 +69,10 @@ function getItems() {
         if (item.url) {
             var site = new URL(item.url).hostname.replace(/^www\./, "");
             var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${site}`, site)})`;
+            var web = ' | ' + anc('https://www.google.com/search?q=' + item.title, 'web');
         } else {
             ln1 = anc(hnItemUrl, item.title);
+            web = '';
         }
         var ago = new Date() / 1000 - item.time; // in seconds, 60 s == 1 min, 3600 s = 1 hr, etc.
         if (ago < 3600) {
@@ -88,7 +90,7 @@ function getItems() {
         } else {
             pts = `${plu(item.score, "point")}`;
             by = `by ${anc(`${hnBaseUrl}/user?id=${item.by}`, item.by)}`;
-            ln2 = `${ago} | ${anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"))} | ${anc('https://www.google.com/search?q=' + item.title, 'web')}`;
+            ln2 = `${ago} | ${anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"))}` + web;
         }
         loading.innerHTML = "";
         if (small) {

@@ -88,7 +88,7 @@ function getItems() {
         } else {
             pts = `${plu(item.score, "point")}`;
             by = `by ${anc(`${hnBaseUrl}/user?id=${item.by}`, item.by)}`;
-            ln2 = `${ago} | ${anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"))}`;
+            ln2 = `${ago} | ${anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"))} | ${anc('https://www.google.com/search?q=' + item.title, 'web')}`;
         }
         loading.innerHTML = "";
         if (small) {

@@ -344,8 +344,9 @@
             });
         } else if (location.pathname == "/admin/access/networks") {
             createDivA("Export Networks", mainPopup, function () {
-                startExport("Zones", "/api/v1/zones", "id,name,gateways", 
-                    zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', ')));
+                startExport("Zones", "/api/v1/zones", "id,name,gateways,gatewayType,zoneType", 
+                    zone => toCSV(zone.id, zone.name, zone.gateways && zone.gateways.map(gateway => gateway.value).join(', '), 
+                        zone.gateways && zone.gateways.map(gateway => gateway.type).join(', '), zone.type));
             });
         } else if (location.pathname.match("/admin/devices-inventory")) {
             createDivA("Export Devices", mainPopup, function () {

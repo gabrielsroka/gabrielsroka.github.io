@@ -30,6 +30,8 @@
             securityAdministrators();
         } else if (location.pathname.match("/report/system_log_2")) {
             systemLog();
+        } else if (location.pathname.match("/admin/app/active_directory")) {
+            activeDirectory();
         }
 
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
@@ -243,6 +245,29 @@
         createDivA("Expand Each Row", mainPopup, () => {
             $(".row-expander").each(function () {this.click()});
         });
+    }
+    function activeDirectory() {
+        createDivA("Add OU Tooltips", mainPopup, () => {
+            function addTooltip(el) {
+                el.parentNode.title = el.value;
+                //el.previousSibling.click();
+            }
+
+            document.querySelectorAll("#ad-import-ou-user-picker input").forEach(addTooltip);
+            document.querySelectorAll("#ad-import-ou-group-picker input").forEach(addTooltip);
+        });        
+        createDivA("Export OUs", mainPopup, () => {
+            var ous = [];
+            showOUs("user");
+            showOUs("group");
+            var ouPopup = createPopup("OUs");
+            downloadCSV(ouPopup, ous.length + " OUs exported. ", "OU,type", ous, "AD OUs");
+
+            function showOUs(type) {
+                document.querySelectorAll("#ad-import-ou-" + type + "-picker input:checked.ou-checkbox-tree-item")
+                    .forEach(el => ous.push(toCSV(el.value, type)));
+            }
+        });           
     }
 
     function exportObjects() {

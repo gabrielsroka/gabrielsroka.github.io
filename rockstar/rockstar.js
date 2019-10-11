@@ -167,7 +167,7 @@
                             });
                         });
                     }
-                });
+                }).fail(jqXHR => rolesPopup.html(jqXHR.responseJSON.errorSummary + "<br><br>"));
             }
             function postJSON(settings) {
                 settings.contentType = "application/json";

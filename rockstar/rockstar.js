@@ -248,24 +248,29 @@
     }
     function activeDirectory() {
         createDivA("Add OU Tooltips", mainPopup, () => {
-            function addTooltip(el) {
-                el.parentNode.title = el.value;
-                //el.previousSibling.click();
-            }
+            addTooltip("user");
+            addTooltip("group");
 
-            document.querySelectorAll("#ad-import-ou-user-picker input").forEach(addTooltip);
-            document.querySelectorAll("#ad-import-ou-group-picker input").forEach(addTooltip);
+            function addTooltip(type) {
+                var els = document.querySelectorAll("#orgunittree input");
+                if (!els.length) els = document.querySelectorAll("#ad-import-ou-" + type + "-picker input");
+                els.forEach(el => {
+                    el.parentNode.title = el.value;
+                    //el.previousSibling.click();
+                });
+            }
         });        
         createDivA("Export OUs", mainPopup, () => {
+            var ouPopup = createPopup("OUs");
             var ous = [];
             showOUs("user");
             showOUs("group");
-            var ouPopup = createPopup("OUs");
             downloadCSV(ouPopup, ous.length + " OUs exported. ", "OU,type", ous, "AD OUs");
 
             function showOUs(type) {
-                document.querySelectorAll("#ad-import-ou-" + type + "-picker input:checked.ou-checkbox-tree-item")
-                    .forEach(el => ous.push(toCSV(el.value, type)));
+                var els = document.querySelectorAll("." + type + "outreenode.tree-element-chosen");
+                if (!els.length) els = document.querySelectorAll("#ad-import-ou-" + type + "-picker input:checked.ou-checkbox-tree-item");
+                els.forEach(el => ous.push(toCSV(el.value, type)));
             }
         });           
     }

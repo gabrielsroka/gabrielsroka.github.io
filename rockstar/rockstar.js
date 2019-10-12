@@ -59,22 +59,23 @@
 
     // Admin functions
     function directoryPeople() {
-        //createPrefixA("<li class=option>", "<span class='icon download-16'></span>Export Users", ".okta-dropdown-list", exportObjects);
-        searcher({
-            url: "/api/v1/users",
-            data() {return {q: this.search, limit: this.limit};},
-            limit: 15, // 15 is the max limit when using q.
-            comparer: (user1, user2) => (user1.profile.firstName + user1.profile.lastName).localeCompare(user2.profile.firstName + user2.profile.lastName),
-            template(user) {
-                var creds = user.credentials.provider;
-                var logo = creds.type == "LDAP" ? "ldap_sun_one" : creds.type.toLowerCase();
-                return `<tr><td><span class='icon icon-24 group-logos-24 logo-${logo}'></span> ${creds.name == "OKTA" ? "Okta" : creds.name}` +
-                    `<td><a href="/admin/user/profile/view/${user.id}#tab-account">${user.profile.firstName} ${user.profile.lastName}</a>` +
-                    `<td>${user.profile.login}<td>${user.profile.email}`;
-            },
-            headers: "<tr><th>Source<th>Name<th>Username<th>Primary Email",
-            placeholder: "Search Active by First/Last/Email...",
-            empty: true
+        createDivA("Search Users (experimental)", mainPopup, () => {
+            searcher({
+                url: "/api/v1/users",
+                data() {return {q: this.search, limit: this.limit};},
+                limit: 15, // 15 is the max limit when using q.
+                comparer: (user1, user2) => (user1.profile.firstName + user1.profile.lastName).localeCompare(user2.profile.firstName + user2.profile.lastName),
+                template(user) {
+                    var creds = user.credentials.provider;
+                    var logo = creds.type == "LDAP" ? "ldap_sun_one" : creds.type.toLowerCase();
+                    return `<tr><td><span class='icon icon-24 group-logos-24 logo-${logo}'></span> ${creds.name == "OKTA" ? "Okta" : creds.name}` +
+                        `<td><a href="/admin/user/profile/view/${user.id}#tab-account">${user.profile.firstName} ${user.profile.lastName}</a>` +
+                        `<td>${user.profile.login}<td>${user.profile.email}`;
+                },
+                headers: "<tr><th>Source<th>Name<th>Username<th>Primary Email",
+                placeholder: "Search Active by First/Last/Email...",
+                empty: true
+            });
         });
     }
     function directoryPerson() {

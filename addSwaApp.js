@@ -29,6 +29,9 @@ Usage:
             signOnMode: "AUTO_LOGIN",
             visibility: {
                 autoSubmitToolbar: false
+            },
+            credentials: {
+                revealPassword: true
             }
         };
         popup.html("Adding app...");

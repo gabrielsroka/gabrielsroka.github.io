@@ -123,6 +123,32 @@
         createDivA("Show User", mainPopup, showUser);
         createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);
 
+        createDivA("Verify Push", mainPopup, async function () {
+            var verifyPopup = createPopup("Verifying factor");
+            var url = `/api/v1/users/${userId}/factors`;
+            var intervalMs = 4000; // time in ms.
+            var factors = await $.get(url);
+            var factorId;
+            factors.forEach(factor => {
+                if (factor.factorType == "push") factorId = factor.id
+            });
+            if (factorId) {
+                url += `/${factorId}/verify`;
+                var response = await $.post(url);
+                verifyPopup.html(response);
+                var intervalID = setInterval(async () => {
+                    var url = new URL(response._links.poll.href);
+                    var poll = await $.get(url.pathname);
+                    verifyPopup.html(poll.factorResult);
+                    if (poll.factorResult != "WAITING") {
+                        clearInterval(intervalID);
+                    }
+                }, intervalMs);
+            } else {
+                verifyPopup.html("Push not found");
+            }
+        });
+        
         createDivA("Administrator Roles", mainPopup, function () {
             var allRoles = [
                 {type: "SUPER_ADMIN", label: "Super"},
@@ -169,11 +195,6 @@
                         });
                     }
                 }).fail(jqXHR => rolesPopup.html(jqXHR.responseJSON.errorSummary + "<br><br>"));
-            }
-            function postJSON(settings) {
-                settings.contentType = "application/json";
-                settings.data = JSON.stringify(settings.data);
-                return $.post(settings);
             }
         });
     }
@@ -794,6 +815,11 @@
             links[name] = url;
         }
         return links;
+    }
+    function postJSON(settings) {
+        settings.contentType = "application/json";
+        settings.data = JSON.stringify(settings.data);
+        return $.post(settings);
     }
     function searcher(object) { // TODO: Save search string in location.hash # in URL. Reload from there.
         function searchObjects() {

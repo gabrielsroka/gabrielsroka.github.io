@@ -135,7 +135,7 @@
             if (factorId) {
                 url += `/${factorId}/verify`;
                 var response = await $.post(url);
-                verifyPopup.html(response);
+                verifyPopup.html(response.factorResult);
                 var intervalID = setInterval(async () => {
                     var url = new URL(response._links.poll.href);
                     var poll = await $.get(url.pathname);

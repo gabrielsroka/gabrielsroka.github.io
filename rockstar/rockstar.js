@@ -130,7 +130,7 @@
             var factors = await $.get(url);
             var factorId;
             factors.forEach(factor => {
-                if (factor.factorType == "push") factorId = factor.id
+                if (factor.factorType == "push") factorId = factor.id;
             });
             if (factorId) {
                 url += `/${factorId}/verify`;

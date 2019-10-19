@@ -134,16 +134,20 @@
             var verifyPopup = createPopup("Verifying push");
             if (factorId) {
                 url += `/${factorId}/verify`;
-                var response = await $.post(url);
-                verifyPopup.html(response.factorResult);
-                var intervalID = setInterval(async () => {
-                    var url = new URL(response._links.poll.href);
-                    var poll = await $.get(url.pathname);
-                    verifyPopup.html(poll.factorResult);
-                    if (poll.factorResult != "WAITING") {
-                        clearInterval(intervalID);
-                    }
-                }, intervalMs);
+                try {
+                    var response = await $.post(url);
+                    verifyPopup.html(response.factorResult);
+                    var intervalID = setInterval(async () => {
+                        var url = new URL(response._links.poll.href);
+                        var poll = await $.get(url.pathname);
+                        verifyPopup.html(poll.factorResult);
+                        if (poll.factorResult != "WAITING") {
+                            clearInterval(intervalID);
+                        }
+                    }, intervalMs);
+                } catch (e) {
+                    verifyPopup.html(e.responseJSON.errorSummary);
+                }
             } else {
                 verifyPopup.html("Push not found");
             }

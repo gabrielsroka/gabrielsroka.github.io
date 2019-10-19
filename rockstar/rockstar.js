@@ -124,14 +124,14 @@
         createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);
 
         createDivA("Verify Push", mainPopup, async function () {
-            var verifyPopup = createPopup("Verifying factor");
             var url = `/api/v1/users/${userId}/factors`;
-            var intervalMs = 4000; // time in ms.
+            const intervalMs = 4000; // time in ms.
             var factors = await $.get(url);
             var factorId;
             factors.forEach(factor => {
                 if (factor.factorType == "push") factorId = factor.id;
             });
+            var verifyPopup = createPopup("Verifying push");
             if (factorId) {
                 url += `/${factorId}/verify`;
                 var response = await $.post(url);

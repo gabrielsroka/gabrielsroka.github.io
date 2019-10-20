@@ -1,6 +1,6 @@
 (function () {
     // What does rockstar do?
-    //   Export Objects to CSV: eg, Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, App Notes, Network Zones
+    //   Export Objects to CSV: Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, App Notes, Network Zones
     //   Administrators page: Export Admins
     //   User home page: Show SSO (SAML assertion, etc)
     //   People page: enhanced search
@@ -632,7 +632,7 @@
         createDivA("API Explorer", mainPopup, function () {
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
-            form.innerHTML = "<input id=url list=apilist>"; // HACK: input.list is read-only, must set it at create time. :(
+            form.innerHTML = "<select id=method><option>GET<option>POST</select> <input id=url list=apilist> "; // HACK: input.list is read-only, must set it at create time. :(
             url.style.width = "700px";
             url.placeholder = "URL";
             url.focus();
@@ -645,7 +645,7 @@
             var results = form.appendChild(document.createElement("div"));
             form.onsubmit = function () {
                 $(results).html("<br>Loading ...");
-                $.getJSON(url.value).then((objects, status, jqXHR) => {
+                $.ajax(url.value, {method: method.value}).then((objects, status, jqXHR) => {
                     $(results).html("<br>");
                     var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
                     if (linkHeader) {

@@ -642,10 +642,13 @@
             var send = form.appendChild(document.createElement("input"));
             send.type = "submit";
             send.value = "Send";
+            form.appendChild(document.createElement("div")).innerHTML = "<br>Body";
+            var data = form.appendChild(document.createElement("textarea"));
+            data.style.width = "820px";
             var results = form.appendChild(document.createElement("div"));
             form.onsubmit = function () {
                 $(results).html("<br>Loading ...");
-                $.ajax(url.value, {method: method.value}).then((objects, status, jqXHR) => {
+                $.ajax(url.value, {method: method.value, data: data.value, contentType: "application/json"}).then((objects, status, jqXHR) => {
                     $(results).html("<br>");
                     var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
                     if (linkHeader) {
@@ -671,7 +674,7 @@
                     } else {
                         $(results).append(formatPre(s, pathname));
                     }
-                }).fail(jqXHR => $(results).html("<br>Error: " + jqXHR.responseJSON.errorSummary));
+                }).fail(jqXHR => $(results).html("<br>Error: " + jqXHR.responseJSON.errorSummary + "<br>" + jqXHR.responseJSON.errorCauses.map(c => c.errorSummary).join("<br>")));
                 return false; // cancel form submit
             };
         });

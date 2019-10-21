@@ -674,7 +674,7 @@
                     } else {
                         $(results).append(formatPre(s, pathname));
                     }
-                }).fail(jqXHR => $(results).html("<br>Error: " + jqXHR.responseJSON.errorSummary + "<br>" + jqXHR.responseJSON.errorCauses.map(c => c.errorSummary).join("<br>")));
+                }).fail(jqXHR => $(results).html("<br>Error<pre>" + JSON.stringify(jqXHR.responseJSON, null, 4) + "</pre>"));
                 return false; // cancel form submit
             };
         });

@@ -671,7 +671,7 @@
         createDivA("API Explorer", mainPopup, function () {
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
-            form.innerHTML = "<select id=method><option>GET<option>POST</select> <input id=url list=apilist> "; // HACK: input.list is read-only, must set it at create time. :(
+            form.innerHTML = "<select id=method><option>GET<option>POST<option>PUT<option>DELETE</select> <input id=url list=apilist> "; // HACK: input.list is read-only, must set it at create time. :(
             url.style.width = "700px";
             url.placeholder = "URL";
             url.focus();
@@ -837,8 +837,8 @@
     }
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener'>&nbsp;?&nbsp;</a> ` + 
-            `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer'>&nbsp;X&nbsp;</a></div><br><br></div>`).appendTo(document.body);
+            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
+            `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
         return $("<div></div>").appendTo(popup);
     }
     function createA(html, parent, clickHandler) {

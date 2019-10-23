@@ -133,7 +133,8 @@
                     sms: {icon: "sms", text: "SMS Authentication"},
                     call: {icon: "call", text: "Voice Call Authentication"},
                     push: {icon: "okta-otp", text: "Okta Verify with Push"},
-                    "token:software:totp": {icon: "okta-otp", text: "Okta Verify (OTP)"}
+                    "token:software:totp": {icon: "okta-otp", text: "Okta Verify (OTP)"},
+                    email: {icon: "email", text: "Email Authentication"}
                 };
                 var factorUi = ui[factor.factorType];
                 if (!factorUi) return;
@@ -167,17 +168,17 @@
                             }, intervalMs);
                         }).fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
                         return false;
-                    } else if (factor.type == "sms" || factor.type == "call") {
+                    } else if (factor.type == "sms" || factor.type == "call" || factor.type == "email") {
                         $.post(url);
                     }
                     verifyPopup.html("");
                     var verifyForm = verifyPopup[0].appendChild(document.createElement("form"));
-                    verifyForm.innerHTML = `${factor.text} Code <input id=passCode autocomplete='off'><br>` +
+                    verifyForm.innerHTML = factor.text + " Code <input id=passCode autocomplete='off'><br>" +
                         "<button class='link-button' style='float: inherit'>Verify</button><br><div id=result></div>";
                     passCode.focus();
                     verifyForm.onsubmit = function () {
-                        var data = JSON.stringify({passCode: passCode.value});
-                        $.post({url, data, contentType: "application/json"})
+                        var data = {passCode: passCode.value};
+                        postJSON({url, data})
                             .then(response => verifyPopup.html(response.factorResult))
                             .fail(jqXHR => result.innerHTML = jqXHR.responseJSON.errorSummary);
                         return false; // Cancel form.
@@ -185,7 +186,7 @@
                     return false; // Cancel form.
                 };
             } else {
-                verifyPopup.html("Supported factor not found.");
+                verifyPopup.html("No supported factors were found.");
             }
         });
         

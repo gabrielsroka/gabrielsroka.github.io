@@ -123,30 +123,69 @@
         createDivA("Show User", mainPopup, showUser);
         createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);
 
-        createDivA("Verify Push", mainPopup, async function () {
-            const intervalMs = 4000; // time in ms.
-            var verifyPopup = createPopup("Verifying push");
+        createDivA("Verify Factors", mainPopup, async function () {
+            var verifyPopup = createPopup("Factors");
             var url = `/api/v1/users/${userId}/factors`;
             var factors = await $.get(url);
-            var push = factors.filter(factor => factor.factorType == "push")[0];
-            if (push) {
-                try {
-                    url += `/${push.id}/verify`;
-                    var response = await $.post(url);
-                    verifyPopup.html(response.factorResult);
-                    var intervalID = setInterval(async () => {
-                        var url = new URL(response._links.poll.href);
-                        var poll = await $.get(url.pathname);
-                        verifyPopup.html(poll.factorResult);
-                        if (poll.factorResult != "WAITING") {
-                            clearInterval(intervalID);
-                        }
-                    }, intervalMs);
-                } catch (e) {
-                    verifyPopup.html(e.responseJSON.errorSummary);
+            var factorsUi = {};
+            function getUi(factor) {
+                const ui = {
+                    sms: {icon: "sms", text: "SMS Authentication"},
+                    call: {icon: "call", text: "Voice Call Authentication"},
+                    push: {icon: "okta-otp", text: "Okta Verify with Push"},
+                    "token:software:totp": {icon: "okta-otp", text: "Okta Verify (OTP)"}
+                };
+                var factorUi = ui[factor.factorType];
+                if (!factorUi) return;
+                var icon = factorUi.icon;
+                var text = factorUi.text;
+                if (factor.provider == "GOOGLE") {
+                    icon = "otp";
+                    text = "Google Authenticator";
                 }
+                factorsUi[factor.id] = {type: factor.factorType, text};
+                return `<input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>${text}<br>`;
+            }
+            var ui = factors.map(getUi).join("");
+            if (ui) {
+                verifyPopup.html("<form id=factorForm>" + ui + "<br><button class='link-button'>Next</button></form>");
+                factorForm.factor[0].checked = "checked";
+                factorForm.onsubmit = function () {
+                    var factor = factorsUi[this.factor.value];
+                    var url = `/api/v1/users/${userId}/factors/${this.factor.value}/verify`;
+                    if (factor.type == "push") {
+                        $.post(url).then(response => {
+                            const intervalMs = 4000; // time in ms.
+                            verifyPopup.html(response.factorResult);
+                            var intervalID = setInterval(async () => {
+                                var url = new URL(response._links.poll.href);
+                                var poll = await $.get(url.pathname);
+                                verifyPopup.html(poll.factorResult);
+                                if (poll.factorResult != "WAITING") {
+                                    clearInterval(intervalID);
+                                }
+                            }, intervalMs);
+                        }).fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
+                        return false;
+                    } else if (factor.type == "sms" || factor.type == "call") {
+                        $.post(url);
+                    }
+                    verifyPopup.html("");
+                    var verifyForm = verifyPopup[0].appendChild(document.createElement("form"));
+                    verifyForm.innerHTML = `${factor.text} Code <input id=passCode autocomplete='off'><br>` +
+                        "<button class='link-button' style='float: inherit'>Verify</button><br><div id=result></div>";
+                    passCode.focus();
+                    verifyForm.onsubmit = function () {
+                        var data = JSON.stringify({passCode: passCode.value});
+                        $.post({url, data, contentType: "application/json"})
+                            .then(response => verifyPopup.html(response.factorResult))
+                            .fail(jqXHR => result.innerHTML = jqXHR.responseJSON.errorSummary);
+                        return false; // Cancel form.
+                    };
+                    return false; // Cancel form.
+                };
             } else {
-                verifyPopup.html("Push not found");
+                verifyPopup.html("Supported factor not found.");
             }
         });
         

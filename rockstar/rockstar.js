@@ -130,10 +130,10 @@
             var factorsUi = {};
             function getUi(factor) {
                 const ui = {
-                    sms: {icon: "sms", text: "SMS Authentication"},
-                    call: {icon: "call", text: "Voice Call Authentication"},
                     push: {icon: "okta-otp", text: "Okta Verify with Push"},
                     "token:software:totp": {icon: "okta-otp", text: "Okta Verify (OTP)"},
+                    sms: {icon: "sms", text: "SMS Authentication"},
+                    call: {icon: "call", text: "Voice Call Authentication"},
                     email: {icon: "email", text: "Email Authentication"}
                 };
                 var factorUi = ui[factor.factorType];
@@ -167,22 +167,24 @@
                                 }
                             }, intervalMs);
                         }).fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
-                        return false;
-                    } else if (factor.type == "sms" || factor.type == "call" || factor.type == "email") {
-                        $.post(url);
+                    } else {
+                        if (factor.type == "sms" || factor.type == "call" || factor.type == "email") {
+                            $.post(url)
+                                .fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
+                        }
+                        verifyPopup.html("");
+                        var verifyForm = verifyPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
+                        verifyForm.innerHTML = factor.text + " Code <input id=passCode autocomplete=off><br>" +
+                            "<button class='link-button'>Verify</button><br><div id=error></div>";
+                        passCode.focus(); // Cuz "autofocus" didn't work.
+                        verifyForm.onsubmit = function () {
+                            var data = {passCode: passCode.value};
+                            postJSON({url, data})
+                                .then(response => verifyPopup.html(response.factorResult))
+                                .fail(jqXHR => error.innerHTML = jqXHR.responseJSON.errorSummary);
+                            return false; // Cancel form.
+                        };
                     }
-                    verifyPopup.html("");
-                    var verifyForm = verifyPopup[0].appendChild(document.createElement("form"));
-                    verifyForm.innerHTML = factor.text + " Code <input id=passCode autocomplete='off'><br>" +
-                        "<button class='link-button' style='float: inherit'>Verify</button><br><div id=result></div>";
-                    passCode.focus();
-                    verifyForm.onsubmit = function () {
-                        var data = {passCode: passCode.value};
-                        postJSON({url, data})
-                            .then(response => verifyPopup.html(response.factorResult))
-                            .fail(jqXHR => result.innerHTML = jqXHR.responseJSON.errorSummary);
-                        return false; // Cancel form.
-                    };
                     return false; // Cancel form.
                 };
             } else {
@@ -311,10 +313,10 @@
     }
     function activeDirectory() {
         createDivA("Add OU Tooltips", mainPopup, () => {
-            addTooltip("user");
-            addTooltip("group");
+            addTooltips("user");
+            addTooltips("group");
 
-            function addTooltip(type) {
+            function addTooltips(type) {
                 var els = document.querySelectorAll("#orgunittree input");
                 if (!els.length) els = document.querySelectorAll("#ad-import-ou-" + type + "-picker input");
                 els.forEach(el => {
@@ -326,11 +328,11 @@
         createDivA("Export OUs", mainPopup, () => {
             var ouPopup = createPopup("OUs");
             var ous = [];
-            showOUs("user");
-            showOUs("group");
+            exportOUs("user");
+            exportOUs("group");
             downloadCSV(ouPopup, ous.length + " OUs exported. ", "OU,type", ous, "AD OUs");
 
-            function showOUs(type) {
+            function exportOUs(type) {
                 var els = document.querySelectorAll("." + type + "outreenode.tree-element-chosen");
                 if (!els.length) els = document.querySelectorAll("#ad-import-ou-" + type + "-picker input:checked.ou-checkbox-tree-item");
                 els.forEach(el => ous.push(toCSV(el.value, type)));

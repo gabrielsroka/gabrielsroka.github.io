@@ -32,6 +32,8 @@
             systemLog();
         } else if (location.pathname.match("/admin/app/active_directory")) {
             activeDirectory();
+        } else if (location.pathname == "/admin/access/identity-providers") {
+            identityProviders();
         }
 
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
@@ -338,6 +340,23 @@
                 els.forEach(el => ous.push(toCSV(el.value, type)));
             }
         });           
+    }
+    function identityProviders() {
+        createDivA("SAML IdPs", mainPopup, () => {
+            $.getJSON(`/api/v1/idps?type=SAML2`).then(idps => {
+                $.getJSON('/api/v1/idps/credentials/keys').then(keys => {
+                    var idpPopup = createPopup("SAML IdPs");
+                    var rows = "<tr><th>Name<th>Certifcate Expires On<th>Days from today";
+                    idps.forEach(idp => {
+                        var key = keys.filter(key => key.kid == idp.protocol.credentials.trust.kid)[0];
+                        var days = Math.trunc((new Date(key.expiresAt) - new Date()) / 1000 / 60 / 60 / 24);
+                        var style = days < 30 ? "style='background-color: red; color: white'" : "";
+                        rows += `<tr><td>${idp.name}<td>${key.expiresAt}<td ${style}}'>${days}`;
+                    });
+                    idpPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`);
+                });
+            });
+        });      
     }
 
     function exportObjects() {

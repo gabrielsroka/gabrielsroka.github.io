@@ -1,10 +1,9 @@
 (function () {
     // What does rockstar do?
-    //   Export Objects to CSV: Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, App Notes, Network Zones
-    //   Administrators page: Export Admins
+    //   Export Objects to CSV: Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, App Notes, Network Zones, Admins, etc.
     //   User home page: Show SSO (SAML assertion, etc)
     //   People page: enhanced search
-    //   Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles
+    //   Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles, verify factor
     //   Events: Expand All and Expand Each Row
     //   API: API Explorer, Pretty Print JSON
     //   SU Orgs & Org Users: enhanced search
@@ -693,13 +692,16 @@
         createDivA("API Explorer", mainPopup, function () {
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
-            form.innerHTML = "<select id=method><option>GET<option>POST<option>PUT<option>DELETE</select> <input id=url list=apilist> "; // HACK: input.list is read-only, must set it at create time. :(
-            url.style.width = "700px";
-            url.placeholder = "URL";
-            url.focus();
+            form.innerHTML = "<select id=method><option>GET<option>POST<option>PUT<option>DELETE</select> " +
+                "<input id=txtUrl list=apilist> "; // HACK: input.list is read-only, must set it at create time. :(
+            txtUrl.style.width = "700px";
+            txtUrl.placeholder = "URL";
+            txtUrl.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
-            datalist.innerHTML = "apps,groups,idps,logs,sessions/me,users,users/me,zones".split(',').map(a => `<option>/api/v1/${a}`).join("");
+            const apis = "apps,apps/${appId},authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,idps,inlineHooks,meta/schemas/user/linkedObjects,logs,mappings," + 
+                "policies?type=${type},meta/schemas/user,sessions/me,templates/sms,trustedOrigins,meta/types/user,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones";
+            datalist.innerHTML = apis.split(',').map(api => `<option>/api/v1/${api}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));
             send.type = "submit";
             send.value = "Send";
@@ -709,7 +711,13 @@
             var results = form.appendChild(document.createElement("div"));
             form.onsubmit = function () {
                 $(results).html("<br>Loading ...");
-                $.ajax(url.value, {method: method.value, data: data.value, contentType: "application/json"}).then((objects, status, jqXHR) => {
+                var url = txtUrl.value;
+                if (url.match(/\${.*}/) && location.pathname.match("/admin/(app|group|user)/")) {
+                    var parts = location.pathname.split('/');
+                    var id = location.pathname.match("/group/") ? parts[3] : parts[5];
+                    url = url.replace(/\${.*}/, id);
+                }
+                $.ajax({url, method: method.value, data: data.value, contentType: "application/json"}).then((objects, status, jqXHR) => {
                     $(results).html("<br>");
                     var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
                     if (linkHeader) {
@@ -720,59 +728,60 @@
                             nextUrl = nextUrl.pathname + nextUrl.search;
                         }
                     }
-                    var s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
-                    var pathname = url.value.split('?')[0];
+                    var pathname = url.split('?')[0];
+                    var json = formatPre(linkify(JSON.stringify(objects, null, 4)), pathname); // Pretty Print the JSON.
                     if (Array.isArray(objects)) {
-                        var table = formatObj(objects, pathname);
+                        var table = formatObjects(objects, pathname);
                         $(results).append(table.header);
                         if (nextUrl) {
                             createA("Next >", results, () => {
-                                url.value = nextUrl;
+                                txtUrl.value = nextUrl;
                                 send.click();
                             });
                         }
-                        $(results).append("<br>" + table.body + formatPre(s, pathname));
-                    } else {
-                        $(results).append(formatPre(s, pathname));
+                        json = "<br>" + table.body + json;
                     }
+                    $(results).append(json);
                 }).fail(jqXHR => $(results).html("<br>Error<pre>" + JSON.stringify(jqXHR.responseJSON, null, 4) + "</pre>"));
-                return false; // cancel form submit
+                return false; // Cancel form submit.
             };
         });
     }
     function formatJSON() {
         let pre = document.getElementsByTagName("pre")[0]; // Don't use jQuery.
         let objects = JSON.parse(pre.innerHTML);
-        let s = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
-        if (objects.errorCode == "E0000005") s = "Are you signed in? <a href=/>Sign in</a>\n\n" + s;
+        let json = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
+        if (objects.errorCode == "E0000005") json = "Are you signed in? <a href=/>Sign in</a>\n\n" + json;
         if (Array.isArray(objects)) {
             document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #f9f9f9;} " +
                 "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #f2f2f2; text-align: left;}</style>";
-            var table = formatObj(objects, location.pathname);
-            document.body.innerHTML = table.header + table.body + formatPre(s, location.pathname);
+            var table = formatObjects(objects, location.pathname);
+            document.body.innerHTML = table.header + table.body + formatPre(json, location.pathname);
         } else {
-            pre.innerHTML = s;
+            pre.innerHTML = json;
         }
     }
-    function formatObj(o, url) {
-        let len = "(length: " + o.length + ")\n\n";
+    function formatObjects(objects, url) {
+        let len = "(length: " + objects.length + ")\n\n";
         let rows = [];
         let ths = [];
-        for (let p in o[0]) {
-            ths.push("<th>" + p); // TODO: fix L-shaped data.
-        }
-        rows.push("<tr>" + ths.join(""));
-        o.forEach(row => {
-            let tds = [];
+        objects.forEach(row => {
             for (let p in row) {
+                if (!ths.includes(p)) ths.push(p);
+            }
+        });
+        objects.forEach(row => {
+            let tds = [];
+            for (let p of ths) {
+                if (row[p] === undefined) row[p] = "";
                 if (p == "id") row[p] = "<a href='" + url + "/" + row[p] + "'>" + row[p] + "</a>";
                 tds.push("<td>" + (typeof row[p] == "object" ? "<pre>" + JSON.stringify(row[p], null, 4) + "</pre>" : row[p]));
             }
             rows.push("<tr>" + tds.join(""));
         });
         return {header: "<span id=table><b>Table</b> <a href=#json>JSON</a><br><br>" + len + "</span>",
-            body: "<br><table class='data-list-table' style='border: 1px solid #ddd;'>" + linkify(rows.join("")) + "</table><br>" +
-            "<div id=json><a href=#table>Table</a> <b>JSON</b></div><br>" + len};
+            body: "<br><table class='data-list-table' style='border: 1px solid #ddd;'><tr><th>" + ths.join("<th>") + linkify(rows.join("")) + "</table><br>" +
+                "<div id=json><a href=#table>Table</a> <b>JSON</b></div><br>" + len};
     }
     function formatPre(s, url) {
         return "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + url + '/$1">$1</a>"') + "</pre>";

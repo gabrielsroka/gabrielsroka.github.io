@@ -693,10 +693,10 @@
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
             form.innerHTML = "<select id=method><option>GET<option>POST<option>PUT<option>DELETE</select> " +
-                "<input id=txtUrl list=apilist> "; // HACK: input.list is read-only, must set it at create time. :(
-            txtUrl.style.width = "700px";
-            txtUrl.placeholder = "URL";
-            txtUrl.focus();
+                "<input id=url list=apilist> "; // HACK: input.list is read-only, must set it at create time. :(
+            url.style.width = "700px";
+            url.placeholder = "URL";
+            url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
             const apis = "apps,apps/${appId},authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,idps,inlineHooks,meta/schemas/user/linkedObjects,logs,mappings," + 
@@ -711,7 +711,7 @@
             var results = form.appendChild(document.createElement("div"));
             form.onsubmit = function () {
                 $(results).html("<br>Loading ...");
-                var url = txtUrl.value;
+                var url = form.url.value;
                 if (url.match(/\${.*}/) && location.pathname.match("/admin/(app|group|user)/")) {
                     var parts = location.pathname.split('/');
                     var id = location.pathname.match("/group/") ? parts[3] : parts[5];
@@ -735,7 +735,7 @@
                         $(results).append(table.header);
                         if (nextUrl) {
                             createA("Next >", results, () => {
-                                txtUrl.value = nextUrl;
+                                form.url.value = nextUrl;
                                 send.click();
                             });
                         }

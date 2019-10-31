@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Change these settings:
+URL="https://YOUR_ORG.oktapreview.com"
+USERNAME="YOUR_USERNAME"
+
 # 1. Sign in to Okta (see below). Use cookies to maintain state for all future steps.
 # 2. Sign in to the AWS ALB using OIDC (OAuth) using Okta (with cookies from step 1).
 # 3. Sign in to gitlab (OSS) using SAML using Okta (with cookies from step 1).
@@ -8,52 +12,71 @@
 # 4. git clone (use cookies or token from step 3). https://git-scm.com/docs/git-config
 # 5. profit
 
-URL="https://YOUR_ORG.oktapreview.com"
-USERNAME="YOUR_USERNAME"
-
 flags="-b cookies -c cookies -s"
 
-echo URL: $URL
-echo Username: $USERNAME
-read -s -p "Password: " PASSWORD
-echo
-echo
+function main() {
+    getPassword
+    signIn
+    getUser
+    signOut
+}
 
-echo Signing In...
-json="Content-Type: application/json"
-AUTHN=$(curl $flags -H "$json" -d '{"username":"'$USERNAME'","password":"'$PASSWORD'"}' "$URL/api/v1/authn")
-STATUS=$(echo $AUTHN | jq -r .status)
+function getPassword() {
+    echo URL: $oktaUrl
+    echo Username: $username
+    read -s -p "Password: " password
+    echo
+    echo
+}
 
-if [ $STATUS == "null" ]; then
-    echo $AUTHN | jq -r .errorSummary
-    exit
-elif [ $STATUS == "MFA_REQUIRED" ]; then
-    PUSH=$(echo $AUTHN | jq -r '._embedded.factors[] | select(.factorType == "push")._links.verify.href')
+function signIn() {
+    echo Signing In...
+    local json="Content-Type: application/json"
+    authn=$(curl $flags -H "$json" -d '{"username":"'$username'","password":"'$password'"}' "$oktaUrl/api/v1/authn")
+    local status=$(echo $authn | jq -r .status)
+
+    if [ $status == "MFA_REQUIRED" ]; then
+        pushMFA
+    elif [ $status == "null" ]; then
+        echo $authn | jq -r .errorSummary
+        signOut
+    fi
+
+    local token=$(echo $authn | jq -r .sessionToken)
+    curl $flags "$oktaUrl/login/sessionCookieRedirect?token=$token&redirectUrl=/"
+}
+
+function pushMFA() {
     echo Push MFA...
+    local pushUrl=$(echo $authn | jq -r '._embedded.factors[] | select(.factorType == "push")._links.verify.href')
     while true; do
-        STATE=$(echo $AUTHN | jq -r .stateToken)
-        AUTHN=$(curl $flags -H "$json" -d '{"stateToken":"'$STATE'"}' $PUSH)
-        STATUS=$(echo $AUTHN | jq -r .status)
-        RESULT=$(echo $AUTHN | jq -r .factorResult)
-        if [ $RESULT == "WAITING" ]; then
+        local state=$(echo $authn | jq -r .stateToken)
+        authn=$(curl $flags -H "$json" -d '{"stateToken":"'$state'"}' $pushUrl)
+        local status=$(echo $authn | jq -r .status)
+        local result=$(echo $authn | jq -r .factorResult)
+        if [ $status == "SUCCESS" ]; then
+            break
+        elif [ $result == "WAITING" ]; then
             sleep 4s
             echo Waiting...
-        elif [ $RESULT == "REJECTED" ]; then
+        elif [ $result == "REJECTED" ]; then
             echo Push Rejected
-            exit
-        elif [ $STATUS == "SUCCESS" ]; then
-            break
+            signOut
         fi
     done
-fi
+}
 
-TOKEN=$(echo $AUTHN | jq -r .sessionToken)
+function getUser() {
+    echo Getting user...
+    curl $flags "$oktaUrl/api/v1/users/me" | jq
+    echo
+}
 
-curl $flags "$URL/login/sessionCookieRedirect?token=$TOKEN&redirectUrl=/"
+function signOut() {
+    echo Signing out...
+    rm cookies
+    exit
+}
 
-echo Calling API...
-curl $flags "$URL/api/v1/users/me" | jq
-echo
-
-# Sign out.
-rm cookies
+# This needs to be the last line in the file.
+main

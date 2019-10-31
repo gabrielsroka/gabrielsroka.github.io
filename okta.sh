@@ -13,6 +13,7 @@ username="YOUR_USERNAME"
 # 5. profit
 
 flags="-b cookies -c cookies -s"
+json="Content-Type: application/json"
 
 function main() {
     getPassword
@@ -31,7 +32,6 @@ function getPassword() {
 
 function signIn() {
     echo Signing In...
-    local json="Content-Type: application/json"
     authn=$(curl $flags -H "$json" -d '{"username":"'$username'","password":"'$password'"}' "$oktaUrl/api/v1/authn")
     local status=$(echo $authn | jq -r .status)
 

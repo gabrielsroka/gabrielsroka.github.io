@@ -3,7 +3,9 @@
 # 1. Sign in to Okta (see below). Use cookies to maintain state for all future steps.
 # 2. Sign in to the AWS ALB using OIDC (OAuth) using Okta (with cookies from step 1).
 # 3. Sign in to gitlab (OSS) using SAML using Okta (with cookies from step 1).
-# 4. git clone (use cookies from step 3). https://git-scm.com/docs/git-config
+#    or use a Personal Access Token: https://gitlab.com/help/user/profile/personal_access_tokens.md
+#    see also: https://gitlab.com/profile/personal_access_tokens
+# 4. git clone (use cookies or token from step 3). https://git-scm.com/docs/git-config
 # 5. profit
 
 URL="https://YOUR_ORG.oktapreview.com"

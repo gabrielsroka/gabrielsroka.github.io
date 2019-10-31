@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Change these settings:
-URL="https://YOUR_ORG.oktapreview.com"
-USERNAME="YOUR_USERNAME"
+oktaUrl="https://YOUR_ORG.oktapreview.com"
+username="YOUR_USERNAME"
 
 # 1. Sign in to Okta (see below). Use cookies to maintain state for all future steps.
 # 2. Sign in to the AWS ALB using OIDC (OAuth) using Okta (with cookies from step 1).

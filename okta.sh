@@ -22,7 +22,10 @@ json="Content-Type: application/json"
 AUTHN=$(curl $flags -H "$json" -d '{"username":"'$USERNAME'","password":"'$PASSWORD'"}' "$URL/api/v1/authn")
 STATUS=$(echo $AUTHN | jq -r .status)
 
-if [ $STATUS == "MFA_REQUIRED" ]; then
+if [ $STATUS == "null" ]; then
+    echo $AUTHN | jq -r .errorSummary
+    exit
+elif [ $STATUS == "MFA_REQUIRED" ]; then
     PUSH=$(echo $AUTHN | jq -r '._embedded.factors[] | select(.factorType == "push")._links.verify.href')
     echo Push MFA...
     while true; do

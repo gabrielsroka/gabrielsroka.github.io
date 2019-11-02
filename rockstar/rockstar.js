@@ -146,7 +146,7 @@
                     text = "Google Authenticator";
                 }
                 factorsUi[factor.id] = {type: factor.factorType, text};
-                return `<input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>${text}<br>`;
+                return `<label><input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>${text}</label><br>`;
             }
             var ui = factors.map(getUi).join("");
             if (ui) {

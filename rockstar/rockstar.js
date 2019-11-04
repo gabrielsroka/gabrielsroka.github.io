@@ -867,7 +867,7 @@
         if (xsrf.length) $.ajaxSetup({headers: {"X-Okta-XsrfToken": xsrf.text()}});
     }
     function createPopup(title) {
-        var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
+        var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; max-height: 94%; max-width: 98%; overflow: auto; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
             `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
             `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
         return $("<div></div>").appendTo(popup);

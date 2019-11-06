@@ -119,7 +119,8 @@
                 return strings.join("\n") + "\n";
             }
             var userPopup = createPopup("User");
-            userPopup.html(`<span class='icon icon-24 group-logos-24 logo-${user.credentials.provider.type.toLowerCase()}'></span><pre>${toString(user)}</pre>`);
+            var logo = user.credentials.provider.type == "LDAP" ? "ldap_sun_one" : user.credentials.provider.type.toLowerCase();
+            userPopup.html(`<span class='icon icon-24 group-logos-24 logo-${logo}'></span><pre>${toString(user)}</pre>`);
         }
         createDivA("Show User", mainPopup, showUser);
         createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);

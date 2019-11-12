@@ -48,10 +48,7 @@ var seen = {};
 const pageLen = 30;
 const baseUrl = "https://hacker-news.firebaseio.com/v0"; // see https://github.com/HackerNews/API
 
-prev.onclick = () => {
-    getItems();
-};
-next.onclick = getItems;
+prev.onclick = next.onclick = getItems;
 if (!localStorage.seen) localStorage.seen = "{}";
 
 fetch(baseUrl + "/topstories.json")

@@ -251,26 +251,24 @@
         createDivA("Search Groups", mainPopup, function () {
             var popup = createPopup("Search Groups with Name Containing");
             var form = $("<form>Name <input class=name style='width: 300px'> " + 
-                "<button type=submit>Search</button></form><br><div class=results></div>").appendTo(popup);
-            form.find("input.name").focus();
+                "<input type=submit value=Search></form><br><div class=results></div>").appendTo(popup);
             form.submit(event => {
-                event.preventDefault();
-                $.getJSON("/api/v1/groups")
-                .then(groups => {
+                $.getJSON("/api/v1/groups").then(groups => {
                     groups = groups
                         .filter(group => group.profile.name.match(new RegExp(form.find("input.name").val(), "i")))
                         .map(group => group.profile.name.link("/admin/group/" + group.id));
-                    var results;
                     if (groups.length > 0) {
-                        results = groups.join("<br>");
+                        var results = groups.join("<br>");
                     } else {
                         results = "Not found";
                     }
                     popup.find("div.results").html(results);
-                })
+                });
+                event.preventDefault();
             });
+            form.find("input.name").focus();
         });
-    }    
+    }
     
     function securityAdministrators() {
         createDivA("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?

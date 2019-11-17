@@ -4,6 +4,7 @@
     //   User home page: Show SSO (SAML assertion, etc)
     //   People page: enhanced search
     //   Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles, verify factor
+    //   Groups page: search groups
     //   Events: Expand All and Expand Each Row
     //   API: API Explorer, Pretty Print JSON
     //   SU Orgs & Org Users: enhanced search
@@ -25,6 +26,8 @@
             directoryPeople();
         } else if (location.pathname.match("/admin/user/")) {
             directoryPerson();
+        } else if (location.pathname == "/admin/groups") {
+            directoryGroups();
         } else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
         } else if (location.pathname.match("/report/system_log_2")) {
@@ -243,6 +246,32 @@
             }
         });
     }
+
+    function directoryGroups() {
+        createDivA("Search Groups", mainPopup, function () {
+            var popup = createPopup("Search Groups with Name Containing");
+            var form = $("<form>Name <input class=name style='width: 300px'> " + 
+                "<button type=submit>Search</button></form><br><div class=results></div>").appendTo(popup);
+            form.find("input.name").focus();
+            form.submit(event => {
+                event.preventDefault();
+                $.getJSON("/api/v1/groups")
+                .then(groups => {
+                    groups = groups
+                        .filter(group => group.profile.name.match(new RegExp(form.find("input.name").val(), "i")))
+                        .map(group => group.profile.name.link("/admin/group/" + group.id));
+                    var results;
+                    if (groups.length > 0) {
+                        results = groups.join("<br>");
+                    } else {
+                        results = "Not found";
+                    }
+                    popup.find("div.results").html(results);
+                })
+            });
+        });
+    }    
+    
     function securityAdministrators() {
         createDivA("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
             var adminsPopup = createPopup("Administrators");

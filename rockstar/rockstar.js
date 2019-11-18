@@ -982,6 +982,10 @@
             if (object.empty) {
                 if (objects.length == 0) {
                     $(".data-list-empty-msg").show();
+                    if ($(".data-list-empty-msg").html() == "") {
+                        $(".data-list-empty-msg").html(`<p class="data-list-empty-binary">01101110011011110111010001101000011010010110111001100111<span class="data-list-empty-img"></span></p>` +
+                            `<h4 class="data-list-head data-list-empty-head">Nothing to show</h4><h5 class="data-list-head data-list-empty-head data-list-empty-subhead">Try searching or filtering</h5>`);
+                    }
                 } else {
                     $(".data-list-empty-msg").hide();
                 }

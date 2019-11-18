@@ -268,6 +268,28 @@
             });
             form.find("input.name").focus();
         });
+        createDivA("Search Groups (experimental)", mainPopup, () => {
+            const object = {
+                url: "/api/v1/groups?expand=stats",
+                data() {this.match = new RegExp(this.search, "i"); return {limit: this.limit};},
+                filter: group => group.profile.name.match(object.match),
+                limit: 10000,
+                comparer: (group1, group2) => group1.profile.name.localeCompare(group2.profile.name),
+                template(group) {
+                    const logo = group._links.logo[0].href.split('/')[7].split('-')[0];
+                    return `<tr><td class=column-width><span class='icon icon-24 group-logos-24 logo-${logo}'></span>` +
+                        `<td><a href="/admin/group/${group.id}">${group.profile.name}</a>` +
+                        `<td>${group.profile.description || "No description"}` + 
+                        `<td>${group._embedded.stats.usersCount}` +
+                        `<td>${group._embedded.stats.appsCount}` +
+                        `<td>${group._embedded.stats.groupPushMappingsCount}`;
+                },
+                headers: "<tr><th>Source<th>Name<th>Description<th>People<th>Apps<th>Directories",
+                placeholder: "Search name with wildcard...",
+                empty: true
+            };
+            searcher(object);
+        });
     }
     
     function securityAdministrators() {

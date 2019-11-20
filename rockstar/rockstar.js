@@ -517,6 +517,13 @@
                     device => toCSV(device.id, device.profile.displayName, device.profile.platform, device.profile.manufacturer, device.profile.model,
                         device.profile.osVersion, device.profile.serialNumber, device.profile.imei, device.profile.meid, device.profile.udid, device.profile.sid));
             });
+        } else if (location.pathname == "/reports/user/yubikey") {
+            createDivA("Export YubiKeys", mainPopup, function () {
+                startExport("YubiKeys", "/api/v1/org/factors/yubikey_token/tokens?expand=user", "serial,status,id,firstName,lastName,login", 
+                    token => toCSV(token.profile.serial, token.status, token._embedded && token._embedded.user.id, 
+                        token._embedded && token._embedded.user.profile.firstName, token._embedded && token._embedded.user.profile.lastName, 
+                        token._embedded && token._embedded.user.profile.login));
+            });
         } else if (appId = getAppId()) {
             createDivA("Export App Users", mainPopup, function () {
                 startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId,firstName,lastName", 

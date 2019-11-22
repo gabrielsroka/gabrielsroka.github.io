@@ -19,22 +19,21 @@ const config = {
     clientId: '0oa1wrcgeqgrLZBhm357'
 };
 
-form.onsubmit = function () {
+form.onsubmit = function (event) {
     const authClient = new OktaAuth(config);
     authClient.signIn({username: username.value, password: password.value})
     .then(transaction => {
         console.log(transaction.sessionToken); 
-        authClient.token.getWithoutPrompt({
+        return authClient.token.getWithoutPrompt({
             responseType: 'token', // or array of types [code, token, and id_token]
             sessionToken: transaction.sessionToken // optional if the user has an existing Okta session
-        })
-        .then(token => {
-            console.log(token); // TODO: Do something with token.
-        })
-        .catch(err => console.log(err));
+        });
+    })
+    .then(token => {
+        console.log(token); // TODO: Do something with token (or tokens if you requested more than one).
     })
     .catch(err => console.log(err));
-    return false; // Cancel form submit.
+    event.preventDefault();
 };
 </script>
 </body>

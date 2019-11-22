@@ -31,7 +31,8 @@ form.onsubmit = function () {
             console.log(token); // TODO: Do something with token.
         })
         .catch(err => console.log(err));
-    });
+    })
+    .catch(err => console.log(err));
     return false; // Cancel form submit.
 };
 </script>

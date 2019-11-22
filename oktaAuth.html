@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in</title>
+<script src="https://ok1static.oktacdn.com/assets/js/sdk/okta-auth-js/2.9.0/okta-auth-js.min.js"></script>
+</head>
+<body>
+<form id=form>
+Username <input id=username><br>
+Password <input id=password type=password><br>
+<input value="Sign In" type=submit>
+</form>
+<script>
+// see https://github.com/okta/okta-auth-js
+const config = {
+  issuer: 'https://gsroka-neto.oktapreview.com/oauth2/default'
+};
+
+form.onsubmit = function () {
+    const authClient = new OktaAuth(config);
+    authClient.signIn({username.value, password.value})
+    .then(transaction => {
+        console.log(transaction.sessionToken); 
+        authClient.token.getWithoutPrompt({
+            responseType: 'access_token', // or array of types
+            sessionToken: transaction.sessionToken // optional if the user has an existing Okta session
+        })
+        .then(token => {
+            console.log(token); // TODO: Do something with token.
+        })
+        .catch(err => console.log(err));
+    });
+    return false; // Cancel form submit.
+};
+</script>
+</body>
+</html>

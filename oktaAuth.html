@@ -19,7 +19,7 @@ const config = {
 
 form.onsubmit = function () {
     const authClient = new OktaAuth(config);
-    authClient.signIn({username.value, password.value})
+    authClient.signIn({username: username.value, password: password.value})
     .then(transaction => {
         console.log(transaction.sessionToken); 
         authClient.token.getWithoutPrompt({

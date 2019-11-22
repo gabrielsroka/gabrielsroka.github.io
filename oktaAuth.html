@@ -24,7 +24,7 @@ form.onsubmit = function () {
     .then(transaction => {
         console.log(transaction.sessionToken); 
         authClient.token.getWithoutPrompt({
-            responseType: 'access_token', // or array of types
+            responseType: 'token', // or array of types [code, token, and id_token]
             sessionToken: transaction.sessionToken // optional if the user has an existing Okta session
         })
         .then(token => {

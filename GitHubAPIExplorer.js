@@ -3,10 +3,10 @@ Explore the GitHub API.
 
 Setup:
 1. Drag this to the bookmark toolbar:
-javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/GitHubAPIExplorer.js";})();
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/GitHubAPIExplorer.js";})(); //GitHub API Explorer
 
 Usage:
-1. Go to https://developer.github.com/
+1. Go to https://developer.github.com
 2. Click the GitHub bookmark from your toolbar.
 */
 

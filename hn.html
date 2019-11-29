@@ -44,25 +44,35 @@ a:visited {
 var ids;
 var n = 1;
 var seen = {};
+var fetchCounter = 0;
 
 const pageLen = 30;
 const baseUrl = "https://hacker-news.firebaseio.com/v0"; // see https://github.com/HackerNews/API
 
 prev.onclick = next.onclick = getItems;
 if (!localStorage.seen) localStorage.seen = "{}";
+fetchItems();
 
-fetch(baseUrl + "/topstories.json")
-.then(response => response.json())
-.then(itemIds => {
-    ids = itemIds;
-    getItems();
-});
+function fetchItems() {
+    fetch(baseUrl + "/topstories.json")
+    .then(response => response.json())
+    .then(itemIds => {
+        ids = itemIds;
+        getItems();
+    });
+}
 
 // TODO: Items might render out of order. Do we care?
 function getItems() {
     function showItem(item) { // other item props: kids
+        function anc(href, text) {
+            return `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
+        }
+        function plu(n, s) {
+            return n + " " + (n == 1 ? s : s + "s");
+        }
         const hnBaseUrl = "https://news.ycombinator.com";
-        var hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
+        const hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
         if (item.url) {
             var site = new URL(item.url).hostname.replace(/^www\./, "");
             var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${site}`, site)})`;
@@ -85,9 +95,9 @@ function getItems() {
             var by = "";
             var ln2 = ago;
         } else {
-            pts = `${plu(item.score, "point")}`;
-            by = `by ${anc(`${hnBaseUrl}/user?id=${item.by}`, item.by)}`;
-            ln2 = `${ago} | ${anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment"))}` + web;
+            pts = plu(item.score, "point");
+            by = "by " + anc(`${hnBaseUrl}/user?id=${item.by}`, item.by);
+            ln2 = ago + " | " + anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment")) + web;
         }
         loading.innerHTML = "";
         if (small) {
@@ -96,42 +106,46 @@ function getItems() {
             ol.innerHTML += `<li class=item value=${n++}>${ln1}<br>${pts} ${by} ${ln2}</li>`;
         }
     }
-    function anc(href, text) {
-        return `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
-    }
-    function plu(n, s) {
-        return n + " " + (n == 1 ? s : s + "s");
-    }
-    var small = location.search.match("small");
+    const small = location.search.match("small");
     if (small) {
         contents.innerHTML = "<br>";
     } else {
         contents.innerHTML = "<ol id=ol></ol>";
     }
-    var now = new Date().getTime();
-    var newSeen = JSON.parse(localStorage.seen);
-    for (var item in seen) {
-        if (!newSeen[item]) newSeen[item] = now;
+    const now = new Date().getTime();
+    const newSeen = JSON.parse(localStorage.seen);
+    for (const id in seen) {
+        if (!newSeen[id]) newSeen[id] = now;
     }
     const sevenDays = 1000 * 3600 * 24 * 7;
-    for (var item in newSeen) {
-        if (now - newSeen[item] > sevenDays) delete newSeen[item];
+    for (const id in newSeen) {
+        if (now - newSeen[id] > sevenDays) delete newSeen[id];
     }
     localStorage.seen = JSON.stringify(newSeen);
     itemsSeen.innerHTML = Object.keys(newSeen).length + " seen";
     seen = {};
-    var unseenIds = [];
-    ids.forEach(id => {if (!newSeen[id]) unseenIds.push(id)});
-    ids = unseenIds;
-    for (var i = 0; i < Math.min(pageLen, ids.length); i++) {
-        seen[ids[i]] = now;
-        if (!newSeen[ids[i]]) {
-            fetch(`${baseUrl}/item/${ids[i]}.json`)
-            .then(response => response.json())
-            .then(showItem);
+    ids = ids.filter(id => !newSeen[id]);
+    if (ids.length == 0) {
+        if (fetchCounter == 0) {
+            fetchCounter = 1;
+            loading.innerHTML = "<br>Refreshing..."
+            fetchItems();
+        } else {
+            loading.innerHTML = "<br>No more";
         }
+    } else {
+        loading.innerHTML = "<br>Loading...";
+        for (var i = 0; i < Math.min(pageLen, ids.length); i++) {
+            const id = ids[i];
+            seen[id] = now;
+            if (!newSeen[id]) {
+                fetch(`${baseUrl}/item/${id}.json`)
+                .then(response => response.json())
+                .then(showItem);
+            }
+        }
+        fetchCounter = 0;
     }
-    loading.innerHTML = ids.length ? "<br>Loading..." : "<br>No more";
 }
 </script>
 </body>

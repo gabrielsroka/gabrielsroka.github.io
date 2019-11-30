@@ -5,6 +5,9 @@
 <title>My Apps</title>
 <link href="https://ok1static.oktacdn.com/assets/css/enduser/enduser.css" type="text/css" rel="stylesheet" />
 <style>
+nav, #weather {
+    margin: 16px 32px;
+}
 .app-button-wrapper {
     width: 64px;
     margin-left: 32px;
@@ -16,26 +19,30 @@
 .app-button-name {
     width: 100%;
 }
+a:active, a:link, a:visited {
+    color: black;
+}
 </style>
 </head>
 <body>
-<br>
 <nav>
-<a href="/" style="margin-left: 32px">Gabriel Sroka</a> - 
-<a id="refresh">Refresh</a> - 
-<a href="https://gsroka-neto.oktapreview.com">GSroka NETO</a> - 
-<a href="/login.htm?signout">Sign out</a>
-<br>
+<a href="/">Gabriel Sroka</a> - 
+<a href="https://gsroka-neto.oktapreview.com">Home</a>
+<span style='float: right;'><a id="refresh">Refresh</a> - 
+<a href="/login.htm?signout">Sign out</a></span>
 </nav>
-<br>
 <main>
-<div id="app"></div>
+<div id="weather"></div>
+<br>
+<div id="icons"></div>
 </main>
 <script>
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
 const baseUrl = "https://gsroka-neto.oktapreview.com";
 
 refresh.onclick = getLinks;
+
+getWeather();
 
 if (localStorage.links) {
     var links = JSON.parse(localStorage.links);
@@ -82,7 +89,31 @@ function showLinks(links) {
             `<img src='${new URL(link.url).origin}/favicon.ico' class='logo'/></a>` +
             `<p class='app-button-name'>${link.label}`;
     });
-    app.innerHTML = `<ul>${lis}</ul>`;
+    icons.innerHTML = `<ul>${lis}</ul>`;
+}
+
+function getWeather() {
+    getForecast()
+    .then(forecast => {
+        weather.innerHTML = "<a href='https://www.google.com/search?q=weather'>" + 
+            "<div>" + forecast.daily[0].temperature + "° ↑ &nbsp; • &nbsp; " + forecast.daily[1].temperature + "° ↓" +
+            `<div><span style='font-size: 64px;'>${forecast.hourly.temperature}°</span>` +
+            `<span style='float: right;'><img src='${forecast.hourly.icon}'><br>${forecast.hourly.shortForecast}</span></div></div></a>`;
+    });
+}
+
+async function getForecast() {
+    const latlong = "33.7737,-118.1365";
+    var response = await fetch("https://api.weather.gov/points/" + latlong);
+    const point = await response.json();
+
+    response = await fetch(point.properties.forecast);
+    const forecast = await response.json();
+
+    response = await fetch(point.properties.forecastHourly);
+    const forecastHourly = await response.json();
+
+    return {daily: forecast.properties.periods, hourly: forecastHourly.properties.periods[0]};
 }
 </script>
 </body>

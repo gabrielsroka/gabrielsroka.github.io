@@ -137,7 +137,8 @@ function getStatus() {
     .then(response => response.json())
     .then(feed => {
         const s = feed.items[0];
-        oktaStatus.innerHTML = `<div><a href='https://status.okta.com/'>STATUS</a></div><a href='${s.link}'>${s.title}</a><span style='float: right;'>${s.pubDate}</span>`;
+        oktaStatus.innerHTML = `<div><a href='https://status.okta.com/' style="font-weight: bold;">Okta Status</a></div>` + 
+            `<a href='${s.link}'>${s.title}</a><span style='float: right;'>${s.pubDate}</span>`;
     })
 }
 </script>

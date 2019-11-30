@@ -5,7 +5,7 @@
 <title>My Apps</title>
 <link href="https://ok1static.oktacdn.com/assets/css/enduser/enduser.css" type="text/css" rel="stylesheet" />
 <style>
-nav, #weather {
+nav, #weather, #stocks, #oktaStatus {
     margin: 16px 32px;
 }
 .app-button-wrapper {
@@ -22,6 +22,10 @@ nav, #weather {
 a:active, a:link, a:visited {
     color: black;
 }
+#stocks td {
+    width: 30%;
+    height: 22px;
+}
 </style>
 </head>
 <body>
@@ -32,7 +36,18 @@ a:active, a:link, a:visited {
 <a href="/login.htm?signout">Sign out</a></span>
 </nav>
 <main>
-<div id="weather"></div>
+<div id="weather" style="height: 80px;"></div>
+<br>
+<div id="stocks">
+<table>
+<tr><td><a href="https://www.google.com/search?q=okta+stock">OKTA</a><td>123.45
+<td><a href="https://www.google.com/search?q=aapl+stock">APPL</a><td>123.45
+<tr><td><a href="https://www.google.com/search?q=goog+stock">GOOG</a><td>123.45
+<td><a href="https://www.google.com/search?q=msft+stock">MSFT</a><td>123.45
+</table>
+</div>
+<br>
+<div id="oktaStatus"></div>
 <br>
 <div id="icons"></div>
 </main>
@@ -43,6 +58,7 @@ const baseUrl = "https://gsroka-neto.oktapreview.com";
 refresh.onclick = getLinks;
 
 getWeather();
+getStatus();
 
 if (localStorage.links) {
     var links = JSON.parse(localStorage.links);
@@ -114,6 +130,15 @@ async function getForecast() {
     const forecastHourly = await response.json();
 
     return {daily: forecast.properties.periods, hourly: forecastHourly.properties.periods[0]};
+}
+
+function getStatus() {
+    fetch("https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.feedburner.com%2FOktaTrustRSS")
+    .then(response => response.json())
+    .then(feed => {
+        const s = feed.items[0];
+        oktaStatus.innerHTML = `<div><a href='https://status.okta.com/'>STATUS</a></div><a href='${s.link}'>${s.title}</a><span style='float: right;'>${s.pubDate}</span>`;
+    })
 }
 </script>
 </body>

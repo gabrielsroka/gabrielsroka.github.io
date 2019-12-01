@@ -11,6 +11,9 @@ nav, .widget {
 a:active, a:link, a:visited {
     color: black;
 }
+#notifications {
+    display: none;
+}
 #stocks td {
     width: 33%;
     height: 22px;
@@ -32,8 +35,15 @@ a:active, a:link, a:visited {
 <nav>
 <a href="/">Gabriel Sroka</a> - 
 <a href="https://gsroka-neto.oktapreview.com">Home</a>
-<span style='float: right;'><a id="refresh">Refresh</a> - 
-<a href="/login.htm?signout">Sign out</a></span>
+<span style='float: right;'>
+<span id=notificationMenu>🔔</span>
+<a id="refresh">Refresh</a> - 
+<a href="/login.htm?signout">Sign out</a> 
+</span>
+<div id=notifications>
+<br>
+<div id="oktaStatus">Loading...</div>
+</div>
 </nav>
 <main>
 <div id="weather" style="height: 80px;" class=widget>Loading...</div>
@@ -45,7 +55,6 @@ a:active, a:link, a:visited {
 <td><a href="https://www.google.com/search?q=msft+stock">Microsoft</a><td>123.45
 </table>
 </div>
-<div id="oktaStatus" class=widget>Loading...</div>
 <div id="apps"></div>
 </main>
 <script>
@@ -53,6 +62,7 @@ a:active, a:link, a:visited {
 const baseUrl = "https://gsroka-neto.oktapreview.com";
 
 refresh.onclick = getLinks;
+notificationMenu.onclick = () => notifications.style.display = notifications.style.display == "" ? "block" : "";
 
 getWeather();
 getStatus();
@@ -138,11 +148,25 @@ async function getForecast() {
 async function getStatus() {
     const response = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS");
     const feed = await response.json();
-    const s = feed.items[0];
-    var date = new Date(s.pubDate + "Z");
+    const item = feed.items[0];
+    const guid = item.guid.split('/').pop();
+    if (!localStorage.notifications) localStorage.notifications = "[]";
+    const seenNotifications = JSON.parse(localStorage.notifications);
+    var date = new Date(item.pubDate + "Z");
     date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
-    oktaStatus.innerHTML = `<div><a href='https://status.okta.com/' style="font-weight: bold;">Okta Status</a></div>` + 
-        `<a href='${s.link}'>${s.title}</a><span style='float: right;'>${date}</span>`;
+    oktaStatus.innerHTML = "<div><a href='https://status.okta.com/' style='font-weight: bold;'>Okta Status</a></div>" +
+        `<a href='${item.link}'>${item.title}</a><span id=seen style='float: right;'>${date}</span>`;
+    if (seenNotifications.includes(guid)) {
+        seen.innerHTML += "✓";
+    } else {
+        seen.onclick = () => {
+            seen.innerHTML += "✓";
+            seen.onclick = null;
+            seenNotifications.push(guid);
+            localStorage.notifications = JSON.stringify(seenNotifications);
+        };
+        notificationMenu.onclick();
+    }
 }
 </script>
 </body>

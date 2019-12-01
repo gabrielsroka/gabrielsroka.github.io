@@ -6,13 +6,13 @@
 <link href="https://ok1static.oktacdn.com/assets/css/enduser/enduser.css" type="text/css" rel="stylesheet" />
 <style>
 nav, .widget {
-    margin: 18px 32px;
+    margin: 32px;
 }
 a:active, a:link, a:visited {
     color: black;
 }
 #stocks td {
-    width: 30%;
+    width: 33%;
     height: 22px;
 }
 .app-button-wrapper {
@@ -105,15 +105,13 @@ function showLinks(links) {
     apps.innerHTML = `<ul>${lis}</ul>`;
 }
 
-function getWeather() {
-    getForecast()
-    .then(forecast => {
-        weather.innerHTML = "<a href='https://www.google.com/search?q=weather'>" + 
-            "<div>" + forecast.daily[0].temperature + "° ↑ &nbsp; • &nbsp; " + forecast.daily[1].temperature + "° ↓" +
-            `<span style='float: right;'>${forecast.hourly.shortForecast}</span>` +
-            `<div><span style='font-size: 64px;'>${forecast.hourly.temperature}°</span>` +
-            `<span style='float: right;'><img src='${forecast.hourly.icon}' style='margin-top: 4px;'></span></div></div></a>`;
-    });
+async function getWeather() {
+    const forecast = await getForecast();
+    weather.innerHTML = "<a href='https://www.google.com/search?q=weather'>" + 
+        "<div>" + forecast.daily[0].temperature + "° ↑ &nbsp; • &nbsp; " + forecast.daily[1].temperature + "° ↓" +
+        `<span style='float: right;'>${forecast.hourly.shortForecast}</span>` +
+        `<div><span style='font-size: 64px;'>${forecast.hourly.temperature}°</span>` +
+        `<span style='float: right;'><img src='${forecast.hourly.icon}' style='margin-top: 4px;'></span></div></div></a>`;
 }
 
 async function getForecast() {
@@ -137,16 +135,14 @@ async function getForecast() {
 //   return new Promise(resolve => navigator.geolocation.getCurrentPosition(resolve));
 // }
 
-function getStatus() {
-    fetch("https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.feedburner.com%2FOktaTrustRSS")
-    .then(response => response.json())
-    .then(feed => {
-        const s = feed.items[0];
-        var date = new Date(s.pubDate + "Z");
-        date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
-        oktaStatus.innerHTML = `<div><a href='https://status.okta.com/' style="font-weight: bold;">Okta Status</a></div>` + 
-            `<a href='${s.link}'>${s.title}</a><span style='float: right;'>${date}</span>`;
-    })
+async function getStatus() {
+    const response = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS");
+    const feed = await response.json();
+    const s = feed.items[0];
+    var date = new Date(s.pubDate + "Z");
+    date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+    oktaStatus.innerHTML = `<div><a href='https://status.okta.com/' style="font-weight: bold;">Okta Status</a></div>` + 
+        `<a href='${s.link}'>${s.title}</a><span style='float: right;'>${date}</span>`;
 }
 </script>
 </body>

@@ -5,8 +5,15 @@
 <title>My Apps</title>
 <link href="https://ok1static.oktacdn.com/assets/css/enduser/enduser.css" type="text/css" rel="stylesheet" />
 <style>
-nav, #weather, #stocks, #oktaStatus {
-    margin: 32px;
+nav, .widget {
+    margin: 18px 32px;
+}
+a:active, a:link, a:visited {
+    color: black;
+}
+#stocks td {
+    width: 30%;
+    height: 22px;
 }
 .app-button-wrapper {
     width: 64px;
@@ -19,13 +26,6 @@ nav, #weather, #stocks, #oktaStatus {
 .app-button-name {
     width: 100%;
 }
-a:active, a:link, a:visited {
-    color: black;
-}
-#stocks td {
-    width: 30%;
-    height: 22px;
-}
 </style>
 </head>
 <body>
@@ -36,8 +36,8 @@ a:active, a:link, a:visited {
 <a href="/login.htm?signout">Sign out</a></span>
 </nav>
 <main>
-<div id="weather" style="height: 80px;"></div>
-<div id="stocks">
+<div id="weather" style="height: 80px;" class=widget>Loading...</div>
+<div id="stocks" class=widget>
 <table>
 <tr><td><a href="https://www.google.com/search?q=okta+stock">OKTA</a><td>123.45
 <td><a href="https://www.google.com/search?q=aapl+stock">APPL</a><td>123.45
@@ -45,7 +45,7 @@ a:active, a:link, a:visited {
 <td><a href="https://www.google.com/search?q=msft+stock">MSFT</a><td>123.45
 </table>
 </div>
-<div id="oktaStatus"></div>
+<div id="oktaStatus" class=widget>Loading...</div>
 <div id="icons"></div>
 </main>
 <script>
@@ -110,13 +110,17 @@ function getWeather() {
     .then(forecast => {
         weather.innerHTML = "<a href='https://www.google.com/search?q=weather'>" + 
             "<div>" + forecast.daily[0].temperature + "° ↑ &nbsp; • &nbsp; " + forecast.daily[1].temperature + "° ↓" +
+            `<span style='float: right;'>${forecast.hourly.shortForecast}</span>` +
             `<div><span style='font-size: 64px;'>${forecast.hourly.temperature}°</span>` +
-            `<span style='float: right;'><img src='${forecast.hourly.icon}'><br>${forecast.hourly.shortForecast}</span></div></div></a>`;
+            `<span style='float: right;'><img src='${forecast.hourly.icon}' style='margin-top: 4px;'></span></div></div></a>`;
     });
 }
 
 async function getForecast() {
     const latlong = "33.7737,-118.1365";
+    // const {coords} = await getPosition();
+    // const latlong = coords.latitude + ',' + coords.longitude;
+
     var response = await fetch("https://api.weather.gov/points/" + latlong);
     const point = await response.json();
 
@@ -129,13 +133,19 @@ async function getForecast() {
     return {daily: forecast.properties.periods, hourly: forecastHourly.properties.periods[0]};
 }
 
+// function getPosition() {
+//   return new Promise(resolve => navigator.geolocation.getCurrentPosition(resolve));
+// }
+
 function getStatus() {
     fetch("https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Ffeeds.feedburner.com%2FOktaTrustRSS")
     .then(response => response.json())
     .then(feed => {
         const s = feed.items[0];
+        var date = new Date(s.pubDate + "Z");
+        date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
         oktaStatus.innerHTML = `<div><a href='https://status.okta.com/' style="font-weight: bold;">Okta Status</a></div>` + 
-            `<a href='${s.link}'>${s.title}</a><span style='float: right;'>${s.pubDate}</span>`;
+            `<a href='${s.link}'>${s.title}</a><span style='float: right;'>${date}</span>`;
     })
 }
 </script>

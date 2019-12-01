@@ -39,14 +39,14 @@ a:active, a:link, a:visited {
 <div id="weather" style="height: 80px;" class=widget>Loading...</div>
 <div id="stocks" class=widget>
 <table>
-<tr><td><a href="https://www.google.com/search?q=okta+stock">OKTA</a><td>123.45
-<td><a href="https://www.google.com/search?q=aapl+stock">APPL</a><td>123.45
-<tr><td><a href="https://www.google.com/search?q=goog+stock">GOOG</a><td>123.45
-<td><a href="https://www.google.com/search?q=msft+stock">MSFT</a><td>123.45
+<tr><td><a href="https://www.google.com/search?q=okta+stock">Okta</a><td>123.45
+<td><a href="https://www.google.com/search?q=aapl+stock">Apple</a><td>123.45
+<tr><td><a href="https://www.google.com/search?q=goog+stock">Google</a><td>123.45
+<td><a href="https://www.google.com/search?q=msft+stock">Microsoft</a><td>123.45
 </table>
 </div>
 <div id="oktaStatus" class=widget>Loading...</div>
-<div id="icons"></div>
+<div id="apps"></div>
 </main>
 <script>
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
@@ -102,7 +102,7 @@ function showLinks(links) {
             `<img src='${new URL(link.url).origin}/favicon.ico' class='logo'/></a>` +
             `<p class='app-button-name'>${link.label}`;
     });
-    icons.innerHTML = `<ul>${lis}</ul>`;
+    apps.innerHTML = `<ul>${lis}</ul>`;
 }
 
 function getWeather() {

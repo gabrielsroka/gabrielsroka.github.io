@@ -8,7 +8,7 @@
 nav, .widget {
     margin: 32px;
 }
-a:active, a:link, a:visited {
+a:active, a:link, a:visited, span {
     color: black;
 }
 #notifications {
@@ -37,12 +37,14 @@ a:active, a:link, a:visited {
 <a href="https://gsroka-neto.oktapreview.com">Home</a>
 <span style='float: right;'>
 <span id=notificationMenu>🔔</span>
-<a id="refresh">Refresh</a> - 
+<span id="refresh">Refresh</span> - 
 <a href="/login.htm?signout">Sign out</a> 
 </span>
 <div id=notifications>
 <br>
-<div id="oktaStatus">Loading...</div>
+<div id="oktaStatus">
+<div><a href='https://status.okta.com/' style='font-weight: bold;'>Okta Status</a></div>
+</div>
 </div>
 </nav>
 <main>
@@ -154,8 +156,7 @@ async function getStatus() {
     const seenNotifications = JSON.parse(localStorage.notifications);
     var date = new Date(item.pubDate + "Z");
     date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
-    oktaStatus.innerHTML = "<div><a href='https://status.okta.com/' style='font-weight: bold;'>Okta Status</a></div>" +
-        `<a href='${item.link}'>${item.title}</a><span id=seen style='float: right;'>${date}</span>`;
+    oktaStatus.innerHTML += `<a id=seen href='${item.link}'>${item.title}<span style='float: right;'>${date}</span></a>`;
     if (seenNotifications.includes(guid)) {
         seen.innerHTML += "✓";
     } else {
@@ -165,7 +166,7 @@ async function getStatus() {
             seenNotifications.push(guid);
             localStorage.notifications = JSON.stringify(seenNotifications);
         };
-        notificationMenu.onclick();
+        notifications.style.display = "block";
     }
 }
 </script>

@@ -36,7 +36,7 @@ a:active, a:link, a:visited, span {
 <a href="/">Gabriel Sroka</a> - 
 <a href="https://gsroka-neto.oktapreview.com">Home</a>
 <span style='float: right;'>
-<span id=notificationMenu>🔔</span>
+<span id=notificationMenu>🔔</span> - 
 <span id="refresh">Refresh</span> - 
 <a href="/login.htm?signout">Sign out</a> 
 </span>
@@ -155,7 +155,7 @@ async function getStatus() {
     if (!localStorage.notifications) localStorage.notifications = "[]";
     const seenNotifications = JSON.parse(localStorage.notifications);
     var date = new Date(item.pubDate + "Z");
-    date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+    date = (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + twoDigits(date.getMinutes());
     oktaStatus.innerHTML += `<a href='${item.link}'>${item.title}</a><span id=seen style='float: right;'>${date}</span>`;
     if (seenNotifications.includes(guid)) {
         seen.innerHTML += "✓";
@@ -169,6 +169,10 @@ async function getStatus() {
         };
         notifications.style.display = "block";
     }
+}
+
+function twoDigits(n) {
+    return n < 10 ? "0" + n : n;
 }
 </script>
 </body>

@@ -156,13 +156,14 @@ async function getStatus() {
     const seenNotifications = JSON.parse(localStorage.notifications);
     var date = new Date(item.pubDate + "Z");
     date = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
-    oktaStatus.innerHTML += `<a id=seen href='${item.link}'>${item.title}<span style='float: right;'>${date}</span></a>`;
+    oktaStatus.innerHTML += `<a href='${item.link}'>${item.title}</a><span id=seen style='float: right;'>${date}</span>`;
     if (seenNotifications.includes(guid)) {
         seen.innerHTML += "✓";
     } else {
         seen.onclick = () => {
             seen.innerHTML += "✓";
             seen.onclick = null;
+            notifications.style.display = "";
             seenNotifications.push(guid);
             localStorage.notifications = JSON.stringify(seenNotifications);
         };

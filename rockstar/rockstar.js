@@ -425,32 +425,68 @@
                 exportPopup.append("<br>Columns to export");
                 var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 300px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
                 
+                function addCheckbox(value, text) {
+                    const checked = exportColumns.includes(value) ? "checked" : "";
+                    checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${value}' ${checked}>${text}</label><br>`);
+                }
+                const user = {
+                    id: "User Id", 
+                    status: "Status", 
+                    created: "Created Date", 
+                    activated: "Activated Date", 
+                    statusChanged: "Status Changed Date", 
+                    lastLogin: "Last Login Date", 
+                    lastUpdated: "Last Updated Date", 
+                    passwordChanged: "Password Changed Date", 
+                    transitioningToStatus: "Transitioning to Status", 
+                    "credentials.provider.type": "Credential Provider Type",
+                    "credentials.provider.name": "Credential Provider Name"
+                };
+                const defaultColumns = "id,status,profile.login,profile.firstName,profile.lastName,profile.email";
+                const exportColumns = (localStorage.rockstarExportUserColumns || defaultColumns).replace(/ /g, "").split(",");
+                for (const p in user) addCheckbox(p, user[p]);
                 $.getJSON("/api/v1/meta/schemas/user/default").then(schema => {
-                    var user = {
-                        id: "User Id", 
-                        status: "Status", 
-                        created: "Created Date", 
-                        activated: "Activated Date", 
-                        statusChanged: "Status Changed Date", 
-                        lastLogin: "Last Login Date", 
-                        lastUpdated: "Last Updated Date", 
-                        passwordChanged: "Password Changed Date", 
-                        transitioningToStatus: "Transitioning to Status", 
-                        "credentials.provider.type": "Credential Provider Type",
-                        "credentials.provider.name": "Credential Provider Name"
-                    };
-                    var base = schema.definitions.base.properties;
-                    var custom = schema.definitions.custom.properties;
-                    const defaultColumns = "id,status,profile.login,profile.firstName,profile.lastName,profile.email";
-                    var exportColumns = (localStorage.rockstarExportUserColumns || defaultColumns).replace(/ /g, "").split(",");
-                    for (var p in user) addCheckbox(p, user[p]);
-                    for (p in base) addCheckbox("profile." + p, base[p].title);
-                    for (p in custom) addCheckbox("profile." + p, custom[p].title);
+                    const base = schema.definitions.base.properties;
+                    const custom = schema.definitions.custom.properties;
+                    for (const p in base) addCheckbox("profile." + p, base[p].title);
+                    for (const p in custom) addCheckbox("profile." + p, custom[p].title);
                 
-                    function addCheckbox(value, text) {
-                        var checked = exportColumns.includes(value) ? "checked" : "";
-                        checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${value}' ${checked}>${text}</label><br>`);
-                    }
+                }).fail(() => {
+                    // TODO: if user isn't super admin, they can call /users, but can't call /schemas. Provide default columns instead?
+                    const profile = {
+                        login: "Username",
+                        firstName: "First name",
+                        lastName: "Last name",
+                        middleName: "Middle name",
+                        honorificPrefix: "Honorific prefix",
+                        honorificSuffix: "Honorific suffix",
+                        email: "Primary email",
+                        title: "Title",
+                        displayName: "Display name",
+                        nickName: "Nickname",
+                        profileUrl: "Profile Url",
+                        secondEmail: "Secondary email",
+                        mobilePhone: "Mobile phone",
+                        primaryPhone: "Primary phone",
+                        streetAddress: "Street address",
+                        city: "City",
+                        state: "State",
+                        zipCode: "Zip code",
+                        countryCode: "Country code",
+                        postalAddress: "Postal Address",
+                        preferredLanguage: "Preferred language",
+                        locale: "Locale",
+                        timezone: "Time zone",
+                        userType: "User type",
+                        employeeNumber: "Employee number",
+                        costCenter: "Cost center",
+                        organization: "Organization",
+                        division: "Division",
+                        department: "Department",
+                        managerId: "Manager Id",
+                        manager: "Manager"
+                    };
+                    for (const p in profile) addCheckbox("profile." + p, profile[p]);
                 });
     
                 var exportArgs = localStorage.rockstarExportUserArgs || "";

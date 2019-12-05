@@ -1,3 +1,5 @@
+/* rockstar .next !!! */
+
 (function () {
     // What does rockstar do?
     //   Export Objects to CSV: Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, App Notes, Network Zones, Admins, etc.
@@ -82,8 +84,9 @@
             });
         });
     }
+
     function directoryPerson() {
-        var userId = location.pathname.split("/")[5];
+        var userId = location.pathname.split('/')[5];
         var user;
         $.getJSON(`/api/v1/users/${userId}`).then(aUser => {
             user = aUser;
@@ -127,7 +130,7 @@
         }
         createDivA("Show User", mainPopup, showUser);
         createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);
-
+        
         createDivA("Verify Factors", mainPopup, async function () {
             var verifyPopup = createPopup("Factors");
             var url = `/api/v1/users/${userId}/factors`;
@@ -196,7 +199,7 @@
                 verifyPopup.html("No supported factors were found.");
             }
         });
-        
+
         createDivA("Administrator Roles", mainPopup, function () {
             var allRoles = [
                 {type: "SUPER_ADMIN", label: "Super"},
@@ -269,10 +272,10 @@
             form.find("input.name").focus();
         });
         createDivA("Search Groups (experimental)", mainPopup, () => {
-            const object = {
+            const groupSearch = {
                 url: "/api/v1/groups?expand=stats",
                 data() {this.match = new RegExp(this.search, "i"); return {limit: this.limit};},
-                filter: group => group.profile.name.match(object.match),
+                filter: group => group.profile.name.match(groupSearch.match), // Use `groupSearch` since there's no `this`.
                 limit: 10000,
                 comparer: (group1, group2) => group1.profile.name.localeCompare(group2.profile.name),
                 template(group) {
@@ -288,10 +291,10 @@
                 placeholder: "Search name with wildcard...",
                 empty: true
             };
-            searcher(object);
+            searcher(groupSearch);
         });
     }
-    
+
     function securityAdministrators() {
         createDivA("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
             var adminsPopup = createPopup("Administrators");
@@ -353,6 +356,7 @@
             });
         });
     }
+
     function systemLog() {
         createDivA("Expand All", mainPopup, () => {
             $(".row-expander").each(function () {this.click()});
@@ -362,6 +366,7 @@
             $(".row-expander").each(function () {this.click()});
         });
     }
+
     function activeDirectory() {
         createDivA("Add OU Tooltips", mainPopup, () => {
             addTooltips("user");
@@ -390,6 +395,7 @@
             }
         });           
     }
+
     function identityProviders() {
         createDivA("SAML IdPs", mainPopup, () => {
             $.getJSON(`/api/v1/idps?type=SAML2`).then(idps => {
@@ -418,6 +424,7 @@
         var appId;
         var groupId;
         var cancel;
+        var sleep;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
             createDivA("Export Users", mainPopup, function () {
@@ -492,7 +499,8 @@
                 var exportArgs = localStorage.rockstarExportUserArgs || "";
                 exportPopup.append(`<br><br>Query, Filter, or Search&nbsp;&nbsp;` +
                     `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br>` +
-                    `<input id=exportargs list=parlist value='${exportArgs}' style='width: 300px'><br><br>` + 
+                    `<input id=exportargs list=parlist value='${exportArgs}' style='width: 300px'><br><br>` +
+                    `<label><input type=checkbox id=includeFactors>Include Factors (will take longer)</label><br><br>` +
                     `<div id=error>&nbsp;</div><br>` +
                     `<datalist id=parlist><option>q=Smith<option>filter=status eq "DEPROVISIONED"<option>filter=profile.lastName eq "Smith"` +
                     `<option>search=status eq "DEPROVISIONED"<option>search=profile.lastName eq "Smith"</datalist>`);
@@ -510,7 +518,25 @@
                         exportHeaders = exportHeaders.join(",");
                         localStorage.rockstarExportUserColumns = exportColumns.join(",");
                         localStorage.rockstarExportUserArgs = exportArgs;
-                        startExport("Users", `/api/v1/users?${exportArgs}`, exportHeaders, user => toCSV(...fields(user, exportColumns)));
+                        if ($("#includeFactors").is(":checked")) {
+                            sleep = true;
+                            startExport("User Factors", `/api/v1/users?${exportArgs}`, exportHeaders + ",Factors Type,Factors Status,Factors Created", async user => {
+                                var factorsType = [], factorsStatus = [], factorsCreated = [];
+                                try {
+                                    await new Promise(res => setTimeout(res, 1000));
+                                    var response = await fetch(`/api/v1/users/${user.id}/factors`);
+                                    var factors = await response.json();
+                                    factors.forEach(factor => {
+                                        factorsType.push(factor.factorType);
+                                        factorsStatus.push(factor.status);
+                                        factorsCreated.push(factor.created);
+                                    });
+                                } catch (e) {}
+                                return toCSV(...fields(user, exportColumns), factorsType.join('\n'), factorsStatus.join('\n'), factorsCreated.join('\n'));
+                            });
+                        } else {
+                            startExport("Users", `/api/v1/users?${exportArgs}`, exportHeaders, user => toCSV(...fields(user, exportColumns)));
+                        }
                     } else {
                         $("#error").html("Select at least 1 column.");
                     }
@@ -602,14 +628,19 @@
             $.getJSON(url).then(getObjects).fail(failObjects);
         }
         function getObjects(objects, status, jqXHR) {
-            objects.forEach(object => {
+            for (var i = 0; i < objects.length; i++) {
+                var object = objects[i];
                 var line = template(object);
                 if (line.then) {
-                    line.then(ln => lines.push(ln));
+                    if (sleep) {
+                        line.then(() => new Promise(res => setTimeout(res,  1000))).then(ln => lines.push(ln));
+                    } else {
+                        line.then(ln => lines.push(ln));
+                    }
                 } else {
                     lines.push(line);
                 }
-            });
+            }
             total += objects.length;
             exportPopup.html(total + " " + objectType + "...<br><br>");
             createDivA("Cancel", exportPopup, () => cancel = true, "class='link-button'");
@@ -725,7 +756,7 @@
                 input.value = label;
                 form.onsubmit = function () {
                     getSSO(url.value);
-                    return false; // cancel form submit
+                    return false; // Cancel form submit.
                 };
             }
             function getSSO(url) {
@@ -774,9 +805,8 @@
                 return lines.join("\n");
             }
         });
-        $.getJSON(`/api/v1/sessions/me`).then(session => {
-            $(".icon-clock-light").parent().append("<div>Expires in " + Math.round((new Date(session.expiresAt) - new Date()) / 60 / 1000) + " minutes</div>");
-        });
+        $.getJSON(`/api/v1/sessions/me`)
+            .then(session => $(".icon-clock-light").parent().append("<div>Expires in " + Math.round((new Date(session.expiresAt) - new Date()) / 60 / 1000) + " minutes</div>"));
         apiExplorer();
     }
 
@@ -814,7 +844,7 @@
                     $(results).html("<br>");
                     var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
                     if (linkHeader) {
-                        $(results).html("<br>Headers<br><table><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /, "<br>") + "</table><br>");
+                        $(results).html("<br>Headers<br><table><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") + "</table><br>");
                         var links = getLinks(linkHeader);
                         if (links.next) {
                             var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
@@ -939,6 +969,7 @@
             empty: true
         });
     }
+
     function suOrg() {
         searcher({
             url: location.pathname + "/users/search",

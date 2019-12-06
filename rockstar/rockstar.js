@@ -562,9 +562,9 @@
             });
         } else if (appId = getAppId()) {
             createDivA("Export App Users", mainPopup, function () {
-                startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId,firstName,lastName", 
+                startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId,firstName,lastName,syncState", 
                     appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId, 
-                        appUser.profile.firstName, appUser.profile.lastName));
+                        appUser.profile.firstName, appUser.profile.lastName, appUser.syncState));
             });
             createDivA("Export App Groups", mainPopup, function () {
                 const atos = a => a ? a.join(";") : "";

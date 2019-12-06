@@ -148,7 +148,7 @@ async function getForecast() {
 // }
 
 async function getStatus() {
-    const response = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS");
+    const response = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS&api_key=bktpucfcehpay70oarqhspsrzyt9wbjebfvhqkwb&count=1");
     const feed = await response.json();
     const item = feed.items[0];
     const guid = item.guid.split('/').pop();

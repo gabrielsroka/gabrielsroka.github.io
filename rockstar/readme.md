@@ -6,7 +6,6 @@
 - Person page: show login/email and AD info, show user detail, enhance menus/title, manage user's admin roles
 - Events: Expand All and Expand Each Row
 - API: API Explorer, Pretty Print JSON
-- SU Orgs & Org Users: enhanced search
 - Many: enhanced menus
 
 ...and more to come

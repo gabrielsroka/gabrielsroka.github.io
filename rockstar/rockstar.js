@@ -7,7 +7,6 @@
     //   Groups page: search groups
     //   Events: Expand All and Expand Each Row
     //   API: API Explorer, Pretty Print JSON
-    //   SU Orgs & Org Users: enhanced search
     //   Many: enhanced menus
     // and more to come...
 
@@ -48,17 +47,6 @@
         userHome();
     //} else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/reference/api/")) {
     //    tryAPI();
-    } else { // SU
-        // Don't show mainPopup div.
-        if (location.pathname == "/su/orgs") {
-            suOrgs();
-        } else if (location.pathname.match("/su/org/")) {
-            suOrg();
-            if (location.pathname.match("system_log_2")) {
-                mainPopup = createPopup("rockstar");
-                systemLog();
-            }
-        }
     }
 
     // Admin functions
@@ -913,46 +901,6 @@
         });
     }
     */
-
-    // SU functions
-    function suOrgs() {
-        searcher({
-            url: "/api/internal/su/orgs",
-            data() {return {search: this.search, limit: this.limit};},
-            limit: 100, // 100 is the max limit for this url.
-            //filter: org => org.edition != "Developer",
-            comparer(org1, org2) {
-                var d1 = org1.edition == "Developer";
-                var d2 = org2.edition == "Developer";
-                if ((d1 && d2) || (!d1 && !d2)) return org1.subdomain.localeCompare(org2.subdomain);
-                return d1 ? 1 : -1;
-            },
-            template(org) {
-                var href = `${org.cellURL || ""}/su/org/${org.id}`;
-                return `<tr><td><a href="${href}">${org.subdomain}</a>` +
-                    `<td>${org.name}` +
-                    `<td><a class='link-button' href="${href}/features">Features</a> ` +
-                    `<td>${org.cell}`;
-            },
-            headers: "<tr><th>Subdomain<th>Name<th>Features<th>Cell",
-            placeholder: "Search 100...",
-            empty: true
-        });
-    }
-    function suOrg() {
-        searcher({
-            url: location.pathname + "/users/search",
-            data() {return {sSearch: this.search, sColumns: "fullName,login,userId,email,tempSignOn", iDisplayLength: 10};},
-            comparer: (user1, user2) => user1.fullName.localeCompare(user2.fullName),
-            template: user => `<tr class=odd><td>${user.fullName}<td>${user.login}<td><a href="${location.pathname}/user-summary/${user.userId}">${user.userId}</a><td>${user.email}<td>${user.tempSignOn}`,
-            headers: "<tr><th>Name<th>Login<th>ID<th>Email<th>Temp Sign On",
-            placeholder: "Search by First/Last/Email/Login...",
-            $search: "#user-grid_filter",
-            $table: "#user-grid",
-            dataType: "text",
-            properties: "userSearchQuery"
-        });
-    }
 
     // Util functions
     if ($) {

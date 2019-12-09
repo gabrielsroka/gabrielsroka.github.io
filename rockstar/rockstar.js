@@ -826,7 +826,7 @@
                         }
                         $(results).append(json);
                     }
-                }).fail(jqXHR => $(results).html("<br>Error<pre>" + JSON.stringify(jqXHR.responseJSON, null, 4) + "</pre>"));
+                }).fail(jqXHR => $(results).html("<br>Status: " + jqXHR.status + " " + jqXHR.statusText + "<br><br>Error<pre>" + JSON.stringify(jqXHR.responseJSON, null, 4) + "</pre>"));
                 return false; // Cancel form submit.
             };
         });

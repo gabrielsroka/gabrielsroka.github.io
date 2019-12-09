@@ -802,27 +802,30 @@
                     $(results).html("<br>");
                     var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
                     if (linkHeader) {
-                        $(results).html("<br>Headers<br><table><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /, "<br>") + "</table><br>");
+                        $(results).html("<br>Headers<br><table><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") + "</table><br>");
                         var links = getLinks(linkHeader);
                         if (links.next) {
                             var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
                             nextUrl = nextUrl.pathname + nextUrl.search;
                         }
                     }
-                    var pathname = url.split('?')[0];
-                    var json = formatPre(linkify(JSON.stringify(objects, null, 4)), pathname); // Pretty Print the JSON.
-                    if (Array.isArray(objects)) {
-                        var table = formatObjects(objects, pathname);
-                        $(results).append(table.header);
-                        if (nextUrl) {
-                            createA("Next >", results, () => {
-                                form.url.value = nextUrl;
-                                send.click();
-                            });
+                    $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
+                    if (objects) {
+                        var pathname = url.split('?')[0];
+                        var json = formatPre(linkify(JSON.stringify(objects, null, 4)), pathname); // Pretty Print the JSON.
+                        if (Array.isArray(objects)) {
+                            var table = formatObjects(objects, pathname);
+                            $(results).append(table.header);
+                            if (nextUrl) {
+                                createA("Next >", results, () => {
+                                    form.url.value = nextUrl;
+                                    send.click();
+                                });
+                            }
+                            json = "<br>" + table.body + json;
                         }
-                        json = "<br>" + table.body + json;
+                        $(results).append(json);
                     }
-                    $(results).append(json);
                 }).fail(jqXHR => $(results).html("<br>Error<pre>" + JSON.stringify(jqXHR.responseJSON, null, 4) + "</pre>"));
                 return false; // Cancel form submit.
             };

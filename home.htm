@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name='viewport' content='width=device-width, initial-scale=1'>
 <title>My Apps</title>
-<link href="https://ok1static.oktacdn.com/assets/css/enduser/enduser.css" type="text/css" rel="stylesheet" />
+<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' type='text/css' rel='stylesheet' />
 <style>
 nav, .widget {
     margin: 32px;
@@ -60,7 +60,7 @@ a:active, a:link, a:visited, span {
 </main>
 <script>
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-const baseUrl = "https://gsroka-neto.oktapreview.com";
+const baseUrl = 'https://gsroka-neto.oktapreview.com';
 
 refresh.onclick = getLinks;
 if (localStorage.links) {
@@ -84,8 +84,8 @@ getNotifications();
 // If url is blank, it will figure it out from the label. It will remove spaces, and add "https://" and ".com", etc.
 async function getLinks() {
     try {
-        const init = {credentials: "include"};
-        // const init = {mode: "cors"}; // This didn't seem to work.
+        const init = {credentials: 'include'};
+        // const init = {mode: 'cors'}; // This didn't seem to work.
         const response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
         const links = (await response.json())
             .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
@@ -94,16 +94,16 @@ async function getLinks() {
                 if (url) {
                     url = url.trim();
                 } else {
-                    url = label.replace(/ /g, "");
+                    url = label.replace(/ /g, '');
                 }
-                if (!url.startsWith("https")) url = "https://" + url;
-                if (!url.includes(".")) url += ".com";
+                if (!url.startsWith('https')) url = 'https://' + url;
+                if (!url.includes('.')) url += '.com';
                 return {label, url};
             });
         localStorage.links = JSON.stringify(links);
         showLinks(links);
     } catch (e) {
-        location.href = "/login.htm";
+        location.href = '/login.htm';
     }
 }
 
@@ -127,11 +127,11 @@ async function getWeather() {
 }
 
 async function getForecast() {
-    const latlong = "33.7737,-118.1365";
+    const latlong = '33.7737,-118.1365';
     // const {coords} = await getPosition();
     // const latlong = coords.latitude + ',' + coords.longitude;
 
-    var response = await fetch("https://api.weather.gov/points/" + latlong);
+    var response = await fetch('https://api.weather.gov/points/' + latlong);
     const point = await response.json();
 
     response = await fetch(point.properties.forecast);
@@ -148,19 +148,19 @@ async function getForecast() {
 // }
 
 async function getNotifications() {
-    const response = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS&api_key=bktpucfcehpay70oarqhspsrzyt9wbjebfvhqkwb&count=1");
+    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS&api_key=bktpucfcehpay70oarqhspsrzyt9wbjebfvhqkwb&count=1');
     const feed = await response.json();
     const item = feed.items[0];
     const guid = item.guid.split('/').pop();
-    const seenNotifications = JSON.parse(localStorage.notifications || "[]");
-    const date = new Date(item.pubDate + "Z");
-    const dateStr = (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + twoDigits(date.getMinutes());
+    const seenNotifications = JSON.parse(localStorage.notifications || '[]');
+    const date = new Date(item.pubDate + 'Z');
+    const dateStr = (date.getMonth() + 1) + '/' + date.getDate() + ' ' + date.getHours() + ':' + twoDigits(date.getMinutes());
     oktaStatus.innerHTML += `<a href='${item.link}'>${item.title}</a><span id=seen style='float: right;'>${dateStr}</span>`;
     if (seenNotifications.includes(guid)) {
-        seen.innerHTML += "✓";
+        seen.innerHTML += '✓';
     } else {
         seen.onclick = () => {
-            seen.innerHTML += "✓";
+            seen.innerHTML += '✓';
             seen.onclick = null;
             notifications.hide();
             seenNotifications.push(guid);
@@ -170,7 +170,7 @@ async function getNotifications() {
     }
 }
 
-const twoDigits = n => n < 10 ? "0" + n : n;
+const twoDigits = n => n < 10 ? '0' + n : n;
 </script>
 </body>
 </html>

@@ -33,48 +33,50 @@ a:active, a:link, a:visited, span {
 </head>
 <body>
 <nav>
-<a href="/">Gabriel Sroka</a> - 
-<a href="https://gsroka-neto.oktapreview.com">Home</a>
+<a href='/'>Gabriel Sroka</a> - 
+<a href='https://gsroka-neto.oktapreview.com'>Home</a>
 <span style='float: right;'>
 <span id=notificationMenu>🔔</span> - 
-<span id="refresh">Refresh</span> - 
-<a href="/login.htm?signout">Sign out</a> 
+<span id=refresh>Refresh</span> - 
+<a href='/login.htm?signout'>Sign out</a> 
 </span>
-<div id=notifications>
-<br>
-<div id="oktaStatus">
-<div><a href='https://status.okta.com/' style='font-weight: bold;'>Okta Status</a></div>
-</div>
-</div>
 </nav>
 <main>
-<div id="weather" style="height: 80px;" class=widget>Loading <a href='https://www.google.com/search?q=weather'>weather</a>...</div>
-<div id="stocks" class=widget>
+<div id=notifications class=widget>
+<div id=oktaStatus>
+<div><a href='https://status.okta.com' style='font-weight: bold;'>Okta Status</a></div>
+</div>
+</div>
+<div id=weather style='height: 80px;' class=widget>Loading <a href='https://www.google.com/search?q=weather'>weather</a>...</div>
+<div id=stocks class=widget>
 <table>
-<tr><td><a href="https://www.google.com/search?q=okta+stock">Okta</a><td>123.45
-<td><a href="https://www.google.com/search?q=aapl+stock">Apple</a><td>123.45
-<tr><td><a href="https://www.google.com/search?q=goog+stock">Google</a><td>123.45
-<td><a href="https://www.google.com/search?q=msft+stock">Microsoft</a><td>123.45
+<tr><td><a href='https://www.google.com/search?q=okta stock'>Okta</a><td>123.45
+<td><a href='https://www.google.com/search?q=aapl stock'>Apple</a><td>123.45
+<tr><td><a href='https://www.google.com/search?q=goog stock'>Google</a><td>123.45
+<td><a href='https://www.google.com/search?q=msft stock'>Microsoft</a><td>123.45
 </table>
 </div>
-<div id="apps"></div>
+<div id=apps></div>
 </main>
 <script>
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
 const baseUrl = "https://gsroka-neto.oktapreview.com";
 
 refresh.onclick = getLinks;
-notificationMenu.onclick = () => notifications.style.display = notifications.style.display == "" ? "block" : "";
-
-getWeather();
-getStatus();
-
 if (localStorage.links) {
-    var links = JSON.parse(localStorage.links);
-    showLinks(links);
+    showLinks(JSON.parse(localStorage.links));
 } else {
     getLinks();
 }
+
+getWeather();
+
+notifications.toggle = function () {this.isVisible() ? this.hide() : this.show()};
+notifications.isVisible = function () {return this.style.display == 'block'};
+notifications.show = function () {this.style.display = 'block'};
+notifications.hide = function () {this.style.display = 'none'};
+notificationMenu.onclick = () => notifications.toggle();
+getNotifications();
 
 // It's expecting appLinks whose labels match the following pattern:
 //     label[, url]
@@ -82,11 +84,10 @@ if (localStorage.links) {
 // If url is blank, it will figure it out from the label. It will remove spaces, and add "https://" and ".com", etc.
 async function getLinks() {
     try {
-        var init = {credentials: "include"};
-        // var init = {mode: "cors"}; // This didn't seem to work.
-        var response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
-        var links = await response.json();
-        links = links
+        const init = {credentials: "include"};
+        // const init = {mode: "cors"}; // This didn't seem to work.
+        const response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
+        const links = (await response.json())
             .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
             .map(link => {
                 var [label, url] = link.label.split(/,/);
@@ -107,23 +108,22 @@ async function getLinks() {
 }
 
 function showLinks(links) {
-    var lis = "";
-    links.forEach(link => {
-        lis += `<li class='app-button-wrapper'>` +
-            `<a href='${link.url}' target='_blank' class='app-button' rel='noopener'>` +
-            `<img src='${new URL(link.url).origin}/favicon.ico' class='logo'/></a>` +
-            `<p class='app-button-name'>${link.label}`;
-    });
-    apps.innerHTML = `<ul>${lis}</ul>`;
+    const lis = links.map(link => `<li class='app-button-wrapper'>` +
+        `<a href='${link.url}' target='_blank' class='app-button' rel='noopener'>` +
+        `<img src='${new URL(link.url).origin}/favicon.ico' class='logo'/></a>` +
+        `<p class='app-button-name'>${link.label}`);
+    apps.innerHTML = `<ul>${lis.join('')}</ul>`;
 }
 
 async function getWeather() {
     const forecast = await getForecast();
+    const hi = Math.max(forecast.daily[0].temperature, forecast.daily[1].temperature);
+    const lo = Math.min(forecast.daily[0].temperature, forecast.daily[1].temperature);
     weather.innerHTML = "<a href='https://www.google.com/search?q=weather'>" + 
-        "<div>" + forecast.daily[0].temperature + "° ↑ &nbsp; • &nbsp; " + forecast.daily[1].temperature + "° ↓" +
+        `${hi}° ↑ &nbsp; • &nbsp; ${lo}° ↓` +
         `<span style='float: right;'>${forecast.hourly.shortForecast}</span>` +
         `<div><span style='font-size: 64px;'>${forecast.hourly.temperature}°</span>` +
-        `<span style='float: right;'><img src='${forecast.hourly.icon}' style='margin-top: 4px;'></span></div></div></a>`;
+        `<span style='float: right;'><img src='${forecast.hourly.icon}' style='margin-top: 4px;'></span></div></a>`;
 }
 
 async function getForecast() {
@@ -147,33 +147,30 @@ async function getForecast() {
 //   return new Promise(resolve => navigator.geolocation.getCurrentPosition(resolve));
 // }
 
-async function getStatus() {
+async function getNotifications() {
     const response = await fetch("https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS&api_key=bktpucfcehpay70oarqhspsrzyt9wbjebfvhqkwb&count=1");
     const feed = await response.json();
     const item = feed.items[0];
     const guid = item.guid.split('/').pop();
-    if (!localStorage.notifications) localStorage.notifications = "[]";
-    const seenNotifications = JSON.parse(localStorage.notifications);
-    var date = new Date(item.pubDate + "Z");
-    date = (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + twoDigits(date.getMinutes());
-    oktaStatus.innerHTML += `<a href='${item.link}'>${item.title}</a><span id=seen style='float: right;'>${date}</span>`;
+    const seenNotifications = JSON.parse(localStorage.notifications || "[]");
+    const date = new Date(item.pubDate + "Z");
+    const dateStr = (date.getMonth() + 1) + "/" + date.getDate() + " " + date.getHours() + ":" + twoDigits(date.getMinutes());
+    oktaStatus.innerHTML += `<a href='${item.link}'>${item.title}</a><span id=seen style='float: right;'>${dateStr}</span>`;
     if (seenNotifications.includes(guid)) {
         seen.innerHTML += "✓";
     } else {
         seen.onclick = () => {
             seen.innerHTML += "✓";
             seen.onclick = null;
-            notifications.style.display = "";
+            notifications.hide();
             seenNotifications.push(guid);
             localStorage.notifications = JSON.stringify(seenNotifications);
         };
-        notifications.style.display = "block";
+        notifications.show();
     }
 }
 
-function twoDigits(n) {
-    return n < 10 ? "0" + n : n;
-}
+const twoDigits = n => n < 10 ? "0" + n : n;
 </script>
 </body>
 </html>

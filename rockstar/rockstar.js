@@ -519,14 +519,14 @@
                     app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status));
             });
             createDivA("Export App Notes", mainPopup, function () {
-                startExport("App Notes", "/api/v1/apps", "id,label,name,userNameTemplate,features,endUserAppNotes,adminAppNotes", async app => {
+                startExport("App Notes", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status,endUserAppNotes,adminAppNotes", async app => {
                     var response = await fetch(`/admin/app/${app.name}/instance/${app.id}/settings/general`);
                     var html = await response.text();
                     var parser = new DOMParser();
                     var doc = parser.parseFromString(html, "text/html");
                     var enduserAppNotes = doc.getElementById("settings.enduserAppNotes") ? doc.getElementById("settings.enduserAppNotes").innerHTML : "";
                     var adminAppNotes = doc.getElementById("settings.adminAppNotes") ? doc.getElementById("settings.adminAppNotes").innerHTML : "";
-                    return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), enduserAppNotes, adminAppNotes);
+                    return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, enduserAppNotes, adminAppNotes);
                 });
             });
         } else if (location.pathname == "/admin/access/networks") {

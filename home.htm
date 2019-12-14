@@ -8,6 +8,9 @@
 nav, .widget {
     margin: 32px;
 }
+#menu li {
+    padding: 10px 0;
+}
 a:active, a:link, a:visited, span {
     color: black;
 }
@@ -30,13 +33,14 @@ a:active, a:link, a:visited, span {
 </head>
 <body>
 <nav>
-<a href='/'>Gabriel Sroka</a> - 
-<a href='https://gsroka-neto.oktapreview.com'>Home</a>
-<span style='float: right;'>
-<span id=notificationMenu>🔔</span> - 
-<span id=refresh>Refresh</span> - 
-<a href='/login.htm?signout'>Sign out</a> 
-</span>
+<span id=burger style='font-size: 24px;'>=</span>
+<span id=notificationMenu style='float: right;'>🔔</span>
+<ul id=menu style='display: none;'>
+<li><a href="/">Gabriel Sroka</a>
+<li><a href='https://gsroka-neto.oktapreview.com'>Home</a>
+<li><span id=refresh>Refresh</span>
+<li><a href='/login.htm?signout'>Sign out</a> 
+</ul>
 </nav>
 <main>
 <div id=notifications class=widget style='display: none;'>
@@ -55,45 +59,48 @@ a:active, a:link, a:visited, span {
 <div id=apps></div>
 </main>
 <script>
-// For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-const baseUrl = 'https://gsroka-neto.oktapreview.com';
+onload = () => {
+    burger.onclick = () => menu.style.display = menu.style.display == "none" ? "block" : "none";
 
-refresh.onclick = getLinks;
-if (localStorage.links) {
-    showLinks(JSON.parse(localStorage.links));
-} else {
-    getLinks();
-}
+    // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+    const baseUrl = 'https://gsroka-neto.oktapreview.com';
+    refresh.onclick = async () => showLinks(await getLinks(baseUrl));
+    if (localStorage.links) {
+        showLinks(JSON.parse(localStorage.links));
+    } else {
+        refresh.onclick();
+    }
 
-getWeather();
+    getWeather();
 
-notificationMenu.onclick = () => notifications.toggle();
-getNotifications();
+    notificationMenu.onclick = () => notifications.toggle();
+    getNotifications();
+};
 
-// It's expecting appLinks whose labels match the following pattern:
-//     label[, url]
-// eg: "NY Times, nytimes.com", or just "NY Times"
-// If url is blank, it will figure it out from the label. It will remove spaces, and add "https://" and ".com", etc.
-async function getLinks() {
+async function getLinks(baseUrl) {
+    /* Fetch appLinks whose labels are in the following format:
+           label[, url]
+       eg: "NY Times, nytimes.com", or just "NY Times"
+       If url is blank, it will figure it out from the label. It will remove spaces, and add "https://" and ".com", etc.*/
     try {
         const init = {credentials: 'include'};
         // const init = {mode: 'cors'}; // This didn't seem to work.
         const response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
         const links = (await response.json())
-            .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
-            .map(link => {
-                var [label, url] = link.label.split(/,/);
-                if (url) {
-                    url = url.trim();
-                } else {
-                    url = label.replace(/ /g, '');
-                }
-                if (!url.startsWith('https')) url = 'https://' + url;
-                if (!url.includes('.')) url += '.com';
-                return {label, url};
-            });
+        .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
+        .map(link => {
+            var [label, url] = link.label.split(/,/);
+            if (url) {
+                url = url.trim();
+            } else {
+                url = label.replace(/ /g, '');
+            }
+            if (!url.startsWith('https')) url = 'https://' + url;
+            if (!url.includes('.')) url += '.com';
+            return {label, url};
+        });
         localStorage.links = JSON.stringify(links);
-        showLinks(links);
+        return links;
     } catch (e) {
         location.href = '/login.htm';
     }
@@ -101,8 +108,7 @@ async function getLinks() {
 
 function showLinks(links) {
     const lis = links.map(link => `<li class='app-button-wrapper'>` +
-        `<a href='${link.url}' target='_blank' class='app-button' rel='noopener'>` +
-        `<img src='${new URL(link.url).origin}/favicon.ico' class='logo'/></a>` +
+        `<a href='${link.url}' target='_blank' class='app-button' rel='noopener'><img src='${new URL(link.url).origin}/favicon.ico' class='logo'/></a>` +
         `<p class='app-button-name'>${link.label}`);
     apps.innerHTML = `<ul>${lis.join('')}</ul>`;
 }
@@ -145,8 +151,7 @@ async function getNotifications() {
     const item = feed.items[0];
     notificationLink.href = item.link;
     notificationLink.innerHTML = item.title
-    const pubDate = new Date(item.pubDate + 'Z').toLocaleString(undefined, {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
-    seen.innerHTML = pubDate;
+    seen.innerHTML = new Date(item.pubDate + 'Z').toLocaleString(undefined, {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
     const seenNotifications = JSON.parse(localStorage.notifications || '[]');
     const guid = item.guid.split('/').pop();
     if (seenNotifications.includes(guid)) {

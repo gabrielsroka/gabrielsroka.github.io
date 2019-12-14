@@ -11,9 +11,6 @@ nav, .widget {
 a:active, a:link, a:visited, span {
     color: black;
 }
-#notifications {
-    display: none;
-}
 #stocks td {
     width: 33%;
     height: 22px;
@@ -42,10 +39,9 @@ a:active, a:link, a:visited, span {
 </span>
 </nav>
 <main>
-<div id=notifications class=widget>
-<div id=oktaStatus>
+<div id=notifications class=widget style='display: none;'>
 <div><a href='https://status.okta.com' style='font-weight: bold;'>Okta Status</a></div>
-</div>
+<a id=notificationLink></a><span id=seen style='float: right;'></span>
 </div>
 <div id=weather style='height: 80px;' class=widget>Loading <a href='https://www.google.com/search?q=weather'>weather</a>...</div>
 <div id=stocks class=widget>
@@ -71,10 +67,6 @@ if (localStorage.links) {
 
 getWeather();
 
-notifications.toggle = function () {this.isVisible() ? this.hide() : this.show()};
-notifications.isVisible = function () {return this.style.display == 'block'};
-notifications.show = function () {this.style.display = 'block'};
-notifications.hide = function () {this.style.display = 'none'};
 notificationMenu.onclick = () => notifications.toggle();
 getNotifications();
 
@@ -135,12 +127,12 @@ async function getForecast() {
     const point = await response.json();
 
     response = await fetch(point.properties.forecast);
-    const forecast = await response.json();
+    const daily = await response.json();
 
     response = await fetch(point.properties.forecastHourly);
-    const forecastHourly = await response.json();
+    const hourly = await response.json();
 
-    return {daily: forecast.properties.periods, hourly: forecastHourly.properties.periods[0]};
+    return {daily: daily.properties.periods, hourly: hourly.properties.periods[0]};
 }
 
 // function getPosition() {
@@ -151,11 +143,12 @@ async function getNotifications() {
     const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS&api_key=bktpucfcehpay70oarqhspsrzyt9wbjebfvhqkwb&count=1');
     const feed = await response.json();
     const item = feed.items[0];
-    const guid = item.guid.split('/').pop();
+    notificationLink.href = item.link;
+    notificationLink.innerHTML = item.title
+    const pubDate = new Date(item.pubDate + 'Z').toLocaleString(undefined, {month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric'});
+    seen.innerHTML = pubDate;
     const seenNotifications = JSON.parse(localStorage.notifications || '[]');
-    const date = new Date(item.pubDate + 'Z');
-    const dateStr = (date.getMonth() + 1) + '/' + date.getDate() + ' ' + date.getHours() + ':' + twoDigits(date.getMinutes());
-    oktaStatus.innerHTML += `<a href='${item.link}'>${item.title}</a><span id=seen style='float: right;'>${dateStr}</span>`;
+    const guid = item.guid.split('/').pop();
     if (seenNotifications.includes(guid)) {
         seen.innerHTML += '✓';
     } else {
@@ -170,7 +163,10 @@ async function getNotifications() {
     }
 }
 
-const twoDigits = n => n < 10 ? '0' + n : n;
+notifications.toggle = function () {this.isVisible() ? this.hide() : this.show()};
+notifications.isVisible = function () {return this.style.display == 'block'};
+notifications.show = function () {this.style.display = 'block'};
+notifications.hide = function () {this.style.display = 'none'};
 </script>
 </body>
 </html>

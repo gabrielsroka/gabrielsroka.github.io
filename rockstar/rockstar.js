@@ -12,6 +12,7 @@
 
     var mainPopup;
     $ = window.$ || window.jQueryCourage;
+    const headers = {'X-Okta-User-Agent-Extended': 'rockstar'};
 
     if (location.href == "https://gabrielsroka.github.io/rockstar/") {
         alert("To install rockstar, open your bookmark toolbar, then drag and drop it.");
@@ -786,7 +787,7 @@
             send.value = "Send";
             form.appendChild(document.createElement("div")).innerHTML = "<br>Body";
             var data = form.appendChild(document.createElement("textarea"));
-            data.style.width = "820px";
+            data.style.width = "850px";
             var results = form.appendChild(document.createElement("div"));
             form.onsubmit = function () {
                 $(results).html("<br>Loading ...");
@@ -796,7 +797,7 @@
                     var id = location.pathname.match("/group/") ? parts[3] : parts[5];
                     url = url.replace(/\${.*}/, id);
                 }
-                $.ajax({url, method: method.value, data: data.value, contentType: "application/json"}).then((objects, status, jqXHR) => {
+                requestJSON({url, method: method.value, data: data.value}).then((objects, status, jqXHR) => {
                     $(results).html("<br>");
                     var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
                     if (linkHeader) {
@@ -934,26 +935,28 @@
         return links;
     }
     function getJSON(url) {
-        return $.get({url, headers: {'X-Okta-User-Agent-Extended': 'rockstar'}});
+        return $.get({url, headers});
     }
     function postJSON(settings) {
         settings.contentType = "application/json";
         settings.data = JSON.stringify(settings.data);
-        settings.headers = {'X-Okta-User-Agent-Extended': 'rockstar'};
+        settings.headers = headers;
         return $.post(settings);
     }
+    function requestJSON(settings) {
+        settings.contentType = "application/json";
+        settings.headers = headers;
+        return $.ajax(settings);
+    }
     function deleteJSON(url) {
-        return $.ajax({
-            url,
-            method: "DELETE",
-            headers: {'X-Okta-User-Agent-Extended': 'rockstar'}
-        });
+        return $.ajax({url, headers, method: "DELETE"});
     }
     function searcher(object) { // TODO: Save search string in location.hash # in URL. Reload from there.
         function searchObjects() {
             var settings = {
                 url: object.url,
-                data: object.data()
+                data: object.data(),
+                headers
             };
             if (object.dataType == "text") {
                 settings.dataType = "text";

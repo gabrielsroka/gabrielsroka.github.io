@@ -73,14 +73,14 @@
     function directoryPerson() {
         var userId = location.pathname.split("/")[5];
         var user;
-        $.getJSON(`/api/v1/users/${userId}`).then(aUser => {
+        getJSON(`/api/v1/users/${userId}`).then(aUser => {
             user = aUser;
             var ad = user.credentials.provider.type == "ACTIVE_DIRECTORY";
             $(".subheader").html(`${user.profile.login}, email: ${user.profile.email}${ad ? ", " : ""}`);
             document.title += ` - ${user.profile.firstName} ${user.profile.lastName}`;
             if (ad) {
                 function showADs() {
-                    $.getJSON(`/api/v1/apps?filter=user.id+eq+"${userId}"&expand=user/${userId}&limit=200&q=active_directory`).then(appUsers => {
+                    getJSON(`/api/v1/apps?filter=user.id+eq+"${userId}"&expand=user/${userId}&limit=200&q=active_directory`).then(appUsers => {
                         var adPopup = createPopup("Active Directory");
                         var rows = "<tr><th>Domain<th>Username<th>Email";
                         appUsers.forEach(appUser => {
@@ -119,7 +119,7 @@
         createDivA("Verify Factors", mainPopup, async function () {
             var verifyPopup = createPopup("Factors");
             var url = `/api/v1/users/${userId}/factors`;
-            var factors = await $.get(url);
+            var factors = await getJSON(url);
             var factorsUi = {};
             function getUi(factor) {
                 const ui = {
@@ -148,12 +148,12 @@
                     var factor = factorsUi[this.factor.value];
                     var url = `/api/v1/users/${userId}/factors/${this.factor.value}/verify`;
                     if (factor.type == "push") {
-                        $.post(url).then(response => {
+                        postJSON({url}).then(response => {
                             const intervalMs = 4000; // time in ms.
                             verifyPopup.html(response.factorResult);
                             var intervalID = setInterval(async () => {
                                 var url = new URL(response._links.poll.href);
-                                var poll = await $.get(url.pathname);
+                                var poll = await getJSON(url.pathname);
                                 verifyPopup.html(poll.factorResult);
                                 if (poll.factorResult != "WAITING") {
                                     clearInterval(intervalID);
@@ -162,8 +162,8 @@
                         }).fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
                     } else {
                         if (factor.type == "sms" || factor.type == "call" || factor.type == "email") {
-                            $.post(url)
-                                .fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
+                            postJSON({url})
+                            .fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
                         }
                         verifyPopup.html("");
                         var verifyForm = verifyPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
@@ -173,8 +173,8 @@
                         verifyForm.onsubmit = function () {
                             var data = {passCode: passCode.value};
                             postJSON({url, data})
-                                .then(response => verifyPopup.html(response.factorResult))
-                                .fail(jqXHR => error.innerHTML = jqXHR.responseJSON.errorSummary);
+                            .then(response => verifyPopup.html(response.factorResult))
+                            .fail(jqXHR => error.innerHTML = jqXHR.responseJSON.errorSummary);
                             return false; // Cancel form.
                         };
                     }
@@ -200,7 +200,7 @@
             var rolesPopup = createPopup("Administrator Roles");
             showRoles();
             function showRoles() {
-                $.getJSON(`/api/v1/users/${userId}/roles`).then(roles => {
+                getJSON(`/api/v1/users/${userId}/roles`).then(roles => {
                     if (roles.length == 0) {
                         rolesPopup.html("This user is not an admin.<br><br>");
                         allRoles.forEach(role => {
@@ -223,10 +223,8 @@
                             createDivA(`Revoke ${role.label}`, rolesPopup, function () {
                                 rolesPopup.html("Loading...");
                                 // https://developer.okta.com/docs/api/resources/roles#unassign-role-from-user
-                                $.ajax({
-                                    url: `/api/v1/users/${userId}/roles/${role.id}`,
-                                    method: "DELETE"
-                                }).then(() => setTimeout(showRoles, 1000));
+                                deleteJSON(`/api/v1/users/${userId}/roles/${role.id}`)
+                                .then(() => setTimeout(showRoles, 1000));
                             });
                         });
                     }
@@ -241,7 +239,7 @@
             var form = $("<form>Name <input class=name style='width: 300px'> " + 
                 "<input type=submit value=Search></form><br><div class=results></div>").appendTo(popup);
             form.submit(event => {
-                $.getJSON("/api/v1/groups").then(groups => {
+                getJSON("/api/v1/groups").then(groups => {
                     groups = groups
                         .filter(group => group.profile.name.match(new RegExp(form.find("input.name").val(), "i")))
                         .map(group => group.profile.name.link("/admin/group/" + group.id));
@@ -284,7 +282,7 @@
         createDivA("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
             var adminsPopup = createPopup("Administrators");
             adminsPopup.html("Exporting ...");
-            $.getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups").then(admins => {
+            getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups").then(admins => {
                 const header = "First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role";
                 var lines = [];
                 admins.forEach(admin => {
@@ -380,8 +378,8 @@
     }
     function identityProviders() {
         createDivA("SAML IdPs", mainPopup, () => {
-            $.getJSON(`/api/v1/idps?type=SAML2`).then(idps => {
-                $.getJSON('/api/v1/idps/credentials/keys').then(keys => {
+            getJSON(`/api/v1/idps?type=SAML2`).then(idps => {
+                getJSON('/api/v1/idps/credentials/keys').then(keys => {
                     var idpPopup = createPopup("SAML IdPs");
                     var rows = "<tr><th>Name<th>Certifcate Expires On<th>Days from today";
                     idps.forEach(idp => {
@@ -433,7 +431,7 @@
                 const defaultColumns = "id,status,profile.login,profile.firstName,profile.lastName,profile.email";
                 const exportColumns = (localStorage.rockstarExportUserColumns || defaultColumns).replace(/ /g, "").split(",");
                 for (const p in user) addCheckbox(p, user[p]);
-                $.getJSON("/api/v1/meta/schemas/user/default").then(schema => {
+                getJSON("/api/v1/meta/schemas/user/default").then(schema => {
                     const base = schema.definitions.base.properties;
                     const custom = schema.definitions.custom.properties;
                     for (const p in base) addCheckbox("profile." + p, base[p].title);
@@ -587,7 +585,7 @@
             header = headerRow;
             lines = [];
             cancel = false;
-            $.getJSON(url).then(getObjects).fail(failObjects);
+            getJSON(url).then(getObjects).fail(failObjects);
         }
         function getObjects(objects, status, jqXHR) {
             objects.forEach(object => {
@@ -624,11 +622,11 @@
                         exportPopup.html(exportPopup.html() + "<br>Sleeping...");
                         if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {
                             clearInterval(intervalID);
-                            $.getJSON(url).then(getObjects).fail(failObjects);
+                            getJSON(url).then(getObjects).fail(failObjects);
                         }
                     }, 1000);
                 } else {
-                    $.getJSON(url).then(getObjects).fail(failObjects);
+                    getJSON(url).then(getObjects).fail(failObjects);
                 }
             } else {
                 if (total == lines.length) {
@@ -718,7 +716,7 @@
             }
             function getSSO(url) {
                 ssoPopup.html("Loading ...");
-                $.get(url).then(response => {
+                getJSON(url).then(response => {
                     function unentity(s) {
                         return s.replace(/&#(x..?);/g, (m, p1) => String.fromCharCode("0" + p1));
                     }
@@ -762,7 +760,7 @@
                 return lines.join("\n");
             }
         });
-        $.getJSON(`/api/v1/sessions/me`).then(session => {
+        getJSON(`/api/v1/sessions/me`).then(session => {
             $(".icon-clock-light").parent().append("<div>Expires in " + Math.round((new Date(session.expiresAt) - new Date()) / 60 / 1000) + " minutes</div>");
         });
         apiExplorer();
@@ -935,10 +933,21 @@
         }
         return links;
     }
+    function getJSON(url) {
+        return $.get({url, headers: {'X-Okta-User-Agent-Extended': 'rockstar'}});
+    }
     function postJSON(settings) {
         settings.contentType = "application/json";
         settings.data = JSON.stringify(settings.data);
+        settings.headers = {'X-Okta-User-Agent-Extended': 'rockstar'};
         return $.post(settings);
+    }
+    function deleteJSON(url) {
+        return $.ajax({
+            url,
+            method: "DELETE",
+            headers: {'X-Okta-User-Agent-Extended': 'rockstar'}
+        });
     }
     function searcher(object) { // TODO: Save search string in location.hash # in URL. Reload from there.
         function searchObjects() {

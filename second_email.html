@@ -27,7 +27,7 @@
         '</table><button id=updateEmail>Update Second Email</button>';
 
     if (!user.profile.secondEmail) {
-        updateEmail.onclick = () => {
+        updateEmail.onclick = async () => {
             const body = {
                 profile: {
                     secondEmail: secondEmail.value

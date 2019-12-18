@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Second Email</title>
+</head>
+<body>
+<script>
+(async function () {
+    // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+    const baseUrl = 'https://gsroka-neto.oktapreview.com';
+
+    const init = {
+        credentials: 'include',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        }
+    };
+
+    const response = await fetch(baseUrl + '/api/v1/users/me', init);
+    const user = await response.json();
+    console.log('email:', user.profile.email, '\nsecondEmail:', user.profile.secondEmail);
+
+    if (!user.profile.secondEmail) {
+        const body = {
+            profile: {
+                secondEmail: 'gabriel.sroka@gmail.com'
+            }
+        };
+        init.body = JSON.stringify(body);
+        init.method = 'POST';
+        const response = await fetch(baseUrl + '/api/v1/users/me', init);
+        const user = await response.json();
+        console.log('email:', user.profile.email, '\nsecondEmail:', user.profile.secondEmail);
+    }
+})();
+</script>
+</body>
+</html>

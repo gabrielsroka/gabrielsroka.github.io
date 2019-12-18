@@ -5,6 +5,7 @@
 <title>Second Email</title>
 </head>
 <body>
+<div id=app></div>
 <script>
 (async function () {
     // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
@@ -20,19 +21,25 @@
 
     const response = await fetch(baseUrl + '/api/v1/users/me', init);
     const user = await response.json();
-    console.log('email:', user.profile.email, '\nsecondEmail:', user.profile.secondEmail);
+    app.innerHTML = '<table><tr><td>Login<td>' + user.profile.login +
+        '<tr><td>Email<td>' + user.profile.email +
+        '<tr><td>Second Email<td><input id=secondEmail value="' + user.profile.secondEmail + '">' +
+        '</table><button id=updateEmail>Update Second Email</button>';
 
     if (!user.profile.secondEmail) {
-        const body = {
-            profile: {
-                secondEmail: 'gabriel.sroka@gmail.com'
-            }
-        };
-        init.body = JSON.stringify(body);
-        init.method = 'POST';
-        const response = await fetch(baseUrl + '/api/v1/users/me', init);
-        const user = await response.json();
-        console.log('email:', user.profile.email, '\nsecondEmail:', user.profile.secondEmail);
+        updateEmail.onclick = () => {
+            const body = {
+                profile: {
+                    secondEmail: secondEmail.value
+                }
+            };
+            init.body = JSON.stringify(body);
+            init.method = 'POST';
+            const response = await fetch(baseUrl + '/api/v1/users/me', init);
+            const user = await response.json();
+            app.innerHTML = "Second Email Updated";
+            setTimeout(close, 3000);
+        }
     }
 })();
 </script>

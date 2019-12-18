@@ -6,8 +6,9 @@
 </head>
 <body>
 <div id=app></div>
+<div id=error></div>
 <script>
-(async function () {
+async function onload() {
     // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
     const baseUrl = 'https://gsroka-neto.oktapreview.com';
 
@@ -24,7 +25,8 @@
     app.innerHTML = '<table><tr><td>Login<td>' + user.profile.login +
         '<tr><td>Email<td>' + user.profile.email +
         '<tr><td>Second Email<td><input id=secondEmail value="' + user.profile.secondEmail + '">' +
-        '</table><button id=updateEmail>Update Second Email</button>';
+        '</table><button id=updateEmail>Update</button>';
+    secondEmail.focus();
 
     if (!user.profile.secondEmail) {
         updateEmail.onclick = async () => {
@@ -35,13 +37,23 @@
             };
             init.body = JSON.stringify(body);
             init.method = 'POST';
-            const response = await fetch(baseUrl + '/api/v1/users/me', init);
-            const user = await response.json();
-            app.innerHTML = "Second Email Updated";
-            setTimeout(close, 3000);
+            try {
+                const response = await fetch(baseUrl + '/api/v1/users/me', init);
+                if (response.ok) {
+                    const user = await response.json();
+                    app.innerHTML = "Second Email Updated";
+                    setTimeout(close, 3000);
+                } else {
+                    const e = await response.json();
+                    error.innerHTML = e.errorCauses[0].errorSummary;
+                    return;
+                }
+            } catch (e) {
+                error.innerHTML = e;
+            }
         }
     }
-})();
+}
 </script>
 </body>
 </html>

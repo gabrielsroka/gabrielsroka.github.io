@@ -6,6 +6,7 @@
 </head>
 <body>
 <div id=app></div>
+<br>
 <div id=error></div>
 <script>
 onload = async function () {
@@ -53,13 +54,8 @@ onload = async function () {
         const response = await fetch(baseUrl + '/api/v1/users/me', init);
         if (response.ok) {
             const user = await response.json();
-            app.innerHTML = 'Your Okta account has been updated. This window will close in 3 seconds.';
-            var sec = 3;
-            setInterval(() => {
-                app.innerHTML += ' ' + sec + '.';
-                if (sec == 0) close();
-                sec--;
-            }, 1000);
+            app.innerHTML = 'Your Okta account has been updated. <button id="closeWindow">Close</button>';
+            closeWindow.onclick = close;
         } else {
             const e = await response.json();
             error.innerHTML = e.errorCauses[0].errorSummary;

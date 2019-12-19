@@ -19,9 +19,10 @@ onload = async function () {
             'Content-Type': 'application/json'
         }
     };
-
-    const response = await fetch(baseUrl + '/api/v1/users/me', init);
-    if (!response.ok) {
+    
+    try {
+        const response = await fetch(baseUrl + '/api/v1/users/me', init);
+    } catch (e) {
         error.innerHTML = "Not logged in";
         return;
     }

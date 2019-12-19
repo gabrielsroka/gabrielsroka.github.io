@@ -529,8 +529,8 @@
                 });
             });
            createDivA("Export AWS ARN Values", mainPopup, function () {
-                startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status, AWS_ARN", 
-                    app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, app.settings.app.identityProviderArn));
+                startExport("Apps", "/api/v1/apps?q=amazon_aws", "id,label,name,userNameTemplate,features,signOnMode,status, AWS_ARN", 
+                    app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, app.settings.app && app.settings.app.identityProviderArn));
             });
         } else if (location.pathname == "/admin/access/networks") {
             createDivA("Export Networks", mainPopup, function () {

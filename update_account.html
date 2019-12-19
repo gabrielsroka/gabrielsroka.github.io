@@ -54,8 +54,7 @@ onload = async function () {
         const response = await fetch(baseUrl + '/api/v1/users/me', init);
         if (response.ok) {
             const user = await response.json();
-            app.innerHTML = 'Your Okta account has been updated. <button id="closeWindow">Close</button>';
-            closeWindow.onclick = close;
+            app.innerHTML = 'Your Okta account has been updated. You may close this window.';
         } else {
             const e = await response.json();
             error.innerHTML = e.errorCauses[0].errorSummary;

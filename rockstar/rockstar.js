@@ -283,9 +283,11 @@
         createDivA("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
             var adminsPopup = createPopup("Administrators");
             adminsPopup.html("Exporting ...");
-            getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups").then(admins => {
-                const header = "First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role";
-                var lines = [];
+            const header = "First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role";
+            const lines = [];
+            getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups").then(getAdmins);
+
+            function getAdmins(admins, status, jqXHR) {
                 admins.forEach(admin => {
                     var profile = admin._embedded.user.profile;
                     var mgr = profile.manager || profile.managerId || "";
@@ -336,8 +338,32 @@
                     if (admin.reportAdmin || admin.orgAdministratorGroup.reportAdmin) showRole("Report Administrator");
                 });
 
-                downloadCSV(adminsPopup, "", header, lines, `Administrators ${location.host.replace("-admin", "")}`);
-            });
+
+                var link = jqXHR.getResponseHeader("Link");
+                var links = link ? getLinks(link) : null;
+                var paginate = false;
+                if (links && links.next) {
+                    paginate = true;
+                }
+                if (paginate) {
+                    var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+                    var url = nextUrl.pathname + nextUrl.search;
+                    var remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
+                    if (remaining && remaining < 10) {
+                        var intervalID = setInterval(() => {
+                            adminsPopup.html(adminsPopup.html() + "<br>Sleeping...");
+                            if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {
+                                clearInterval(intervalID);
+                                getJSON(url).then(getAdmins);
+                            }
+                        }, 1000);
+                    } else {
+                        getJSON(url).then(getAdmins);
+                    }
+                } else {
+                    downloadCSV(adminsPopup, "", header, lines, `Administrators ${location.host.replace("-admin", "")}`);
+                }                
+            }
         });
     }
     function systemLog() {
@@ -1000,22 +1026,21 @@
 
         var timeoutID = 0;
         $(object.$search || ".data-list .data-list-toolbar")
-            .html(`<span class="search-box input-fix"><span class="icon-only icon-16 magnifying-glass-16"></span> ` +
-                `<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'></span>`)
-            .find("input")
-            .keyup(function (event) {
-                const ESC = 27;
-                if (event.which == ESC) {
-                    this.value = object.search = "";
-                    showObjects([]);
-                    return;
-                }
-                if (object.search == this.value || this.value.length < 2) return;
-                object.search = this.value;
-                clearTimeout(timeoutID);
-                timeoutID = setTimeout(searchObjects, 400);
+        .html(`<span class="search-box input-fix"><span class="icon-only icon-16 magnifying-glass-16"></span> ` +
+            `<input type='text' class='text-field-default' placeholder='${object.placeholder || "Search..."}' style='width: 250px'></span>`)
+        .find("input")
+        .keyup(function (event) {
+            const ESC = 27;
+            if (event.which == ESC) {
+                this.value = object.search = "";
+                showObjects([]);
+                return;
             }
-        );
+            if (object.search == this.value || this.value.length < 2) return;
+            object.search = this.value;
+            clearTimeout(timeoutID);
+            timeoutID = setTimeout(searchObjects, 400);
+        });
     }
     function toCSV(...fields) {
         return fields.map(field => `"${field == undefined ? "" : field.toString().replace(/"/g, '""')}"`).join(',');

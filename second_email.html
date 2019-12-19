@@ -20,8 +20,9 @@ onload = async function () {
         }
     };
     
+    let response;
     try {
-        const response = await fetch(baseUrl + '/api/v1/users/me', init);
+        response = await fetch(baseUrl + '/api/v1/users/me', init);
     } catch (e) {
         error.innerHTML = "Not logged in";
         return;
@@ -53,8 +54,8 @@ onload = async function () {
                 var sec = 3;
                 setInterval(() => {
                     app.innerHTML += ' ' + sec + '.';
-                    sec--;
                     if (sec == 0) close();
+                    sec--;
                 }, 1000);
             } else {
                 const e = await response.json();

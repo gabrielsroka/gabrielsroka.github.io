@@ -281,7 +281,7 @@
     
     function securityAdministrators() {
         createDivA("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
-            var adminsPopup = createPopup("Administrators");
+            const adminsPopup = createPopup("Administrators");
             adminsPopup.html("Exporting ...");
             const header = "First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role";
             const lines = [];
@@ -289,9 +289,9 @@
 
             function getAdmins(admins, status, jqXHR) {
                 admins.forEach(admin => {
-                    var profile = admin._embedded.user.profile;
+                    const profile = admin._embedded.user.profile;
                     var mgr = profile.manager || profile.managerId || "";
-                    var matches = mgr.match(/CN=(.*?),OU/);
+                    const matches = mgr.match(/CN=(.*?),OU/);
                     if (matches) mgr = matches[1];
                     mgr = mgr.replace("\\", "");
                     function showRole(role) {
@@ -299,16 +299,16 @@
                         lines.push(toCSV(profile.firstName, profile.lastName, profile.email, profile.login, admin.userId, profile.title || "", mgr, profile.department || "", role));
                     }
                     function appAndInstanceNames() {
-                        var appAndInstanceNames = [];
+                        const appAndInstanceNames = [];
 
-                        var apps = admin._embedded.apps;
+                        const apps = admin._embedded.apps;
                         if (apps && apps.length > 0) {
                             apps.forEach(app => appAndInstanceNames.push("All " + app.displayName + " apps"));
                         } else {
                             appAndInstanceNames.push("(all)");
                         }
 
-                        var instances = admin._embedded.instances;
+                        const instances = admin._embedded.instances;
                         if (instances && instances.length > 0) {
                             instances.forEach(instance => appAndInstanceNames.push(instance.displayName));
                         } else {
@@ -318,8 +318,8 @@
                         return appAndInstanceNames.join('; ');
                     }
                     function groupNames(groupType) {
-                        var groupNames = [];
-                        var groups = admin._embedded[groupType];
+                        const groupNames = [];
+                        const groups = admin._embedded[groupType];
                         if (groups && groups.length > 0) {
                             groups.forEach(group => groupNames.push(group.profile.name));
                         } else {
@@ -338,19 +338,14 @@
                     if (admin.reportAdmin || admin.orgAdministratorGroup.reportAdmin) showRole("Report Administrator");
                 });
 
-
-                var link = jqXHR.getResponseHeader("Link");
-                var links = link ? getLinks(link) : null;
-                var paginate = false;
+                const link = jqXHR.getResponseHeader("Link");
+                const links = link ? getLinks(link) : null;
                 if (links && links.next) {
-                    paginate = true;
-                }
-                if (paginate) {
-                    var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
-                    var url = nextUrl.pathname + nextUrl.search;
-                    var remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
+                    const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+                    const url = nextUrl.pathname + nextUrl.search;
+                    const remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
                     if (remaining && remaining < 10) {
-                        var intervalID = setInterval(() => {
+                        const intervalID = setInterval(() => {
                             adminsPopup.html(adminsPopup.html() + "<br>Sleeping...");
                             if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {
                                 clearInterval(intervalID);

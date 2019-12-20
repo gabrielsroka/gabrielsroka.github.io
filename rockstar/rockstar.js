@@ -570,8 +570,8 @@
                     "credentials.userNameTemplate.template": "Username Template",
                     "settings.app.identityProviderArn": "AWS Identity Provider ARN"
                 };
-                const defaultColumns = "id,label,name,features,signOnMode,status";
-                const exportColumns = (localStorage.rockstarExportAppsColumns || defaultColumns).replace(/ /g, "").split(",");
+                const defaultColumns = "id,label,name,credentials.userNameTemplate.template,features,signOnMode,status";
+                const exportColumns = (localStorage.rockstarExportAppColumns || defaultColumns).replace(/ /g, "").split(",");
                 for (const p in app) addCheckbox(p, app[p]);
     
                 var exportArgs = localStorage.rockstarExportAppArgs || "";

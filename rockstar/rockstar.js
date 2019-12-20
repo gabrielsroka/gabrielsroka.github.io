@@ -549,6 +549,56 @@
                     return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, enduserAppNotes, adminAppNotes);
                 });
             });
+            createDivA("Export Apps (custom)", mainPopup, function () {
+                exportPopup = createPopup("Export Apps");
+                exportPopup.append("<br>Columns to export");
+                var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 300px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
+                
+                function addCheckbox(value, text) {
+                    const checked = exportColumns.includes(value) ? "checked" : "";
+                    checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${value}' ${checked}>${text}</label><br>`);
+                }
+                const app = {
+                    id: "App Id", 
+                    name: "Name",
+                    label: "Label",
+                    status: "Status", 
+                    created: "Created Date",
+                    lastUpdated: "Last Updated Date",
+                    signOnMode: "Sign On Mode",
+                    features: "Features",
+                    "credentials.userNameTemplate.template": "Username Template",
+                    "settings.app.identityProviderArn": "AWS Identity Provider ARN"
+                };
+                const defaultColumns = "id,label,name,features,signOnMode,status";
+                const exportColumns = (localStorage.rockstarExportAppsColumns || defaultColumns).replace(/ /g, "").split(",");
+                for (const p in app) addCheckbox(p, app[p]);
+    
+                var exportArgs = localStorage.rockstarExportAppArgs || "";
+                exportPopup.append(`<br><br>Query or Filter&nbsp;&nbsp;` +
+                    `<a href='https://developer.okta.com/docs/reference/api/apps/#list-applications' target='_blank' rel='noopener'>Help</a><br>` +
+                    `<input id=exportargs list=parlist value='${exportArgs}' style='width: 300px'><br><br>` + 
+                    `<div id=error>&nbsp;</div><br>` +
+                    `<datalist id=parlist><option>q=amazon_aws<option>filter=status eq "ACTIVE"<option>filter=status eq "INACTIVE"</datalist>`);
+                createDivA("Export", exportPopup, function () {
+                    exportArgs = $("#exportargs").val();
+                    var exportHeaders = [];
+                    var exportColumns = [];
+                    checkboxDiv.find("input:checked").each(function () {
+                        exportHeaders.push(this.parentNode.textContent);
+                        exportColumns.push(this.value);
+                    });
+                    if (exportHeaders.length) {
+                        $("#error").html("&nbsp;");
+                        exportHeaders = exportHeaders.join(",");
+                        localStorage.rockstarExportAppColumns = exportColumns.join(",");
+                        localStorage.rockstarExportAppArgs = exportArgs;
+                        startExport("Apps", `/api/v1/apps?${exportArgs}`, exportHeaders, app => toCSV(...fields(app, exportColumns)));
+                    } else {
+                        $("#error").html("Select at least 1 column.");
+                    }
+                }, "class='link-button'");
+            });
         } else if (location.pathname == "/admin/access/networks") {
             createDivA("Export Networks", mainPopup, function () {
                 startExport("Zones", "/api/v1/zones", "id,name,gateways,gatewayType,zoneType", 

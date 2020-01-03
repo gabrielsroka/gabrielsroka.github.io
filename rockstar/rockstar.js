@@ -569,7 +569,8 @@
                     features: "Features",
                     "credentials.userNameTemplate.template": "Username Template",
                     "settings.app.identityProviderArn": "AWS Identity Provider ARN",
-                    "settings.signOn.ssoAcsUrl": "SSO ACS URL"
+                    "settings.signOn.ssoAcsUrl": "SSO ACS URL",
+                    "settings.app.postBackURL": "Post Back URL"
                 };
                 const defaultColumns = "id,label,name,credentials.userNameTemplate.template,features,signOnMode,status";
                 const exportColumns = (localStorage.rockstarExportAppColumns || defaultColumns).replace(/ /g, "").split(",");

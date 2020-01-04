@@ -285,7 +285,9 @@
             adminsPopup.html("Exporting ...");
             const header = "First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role";
             const lines = [];
-            getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups").then(getAdmins);
+            getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups")
+            .then(getAdmins)
+            .fail(jqXHR => adminsPopup.html(jqXHR.responseJSON.errorSummary + "<br><br>"));
 
             function getAdmins(admins, status, jqXHR) {
                 admins.forEach(admin => {
@@ -403,7 +405,7 @@
             getJSON(`/api/v1/idps?type=SAML2`).then(idps => {
                 getJSON('/api/v1/idps/credentials/keys').then(keys => {
                     var idpPopup = createPopup("SAML IdPs");
-                    var rows = "<tr><th>Name<th>Certifcate Expires On<th>Days from today";
+                    var rows = "<tr><th>Name<th>Certificate Expires On<th>Days from today";
                     idps.forEach(idp => {
                         var key = keys.filter(key => key.kid == idp.protocol.credentials.trust.kid)[0];
                         var days = Math.trunc((new Date(key.expiresAt) - new Date()) / 1000 / 60 / 60 / 24);
@@ -458,9 +460,7 @@
                     const custom = schema.definitions.custom.properties;
                     for (const p in base) addCheckbox("profile." + p, base[p].title);
                     for (const p in custom) addCheckbox("profile." + p, custom[p].title);
-                
                 }).fail(() => {
-                    // TODO: if user isn't super admin, they can call /users, but can't call /schemas. Provide default columns instead?
                     const profile = {
                         login: "Username",
                         firstName: "First name",

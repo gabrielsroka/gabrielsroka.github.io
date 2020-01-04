@@ -11,13 +11,13 @@ Usage:
 */
 
 (function () {
-    apiExplorer("GET,POST,PATCH,PUT,DELETE", "https://api.github.com", "/users/${username},/users/${username}/followers,/users/${username}/following,/users/${username}/repos");
+    apiExplorer("GET,POST,PATCH,PUT,DELETE", "https://api.github.com", "/users,/users/${username},/users/${username}/followers,/users/${username}/following,/users/${username}/repos");
     
     function apiExplorer(methods, prefix, urls) {
         var apiPopup = createPopup("API Explorer");
         var form = apiPopup[0].appendChild(document.createElement("form"));
         form.innerHTML = "<select id=method>" + methods.split(",").map(method => '<option>' + method).join("") + "</select> " +
-            "<input id=url list=apilist> "; /* HACK: input.list is read-only, must set it at create time. :( */
+            "<input id=url list=apilist> "; // HACK: input.list is read-only, must set it at create time. :(
         url.style.width = "700px";
         url.placeholder = "URL";
         url.focus();
@@ -29,7 +29,7 @@ Usage:
         send.value = "Send";
         form.appendChild(document.createElement("div")).innerHTML = "<br>Body";
         var data = form.appendChild(document.createElement("textarea"));
-        data.style.width = "820px";
+        data.style.width = "850px";
         var results = form.appendChild(document.createElement("div"));
         form.onsubmit = function () {
             $(results).html("<br>Loading ...");
@@ -42,13 +42,14 @@ Usage:
             $.ajax({url, method: method.value, data: data.value, contentType: "application/json"})
             .then(function (objects, status, jqXHR) {
                 $(results).html("<br>");
-                var linkHeader = jqXHR.getResponseHeader("Link"); /* TODO: maybe show X-Rate-Limit-* headers, too. */
+                var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
                 if (linkHeader) {
                     $(results).html("<br>Headers<br><table><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") + "</table><br>");
                     var links = getLinks(linkHeader);
                 }
+                $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                 var pathname = url.split('?')[0];
-                var json = formatPre(linkify(JSON.stringify(objects, null, 4)), pathname); /* Pretty Print the JSON. */
+                var json = formatPre(linkify(JSON.stringify(objects, null, 4)), pathname); // Pretty Print the JSON.
                 if (Array.isArray(objects)) {
                     var table = formatObjects(objects, pathname);
                     $(results).append(table.header);
@@ -62,7 +63,7 @@ Usage:
                 }
                 $(results).append(json);
             }).fail(jqXHR => $(results).html("<br>Status: " + jqXHR.status + " " + jqXHR.statusText + "<br><br>Error:<pre>" + jqXHR.responseText + "</pre>"));
-            return false; /* Cancel form submit. */
+            return false; // Cancel form submit.
         };
     }
 
@@ -95,7 +96,7 @@ Usage:
         return s.replace(/"(https.*)"/g, '"<a href="$1">$1</a>"');
     }
 
-    /* Util functions */
+    // Util functions
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto; ` +
                 `background-color: white; border: 1px solid #ddd;'>` +

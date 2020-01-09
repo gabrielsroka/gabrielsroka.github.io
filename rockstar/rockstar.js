@@ -533,6 +533,10 @@
                 startExport("Groups", "/api/v1/groups/rules", "id,name,status,if,assignToGroupIds", 
                     rule => toCSV(rule.id, rule.name, rule.status, rule.conditions.expression.value, rule.actions.assignUserToGroups.groupIds.join(";")));
             });
+            createDivA("Export Groups with User and App Counts", mainPopup, function () {
+                startExport("Groups", "/api/v1/groups?expand=stats", "id,name,description,type,usersCount,appsCount", 
+                    group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type, group._embedded.stats.usersCount, group._embedded.stats.appsCount));
+            });
         } else if (location.pathname == "/admin/apps/active") {
             createDivA("Export Apps", mainPopup, function () {
                 startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status", 

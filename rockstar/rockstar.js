@@ -15,7 +15,7 @@
     const headers = {'X-Okta-User-Agent-Extended': 'rockstar'};
 
     if (location.href == "https://gabrielsroka.github.io/rockstar/") {
-        alert("To install rockstar, open your bookmark toolbar, then drag and drop it.");
+        alert("To install rockstar, open your bookmark toolbar, then drag and drop it. To use it, login to Okta or Okta Admin, then click rockstar. See the Usage instructions on https://gabrielsroka.github.io/rockstar/");
         return;
     }
     if (location.pathname.match("^/(api|oauth2|\\.well-known)/")) {

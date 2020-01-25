@@ -26,7 +26,7 @@ onload = async function () {
         return;
     }
     const user = await response.json();
-    if (user.interstitialGo) top.location = "https://gabrielsroka.github.io";
+    if (user.profile.interstitialGo) top.location = "https://gabrielsroka.github.io";
 };
 </script>
 </body>

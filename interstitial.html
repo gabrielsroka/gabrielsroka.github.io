@@ -21,8 +21,7 @@ onload = async function () {
     try {
         var response = await fetch(baseUrl + '/api/v1/users/me', init);
     } catch (e) {
-        error.innerHTML = "Not logged in";
-        // TODO: send the user to login and come back to this page?
+        console.log("error", e);
         return;
     }
     const user = await response.json();

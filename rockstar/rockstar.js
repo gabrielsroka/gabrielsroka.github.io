@@ -22,6 +22,7 @@
         formatJSON();
     } else if (location.host.match(/-admin/)) { // Admin pages
         mainPopup = createPopup("rockstar");
+        quickUpdate();
         if (location.pathname == "/admin/users") {
             directoryPeople();
         } else if (location.pathname.match("/admin/user/")) {
@@ -45,9 +46,14 @@
         apiExplorer();
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar");
+        quickUpdate();
         userHome();
     //} else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/reference/api/")) {
     //    tryAPI();
+    }
+
+    function quickUpdate() {
+        $(`<a href='https://gabrielsroka.github.io/rockstar/' style='cursor: pointer' target='_blank' rel='noopener' style='padding: 4px'>IMPORTANT UPDATE (Jan 29, 2020)</a><br><br>`).appendTo(mainPopup);
     }
 
     // Admin functions

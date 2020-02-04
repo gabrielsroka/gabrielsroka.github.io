@@ -53,7 +53,7 @@
     }
 
     function quickUpdate() {
-        $(`<a href='https://gabrielsroka.github.io/rockstar/' style='cursor: pointer' target='_blank' rel='noopener' style='padding: 4px'>IMPORTANT UPDATE (Jan 29, 2020)</a><br><br>`).appendTo(mainPopup);
+        $(`<a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener'>IMPORTANT UPDATE (Jan 29, 2020)</a><br><br>`).appendTo(mainPopup);
     }
 
     // Admin functions
@@ -536,8 +536,8 @@
                     group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
             });
             createDivA("Export Group Rules", mainPopup, function () {
-                startExport("Groups", "/api/v1/groups/rules", "id,name,status,if,assignToGroupIds", 
-                    rule => toCSV(rule.id, rule.name, rule.status, rule.conditions.expression.value, rule.actions.assignUserToGroups.groupIds.join(";")));
+                startExport("Groups", "/api/v1/groups/rules", "id,name,status,if,assignToGroupIds,countOfExcludedUsers", 
+                    rule => toCSV(rule.id, rule.name, rule.status, rule.conditions.expression.value, rule.actions.assignUserToGroups.groupIds.join(";"), rule.conditions.people ? rule.conditions.people.users.exclude.length : 0));
             });
             createDivA("Export Groups with User and App Counts", mainPopup, function () {
                 startExport("Groups", "/api/v1/groups?expand=stats", "id,name,description,type,usersCount,appsCount", 

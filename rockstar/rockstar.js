@@ -535,13 +535,13 @@
                 startExport("Groups", "/api/v1/groups", "id,name,description,type", 
                     group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
             });
-            createDivA("Export Group Rules", mainPopup, function () {
-                startExport("Groups", "/api/v1/groups/rules", "id,name,status,if,assignToGroupIds,countOfExcludedUsers", 
-                    rule => toCSV(rule.id, rule.name, rule.status, rule.conditions.expression.value, rule.actions.assignUserToGroups.groupIds.join(";"), rule.conditions.people ? rule.conditions.people.users.exclude.length : 0));
-            });
             createDivA("Export Groups with User and App Counts", mainPopup, function () {
                 startExport("Groups", "/api/v1/groups?expand=stats", "id,name,description,type,usersCount,appsCount", 
                     group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type, group._embedded.stats.usersCount, group._embedded.stats.appsCount));
+            });
+            createDivA("Export Group Rules", mainPopup, function () {
+                startExport("Group Rules", "/api/v1/groups/rules", "id,name,status,if,assignToGroupIds,countOfExcludedUsers", 
+                    rule => toCSV(rule.id, rule.name, rule.status, rule.conditions.expression.value, rule.actions.assignUserToGroups.groupIds.join(";"), rule.conditions.people ? rule.conditions.people.users.exclude.length : 0));
             });
         } else if (location.pathname == "/admin/apps/active") {
             createDivA("Export Apps", mainPopup, function () {
@@ -862,7 +862,7 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
-            const apis = "apps,apps/${appId},authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,idps,inlineHooks,meta/schemas/user/linkedObjects,logs,mappings," + 
+            const apis = "apps,apps/${appId},authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/rules,idps,inlineHooks,meta/schemas/user/linkedObjects,logs,mappings," + 
                 "policies?type=${type},meta/schemas/user,sessions/me,templates/sms,trustedOrigins,meta/types/user,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones";
             datalist.innerHTML = apis.split(',').map(api => `<option>/api/v1/${api}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));

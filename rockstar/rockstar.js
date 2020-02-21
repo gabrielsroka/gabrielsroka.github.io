@@ -53,7 +53,7 @@
     }
 
     function quickUpdate() {
-        $(`<a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener'>IMPORTANT UPDATE (Jan 29, 2020)</a><br><br>`).appendTo(mainPopup);
+        $(`<a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener'>Quick Update and Good News! (Feb 21, 2020)</a><br><br>`).appendTo(mainPopup);
     }
 
     // Admin functions

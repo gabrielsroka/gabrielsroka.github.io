@@ -1,7 +1,8 @@
 {
   "manifest_version": 2,
   "name": "rockstar",
-  "version": "0.1",
+  "version": "0.2",
+  "description": "Enhance Okta with a bunch of great features, like exporting to a CSV.",
   "content_scripts": [
     {
       "matches": [

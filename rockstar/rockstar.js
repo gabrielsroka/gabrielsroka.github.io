@@ -500,6 +500,7 @@
                         managerId: "Manager Id",
                         manager: "Manager"
                     };
+                    // TODO: since user can't see /schemas, let them know they can only use base attrs.
                     for (const p in profile) addCheckbox("profile." + p, profile[p]);
                 });
     
@@ -629,6 +630,12 @@
                     token => toCSV(token.profile.serial, token.status, token._embedded && token._embedded.user.id, 
                         token._embedded && token._embedded.user.profile.firstName, token._embedded && token._embedded.user.profile.lastName, 
                         token._embedded && token._embedded.user.profile.login));
+            });
+        } else if (location.pathname == "/admin/universaldirectory") {
+            createDivA("Export Mappings", mainPopup, function () {
+                startExport("Mappings", "/api/v1/mappings", "id,sourceId,sourceName,soureceType,targetId,targetName,targetType", 
+                    mapping => toCSV(mapping.id, mapping.source.id, mapping.source.name, mapping.source.type, 
+                        mapping.target.id, mapping.target.name, mapping.target.type));
             });
         } else if (appId = getAppId()) {
             createDivA("Export App Users", mainPopup, function () {

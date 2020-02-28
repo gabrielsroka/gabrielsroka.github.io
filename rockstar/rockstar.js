@@ -124,7 +124,7 @@
         createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);
 
         createDivA("Verify Factors", mainPopup, async function () {
-            var verifyPopup = createPopup("Factors");
+            var verifyPopup = createPopup("Verify Factors");
             var url = `/api/v1/users/${userId}/factors`;
             var factors = await getJSON(url);
             var factorsUi = {};
@@ -136,7 +136,7 @@
                     sms: {icon: "sms", text: "SMS Authentication"},
                     call: {icon: "call", text: "Voice Call Authentication"},
                     email: {icon: "email", text: "Email Authentication"},
-                    question: {icon: "question", text: "Question"}
+                    question: {icon: "question", text: "Security Question"}
                 };
                 var factorUi = ui[factor.factorType];
                 if (!factorUi) return;
@@ -179,7 +179,7 @@
                             .fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
                         }
                         if (factor.type == "question") {
-                            var text = ': ' + factor.question + '<br> Answer:';
+                            var text = ': ' + factor.question + '<br>Answer';
                             var field = 'answer';
                         } else {
                             text = ' Code';

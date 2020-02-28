@@ -1,9 +1,20 @@
-.popup {
+#rockstar-popup {
     position: absolute; 
     z-index: 1000; 
     left: 4px; 
     top: 4px; 
-    background-color: white; 
+    background-color: white;
     padding: 8px; 
     border: 1px solid #ddd;
+    margin: 16px 16px 12px 16px;
+}
+
+.rs-api-explorer {
+    text-align: center;
+}
+
+.fa-compass {
+    height: 8px;
+    width: 8px;
+    vertical-align: baseline !important;
 }

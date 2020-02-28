@@ -129,12 +129,14 @@
             var factors = await getJSON(url);
             var factorsUi = {};
             function getUi(factor) {
+                if (factor.status != 'ACTIVE') return;
                 const ui = {
                     push: {icon: "okta-otp", text: "Okta Verify with Push"},
                     "token:software:totp": {icon: "okta-otp", text: "Okta Verify (OTP)"},
                     sms: {icon: "sms", text: "SMS Authentication"},
                     call: {icon: "call", text: "Voice Call Authentication"},
-                    email: {icon: "email", text: "Email Authentication"}
+                    email: {icon: "email", text: "Email Authentication"},
+                    question: {icon: "question", text: "Question"}
                 };
                 var factorUi = ui[factor.factorType];
                 if (!factorUi) return;
@@ -144,7 +146,11 @@
                     icon = "otp";
                     text = "Google Authenticator";
                 }
-                factorsUi[factor.id] = {type: factor.factorType, text};
+                var save = {type: factor.factorType, text};
+                if (factor.factorType == 'question') {
+                    save.question = factor.profile.questionText;
+                }
+                factorsUi[factor.id] = save;
                 return `<label><input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>${text}</label><br>`;
             }
             var ui = factors.map(getUi).join("");
@@ -172,13 +178,21 @@
                             postJSON({url})
                             .fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
                         }
+                        if (factor.type == "question") {
+                            var text = ': ' + factor.question + '<br> Answer:';
+                            var field = 'answer';
+                        } else {
+                            text = ' Code';
+                            field = 'passCode';
+                        }
                         verifyPopup.html("");
                         var verifyForm = verifyPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
-                        verifyForm.innerHTML = factor.text + " Code <input id=passCode autocomplete=off><br>" +
+                        verifyForm.innerHTML = factor.text + text + " <input id=answer autocomplete=off><br>" +
                             "<button class='link-button'>Verify</button><br><div id=error></div>";
-                        passCode.focus(); // Cuz "autofocus" didn't work.
+                        answer.focus(); // Cuz "autofocus" didn't work.
                         verifyForm.onsubmit = function () {
-                            var data = {passCode: passCode.value};
+                            var data = {};
+                            data[field] = answer.value;
                             postJSON({url, data})
                             .then(response => verifyPopup.html(response.factorResult))
                             .fail(jqXHR => error.innerHTML = jqXHR.responseJSON.errorSummary);

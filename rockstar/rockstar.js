@@ -124,25 +124,22 @@
         createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);
 
         createDivA("Verify Factors", mainPopup, async function () {
-            var verifyPopup = createPopup("Verify Factors");
-            var factors = await getJSON(`/api/v1/users/${userId}/factors`);
-            var factorsUi = {};
-            function getHtml(factor) {
-                if (factor.status != 'ACTIVE') return;
-                const factorTable = [
-                    {provider: 'OKTA', type: 'push', icon: "okta-otp", name: "Okta Verify with Push"},
-                    {provider: 'OKTA', type: "token:software:totp", icon: "okta-otp", name: "Okta Verify (OTP)"},
-                    {provider: 'GOOGLE', type: 'token:software:totp', icon: "otp", name: "Google Authenticator"},
-                    {provider: 'OKTA', type: 'sms', icon: "sms", name: "SMS Authentication"},
-                    {provider: 'OKTA', type: 'call', icon: "call", name: "Voice Call Authentication"},
-                    {provider: 'OKTA', type: 'email', icon: "email", name: "Email Authentication"},
-                    {provider: 'OKTA', type: 'question', icon: "question", name: "Security Question"}
+            function mapFactors(factor) {
+                const supportedFactors = [
+                    {provider: 'OKTA', type: 'push', icon: "okta-otp", name: "Okta Verify with Push", sort: 0},
+                    {provider: 'OKTA', type: "token:software:totp", icon: "okta-otp", name: "Okta Verify (OTP)", sort: 1},
+                    {provider: 'GOOGLE', type: 'token:software:totp', icon: "otp", name: "Google Authenticator", sort: 2},
+                    {provider: 'OKTA', type: 'sms', icon: "sms", name: "SMS Authentication", sort: 3},
+                    {provider: 'OKTA', type: 'call', icon: "call", name: "Voice Call Authentication", sort: 4},
+                    {provider: 'OKTA', type: 'email', icon: "email", name: "Email Authentication", sort: 5},
+                    {provider: 'OKTA', type: 'question', icon: "question", name: "Security Question", sort: 6}
                 ];
                 const type = factor.factorType;
-                var found = factorTable.find(f => f.provider == factor.provider && f.type == type);
-                if (!found) return;
-                var icon = found.icon;
-                var name = found.name;
+                var supported = supportedFactors.find(f => f.provider == factor.provider && f.type == type);
+                if (!supported || factor.status != 'ACTIVE') return {supported: false};
+                const {icon, name, sort} = supported;
+                const radio = `<label><input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>` +
+                    `${name}</label><br>`;
                 if (type == 'question') {
                     var html = '<br>' + factor.profile.questionText + '<br>';
                     var inputType = 'password';
@@ -152,18 +149,20 @@
                     inputType = 'text';
                     field = 'passCode';
                 }
-                factorsUi[factor.id] = {type, name, html, inputType, field};
-                return `<label><input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>${name}</label><br>`;
+                return {id: factor.id, supported: true, sort, radio, type, name, html, inputType, field};
             }
-            var html = factors.map(getHtml).join("");
-            if (html == '') {
+            var verifyPopup = createPopup("Verify Factors");
+            var factors = await getJSON(`/api/v1/users/${userId}/factors`);
+            factors = factors.map(mapFactors).filter(f => f.supported).sort((f1, f2) => f1.sort - f2.sort);
+            if (factors.length == 0) {
                 verifyPopup.html("No supported factors were found.");
                 return;
             }
+            const html = factors.map(f => f.radio).join('');
             verifyPopup.html("<form id=factorForm>" + html + "<br><button class='link-button'>Next</button></form>");
             factorForm.factor[0].checked = "checked";
             factorForm.onsubmit = function () {
-                var factor = factorsUi[this.factor.value];
+                var factor = factors.find(f => f.id == this.factor.value);
                 var url = `/api/v1/users/${userId}/factors/${this.factor.value}/verify`;
                 if (factor.type == "push") {
                     postJSON({url}).then(response => {

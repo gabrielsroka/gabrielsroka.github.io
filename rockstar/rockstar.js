@@ -125,85 +125,80 @@
 
         createDivA("Verify Factors", mainPopup, async function () {
             var verifyPopup = createPopup("Verify Factors");
-            var url = `/api/v1/users/${userId}/factors`;
-            var factors = await getJSON(url);
+            var factors = await getJSON(`/api/v1/users/${userId}/factors`);
             var factorsUi = {};
-            function getUi(factor) {
+            function getHtml(factor) {
                 if (factor.status != 'ACTIVE') return;
-                const ui = {
-                    push: {icon: "okta-otp", text: "Okta Verify with Push"},
-                    "token:software:totp": {icon: "okta-otp", text: "Okta Verify (OTP)"},
-                    sms: {icon: "sms", text: "SMS Authentication"},
-                    call: {icon: "call", text: "Voice Call Authentication"},
-                    email: {icon: "email", text: "Email Authentication"},
-                    question: {icon: "question", text: "Security Question"}
-                };
-                var factorUi = ui[factor.factorType];
-                if (!factorUi) return;
-                var icon = factorUi.icon;
-                var text = factorUi.text;
-                if (factor.provider == "GOOGLE") {
-                    icon = "otp";
-                    text = "Google Authenticator";
+                const factorTable = [
+                    {provider: 'OKTA', type: 'push', icon: "okta-otp", name: "Okta Verify with Push"},
+                    {provider: 'OKTA', type: "token:software:totp", icon: "okta-otp", name: "Okta Verify (OTP)"},
+                    {provider: 'GOOGLE', type: 'token:software:totp', icon: "otp", name: "Google Authenticator"},
+                    {provider: 'OKTA', type: 'sms', icon: "sms", name: "SMS Authentication"},
+                    {provider: 'OKTA', type: 'call', icon: "call", name: "Voice Call Authentication"},
+                    {provider: 'OKTA', type: 'email', icon: "email", name: "Email Authentication"},
+                    {provider: 'OKTA', type: 'question', icon: "question", name: "Security Question"}
+                ];
+                const type = factor.factorType;
+                var found = factorTable.find(f => f.provider == factor.provider && f.type == type);
+                if (!found) return;
+                var icon = found.icon;
+                var name = found.name;
+                if (type == 'question') {
+                    var html = '<br>' + factor.profile.questionText + '<br>';
+                    var inputType = 'password';
+                    var field = 'answer';
+                } else {
+                    html = ' Code';
+                    inputType = 'text';
+                    field = 'passCode';
                 }
-                var save = {type: factor.factorType, text};
-                if (factor.factorType == 'question') {
-                    save.question = factor.profile.questionText;
-                }
-                factorsUi[factor.id] = save;
-                return `<label><input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>${text}</label><br>`;
+                factorsUi[factor.id] = {type, name, html, inputType, field};
+                return `<label><input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>${name}</label><br>`;
             }
-            var ui = factors.map(getUi).join("");
-            if (ui) {
-                verifyPopup.html("<form id=factorForm>" + ui + "<br><button class='link-button'>Next</button></form>");
-                factorForm.factor[0].checked = "checked";
-                factorForm.onsubmit = function () {
-                    var factor = factorsUi[this.factor.value];
-                    var url = `/api/v1/users/${userId}/factors/${this.factor.value}/verify`;
-                    if (factor.type == "push") {
-                        postJSON({url}).then(response => {
-                            const intervalMs = 4000; // time in ms.
-                            verifyPopup.html(response.factorResult);
-                            var intervalID = setInterval(async () => {
-                                var url = new URL(response._links.poll.href);
-                                var poll = await getJSON(url.pathname);
-                                verifyPopup.html(poll.factorResult);
-                                if (poll.factorResult != "WAITING") {
-                                    clearInterval(intervalID);
-                                }
-                            }, intervalMs);
-                        }).fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
-                    } else {
-                        if (factor.type == "sms" || factor.type == "call" || factor.type == "email") {
-                            postJSON({url})
-                            .fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
-                        }
-                        if (factor.type == "question") {
-                            var text = ': ' + factor.question + '<br>Answer';
-                            var field = 'answer';
-                        } else {
-                            text = ' Code';
-                            field = 'passCode';
-                        }
-                        verifyPopup.html("");
-                        var verifyForm = verifyPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
-                        verifyForm.innerHTML = factor.text + text + " <input id=answer autocomplete=off><br>" +
-                            "<button class='link-button'>Verify</button><br><div id=error></div>";
-                        answer.focus(); // Cuz "autofocus" didn't work.
-                        verifyForm.onsubmit = function () {
-                            var data = {};
-                            data[field] = answer.value;
-                            postJSON({url, data})
-                            .then(response => verifyPopup.html(response.factorResult))
-                            .fail(jqXHR => error.innerHTML = jqXHR.responseJSON.errorSummary);
-                            return false; // Cancel form.
-                        };
-                    }
-                    return false; // Cancel form.
-                };
-            } else {
+            var html = factors.map(getHtml).join("");
+            if (html == '') {
                 verifyPopup.html("No supported factors were found.");
+                return;
             }
+            verifyPopup.html("<form id=factorForm>" + html + "<br><button class='link-button'>Next</button></form>");
+            factorForm.factor[0].checked = "checked";
+            factorForm.onsubmit = function () {
+                var factor = factorsUi[this.factor.value];
+                var url = `/api/v1/users/${userId}/factors/${this.factor.value}/verify`;
+                if (factor.type == "push") {
+                    postJSON({url}).then(response => {
+                        const intervalMs = 4000; // time in ms.
+                        verifyPopup.html(response.factorResult);
+                        var intervalID = setInterval(async () => {
+                            var url = new URL(response._links.poll.href);
+                            var poll = await getJSON(url.pathname);
+                            verifyPopup.html(poll.factorResult);
+                            if (poll.factorResult != "WAITING") {
+                                clearInterval(intervalID);
+                            }
+                        }, intervalMs);
+                    }).fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
+                } else {
+                    if (factor.type == "sms" || factor.type == "call" || factor.type == "email") {
+                        postJSON({url})
+                        .fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
+                    }
+                    verifyPopup.html("");
+                    var verifyForm = verifyPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
+                    verifyForm.innerHTML = factor.name + '<br><div id=error></div>' + factor.html + ` <br><input id=answer type=${factor.inputType} autocomplete=off><br>` +
+                        "<button class='link-button'>Verify</button>";
+                    answer.focus(); // Cuz "autofocus" didn't work.
+                    verifyForm.onsubmit = function () {
+                        var data = {};
+                        data[factor.field] = answer.value;
+                        postJSON({url, data})
+                        .then(response => verifyPopup.html(response.factorResult))
+                        .fail(jqXHR => error.innerHTML = '<br>' + jqXHR.responseJSON.errorSummary);
+                        return false; // Cancel form.
+                    };
+                }
+                return false; // Cancel form.
+            };
         });
         
         createDivA("Administrator Roles", mainPopup, function () {
@@ -1016,7 +1011,7 @@
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto; ` +
                 `background-color: white; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
+            `<span class=title>${title}</span><div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
             `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
         return $("<div></div>").appendTo(popup);
     }

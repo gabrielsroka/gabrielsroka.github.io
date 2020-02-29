@@ -7,3 +7,6 @@
     padding: 8px; 
     border: 1px solid #ddd;
 }
+.title {
+    font-weight: bold;
+}

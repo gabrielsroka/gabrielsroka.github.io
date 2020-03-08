@@ -135,7 +135,7 @@
                     {provider: 'OKTA', type: 'question', icon: "question", name: "Security Question", sort: 6}
                 ];
                 const type = factor.factorType;
-                var supported = supportedFactors.find(f => f.provider == factor.provider && f.type == type);
+                const supported = supportedFactors.find(f => f.provider == factor.provider && f.type == type);
                 if (!supported || factor.status != 'ACTIVE') return {supported: false};
                 const {icon, name, sort} = supported;
                 const radio = `<label><input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>` +
@@ -151,7 +151,7 @@
                 }
                 return {id: factor.id, supported: true, sort, radio, type, name, html, inputType, field};
             }
-            var verifyPopup = createPopup("Verify Factors");
+            const verifyPopup = createPopup("Verify Factors");
             var factors = await getJSON(`/api/v1/users/${userId}/factors`);
             factors = factors.map(mapFactors).filter(f => f.supported).sort((f1, f2) => f1.sort - f2.sort);
             if (factors.length == 0) {
@@ -160,17 +160,21 @@
             }
             const html = factors.map(f => f.radio).join('');
             verifyPopup.html("<form id=factorForm>" + html + "<br><button class='link-button'>Next</button></form>");
-            factorForm.factor[0].checked = "checked";
+            if (factors.length > 1) {
+                factorForm.factor[0].checked = "checked";
+            } else {
+                factorForm.factor.checked = "checked";
+            }
             factorForm.onsubmit = function () {
-                var factor = factors.find(f => f.id == this.factor.value);
-                var url = `/api/v1/users/${userId}/factors/${this.factor.value}/verify`;
+                const factor = factors.find(f => f.id == this.factor.value);
+                const url = `/api/v1/users/${userId}/factors/${factor.id}/verify`;
                 if (factor.type == "push") {
                     postJSON({url}).then(response => {
                         const intervalMs = 4000; // time in ms.
                         verifyPopup.html(response.factorResult);
-                        var intervalID = setInterval(async () => {
-                            var url = new URL(response._links.poll.href);
-                            var poll = await getJSON(url.pathname);
+                        const intervalID = setInterval(async () => {
+                            const url = new URL(response._links.poll.href);
+                            const poll = await getJSON(url.pathname);
                             verifyPopup.html(poll.factorResult);
                             if (poll.factorResult != "WAITING") {
                                 clearInterval(intervalID);
@@ -183,12 +187,12 @@
                         .fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
                     }
                     verifyPopup.html("");
-                    var verifyForm = verifyPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
+                    const verifyForm = verifyPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
                     verifyForm.innerHTML = factor.name + '<br><div id=error></div>' + factor.html + ` <br><input id=answer type=${factor.inputType} autocomplete=off><br>` +
                         "<button class='link-button'>Verify</button>";
                     answer.focus(); // Cuz "autofocus" didn't work.
                     verifyForm.onsubmit = function () {
-                        var data = {};
+                        const data = {};
                         data[factor.field] = answer.value;
                         postJSON({url, data})
                         .then(response => verifyPopup.html(response.factorResult))

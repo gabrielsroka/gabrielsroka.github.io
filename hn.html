@@ -71,6 +71,7 @@ function getItems() {
         function plu(n, s) {
             return n + " " + (n == 1 ? s : s + "s");
         }
+        if (item.title.match(/covid.?19/i) || item.title.match(/coronavirus/i)) return; // TODO: Cough instead of omit.
         const hnBaseUrl = "https://news.ycombinator.com";
         const hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
         if (item.url) {

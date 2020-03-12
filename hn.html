@@ -71,6 +71,7 @@ function getItems() {
         function plu(n, s) {
             return n + " " + (n == 1 ? s : s + "s");
         }
+        loading.innerHTML = "";
         if (item.title.match(/covid.?19/i) || item.title.match(/corona.?virus/i)) return; // TODO: Cough instead of omit.
         const hnBaseUrl = "https://news.ycombinator.com";
         const hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
@@ -100,7 +101,6 @@ function getItems() {
             by = "by " + anc(`${hnBaseUrl}/user?id=${item.by}`, item.by);
             ln2 = ago + " | " + anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment")) + web;
         }
-        loading.innerHTML = "";
         if (small) {
             contents.innerHTML += `<div class=item>${ln1}<br>${ln2}</div>`;
         } else {

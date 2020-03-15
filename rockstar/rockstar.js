@@ -68,8 +68,8 @@
                     var creds = user.credentials.provider;
                     var logo = creds.type == "LDAP" ? "ldap_sun_one" : creds.type.toLowerCase();
                     return `<tr><td><span class='icon icon-24 group-logos-24 logo-${logo}'></span> ${creds.name == "OKTA" ? "Okta" : creds.name}` +
-                        `<td><a href="/admin/user/profile/view/${user.id}#tab-account">${user.profile.firstName} ${user.profile.lastName}</a>` +
-                        `<td>${user.profile.login}<td>${user.profile.email}`;
+                        `<td><a href="/admin/user/profile/view/${e(user.id)}#tab-account">${e(user.profile.firstName)} ${e(user.profile.lastName)}</a>` +
+                        `<td>${e(user.profile.login)}<td>${e(user.profile.email)}`;
                 },
                 headers: "<tr><th>Source<th>Name<th>Username<th>Primary Email",
                 placeholder: "Search Active by First/Last/Email...",
@@ -83,8 +83,8 @@
         getJSON(`/api/v1/users/${userId}`).then(aUser => {
             user = aUser;
             var ad = user.credentials.provider.type == "ACTIVE_DIRECTORY";
-            $(".subheader").html(`${user.profile.login}, email: ${user.profile.email}${ad ? ", " : ""}`);
-            document.title += ` - ${user.profile.firstName} ${user.profile.lastName}`;
+            $(".subheader").html(`${e(user.profile.login)}, email: ${e(user.profile.email)}${ad ? ", " : ""}`);
+            document.title += ` - ${e(user.profile.firstName)} ${e(user.profile.lastName)}`;
             if (ad) {
                 function showADs() {
                     getJSON(`/api/v1/apps?filter=user.id+eq+"${userId}"&expand=user/${userId}&limit=200&q=active_directory`).then(appUsers => {
@@ -92,12 +92,12 @@
                         var rows = "<tr><th>Domain<th>Username<th>Email";
                         appUsers.forEach(appUser => {
                             var user = appUser._embedded.user;
-                            rows += `<tr><td>${appUser.label}<td>${user.credentials.userName}<td>${user.profile.email}`;
+                            rows += `<tr><td>${e(appUser.label)}<td>${e(user.credentials.userName)}<td>${e(user.profile.email)}`;
                         });
                         adPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`);
                     });
                 }
-                createA("AD: " + user.credentials.provider.name, ".subheader", showADs);
+                createA("AD: " + e(user.credentials.provider.name), ".subheader", showADs);
                 createPrefixA("<li class=option>", "<span class='icon directory-16'></span>Show AD", ".okta-dropdown-list", showADs);
             }
         });
@@ -118,7 +118,7 @@
             }
             var userPopup = createPopup("User");
             var logo = user.credentials.provider.type == "LDAP" ? "ldap_sun_one" : user.credentials.provider.type.toLowerCase();
-            userPopup.html(`<span class='icon icon-24 group-logos-24 logo-${logo}'></span><pre>${toString(user)}</pre>`);
+            userPopup.html(`<span class='icon icon-24 group-logos-24 logo-${logo}'></span><pre>${e(toString(user))}</pre>`);
         }
         createDivA("Show User", mainPopup, showUser);
         createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);
@@ -141,7 +141,7 @@
                 const radio = `<label><input type=radio name=factor value='${factor.id}'><span class="mfa-${icon}-30 valign-middle margin-l-10 margin-r-5"></span>` +
                     `${name}</label><br>`;
                 if (type == 'question') {
-                    var html = '<br>' + factor.profile.questionText + '<br>';
+                    var html = '<br>' + e(factor.profile.questionText) + '<br>';
                     var inputType = 'password';
                     var field = 'answer';
                 } else {
@@ -180,11 +180,11 @@
                                 clearInterval(intervalID);
                             }
                         }, intervalMs);
-                    }).fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
+                    }).fail(jqXHR => verifyPopup.html(e(jqXHR.responseJSON.errorSummary)));
                 } else {
                     if (factor.type == "sms" || factor.type == "call" || factor.type == "email") {
                         postJSON({url})
-                        .fail(jqXHR => verifyPopup.html(jqXHR.responseJSON.errorSummary));
+                        .fail(jqXHR => verifyPopup.html(e(jqXHR.responseJSON.errorSummary)));
                     }
                     verifyPopup.html("");
                     const verifyForm = verifyPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
@@ -196,7 +196,7 @@
                         data[factor.field] = answer.value;
                         postJSON({url, data})
                         .then(response => verifyPopup.html(response.factorResult))
-                        .fail(jqXHR => error.innerHTML = '<br>' + jqXHR.responseJSON.errorSummary);
+                        .fail(jqXHR => error.innerHTML = '<br>' + e(jqXHR.responseJSON.errorSummary));
                         return false; // Cancel form.
                     };
                 }
@@ -247,7 +247,7 @@
                             });
                         });
                     }
-                }).fail(jqXHR => rolesPopup.html(jqXHR.responseJSON.errorSummary + "<br><br>"));
+                }).fail(jqXHR => rolesPopup.html(e(jqXHR.responseJSON.errorSummary) + "<br><br>"));
             }
         });
     }
@@ -261,7 +261,7 @@
                 getJSON("/api/v1/groups").then(groups => {
                     groups = groups
                         .filter(group => group.profile.name.match(new RegExp(form.find("input.name").val(), "i")))
-                        .map(group => group.profile.name.link("/admin/group/" + group.id));
+                        .map(group => e(group.profile.name).link("/admin/group/" + group.id));
                     if (groups.length > 0) {
                         var results = groups.join("<br>");
                     } else {
@@ -283,8 +283,8 @@
                 template(group) {
                     const logo = group._links.logo[0].href.split('/')[7].split('-')[0];
                     return `<tr><td class=column-width><span class='icon icon-24 group-logos-24 logo-${logo}'></span>` +
-                        `<td><a href="/admin/group/${group.id}">${group.profile.name}</a>` +
-                        `<td>${group.profile.description || "No description"}` + 
+                        `<td><a href="/admin/group/${group.id}">${e(group.profile.name)}</a>` +
+                        `<td>${e(group.profile.description || "No description")}` + 
                         `<td>${group._embedded.stats.usersCount}` +
                         `<td>${group._embedded.stats.appsCount}` +
                         `<td>${group._embedded.stats.groupPushMappingsCount}`;
@@ -305,7 +305,7 @@
             const lines = [];
             getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups")
             .then(getAdmins)
-            .fail(jqXHR => adminsPopup.html(jqXHR.responseJSON.errorSummary + "<br><br>"));
+            .fail(jqXHR => adminsPopup.html(e(jqXHR.responseJSON.errorSummary) + "<br><br>"));
 
             function getAdmins(admins, status, jqXHR) {
                 admins.forEach(admin => {
@@ -428,7 +428,7 @@
                         var key = keys.filter(key => key.kid == idp.protocol.credentials.trust.kid)[0];
                         var days = Math.trunc((new Date(key.expiresAt) - new Date()) / 1000 / 60 / 60 / 24);
                         var style = days < 30 ? "style='background-color: red; color: white'" : "";
-                        rows += `<tr><td>${idp.name}<td>${key.expiresAt}<td ${style}}'>${days}`;
+                        rows += `<tr><td>${e(idp.name)}<td>${e(key.expiresAt)}<td ${style}}'>${days}`;
                     });
                     idpPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`);
                 });
@@ -455,7 +455,7 @@
                 
                 function addCheckbox(value, text) {
                     const checked = exportColumns.includes(value) ? "checked" : "";
-                    checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${value}' ${checked}>${text}</label><br>`);
+                    checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' ${checked}>${e(text)}</label><br>`);
                 }
                 const user = {
                     id: "User Id", 
@@ -519,7 +519,7 @@
                 var exportArgs = localStorage.rockstarExportUserArgs || "";
                 exportPopup.append(`<br><br>Query, Filter, or Search&nbsp;&nbsp;` +
                     `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br>` +
-                    `<input id=exportargs list=parlist value='${exportArgs}' style='width: 300px'><br><br>` + 
+                    `<input id=exportargs list=parlist value='${e(exportArgs)}' style='width: 300px'><br><br>` + 
                     `<div id=error>&nbsp;</div><br>` +
                     `<datalist id=parlist><option>q=Smith<option>filter=status eq "DEPROVISIONED"<option>filter=profile.lastName eq "Smith"` +
                     `<option>search=status eq "DEPROVISIONED"<option>search=profile.lastName eq "Smith"</datalist>`);
@@ -579,7 +579,7 @@
                 
                 function addCheckbox(value, text) {
                     const checked = exportColumns.includes(value) ? "checked" : "";
-                    checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${value}' ${checked}>${text}</label><br>`);
+                    checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' ${checked}>${e(text)}</label><br>`);
                 }
                 const app = {
                     id: "App Id", 
@@ -602,7 +602,7 @@
                 var exportArgs = localStorage.rockstarExportAppArgs || "";
                 exportPopup.append(`<br><br>Query or Filter&nbsp;&nbsp;` +
                     `<a href='https://developer.okta.com/docs/reference/api/apps/#list-applications' target='_blank' rel='noopener'>Help</a><br>` +
-                    `<input id=exportargs list=parlist value='${exportArgs}' style='width: 300px'><br><br>` + 
+                    `<input id=exportargs list=parlist value='${e(exportArgs)}' style='width: 300px'><br><br>` + 
                     `<div id=error>&nbsp;</div><br>` +
                     `<datalist id=parlist><option>q=amazon_aws<option>filter=status eq "ACTIVE"<option>filter=status eq "INACTIVE"</datalist>`);
                 createDivA("Export", exportPopup, function () {
@@ -746,7 +746,7 @@
             }
         }
         function failObjects(jqXHR) {
-            exportPopup.html("<br>Error: " + jqXHR.responseJSON.errorSummary);
+            exportPopup.html("<br>Error: " + e(jqXHR.responseJSON.errorSummary));
         }
         function fields(o, fields) {
             var a = [];
@@ -785,7 +785,16 @@
             var ssoPopup;
             var label = "Show SSO";
             var labels = document.getElementsByClassName("app-button-name");
-            if (labels.length > 0) { // Button labels on Okta homepage
+            // if (labels.length == 0) { // New homepage
+            //     labels = document.getElementsByClassName('chiclet--app-title');
+            //     if (labels.length == 0) return;
+            //     $('.chiclet--action').click(() => {
+            //         setTimeout(() => {
+            //             $('<div>Show SSO</div>').appendTo('.app-settings--launch-app').click(console.log);
+            //         }, 1000);
+            //     })
+            // } else 
+            if (labels.length > 0) { // Button labels on old Okta homepage
                 for (var i = 0; i < labels.length; i++) {
                     if (!labels[i].innerHTML.match(label)) {
                         var a = document.createElement("a");
@@ -864,7 +873,12 @@
             }
         });
         getJSON(`/api/v1/sessions/me`).then(session => {
-            $(".icon-clock-light").parent().append("<div>Expires in " + Math.round((new Date(session.expiresAt) - new Date()) / 60 / 1000) + " minutes</div>");
+            const msg = "Expires in " + Math.round((new Date(session.expiresAt) - new Date()) / 60 / 1000) + " minutes";
+            if ($(".icon-clock-light").length == 1) { // Old homepage
+                $(".icon-clock-light").parent().append("<div>" + msg + "</div>");
+            } else {
+                setTimeout(() => $(".support-text[data-se='last-login-time']").attr('title', msg), 1000);
+            }
         });
         apiExplorer();
     }
@@ -882,7 +896,7 @@
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
             const apis = "apps,apps/${appId},authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/rules,idps,inlineHooks,meta/schemas/user/linkedObjects,logs,mappings," + 
-                "policies?type=${type},meta/schemas/user,sessions/me,templates/sms,trustedOrigins,meta/types/user,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones";
+                "policies?type=${type},meta/schemas/user,meta/types/user,sessions/me,templates/sms,trustedOrigins,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones";
             datalist.innerHTML = apis.split(',').map(api => `<option>/api/v1/${api}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));
             send.type = "submit";
@@ -913,7 +927,7 @@
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                     if (objects) {
                         var pathname = url.split('?')[0];
-                        var json = formatPre(linkify(JSON.stringify(objects, null, 4)), pathname); // Pretty Print the JSON.
+                        var json = formatPre(linkify(e(JSON.stringify(objects, null, 4))), pathname); // Pretty Print the JSON.
                         if (Array.isArray(objects)) {
                             var table = formatObjects(objects, pathname);
                             $(results).append(table.header);
@@ -927,7 +941,7 @@
                         }
                         $(results).append(json);
                     }
-                }).fail(jqXHR => $(results).html("<br>Status: " + jqXHR.status + " " + jqXHR.statusText + "<br><br>Error:<pre>" + JSON.stringify(jqXHR.responseJSON, null, 4) + "</pre>"));
+                }).fail(jqXHR => $(results).html("<br>Status: " + jqXHR.status + " " + jqXHR.statusText + "<br><br>Error:<pre>" + e(JSON.stringify(jqXHR.responseJSON, null, 4)) + "</pre>"));
                 return false; // Cancel form submit.
             };
         });
@@ -935,7 +949,7 @@
     function formatJSON() {
         let pre = document.getElementsByTagName("pre")[0]; // Don't use jQuery.
         let objects = JSON.parse(pre.innerHTML);
-        let json = linkify(JSON.stringify(objects, null, 4)); // Pretty Print the JSON.
+        let json = linkify(e(JSON.stringify(objects, null, 4))); // Pretty Print the JSON.
         if (objects.errorCode == "E0000005") json = "Are you signed in? <a href=/>Sign in</a>\n\n" + json;
         if (Array.isArray(objects)) {
             document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #f9f9f9;} " +
@@ -959,8 +973,14 @@
             let tds = [];
             for (let p of ths) {
                 if (row[p] === undefined) row[p] = "";
-                if (p == "id") row[p] = "<a href='" + url + "/" + row[p] + "'>" + row[p] + "</a>";
-                tds.push("<td>" + (typeof row[p] == "object" ? "<pre>" + JSON.stringify(row[p], null, 4) + "</pre>" : row[p]));
+                if (p == "id") {
+                    row[p] = "<a href='" + url + "/" + row[p] + "'>" + e(row[p]) + "</a>";
+                } else if (typeof row[p] == "object") {
+                    row[p] = "<pre>" + e(JSON.stringify(row[p], null, 4)) + "</pre>";
+                } else {
+                    row[p] = e(row[p]);
+                }
+                tds.push("<td>" + row[p]);
             }
             rows.push("<tr>" + tds.join(""));
         });
@@ -1128,5 +1148,8 @@
         var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
         a.attr("download", `${filename} ${date}.csv`);
         a[0].click();
+    }
+    function e(s) {
+        return s.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 })();

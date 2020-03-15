@@ -425,7 +425,7 @@
                     var idpPopup = createPopup("SAML IdPs");
                     var rows = "<tr><th>Name<th>Certificate Expires On<th>Days from today";
                     idps.forEach(idp => {
-                        var key = keys.filter(key => key.kid == idp.protocol.credentials.trust.kid)[0];
+                        var key = keys.find(key => key.kid == idp.protocol.credentials.trust.kid);
                         var days = Math.trunc((new Date(key.expiresAt) - new Date()) / 1000 / 60 / 60 / 24);
                         var style = days < 30 ? "style='background-color: red; color: white'" : "";
                         rows += `<tr><td>${e(idp.name)}<td>${e(key.expiresAt)}<td ${style}}'>${days}`;
@@ -895,8 +895,8 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
-            const apis = "apps,apps/${appId},authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/rules,idps,inlineHooks,meta/schemas/user/linkedObjects,logs,mappings," + 
-                "policies?type=${type},meta/schemas/user,meta/types/user,sessions/me,templates/sms,trustedOrigins,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones";
+            const apis = "apps,apps/${appId},authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type}," + 
+                "meta/schemas/user,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones";
             datalist.innerHTML = apis.split(',').map(api => `<option>/api/v1/${api}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));
             send.type = "submit";

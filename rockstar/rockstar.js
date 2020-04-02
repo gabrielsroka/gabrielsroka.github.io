@@ -211,6 +211,7 @@
                 {type: "APP_ADMIN", label: "Application"},
                 {type: "USER_ADMIN", label: "Group"}, // not "User"
                 {type: "HELP_DESK_ADMIN", label: "Help Desk"},
+                {type: "GROUP_MEMBERSHIP_ADMIN", label: "Group Membership"},
                 {type: "READ_ONLY_ADMIN", label: "Read Only"},
                 {type: "MOBILE_ADMIN", label: "Mobile"},
                 {type: "API_ACCESS_MANAGEMENT_ADMIN", label: "API Access Management"},
@@ -249,6 +250,23 @@
                     }
                 }).fail(jqXHR => rolesPopup.html(e(jqXHR.responseJSON.errorSummary) + "<br><br>"));
             }
+        });
+
+        createDivA("Set Password", mainPopup, async function () {
+            const passwordPopup = createPopup("Set Password");
+            passwordPopup.html("<form id=passwordForm><input type=password id=newPassword><br><button class='link-button'>Set</button></form>");
+            passwordForm.onsubmit = function () {
+                const url = `/api/v1/users/${userId}`;
+                const data =  {
+                    "credentials": {
+                        "password": {"value": newPassword.value}
+                    }
+                };
+                postJSON({url, data}).then(() => {
+                    passwordPopup.html("Password Changed.");
+                }).fail(jqXHR => passwordPopup.html(e(jqXHR.responseJSON.errorSummary)));
+                return false; // Cancel form.
+            };
         });
     }
 
@@ -303,7 +321,7 @@
             adminsPopup.html("Exporting ...");
             const header = "First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role";
             const lines = [];
-            getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups")
+            getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups,groupMembershipAdminGroups")
             .then(getAdmins)
             .fail(jqXHR => adminsPopup.html(e(jqXHR.responseJSON.errorSummary) + "<br><br>"));
 
@@ -352,6 +370,7 @@
                     if (admin.appAdmin || admin.orgAdministratorGroup.appAdmin) showRole("Application Administrator: " + appAndInstanceNames());
                     if (admin.userAdmin || admin.orgAdministratorGroup.userAdmin) showRole("Group Administrator: " + groupNames("userAdminGroups")); // "Group Admin", not "User Admin"
                     if (admin.helpDeskAdmin || admin.orgAdministratorGroup.helpDeskAdmin) showRole("Help Desk Administrator: " + groupNames("helpDeskAdminGroups"));
+                    if (admin.groupMembershipAdmin || admin.orgAdministratorGroup.groupMembershipAdmin) showRole("Group Membership Administrator: " + groupNames("groupMembershipAdminGroups"));
                     if (admin.readOnlyAdmin || admin.orgAdministratorGroup.readOnlyAdmin) showRole("Read Only Administrator");
                     if (admin.mobileAdmin || admin.orgAdministratorGroup.mobileAdmin) showRole("Mobile Administrator");
                     if (admin.apiAccessManagementAdmin || admin.orgAdministratorGroup.apiAccessManagementAdmin) showRole("API Access Management Administrator");
@@ -572,6 +591,17 @@
                     return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, enduserAppNotes, adminAppNotes);
                 });
             });
+            createDivA("Export App Sign On Policies", mainPopup, function () {
+                startExport("App Sign On Policies", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
+                    var response = await fetch(`/admin/app/instance/${app.id}/app-sign-on-policy-list`);
+                    var html = await response.text();
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, "text/html");
+                    const rows = [...doc.getElementsByTagName("tr")];
+                    const policies = rows.map(r => r.innerText.replace(/ +\n+/g, '')).join('\n');
+                    return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, policies);
+                });
+            });
             createDivA("Export Apps (custom)", mainPopup, function () {
                 exportPopup = createPopup("Export Apps");
                 exportPopup.append("<br>Columns to export");
@@ -691,14 +721,15 @@
             getJSON(url).then(getObjects).fail(failObjects);
         }
         function getObjects(objects, status, jqXHR) {
-            objects.forEach(object => {
+            for (var i = 0; i < objects.length; i++) {
+                var object = objects[i];
                 var line = template(object);
                 if (line.then) {
                     line.then(ln => lines.push(ln));
                 } else {
                     lines.push(line);
                 }
-            });
+            }
             total += objects.length;
             exportPopup.html(total + " " + objectType + "...<br><br>");
             createDivA("Cancel", exportPopup, () => cancel = true, "class='link-button'");

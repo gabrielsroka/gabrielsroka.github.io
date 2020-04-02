@@ -264,7 +264,7 @@
                 };
                 postJSON({url, data}).then(() => {
                     passwordPopup.html("Password Changed.");
-                }).fail(jqXHR => passwordPopup.html(e(jqXHR.responseJSON.errorSummary)));
+                }).fail(jqXHR => passwordPopup.html(e(jqXHR.responseJSON.errorCauses[0].errorSummary)));
                 return false; // Cancel form.
             };
         });

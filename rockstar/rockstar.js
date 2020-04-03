@@ -252,20 +252,24 @@
             }
         });
 
-        createDivA("Set Password", mainPopup, async function () {
+        createDivA("Set Password", mainPopup, function () {
             const passwordPopup = createPopup("Set Password");
-            passwordPopup.html("<form id=passwordForm><input type=password id=newPassword><br><button class='link-button'>Set</button></form>");
-            passwordForm.onsubmit = function () {
-                const url = `/api/v1/users/${userId}`;
+            const passwordForm = passwordPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
+            passwordForm.innerHTML = "<input id=newPassword type=password><br><button class='link-button'>Set</button>";
+            newPassword.focus(); // Cuz "autofocus" didn't work.
+            passwordForm.onsubmit = function (event) {
+                const url = `/api/v1/users/${userId}`; // TODO: `/api/v1/users/${userId}/lifecycle/expire_password?tempPassword=false`
                 const data =  {
-                    "credentials": {
-                        "password": {"value": newPassword.value}
+                    credentials: {
+                        password: {
+                            value: newPassword.value
+                        }
                     }
                 };
-                postJSON({url, data}).then(() => {
-                    passwordPopup.html("Password Changed.");
-                }).fail(jqXHR => passwordPopup.html(e(jqXHR.responseJSON.errorCauses[0].errorSummary)));
-                return false; // Cancel form.
+                postJSON({url, data})
+                .then(() => passwordPopup.html("Password set."))
+                .fail(jqXHR => passwordPopup.html(e(jqXHR.responseJSON.errorCauses[0].errorSummary)));
+                event.preventDefault();
             };
         });
     }

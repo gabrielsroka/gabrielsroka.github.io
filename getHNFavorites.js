@@ -23,18 +23,19 @@ Usage:
     }
 
     const id = prompt('User id');
-    const lastPage = prompt('Last page');
 
     const url = `https://${base}/favorites?id=${id}&p=`;
     const favorites = [];
     console.clear();
-    for (var p = 1; p <= lastPage; p++) {
+    var p = 1;
+    while (true) {
         console.log('page', p);
-        const response = await fetch(url + p);
+        const response = await fetch(url + p++);
         const html = await response.text();
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
         const rows = doc.querySelectorAll('table.itemlist .athing');
+        if (rows.length == 0) break;
         rows.forEach(row => {
             const a = row.cells[2].firstElementChild;
             favorites.push(toCSV(a.innerText, a.href));

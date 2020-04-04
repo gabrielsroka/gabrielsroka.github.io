@@ -12,15 +12,15 @@ Usage:
 */
 
 (async function () {
+    const base = 'news.ycombinator.com';
     if (location.host != base) {
-        alert('go to ' + base);
+        alert('Go to ' + base + ' and then try again.');
         return;
     }
 
     const id = prompt('User id');
     const lastPage = prompt('Last page');
 
-    const base = 'news.ycombinator.com';
     const url = `https://${base}/favorites?id=${id}&p=`;
     const favorites = [];
     console.clear();

@@ -10,20 +10,19 @@ Copy this code to the browser console or, if using Chrome, to a Snippet. For exa
 5. Save (Ctrl+S, Windows)
 
 Usage:
-1. Navigate your browser to https://news.ycombinator.com
+1. Navigate your browser to https://news.ycombinator.com/user/id=YOUR_USER_ID
 2. Open the dev console (F12).
-3. Run the code. If using a Snippet, there's a little triangle on the bottom right, or press Ctrl+Enter (Windows)
+3. Run the code. If using a Snippet, there's a play button on the bottom right, or press Ctrl+Enter (Windows)
 */
 
 (async function () {
     const base = 'news.ycombinator.com';
-    if (location.host != base) {
-        alert('Go to ' + base + ' and then try again.');
+    if (location.host != base || location.pathname != '/user') {
+        alert('Go to your user page and then try again.');
         return;
     }
 
-    const id = prompt('User id');
-
+    const id = location.search.split('=')[1];
     const url = `https://${base}/favorites?id=${id}&p=`;
     const favorites = [];
     console.clear();

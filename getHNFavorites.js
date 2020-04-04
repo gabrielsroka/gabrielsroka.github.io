@@ -11,8 +11,8 @@ Copy this code to the browser console or, if using Chrome, to a Snippet. For exa
 
 Usage:
 1. Navigate your browser to https://news.ycombinator.com/user?id=YOUR_USER_ID
-2. Open DevTools (F12, Windows).
-3. Run the code. If using a Snippet, there's a play button on the bottom right, or press Ctrl+Enter (Windows).
+2. Press F12 (Windows) to open DevTools.
+3. Run the code. If using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
 4. Look for the popup window in the upper-left corner of your browser.
 */
 

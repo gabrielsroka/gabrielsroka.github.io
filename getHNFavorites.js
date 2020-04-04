@@ -1,14 +1,18 @@
 /* 
-This bookmarklet exports HN Favorites to CSV.
+Export HN Favorites to CSV.
 
 Setup:
-1. Drag this to the bookmark toolbar:
-javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/getHNFavorites.js";})();
+Copy this code to the browser console or, if using Chrome, to a Snippet. For example:
+1. Press F12 (Windows) to open Dev Console
+2. Go to Sources > Snippets, click New Snippet
+3. Give it a name (eg, "Get HN Favorites")
+4. Copy/paste the code from https://gabrielsroka.github.io/getHNFavorites.js
+5. Save (Ctrl+S, Windows)
 
 Usage:
 1. Navigate your browser to https://news.ycombinator.com
 2. Open the dev console (F12).
-3. Click the bookmark from your toolbar.
+3. Run the code. If using a Snippet, there's a little triangle on the bottom right, or press Ctrl+Enter (Windows)
 */
 
 (async function () {

@@ -10,9 +10,10 @@ Copy this code to the browser console or, if using Chrome, to a Snippet. For exa
 5. Save (Ctrl+S, Windows)
 
 Usage:
-1. Navigate your browser to https://news.ycombinator.com/user/id=YOUR_USER_ID
+1. Navigate your browser to https://news.ycombinator.com/user?id=YOUR_USER_ID
 2. Open the dev console (F12).
-3. Run the code. If using a Snippet, there's a play button on the bottom right, or press Ctrl+Enter (Windows)
+3. Run the code. If using a Snippet, there's a play button on the bottom right, or press Ctrl+Enter (Windows).
+4. Check the Console or Network tabs for status.
 */
 
 (async function () {

@@ -32,19 +32,19 @@ Usage:
         const url = `https://${base}/favorites?id=${id}&p=`;
         
         const favorites = [];
-        var p = 1;
-        while (true) {
+        var more = true;
+        for (var p = 1; more; p++) {
             popup.innerHTML = 'Exporting page ' + p + '...<br><br>';
-            const response = await fetch(url + p++);
+            const response = await fetch(url + p);
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
             const rows = doc.querySelectorAll('table.itemlist .athing');
-            if (rows.length == 0) break;
             rows.forEach(row => {
                 const a = row.cells[2].firstElementChild;
                 favorites.push(toCSV(a.innerText, a.href));
             });
+            more = rows.length > 0;
         }
         popup.innerHTML = 'Done.';
         downloadCSV('Name,URL', favorites, id + "'s HN favorites");

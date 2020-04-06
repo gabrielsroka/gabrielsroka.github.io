@@ -39,15 +39,12 @@ Usage:
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
-            const rows = doc.querySelectorAll('table.itemlist .athing');
-            rows.forEach(row => {
-                const a = row.cells[2].firstElementChild;
-                favorites.push(toCSV(a.innerText, a.href));
-            });
-            more = rows.length > 0;
+            const as = doc.querySelectorAll('a.storylink');
+            as.forEach(a => favorites.push(toCSV(a.innerText, a.href)));
+            more = as.length > 0;
         }
         popup.innerHTML = 'Done.';
-        downloadCSV('Name,URL', favorites, id + "'s HN favorites");
+        downloadCSV('Title,URL', favorites, id + "'s HN favorites");
     };
 
 

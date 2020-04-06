@@ -1,5 +1,6 @@
 /* 
 Export HN Favorites to CSV.
+It runs in your browser like a browser extension. It scrapes the HTML and navigates from page to page.
 
 Setup:
 Copy this code to the browser console or, if using Chrome, to a Snippet. For example:

@@ -32,8 +32,7 @@ Usage:
         const url = `https://${base}/favorites?id=${id}&p=`;
         
         const favorites = [];
-        var more = true;
-        for (var p = 1; more; p++) {
+        for (var p = 1; true; p++) {
             popup.innerHTML = 'Exporting page ' + p + '...<br><br>';
             const response = await fetch(url + p);
             const html = await response.text();
@@ -41,12 +40,11 @@ Usage:
             const doc = parser.parseFromString(html, "text/html");
             const as = doc.querySelectorAll('a.storylink');
             as.forEach(a => favorites.push(toCSV(a.innerText, a.href)));
-            more = as.length > 0;
+            if (as.length == 0) break;
         }
         popup.innerHTML = 'Done.';
         downloadCSV('Title,URL', favorites, id + "'s HN favorites");
     };
-
 
     function createPopup(title) {
         const div = document.body.appendChild(document.createElement("div"));

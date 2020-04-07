@@ -3,7 +3,7 @@ Export HN Favorites to CSV.
 It runs in your browser like a browser extension. It scrapes the HTML and navigates from page to page.
 
 Setup:
-Copy this code to the browser console or, if using Chrome, to a Snippet. For example:
+Copy this code to the browser console, or a bookmarklet, or, if using Chrome, to a Snippet. For example:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
 3. Give it a name, eg, "Export HN Favorites".
@@ -41,11 +41,12 @@ Usage:
             const doc = parser.parseFromString(html, "text/html");
             const as = doc.querySelectorAll('a.storylink');
             as.forEach(a => favorites.push(toCSV(a.innerText, a.href)));
-            if (as.length == 0) break;
+            if (doc.querySelector('a.morelink') == null) break;
         }
-        popup.innerHTML = 'Done.';
         downloadCSV('Title,URL', favorites, id + "'s HN favorites");
+        popup.innerHTML = 'Done.';
     };
+
 
     function createPopup(title) {
         const div = document.body.appendChild(document.createElement("div"));

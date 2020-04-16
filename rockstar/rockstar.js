@@ -129,11 +129,11 @@
                     {provider: 'OKTA', type: 'push', icon: "okta-otp", name: "Okta Verify with Push", sort: 0},
                     {provider: 'OKTA', type: "token:software:totp", icon: "okta-otp", name: "Okta Verify (OTP)", sort: 1},
                     {provider: 'GOOGLE', type: 'token:software:totp', icon: "otp", name: "Google Authenticator", sort: 2},
-                    {provider: 'OKTA', type: 'sms', icon: "sms", name: "SMS Authentication", sort: 3},
-                    {provider: 'OKTA', type: 'call', icon: "call", name: "Voice Call Authentication", sort: 4},
-                    {provider: 'OKTA', type: 'email', icon: "email", name: "Email Authentication", sort: 5},
-                    {provider: 'OKTA', type: 'question', icon: "question", name: "Security Question", sort: 6},
-                    {provider: 'CUSTOM', type: 'token:hotp', icon: 'hotp', name: "Custom TOTP", sort: 7}
+                    {provider: 'CUSTOM', type: 'token:hotp', icon: 'hotp', name: factor.vendorName, sort: 3},
+                    {provider: 'OKTA', type: 'sms', icon: "sms", name: "SMS Authentication", sort: 4},
+                    {provider: 'OKTA', type: 'call', icon: "call", name: "Voice Call Authentication", sort: 5},
+                    {provider: 'OKTA', type: 'email', icon: "email", name: "Email Authentication", sort: 6},
+                    {provider: 'OKTA', type: 'question', icon: "question", name: "Security Question", sort: 7}
                 ];
                 const type = factor.factorType;
                 const supported = supportedFactors.find(f => f.provider == factor.provider && f.type == type);

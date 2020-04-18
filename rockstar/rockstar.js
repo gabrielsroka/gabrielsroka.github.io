@@ -685,13 +685,13 @@
                         mapping.target.id, mapping.target.name, mapping.target.type));
             });
         } else if (appId = getAppId()) {
+            const atos = a => a ? a.join(";") : "";
             createDivA("Export App Users", mainPopup, function () {
-                startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId,firstName,lastName,syncState", 
+                startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId,firstName,lastName,syncState,salesforceGroups,samlRoles", 
                     appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId, 
-                        appUser.profile.firstName, appUser.profile.lastName, appUser.syncState));
+                        appUser.profile.firstName, appUser.profile.lastName, appUser.syncState, atos(appUser.profile.salesforceGroups), atos(appUser.profile.samlRoles)));
             });
             createDivA("Export App Groups", mainPopup, function () {
-                const atos = a => a ? a.join(";") : "";
                 startExport("App Groups", `/api/v1/apps/${appId}/groups?expand=group`, 
                     "id,name,licenses,roles,role,salesforceGroups,featureLicenses,publicGroups", 
                     appGroup => toCSV(appGroup.id, appGroup._embedded.group.profile.name, atos(appGroup.profile.licenses), 
@@ -931,7 +931,7 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
-            const apis = "apps,apps/${appId},authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type}," + 
+            const apis = "apps,apps/${appId},apps/${appId}/users,authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type}," + 
                 "meta/schemas/user,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones";
             datalist.innerHTML = apis.split(',').map(api => `<option>/api/v1/${api}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));

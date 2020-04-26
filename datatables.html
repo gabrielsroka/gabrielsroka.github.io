@@ -11,18 +11,18 @@
 <script src='https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js'></script>
 <script>
 const baseUrl = 'https://gsroka-neto.oktapreview.com';
-$(document).ready(function () {
-    $('#datatable').DataTable({
-        ajax: {
-            url: `${baseUrl}/api/v1/users/me/appLinks`,
-            dataSrc: '',
-            xhrFields: {
-                withCredentials: true
-            }
-        },
-        columns: ['label', 'appName']
-    });
-});
+// $(document).ready(function () {
+//     $('#datatable').DataTable({
+//         ajax: {
+//             url: `${baseUrl}/api/v1/users/me/appLinks`,
+//             dataSrc: '',
+//             xhrFields: {
+//                 withCredentials: true
+//             }
+//         },
+//         columns: ['label', 'appName']
+//     });
+// });
 </script>
 </body>
 </html>

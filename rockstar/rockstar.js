@@ -102,23 +102,23 @@
             }
         });
         function showUser() {
-            function toString(o, i) {
-                var strings = [], v, i = i || "";
-                for (var p in o) {
-                    if (p != "credentials" && p != "_links") {
-                        if (o[p] === null) v = "null";
-                        else if (typeof o[p] == "string") v = o[p].replace(/(["\\])/g, "\\$1"); // Escape " and \
-                        else if (o[p] instanceof Array) v = "[" + o[p].toString() + "]";
-                        else if (typeof o[p] == "object") v = "{\n" + toString(o[p], i + "\t") + i + "}";
-                        else v = o[p];
-                        strings.push(i + p + ": " + v);
-                    }
+            function toString(o, i = '') {
+                const strings = [];
+                for (const p in o) {
+                    if (p == "_links") continue;
+                    var v = o[p];
+                    if (v === null) v = "null";
+                    else if (typeof v == "string") v = '"' + v.replace(/(["\\])/g, "\\$1") + '"'; // Escape " and \
+                    else if (Array.isArray(v)) v = v.length == 0 ? '[]' : "[\n" + toString(v, i + "    ") + i + "]";
+                    else if (typeof v == "object") v = $.isEmptyObject(v) ? '{}' : "{\n" + toString(v, i + "    ") + i + "}";
+                    if (!Array.isArray(o)) v = p + ": " + v;
+                    strings.push(i + v);
                 }
                 return strings.join("\n") + "\n";
             }
-            var userPopup = createPopup("User");
-            var logo = user.credentials.provider.type == "LDAP" ? "ldap_sun_one" : user.credentials.provider.type.toLowerCase();
-            userPopup.html(`<span class='icon icon-24 group-logos-24 logo-${logo}'></span><pre>${e(toString(user))}</pre>`);
+            const userPopup = createPopup("User");
+            const logo = user.credentials.provider.type == "LDAP" ? "ldap_sun_one" : user.credentials.provider.type.toLowerCase();
+            userPopup.html(`<span class='icon icon-24 group-logos-24 logo-${logo}'></span><br><br><pre>${e(toString(user))}</pre>`);
         }
         createDivA("Show User", mainPopup, showUser);
         createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show User", ".okta-dropdown-list", showUser);
@@ -687,7 +687,7 @@
         } else if (appId = getAppId()) {
             const atos = a => a ? a.join(";") : "";
             createDivA("Export App Users", mainPopup, function () {
-                startExport("App Users", `/api/v1/apps/${appId}/users`, "id,userName,scope,externalId,firstName,lastName,syncState,salesforceGroups,samlRoles", 
+                startExport("App Users", `/api/v1/apps/${appId}/users?limit=500`, "id,userName,scope,externalId,firstName,lastName,syncState,salesforceGroups,samlRoles", 
                     appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId, 
                         appUser.profile.firstName, appUser.profile.lastName, appUser.syncState, atos(appUser.profile.salesforceGroups), atos(appUser.profile.samlRoles)));
             });
@@ -1188,4 +1188,18 @@
     function e(s) {
         return s.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
+
+    // Listen to message from background.js.
+    if (window.chrome && chrome.runtime.onMessage) chrome.runtime.onMessage.addListener(function (request, _, sendResponse) {
+        getJSON("/api/v1/groups").then(groups => {
+            groups = groups
+                .filter(group => group.profile.name.match(new RegExp(request.group, "i")))
+                .map(group => ({
+                    content: location.origin + "/admin/group/" + group.id, 
+                    description: e(group.profile.name) + (group.profile.description ? ` <dim>(${group.profile.description})</dim>` : '')
+                }));
+            sendResponse({groups});
+        });
+        return true; // Indicates that sendResponse will be called asynchronously.
+    });
 })();

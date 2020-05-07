@@ -472,101 +472,7 @@
         var cancel;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
-            createDivA("Export Users", mainPopup, function () {
-                exportPopup = createPopup("Export Users");
-                exportPopup.append("<br>Columns to export");
-                var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 300px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
-                
-                function addCheckbox(value, text) {
-                    const checked = exportColumns.includes(value) ? "checked" : "";
-                    checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' ${checked}>${e(text)}</label><br>`);
-                }
-                const user = {
-                    id: "User Id", 
-                    status: "Status", 
-                    created: "Created Date", 
-                    activated: "Activated Date", 
-                    statusChanged: "Status Changed Date", 
-                    lastLogin: "Last Login Date", 
-                    lastUpdated: "Last Updated Date", 
-                    passwordChanged: "Password Changed Date", 
-                    transitioningToStatus: "Transitioning to Status", 
-                    "credentials.provider.type": "Credential Provider Type",
-                    "credentials.provider.name": "Credential Provider Name"
-                };
-                const defaultColumns = "id,status,profile.login,profile.firstName,profile.lastName,profile.email";
-                const exportColumns = (localStorage.rockstarExportUserColumns || defaultColumns).replace(/ /g, "").split(",");
-                for (const p in user) addCheckbox(p, user[p]);
-                getJSON("/api/v1/meta/schemas/user/default").then(schema => {
-                    const base = schema.definitions.base.properties;
-                    const custom = schema.definitions.custom.properties;
-                    for (const p in base) addCheckbox("profile." + p, base[p].title);
-                    for (const p in custom) addCheckbox("profile." + p, custom[p].title);
-                }).fail(() => {
-                    const profile = {
-                        login: "Username",
-                        firstName: "First name",
-                        lastName: "Last name",
-                        middleName: "Middle name",
-                        honorificPrefix: "Honorific prefix",
-                        honorificSuffix: "Honorific suffix",
-                        email: "Primary email",
-                        title: "Title",
-                        displayName: "Display name",
-                        nickName: "Nickname",
-                        profileUrl: "Profile Url",
-                        secondEmail: "Secondary email",
-                        mobilePhone: "Mobile phone",
-                        primaryPhone: "Primary phone",
-                        streetAddress: "Street address",
-                        city: "City",
-                        state: "State",
-                        zipCode: "Zip code",
-                        countryCode: "Country code",
-                        postalAddress: "Postal Address",
-                        preferredLanguage: "Preferred language",
-                        locale: "Locale",
-                        timezone: "Time zone",
-                        userType: "User type",
-                        employeeNumber: "Employee number",
-                        costCenter: "Cost center",
-                        organization: "Organization",
-                        division: "Division",
-                        department: "Department",
-                        managerId: "Manager Id",
-                        manager: "Manager"
-                    };
-                    // TODO: since user can't see /schemas, let them know they can only use base attrs.
-                    for (const p in profile) addCheckbox("profile." + p, profile[p]);
-                });
-    
-                var exportArgs = localStorage.rockstarExportUserArgs || "";
-                exportPopup.append(`<br><br>Query, Filter, or Search&nbsp;&nbsp;` +
-                    `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br>` +
-                    `<input id=exportargs list=parlist value='${e(exportArgs)}' style='width: 300px'><br><br>` + 
-                    `<div id=error>&nbsp;</div><br>` +
-                    `<datalist id=parlist><option>q=Smith<option>filter=status eq "DEPROVISIONED"<option>filter=profile.lastName eq "Smith"` +
-                    `<option>search=status eq "DEPROVISIONED"<option>search=profile.lastName eq "Smith"</datalist>`);
-                createDivA("Export", exportPopup, function () {
-                    exportArgs = $("#exportargs").val();
-                    if (exportArgs.startsWith("?")) exportArgs = exportArgs.substring(1);
-                    var exportHeaders = [];
-                    var exportColumns = [];
-                    checkboxDiv.find("input:checked").each(function () {
-                        exportHeaders.push(this.parentNode.textContent);
-                        exportColumns.push(this.value);
-                    });
-                    if (exportHeaders.length) {
-                        $("#error").html("&nbsp;");
-                        exportHeaders = exportHeaders.join(",");
-                        localStorage.rockstarExportUserColumns = exportColumns.join(",");
-                        localStorage.rockstarExportUserArgs = exportArgs;
-                        startExport("Users", `/api/v1/users?${exportArgs}`, exportHeaders, user => toCSV(...fields(user, exportColumns)));
-                    } else {
-                        $("#error").html("Select at least 1 column.");
-                    }
-                }, "class='link-button'");
-            });
+            createDivA("Export Users", mainPopup, () => exportUsers("Users", "/api/v1/users", true));
         } else if (location.pathname.match("/admin/groups")) {
             createDivA("Export Groups", mainPopup, function () {
                 startExport("Groups", "/api/v1/groups", "id,name,description,type", 
@@ -703,6 +609,7 @@
                 startExport("Group Members", `/api/v1/groups/${groupId}/users`, "id,login,firstName,lastName,status", 
                     user => toCSV(user.id, user.profile.login, user.profile.firstName, user.profile.lastName, user.status));
             });
+            createDivA("Export Group Members (custom)", mainPopup, () => exportUsers('Group Members', `/api/v1/groups/${groupId}/users`, false));
         // TODO: what to do here?
         // } else {
         //     exportPopup = createPopup("Export");
@@ -713,6 +620,106 @@
         //         "<a href='/admin/apps/active'>Applications > Applications</a> and click on an App<br>" +
         //         "<a href='/admin/apps/active'>Applications > Applications</a> to export Apps<br>" +
         //         "<a href='/admin/access/networks'>Security > Networks</a><br>");
+        }
+        function exportUsers(o, url, filter) {
+            exportPopup = createPopup("Export " + o);
+            exportPopup.append("<br>Columns to export");
+            var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 300px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
+            
+            function addCheckbox(value, text) {
+                const checked = exportColumns.includes(value) ? "checked" : "";
+                checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' ${checked}>${e(text)}</label><br>`);
+            }
+            const user = {
+                id: "User Id", 
+                status: "Status", 
+                created: "Created Date", 
+                activated: "Activated Date", 
+                statusChanged: "Status Changed Date", 
+                lastLogin: "Last Login Date", 
+                lastUpdated: "Last Updated Date", 
+                passwordChanged: "Password Changed Date", 
+                transitioningToStatus: "Transitioning to Status", 
+                "credentials.provider.type": "Credential Provider Type",
+                "credentials.provider.name": "Credential Provider Name"
+            };
+            const defaultColumns = "id,status,profile.login,profile.firstName,profile.lastName,profile.email";
+            const exportColumns = (localStorage.rockstarExportUserColumns || defaultColumns).replace(/ /g, "").split(",");
+            for (const p in user) addCheckbox(p, user[p]);
+            getJSON("/api/v1/meta/schemas/user/default").then(schema => {
+                const base = schema.definitions.base.properties;
+                const custom = schema.definitions.custom.properties;
+                for (const p in base) addCheckbox("profile." + p, base[p].title);
+                for (const p in custom) addCheckbox("profile." + p, custom[p].title);
+            }).fail(() => {
+                const profile = {
+                    login: "Username",
+                    firstName: "First name",
+                    lastName: "Last name",
+                    middleName: "Middle name",
+                    honorificPrefix: "Honorific prefix",
+                    honorificSuffix: "Honorific suffix",
+                    email: "Primary email",
+                    title: "Title",
+                    displayName: "Display name",
+                    nickName: "Nickname",
+                    profileUrl: "Profile Url",
+                    secondEmail: "Secondary email",
+                    mobilePhone: "Mobile phone",
+                    primaryPhone: "Primary phone",
+                    streetAddress: "Street address",
+                    city: "City",
+                    state: "State",
+                    zipCode: "Zip code",
+                    countryCode: "Country code",
+                    postalAddress: "Postal Address",
+                    preferredLanguage: "Preferred language",
+                    locale: "Locale",
+                    timezone: "Time zone",
+                    userType: "User type",
+                    employeeNumber: "Employee number",
+                    costCenter: "Cost center",
+                    organization: "Organization",
+                    division: "Division",
+                    department: "Department",
+                    managerId: "Manager Id",
+                    manager: "Manager"
+                };
+                // TODO: since user can't see /schemas, let them know they can only use base attrs.
+                for (const p in profile) addCheckbox("profile." + p, profile[p]);
+            });
+
+            if (filter) {
+                var exportArgs = localStorage.rockstarExportUserArgs || "";
+                exportPopup.append(`<br><br>Query, Filter, or Search&nbsp;&nbsp;` +
+                    `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br>` +
+                    `<input id=exportargs list=parlist value='${e(exportArgs)}' style='width: 300px'>` + 
+                    `<datalist id=parlist><option>q=Smith<option>filter=status eq "DEPROVISIONED"<option>filter=profile.lastName eq "Smith"` +
+                    `<option>search=status eq "DEPROVISIONED"<option>search=profile.lastName eq "Smith"</datalist>`);
+            }
+            exportPopup.append(`<br><br><div id=error>&nbsp;</div><br>`);
+            createDivA("Export", exportPopup, function () {
+                var exportHeaders = [];
+                var exportColumns = [];
+                checkboxDiv.find("input:checked").each(function () {
+                    exportHeaders.push(this.parentNode.textContent);
+                    exportColumns.push(this.value);
+                });
+                if (exportHeaders.length) {
+                    $("#error").html("&nbsp;");
+                    exportHeaders = exportHeaders.join(",");
+                    localStorage.rockstarExportUserColumns = exportColumns.join(",");
+                    if (filter) {
+                        exportArgs = $("#exportargs").val();
+                        if (exportArgs.startsWith("?")) exportArgs = exportArgs.substring(1);
+                        localStorage.rockstarExportUserArgs = exportArgs;
+                        url = url + '?' + exportArgs
+                    }
+                    startExport(o, url, exportHeaders, user => toCSV(...fields(user, exportColumns)));
+                } else {
+                    $("#error").html("Select at least 1 column.");
+                }
+            }, "class='link-button'");
         }
         function startExport(title, url, headerRow, templateCallback) {
             total = 0;
@@ -790,14 +797,6 @@
                 a.push(dot(o, fields[f]));
             }
             return a;
-        }
-        function dot(o, dots) {
-            var ps = dots.split(".");
-            for (var p in ps) {
-                o = o[ps[p]];
-                if (o == null) break;
-            }
-            return o;
         }
         function getAppId() {
             var path = location.pathname;
@@ -931,7 +930,7 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
-            const apis = "apps,apps/${appId},apps/${appId}/users,authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type}," + 
+            const apis = "apps,apps/${appId},apps/${appId}/users,authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type}," + 
                 "meta/schemas/user,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones";
             datalist.innerHTML = apis.split(',').map(api => `<option>/api/v1/${api}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));
@@ -997,31 +996,40 @@
         }
     }
     function formatObjects(objects, url) {
-        let len = "(length: " + objects.length + ")\n\n";
-        let rows = [];
-        let ths = [];
-        objects.forEach(row => {
-            for (let p in row) {
-                if (!ths.includes(p)) ths.push(p);
-            }
-        });
-        objects.forEach(row => {
-            let tds = [];
-            for (let p of ths) {
-                if (row[p] === undefined) row[p] = "";
-                if (p == "id") {
-                    row[p] = "<a href='" + url + "/" + row[p] + "'>" + e(row[p]) + "</a>";
-                } else if (typeof row[p] == "object") {
-                    row[p] = "<pre>" + e(JSON.stringify(row[p], null, 4)) + "</pre>";
-                } else {
-                    row[p] = e(row[p]);
+        function addTh(o, n) {
+            for (const p in o) {
+                if (p == '_links') continue;
+                const v = n ? n + '.' + p : p;
+                if (typeof o[p] == 'object' && !Array.isArray(o[p]) && o[p] !== null) {
+                    addTh(o[p], v);
+                } else if (!ths.includes(v)) {
+                    ths.push(v);
                 }
-                tds.push("<td>" + row[p]);
+            }
+        }
+        const ths = [];
+        objects.forEach(o => addTh(o, '')); // DON'T DO: forEach(addTh), cuz forEach will send addTh extra arrghs!
+        // ths.sort(); // (t1, t2) => t1.startsWith('_links') ? 1 : t2.startsWith('_links') ? -1 : t1.localeCompare(t2));
+        const rows = [];
+        objects.forEach(row => {
+            const tds = [];
+            for (const p of ths) {
+                var v = p.includes('.') ? dot(row, p) : row[p];
+                if (v === undefined) v = "";
+                if (p == "id") {
+                    v = "<a href='" + url + "/" + v + "'>" + e(v) + "</a>";
+                } else if (typeof v == "object") {
+                    v = "<pre>" + e(JSON.stringify(v, null, 4)) + "</pre>";
+                } else {
+                    v = e(v);
+                }
+                tds.push("<td>" + v);
             }
             rows.push("<tr>" + tds.join(""));
         });
+        const len = "(length: " + objects.length + ")\n\n";
         return {header: "<span id=table><b>Table</b> <a href=#json>JSON</a><br><br>" + len + "</span>",
-            body: "<br><table class='data-list-table' style='border: 1px solid #ddd;'><tr><th>" + ths.join("<th>") + linkify(rows.join("")) + "</table><br>" +
+            body: "<br><table class='data-list-table' style='border: 1px solid #ddd; white-space: nowrap;'><tr><th>" + ths.join("<th>") + linkify(rows.join("")) + "</table><br>" +
                 "<div id=json><a href=#table>Table</a> <b>JSON</b></div><br>" + len};
     }
     function formatPre(s, url) {
@@ -1187,6 +1195,14 @@
     }
     function e(s) {
         return s.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function dot(o, dots) {
+        var ps = dots.split(".");
+        for (var p in ps) {
+            o = o[ps[p]];
+            if (o == null) break;
+        }
+        return o;
     }
 
     // Listen to message from background.js.

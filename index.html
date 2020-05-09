@@ -14,10 +14,10 @@
 a {
     text-decoration: none;
 }
-nav .burger-icon {
+#burger {
     display: none;
 }
-nav .menu {
+#menu {
     padding: 0 10px 10px;
     margin: 0;
     text-align: center;
@@ -32,8 +32,8 @@ nav li {
 .box {
     border: 1px solid;
     padding: 6px;
-    text-align: center;
     margin: 10px;
+    text-align: center;
 }
 .button {
     padding: 6px;
@@ -49,21 +49,21 @@ nav li {
 footer {
     background-color: black;
     color: white;
-    padding: 6px;
-    margin-top: 10px;
+    padding: .5em 1em;
+    margin-top: 1.2em;
     text-align: right;
     font-size: .8em;
 }
 
 /* less than or equal to 800px */
 @media (max-width: 800px) {
-    nav .burger-icon {
+    #burger {
         display: block;
         float: right;
-        padding: 10px;
-        font-size: 24px;
+        padding: .1em .5em;
+        font-size: 2.6em;
     }
-    nav .menu {
+    #menu.hide-mobile {
         display: none;
     }    
     nav a {
@@ -80,11 +80,9 @@ footer {
 <body>
 <nav>
 <h1>Gabriel Sroka</h1>
-<div class="burger-icon">≡</div>
-<ul class=menu>
-<li><a href="/rockstar/">rockstar</a>
+<span id=burger>≡</span>
+<ul id=menu class=hide-mobile>
 <li><a href="/webpages/bookmarklets.htm">Editor</a>
-<li><a href="https://github.com/gabrielsroka/gabrielsroka.github.io">GitHub</a>
 <li><a href="/hn.html">Hacker News</a>
 <li><a href="/webpages/">Webpages</a>
 </ul>
@@ -96,18 +94,15 @@ footer {
 <a href="/rockstar/" class=button>rockstar</a></div>
 <div class=box>Okta PowerShell Module (unofficial). Call Okta API from PowerShell.
 <a href="https://github.com/gabrielsroka/OktaAPI.psm1" class=button>Okta API</a></div>
-<div class=box>Export Okta Users, Groups, etc. to CSV. (this is the older version)
-<a href="/exportObjects.html" class=button>Export Objects</a></div>
+<div class=box>My website, including rockstar: Export Okta Users, Groups, etc. to CSV.
+<a href="https://github.com/gabrielsroka/gabrielsroka.github.io" class=button>GitHub</a></div>
 </div>
 </main>
 <footer>
-Copyright &copy; 2019
+Copyright &copy; 2020
 </footer>
 <script>
-onload = () => {
-    var navMenu = document.querySelector("nav .menu");
-    document.querySelector(".burger-icon").onclick = () => navMenu.style.display = navMenu.style.display == "" ? "block" : "";
-};
+burger.onclick = () => menu.classList.toggle('hide-mobile');
 </script>
 </body>
 </html>

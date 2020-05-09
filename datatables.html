@@ -2,6 +2,11 @@
 <head>
 <title>DataTables</title>
 <link href='https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css' rel="stylesheet">
+<style>
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+</style>
 </head>
 <body>
 <table id=datatable>
@@ -18,7 +23,9 @@ $(document).ready(function () {
             dataSrc: '',
             xhrFields: {
                 withCredentials: true
-            }
+            },
+            cache: true, // turn off ?_=[TIMESTAMP]
+            headers: {accept: 'application/json'}
         },
         columns: [{data: 'label'}, {data: 'appName'}]
     });

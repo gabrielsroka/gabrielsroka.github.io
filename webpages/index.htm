@@ -6,8 +6,15 @@
 <title>Gabriel Sroka</title>
 <link href="/main.css" rel="stylesheet">
 <style>
-a {
+h1 a, li a {
     text-decoration: none;
+}
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+li {
+    margin-top: 1em;
 }
 </style>
 <!-- AOL OpenID
@@ -20,36 +27,46 @@ a {
 <h1><a href="/">Gabriel Sroka</a></h1>
 </nav>
 <main>
-<p><a href="resume.docx">Resume</a> in Microsoft Word .doc format, updated August 2018.</p>
-<p><a href="http://docs.google.com/viewer?url=https://gabrielsroka.github.io/webpages/resume.docx" 
-    target="_blank">View online</a> (using Google Docs)</p>
+<p><a href="resume.docx">Resume</a> in Microsoft Word .docx format, updated August 2018.</p>
+<p><a href="https://docs.google.com/viewer?url=https://gabrielsroka.github.io/webpages/resume.docx" 
+target="_blank">View online</a> using Google Docs.</p>
 <h2>JavaScript</h2>
-<p><a href="BASIC.html">BASIC</a></p>
-<p><a href="bookmarklets.htm">Bookmarklets</a></p>
-<p><a href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="bmenu.js";})();'>Bmenu</a></p>
-<p><a href="browsercaps.htm">Browser Caps</a></p>
-<p><a href="/JavaScript-vs-PowerShell.htm">JavaScript vs. PowerShell</a></p>
+<ul>
+<li><a href="BASIC.html">BASIC</a>
+<li><a href="bookmarklets.htm">Bookmarklets</a>
+<li><a href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="bmenu.js";})();'>Bmenu</a>
+<li><a href="browsercaps.htm">Browser Caps</a>
+<li><a href="/JavaScript-vs-PowerShell.htm">JavaScript vs. PowerShell</a>
+</ul>
 <h2>Calculators</h2>
-<p><a href="calc.htm">JavaScript Calc</a> - 
+<ul>
+<li><a href="calc.htm">JavaScript Calc</a> - 
 <a href="calc.htm#a1:=Rate=3.875;a2:=Years=30;a3:=NPer=Years*12;a4:=PV=644000;a5:=Pmt=Math.round(Math.pmt(Rate/12/100,NPer,PV)*100+1)/100;rows:5;cols:1">Pmt Sample</a> - 
 <a href="calc.htm#a1:=Rate=3.875;a2:=Years=30;a3:=NPer=Years*12;a4:=PV=644000;a5:=Pmt=Math.round(Math.pmt(Rate/12/100,NPer,PV)*100+1)/100;c1:|new Date(2015,7+this.r-1,1);d1:|Balance=iif(this.r==1,PV,d[this.r-1]-f[this.r-1]);e1:|Interest=d[this.r]*Rate/12/100;f1:|Principal=Pmt-e[this.r];rows:50;cols:6">50 mo. Sample</a> - 
-<a href="calc.htm#a1:=Rate=3.875;a2:=Years=30;a3:=NPer=Years*12;a4:=PV=644000;a5:=Pmt=Math.round(Math.pmt(Rate/12/100,NPer,PV)*100+1)/100;c1:|new Date(2015,7+this.r-1,1);d1:|Balance=iif(this.r==1,PV,d[this.r-1]-f[this.r-1]);e1:|Interest=Balance[this.r]*Rate/12/100;f1:|Principal=Pmt-Interest[this.r];a7:=TotalPrin=sum(Principal);rows:360;cols:6">360 mo. Sample</a></p>
-<p><a href="/calcs">Retirement Calculators</a></p>
-<p><a href="distance.htm">Distance to Horizon</a></p>
+<a href="calc.htm#a1:=Rate=3.875;a2:=Years=30;a3:=NPer=Years*12;a4:=PV=644000;a5:=Pmt=Math.round(Math.pmt(Rate/12/100,NPer,PV)*100+1)/100;c1:|new Date(2015,7+this.r-1,1);d1:|Balance=iif(this.r==1,PV,d[this.r-1]-f[this.r-1]);e1:|Interest=Balance[this.r]*Rate/12/100;f1:|Principal=Pmt-Interest[this.r];a7:=TotalPrin=sum(Principal);rows:360;cols:6">360 mo. Sample</a>
+<li><a href="/calcs">Retirement Calculators</a>
+<li><a href="distance.htm">Distance to Horizon</a>
+</ul>
 <h2>Games</h2>
-<p><a href="/breakout.html">Breakout</a></p>
-<p><a href="canvas.htm">Canvas</a></p>
-<p><a href="enabler.htm">ENABLEr</a></p>
+<ul>
+<li><a href="/breakout.html">Breakout</a>
+<li><a href="canvas.htm">Canvas</a>
+<li><a href="enabler.htm">ENABLEr</a>
+</ul>
 <h2>Okta</h2>
-<p><a href="/home.htm">Custom Home Page</a></p>
-<p><a href="/OktaAddPerson">Add Person extension/widget/app</a></p>
+<ul>
+<li><a href="/home.htm">Custom Home Page</a>
+<li><a href="/OktaAddPerson">Add Person extension/widget/app</a>
+</ul>
 <h2>Projects</h2>
-<p><a href="https://github.com/gabrielsroka/">GitHub</a></p>
-<p><a href="https://khanacademy.org/profile/gabrielsroka/projects">Khan Academy</a></p>
-<p><a href="https://repl.it/@gabrielsroka/">Repl.it</a></p>
-<p><a href="https://jsfiddle.net/user/gabrielsroka/fiddles/">JSFiddle</a></p>
-<p><a href="https://editor.p5js.org/gabrielsroka/sketches">p5.js</a></p>
-<p><a href="https://www.dwitter.net/u/gabrielsroka">Dwitter</a></p>
+<ul>
+<li><a href="https://github.com/gabrielsroka/">GitHub</a>
+<li><a href="https://khanacademy.org/profile/gabrielsroka/projects">Khan Academy</a>
+<li><a href="https://repl.it/@gabrielsroka/">Repl.it</a>
+<li><a href="https://jsfiddle.net/user/gabrielsroka/fiddles/">JSFiddle</a>
+<li><a href="https://editor.p5js.org/gabrielsroka/sketches">p5.js</a>
+<li><a href="https://www.dwitter.net/u/gabrielsroka">Dwitter</a>
+</ul>
 </main>
 </body>
 </html>

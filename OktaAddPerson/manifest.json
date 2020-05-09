@@ -11,6 +11,7 @@
   },
   "permissions": [
     "https://*.okta.com/",
+    "https://*.okta-emea.com/*",
     "https://*.oktapreview.com/"
   ]
 }

@@ -8,6 +8,9 @@
 nav, .widget {
     margin: 24px;
 }
+.hide {
+    display: none;
+}
 #menu li {
     padding: 10px 0;
 }
@@ -39,7 +42,7 @@ a:active, a:link, a:visited, span, .app-button-name {
 <nav>
 <span id=burger style='font-size: 24px;'>≡</span>
 <span id=notificationMenu style='float: right;'>🔔</span>
-<ul id=menu style='display: none;'>
+<ul id=menu class=hide>
 <li><a href="/">Gabriel Sroka</a>
 <li><a href='https://gsroka-neto.oktapreview.com'>Home</a>
 <li><span id=refresh>Refresh</span>
@@ -47,7 +50,7 @@ a:active, a:link, a:visited, span, .app-button-name {
 </ul>
 </nav>
 <main>
-<div id=notifications class=widget style='display: none;'>
+<div id=notifications class='widget hide'>
 <div><a href='https://status.okta.com' style='font-weight: bold;'>Okta Status</a></div>
 <a id=notificationLink></a><span id=seen style='float: right;'></span>
 </div>
@@ -64,7 +67,10 @@ a:active, a:link, a:visited, span, .app-button-name {
 </main>
 <script>
 onload = () => {
-    burger.onclick = () => menu.style.display = menu.style.display == "none" ? "block" : "none";
+    burger.onclick = () => menu.classList.toggle('hide');
+
+    notificationMenu.onclick = () => notifications.classList.toggle('hide');
+    getNotifications();
 
     // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
     const baseUrl = 'https://gsroka-neto.oktapreview.com';
@@ -76,9 +82,6 @@ onload = () => {
     }
 
     getWeather();
-
-    notificationMenu.onclick = () => notifications.toggle();
-    getNotifications();
 };
 
 async function getLinks(baseUrl) {
@@ -164,18 +167,13 @@ async function getNotifications() {
         seen.onclick = () => {
             seen.innerHTML += '✓';
             seen.onclick = null;
-            notifications.hide();
+            notifications.classList.remove('hide')
             seenNotifications.push(guid);
             localStorage.notifications = JSON.stringify(seenNotifications);
         };
-        notifications.show();
+        notifications.classList.add('hide');
     }
 }
-
-notifications.toggle = function () {this.isVisible() ? this.hide() : this.show()};
-notifications.isVisible = function () {return this.style.display == 'block'};
-notifications.show = function () {this.style.display = 'block'};
-notifications.hide = function () {this.style.display = 'none'};
 </script>
 </body>
 </html>

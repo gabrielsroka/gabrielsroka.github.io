@@ -7,7 +7,8 @@ It runs in your browser like a browser extension. In fact, it can easily be turn
 ![Screenshot](screen-shot.png)
 
 # Setup
-1. Drag this to the bookmark toolbar:
+1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+2. Drag this to the bookmarks toolbar:
 <a href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/GitHubAPIExplorer.js";})();'>GitHub API Explorer</a>
 
 # Usage

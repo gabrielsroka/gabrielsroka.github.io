@@ -21,4 +21,5 @@ The .HTA files (essentially, a webpage -- HTML + JavaScript + CSS) will run in W
 
 See also:
 * https://developer.chrome.com/extensions
+* [Chrome Extensions](https://developer.chrome.com/extensions)
 * https://developer.mozilla.org/en-US/Add-ons/WebExtensions

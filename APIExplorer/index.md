@@ -48,24 +48,22 @@ There are a few options for running your JavaScript on someone else's website:
 - [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) user scripts
 - [Chrome](https://developer.chrome.com/extensions) or [Firefox](https://developer.mozilla.org/en-US/Add-ons/WebExtensions) browser extensions
 
+<br>
 [1] Address Bar
 
 ![Address Bar](addressbar.png)
 
-<br>
 <br>
 [2] Bookmarklet
 
 ![Bookmarklet](bookmarklet.png)
 
 <br>
-<br>
 [3] Chrome DevTools Console
 
 ![Chrome DevTools Console](console.png)
 
 <br>
-<br>
-[4] Chrome Snippets
+[4] Chrome Snippet
 
 ![Chrome Snippet](snippet.png)

@@ -20,6 +20,5 @@ To run on Mac Dashboard
 The .HTA files (essentially, a webpage -- HTML + JavaScript + CSS) will run in Windows in an "embedded IE". It's the same source code as the extension: `mshta "%cd%\oktaAddPerson.html"`
 
 See also:
-* https://developer.chrome.com/extensions
 * [Chrome Extensions](https://developer.chrome.com/extensions)
-* https://developer.mozilla.org/en-US/Add-ons/WebExtensions
+* [Browser Extensions - Mozilla](https://developer.mozilla.org/en-US/Add-ons/WebExtensions)

@@ -28,6 +28,10 @@ Copy this code to the browser console, or, if using Chrome, to a Snippet. For ex
 3. Run the code. If using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
 4. Look for the popup window in the upper-left corner of your browser.
 
+Check out [GitHubAPIExplorer.js](https://gabrielsroka.github.io/GitHubAPIExplorer.js)
+
+[Source Code](https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/GitHubAPIExplorer.js)
+
 # Why?
 I've long been fascinated by the abillity to run arbitrary JavaScript against a website. This can be something simple, like scraping HTML. Or adding a "missing feature" to a website. I started this around 15 years ago when I was using a time tracking website, but I found it tedious and error-prone. I was able to automate data entry with a simple piece of JavaScript.
 
@@ -43,10 +47,8 @@ There are a few options for running your JavaScript on someone else's website:
 - [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) user scripts
 - [Chrome](https://developer.chrome.com/extensions) or [Firefox](https://developer.mozilla.org/en-US/Add-ons/WebExtensions) browser extensions
 
-[1] ![Console](console.png)
+[1] Chrome DevTools Console
+![Chrome DevTools Console](console.png)
 
-[2] ![Snippet](snippet.png)
-
-Check out [GitHubAPIExplorer.js](https://gabrielsroka.github.io/GitHubAPIExplorer.js)
-
-[Source Code](https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/GitHubAPIExplorer.js)
+[2] Chrome Snippets
+![Chrome Snippet](snippet.png)

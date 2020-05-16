@@ -40,15 +40,21 @@ Now I write more complex scripts like this one. I can add HTML/CSS popups and po
 Browsers have gotten better at this, too. Chrome, for example, has a fairly complete set of [developer tools](https://developers.google.com/web/tools/chrome-devtools) for writing and debugging JavaScript.
 
 There are a few options for running your JavaScript on someone else's website:
-- the address bar using the `javascript:` scheme. For example, `javascript:alert('hi')`
-- bookmarklets - like regular bookmarks, but they can run JavaScript. These even work on mobile (which doesn't have a Dev Console)! You can host them on sites like GitHub so you can share them, update them, etc.
-- [Chrome DevTools console](https://developers.google.com/web/tools/chrome-devtools/console) [1]
-- [Chrome Snippets](https://developers.google.com/web/tools/chrome-devtools/javascript/snippets) [2]
+- the address bar using the `javascript:` scheme. For example, `javascript:alert('hi')` [1]
+- bookmarklets - like regular bookmarks, but they can run JavaScript. These even work on mobile (which doesn't have a Dev Console)! You can host them on sites like GitHub so you can share them, update them, etc. [2]
+- [Chrome DevTools console](https://developers.google.com/web/tools/chrome-devtools/console) [3]
+- [Chrome Snippets](https://developers.google.com/web/tools/chrome-devtools/javascript/snippets) [4]
 - [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) user scripts
 - [Chrome](https://developer.chrome.com/extensions) or [Firefox](https://developer.mozilla.org/en-US/Add-ons/WebExtensions) browser extensions
 
-[1] Chrome DevTools Console
+[1] Address Bar
+![Address Bar](addressbar.png)
+
+[2] Bookmarklet
+![Bookmarklet](bookmarklet.png)
+
+[3] Chrome DevTools Console
 ![Chrome DevTools Console](console.png)
 
-[2] Chrome Snippets
+[4] Chrome Snippets
 ![Chrome Snippet](snippet.png)

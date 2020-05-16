@@ -52,13 +52,16 @@ There are a few options for running your JavaScript on someone else's website:
 
 ![Address Bar](addressbar.png)
 
+
 [2] Bookmarklet
 
 ![Bookmarklet](bookmarklet.png)
 
+
 [3] Chrome DevTools Console
 
 ![Chrome DevTools Console](console.png)
+
 
 [4] Chrome Snippets
 

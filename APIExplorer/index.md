@@ -4,7 +4,7 @@ A short (100-line) JavaScript snippet to call the GitHub API.
 
 It runs in your browser like a browser extension. In fact, it can easily be turned into a browser extension.
 
-![Screenshot](screenshot.png)
+![Screenshot](screen-shot.png)
 
 # Setup
 1. Drag this to the bookmark toolbar:

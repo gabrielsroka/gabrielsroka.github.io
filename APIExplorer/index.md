@@ -40,8 +40,8 @@ Now I write more complex scripts like this one. I can add HTML/CSS popups and po
 Browsers have gotten better at this, too. Chrome, for example, has a fairly complete set of [developer tools](https://developers.google.com/web/tools/chrome-devtools) for writing and debugging JavaScript.
 
 There are a few options for running your JavaScript on someone else's website:
-- the address bar using the `javascript:` scheme. For example, `javascript:alert('hi')` [1]
-- bookmarklets - like regular bookmarks, but they can run JavaScript. These even work on mobile (which doesn't have a Dev Console)! You can host them on sites like GitHub so you can share them, update them, etc. [2]
+- the address bar using the `javascript:` scheme. For example, `javascript:alert('hi')` [1]. Note that some browsers remove the `javascript:` part if you paste it in, and some browsers or sites block these.
+- bookmarklets - like regular bookmarks, but they can run JavaScript [2]. These even work on mobile (which doesn't have a Dev Console)! You can host them on sites like GitHub so you can share them, update them, etc. For example, `javascript:(function(){document.body.appendChild(document.createElement("script")).src= "https://gabrielsroka.github.io/GitHubAPIExplorer.js";})();`
 - [Chrome DevTools console](https://developers.google.com/web/tools/chrome-devtools/console) [3]
 - [Chrome Snippets](https://developers.google.com/web/tools/chrome-devtools/javascript/snippets) [4]
 - [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) user scripts

@@ -691,11 +691,18 @@
 
             if (filter) {
                 var exportArgs = localStorage.rockstarExportUserArgs || "";
-                exportPopup.append(`<br><br>Query, Filter, or Search&nbsp;&nbsp;` +
+                exportPopup.append(
+                    `<br><br>Query, Filter, or Search&nbsp;&nbsp;` +
                     `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br>` +
                     `<input id=exportargs list=parlist value='${e(exportArgs)}' style='width: 300px'>` + 
                     `<datalist id=parlist><option>q=Smith<option>filter=status eq "DEPROVISIONED"<option>filter=profile.lastName eq "Smith"` +
-                    `<option>search=status eq "DEPROVISIONED"<option>search=profile.lastName eq "Smith"</datalist>`);
+                    `<option>search=status eq "DEPROVISIONED"<option>search=profile.lastName eq "Smith"</datalist>` +
+                    `<br><br><a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a>` +
+                    `<br><br>By default, Okta lists all users who do not have a status of DEPROVISIONED.<br><br>` +
+                    `Query lists up 10 users; query by first name, last name or email.<br><br>` + 
+                    `Filter lists all users; filter by status, last updated, id, login, email, first name or last name.<br><br>` +
+                    `Search lists all users; search by any user profile property, including custom-defined<br>` +
+                    `properties, and id, status, created, activated, status changed and last updated.`);
             }
             exportPopup.append(`<br><br><div id=error>&nbsp;</div><br>`);
             createDivA("Export", exportPopup, function () {
@@ -717,7 +724,7 @@
                     }
                     startExport(o, url, exportHeaders, user => toCSV(...fields(user, exportColumns)));
                 } else {
-                    $("#error").html("Select at least 1 column.");
+                    $("#error").html("ERROR: Select at least 1 column.");
                 }
             }, "class='link-button'");
         }
@@ -751,14 +758,7 @@
             }
             var link = jqXHR.getResponseHeader("Link");
             var links = link ? getLinks(link) : null;
-            var paginate = false;
-            if (links && links.next) {
-                if (links.next.match("/users.*search=")) {
-                    paginate = total < 50000; // /api/v1/users/search= only supports 50k users.
-                } else {
-                    paginate = true;
-                }
-            }
+            var paginate = links && links.next;
             if (paginate) {
                 var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
                 var url = nextUrl.pathname + nextUrl.search;

@@ -34,7 +34,7 @@ Check out [GitHubAPIExplorer.js](https://gabrielsroka.github.io/GitHubAPIExplore
 [Source Code](https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/GitHubAPIExplorer.js)
 
 # Why?
-I've long been fascinated by the abillity to run arbitrary JavaScript against a website. This can be something simple, like scraping HTML. Or adding a "missing feature" to a website. I started laerning about this around 15 years ago when I was using a time tracking website, but I found it tedious and error-prone. I was able to automate data entry with a simple piece of JavaScript.
+I've long been fascinated by the abillity to run arbitrary JavaScript against a website. This can be something simple, like scraping HTML. Or adding a "missing feature" to a website. I started learning about this around 15 years ago when I was using a time tracking website, but I found it tedious and error-prone. I was able to automate data entry with a simple piece of JavaScript.
 
 Now I write more complex scripts like this one. I can add HTML/CSS popups and power them with JavaScript.
 

@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>My Apps - Vue</title>
+<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' rel='stylesheet' />
+<style>
+.app-button-wrapper {
+    width: 64px;
+    margin: 12px 12px 12px 24px;
+}
+.app-button .logo {
+    visibility: visible;
+}
+.app-button-name {
+    color: black;
+    width: 100%;
+}
+</style>
+<script src='https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js'></script>
+</head>
+<body>
+<div id="app">
+    <ul>
+        <li class='app-button-wrapper' v-for='link in links'>
+            <a :href='link.url' class='app-button' target='_blank' rel='noopener'>
+                <img :src='link.src' class='logo'/>
+            </a>
+            <p class='app-button-name'>{{link.label}}</p>
+        </li>
+    </ul>
+</div>
+<script>
+// For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+const baseUrl = 'https://gsroka-neto.oktapreview.com';
+
+new Vue({
+    el: "#app",
+    data: {
+        links: []
+    },
+    async mounted() {
+        /*  Fetch appLinks whose labels are in the following format:
+                label[, url]
+            eg: "NY Times, nytimes.com", or just "NY Times"
+            If url is blank, it will figure it out from the label. It will remove spaces, and add "https://" and ".com", etc. */
+        const init = {credentials: 'include'};
+        // const init = {mode: 'cors'}; // This didn't seem to work.
+        const response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
+        this.links = (await response.json())
+            .filter(link => link.label != 'Everyone App')
+            .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
+            .map(link => {
+                var [label, url] = link.label.split(/,/);
+                if (url) {
+                    url = url.trim();
+                } else {
+                    url = label.replace(/ /g, '');
+                }
+                if (!url.startsWith('https')) url = 'https://' + url;
+                if (!url.includes('.')) url += '.com';
+                const src = new URL(url).origin + '/favicon.ico';
+                return {label, url, src};
+            });
+    }
+});
+</script>
+</body>
+</html>

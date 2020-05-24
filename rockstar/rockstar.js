@@ -153,7 +153,12 @@
                 return {id: factor.id, supported: true, sort, radio, type, name, html, inputType, field};
             }
             const verifyPopup = createPopup("Verify Factors");
-            var factors = await getJSON(`/api/v1/users/${userId}/factors`);
+            try {
+                var factors = await getJSON(`/api/v1/users/${userId}/factors`);
+            } catch (err) {
+                verifyPopup.html(e(err.responseJSON.errorSummary));
+                return;
+            }
             factors = factors.map(mapFactors).filter(f => f.supported).sort((f1, f2) => f1.sort - f2.sort);
             if (factors.length == 0) {
                 verifyPopup.html("No supported factors were found.");
@@ -234,7 +239,8 @@
                                 postJSON({
                                     url: `/api/v1/users/${userId}/roles`,
                                     data
-                                }).then(() => setTimeout(showRoles, 1000));
+                                }).then(() => setTimeout(showRoles, 1000))
+                                .fail(jqXHR => rolesPopup.html(e(jqXHR.responseJSON.errorSummary) + "<br><br>"));
                             });
                         });
                     } else {
@@ -245,7 +251,8 @@
                                 rolesPopup.html("Loading...");
                                 // https://developer.okta.com/docs/api/resources/roles#unassign-role-from-user
                                 deleteJSON(`/api/v1/users/${userId}/roles/${role.id}`)
-                                .then(() => setTimeout(showRoles, 1000));
+                                .then(() => setTimeout(showRoles, 1000))
+                                .fail(jqXHR => rolesPopup.html(e(jqXHR.responseJSON.errorSummary) + "<br><br>"));
                             });
                         });
                     }
@@ -624,7 +631,7 @@
         function exportUsers(o, url, filter) {
             exportPopup = createPopup("Export " + o);
             exportPopup.append("<br>Columns to export");
-            var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 300px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
+            var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 500px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
             
             function addCheckbox(value, text) {
                 const checked = exportColumns.includes(value) ? "checked" : "";
@@ -694,7 +701,7 @@
                 exportPopup.append(
                     `<br><br>Query, Filter, or Search&nbsp;&nbsp;` +
                     `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br>` +
-                    `<input id=exportargs list=parlist value='${e(exportArgs)}' style='width: 300px'>` + 
+                    `<input id=exportargs list=parlist value='${e(exportArgs)}' style='width: 500px'>` + 
                     `<datalist id=parlist><option>q=Smith<option>filter=status eq "DEPROVISIONED"<option>filter=profile.lastName eq "Smith"` +
                     `<option>search=status eq "DEPROVISIONED"<option>search=profile.lastName eq "Smith"</datalist>` +
                     `<br><br><a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a>` +
@@ -930,8 +937,8 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "apilist";
-            const apis = "apps,apps/${appId},apps/${appId}/users,authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type}," + 
-                "meta/schemas/user,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones";
+            const apis = 'apps,apps/${appId},apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type},' + 
+                'meta/schemas/user,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones';
             datalist.innerHTML = apis.split(',').map(api => `<option>/api/v1/${api}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));
             send.type = "submit";

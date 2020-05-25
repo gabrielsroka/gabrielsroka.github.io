@@ -923,6 +923,53 @@
             }
         });
         apiExplorer();
+
+        if (localStorage.rockstarTinyApps) tinyApps();
+        createDivA("Tiny Apps", mainPopup, function () {
+            localStorage.rockstarTinyApps = localStorage.rockstarTinyApps ? '' : 'true';
+            tinyApps();
+        });
+        function tinyApps () {
+            document.head.innerHTML += `<style>
+            .app-button-wrapper {
+                width: 64px;
+                margin: 12px 12px 12px 24px;
+            }
+            .app-button .logo {
+                max-width: 60px;
+            }
+            .app-button-name {
+                /*color: black;*/
+                width: 100%;
+            }
+            </style>`;
+        }
+
+        createDivA("All Tiny Apps", mainPopup, async function () {
+            const response = await fetch(`/api/v1/users/me/appLinks`);
+            const links = (await response.json())
+                .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1);
+            const lis = links.map(link => `<li class='app-button-wrapper' style='width: 64px;'>` +
+                `<a href='${link.linkUrl}' target='_blank' class='app-button' rel='noopener'>` +
+                `<img src='${link.logoUrl}' class='logo' style='visibility: visible; max-width: 60px;'></a>` +
+                `<p class='app-button-name' style='color: black; width: 100%; text-overflow: clip;'>${link.label}`);
+            createPopup("Apps").html(`<ul>${lis.join('')}</ul>`);
+        });
+
+        var qa;
+        setTimeout(function () {
+            qa = document.querySelector('div[data-se=quick-access-tab-container]');
+            if (qa) {
+                quickAccess();
+                createDivA("Quick Access", mainPopup, function () {
+                    localStorage.rockstarQuickAccess = localStorage.rockstarQuickAccess ? '' : 'true';
+                    quickAccess();
+                });
+            }
+        }, 2000);
+        function quickAccess() {
+            qa.hidden = !!localStorage.rockstarQuickAccess;
+        }
     }
 
     // API functions

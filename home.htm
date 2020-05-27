@@ -3,8 +3,11 @@
 <head>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
 <title>My Apps</title>
-<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' type='text/css' rel='stylesheet' />
 <style>
+body {
+    font-family: sans-serif;
+    font-size: 13px;
+}
 nav, .widget {
     margin: 24px;
 }
@@ -15,26 +18,36 @@ nav, .widget {
     padding: 10px 0;
 }
 a:active, a:link, a:visited, span, .app-button-name {
+    text-decoration: none;
     color: black;
 }
 #stocks td {
     width: 33%;
     height: 22px;
 }
+ul {
+    padding: 0;
+    list-style-type: none;
+}
 .app-button-wrapper {
-    width: 64px;
-    margin: 12px 12px 12px 24px;
+    float: left;
+    width: 98px;
 }
 @media (orientation: landscape) {
     .app-button-wrapper {
-        width: 60px;
+        width: 95px;
     }
 }
 .app-button .logo {
-    visibility: visible;
+    width: 32px;
+    padding: 16px;
+    margin: 16px 16px 0;
+    border: solid 1px gray;
+    border-radius: 10px;
 }
 .app-button-name {
-    width: 100%;
+    margin: 8px 4px;
+    text-align: center;
 }
 </style>
 </head>

@@ -3,18 +3,30 @@
 <head>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
 <title>My Apps - Vue</title>
-<link href='https://ok1static.oktacdn.com/assets/css/enduser/enduser.css' rel='stylesheet' />
 <style>
-.app-button-wrapper {
-    width: 64px;
-    margin: 12px 12px 12px 24px;
+body {
+    font-family: sans-serif;
+    font-size: 13px;
 }
-.app-button .logo {
-    visibility: visible;
+ul {
+    padding: 0;
 }
-.app-button-name {
-    color: black;
-    width: 100%;
+li {
+    float: left;
+    list-style-type: none;
+    width: 98px;
+}
+img {
+    width: 32px;
+    padding: 16px;
+    margin: 16px 16px 0;
+    border: solid 1px gray;
+    border-radius: 10px;
+}
+p {
+    margin: 8px 4px;
+    text-align: center;
+    color: gray;
 }
 </style>
 <script src='https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js'></script>
@@ -22,11 +34,11 @@
 <body>
 <div id='app'>
     <ul>
-        <li v-for='link in links' class='app-button-wrapper'>
-            <a :href='link.url' class='app-button' target='_blank' rel='noopener'>
-                <img :src='link.icon' class='logo'/>
+        <li v-for='link in links'>
+            <a :href='link.url' target='_blank' rel='noopener'>
+                <img :src='link.icon'>
             </a>
-            <p class='app-button-name'>{{link.name}}</p>
+            <p>{{link.name}}</p>
         </li>
     </ul>
 </div>

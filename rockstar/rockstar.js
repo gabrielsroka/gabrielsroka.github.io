@@ -924,13 +924,20 @@
         });
         apiExplorer();
 
+        var tinyStyle;
         if (localStorage.rockstarTinyApps) tinyApps();
         createDivA("Tiny Apps", mainPopup, function () {
             localStorage.rockstarTinyApps = localStorage.rockstarTinyApps ? '' : 'true';
             tinyApps();
         });
         function tinyApps () {
-            document.head.innerHTML += `<style>
+            if (tinyStyle) {
+                document.head.removeChild(tinyStyle);
+                tinyStyle = null;
+                return;
+            }
+            tinyStyle = document.head.appendChild(document.createElement('style'));
+            tinyStyle.innerHTML = `
             .app-button-wrapper {
                 width: 64px;
                 margin: 12px 12px 12px 24px;
@@ -939,10 +946,8 @@
                 max-width: 60px;
             }
             .app-button-name {
-                /*color: black;*/
                 width: 100%;
-            }
-            </style>`;
+            }`;
         }
 
         createDivA("All Tiny Apps", mainPopup, async function () {
@@ -976,7 +981,7 @@
             clearInterval(intervalID);
         }, 200);
         function quickAccess() {
-            qa.hidden = !!localStorage.rockstarQuickAccess;
+            qa.hidden = localStorage.rockstarQuickAccess;
         }
     }
 

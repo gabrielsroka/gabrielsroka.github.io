@@ -991,15 +991,17 @@
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
             form.innerHTML = "<select id=method><option>GET<option>POST<option>PUT<option>DELETE</select> " +
-                "<input id=url list=apilist> "; // HACK: input.list is read-only, must set it at create time. :(
+                "<input id=url list=urls> "; // HACK: input.list is read-only, must set it at create time. :(
             url.style.width = "700px";
             url.placeholder = "URL";
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
-            datalist.id = "apilist";
-            const apis = 'apps,apps/${appId},apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type},' + 
-                'meta/schemas/user,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,users,users/me,users/${userId},users/${userId}/factors,users/${userId}/roles,zones';
-            datalist.innerHTML = apis.split(',').map(api => `<option>/api/v1/${api}`).join("") + "<option>/oauth2/v1/clients";
+            datalist.id = "urls";
+            const paths = 'apps,apps/${appId},apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,' + 
+                'groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type},' + 
+                'meta/schemas/user,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,' + 
+                'users,users/me,users/${userId},users/${userId}/appLinks,users/${userId}/factors,users/${userId}/groups,users/${userId}/roles,zones';
+            datalist.innerHTML = paths.split(',').map(path => `<option>/api/v1/${path}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));
             send.type = "submit";
             send.value = "Send";
@@ -1261,7 +1263,7 @@
         a[0].click();
     }
     function e(s) {
-        return s.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return s == null ? '' : s.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
     function dot(o, dots) {
         var ps = dots.split(".");

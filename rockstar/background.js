@@ -19,3 +19,25 @@ chrome.omnibox.onInputEntered.addListener(function (text, disposition) {
         }
     });
 });
+
+chrome.runtime.onInstalled.addListener(function () {
+    chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
+        chrome.declarativeContent.onPageChanged.addRules([
+            {
+                conditions: [
+                    new chrome.declarativeContent.PageStateMatcher({
+                        pageUrl: { hostContains: 'okta.com' },
+                    }),
+                    new chrome.declarativeContent.PageStateMatcher({
+                        pageUrl: { hostContains: 'okta-emea.com' },
+                    }),
+                    new chrome.declarativeContent.PageStateMatcher({
+                        pageUrl: { hostContains: 'oktapreview.com' },
+                    })
+                ],
+                actions: [new chrome.declarativeContent.ShowPageAction()]
+            }
+        ]);
+    });
+});
+  

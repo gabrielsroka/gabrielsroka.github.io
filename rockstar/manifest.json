@@ -6,6 +6,9 @@
   "omnibox": {
     "keyword": "rs"
   },
+  "page_action": {
+    "default_popup": "menu.html"
+  },
   "icons": {
     "16": "rockstar_icon_16.png",
     "128": "rockstar_icon_128.png"
@@ -14,6 +17,7 @@
     "scripts": ["background.js"],
     "persistent": false
   },
+  "permissions": ["declarativeContent"],
   "content_scripts": [
     {
       "matches": [

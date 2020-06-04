@@ -42,7 +42,7 @@ if (location.search == "?signout") {
         function success(res) {
             if (res.status == "SUCCESS") {
                 console.log("User %s succesfully authenticated %o", res.user.profile.login, res.user);
-                res.session.setCookieAndRedirect(location.origin + "/home.htm");
+                res.session.setCookieAndRedirect(location.origin + (new URL(location).searchParams.get('from') || "/home.htm"));
             } else {
                 console.log(res.status);
             }

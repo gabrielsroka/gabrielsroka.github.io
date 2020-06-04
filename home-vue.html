@@ -58,7 +58,11 @@ new Vue({
             If url is blank, it will figure it out from the name. It will remove spaces, and add 'https://' and '.com', etc. */
         const init = {credentials: 'include'};
         // const init = {mode: 'cors'}; // This didn't seem to work.
-        const response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
+        try {
+            var response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
+        } catch (e) {
+            location.href = '/login.htm?from=/home-vue.html';
+        }
         this.links = (await response.json())
             .filter(link => link.label != 'Everyone App')
             .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)

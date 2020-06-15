@@ -10,3 +10,16 @@
 .title {
     font-weight: bold;
 }
+.title:hover {
+    background-color: #e8e8e8;
+}
+.closed {
+    display: none;
+}
+.hoverDiv {
+    cursor: pointer;
+    padding: 5px;
+}
+.hoverDiv:hover {
+    background-color: #f0f0f0;
+}

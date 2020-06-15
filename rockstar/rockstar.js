@@ -1160,7 +1160,7 @@
     }
     function createPopup(title, main) {
         function toggleClosed() {
-            popupBody.toggleClass('closed');
+            popupBody.toggleClass('rs_closed');
         }
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto; ` +
                 `background-color: white; border: 1px solid #ddd;'>` +

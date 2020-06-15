@@ -13,7 +13,7 @@
 .title:hover {
     background-color: #e8e8e8;
 }
-.closed {
+.rs_closed {
     display: none;
 }
 .hoverDiv {

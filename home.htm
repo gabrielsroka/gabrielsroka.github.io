@@ -138,7 +138,7 @@ async function getWeather() {
     const hi = Math.max(forecast.daily[0].temperature, forecast.daily[1].temperature);
     const lo = Math.min(forecast.daily[0].temperature, forecast.daily[1].temperature);
     weather.innerHTML = "<a href='https://www.google.com/search?q=weather'>" + 
-        `${hi}° ↑ &nbsp; • &nbsp; ${lo}° ↓` +
+        `${hi}° ↑ &nbsp; • &nbsp; ${lo}° ↓ (${forecast.upd})` +
         `<span style='float: right;'>${forecast.hourly.shortForecast}</span>` +
         `<div><span style='font-size: 64px;'>${forecast.hourly.temperature}°</span>` +
         `<span style='float: right;'><img src='${forecast.hourly.icon}' style='margin-top: 4px;'></span></div></a>`;
@@ -158,7 +158,7 @@ async function getForecast() {
     response = await fetch(point.properties.forecastHourly);
     const hourly = await response.json();
 
-    return {daily: daily.properties.periods, hourly: hourly.properties.periods[0]};
+    return {daily: daily.properties.periods, hourly: hourly.properties.periods[0], upd: new Date(daily.properties.updated).toLocaleString(undefined, {hour: 'numeric', minute: 'numeric'})};
 }
 
 // function getPosition() {

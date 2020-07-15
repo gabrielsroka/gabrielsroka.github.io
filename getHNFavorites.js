@@ -50,7 +50,7 @@ Usage:
     };
     search.onclick = async function (totype) {
         const re = new RegExp(query.value, 'i');
-        if (favorites.length == 0) await getFavorites(toHtml);
+        await getFavorites(toHtml);
         const found = favorites.filter(f => f.match(re));
         if (found.length == 0) {
             results.innerHTML = 'not found';
@@ -59,6 +59,7 @@ Usage:
         }
     };
     async function getFavorites(totype) {
+        if (favorites.length > 0) return;
         const url = `https://${base}/favorites?id=${id}&p=`;
         for (var p = 1; true; p++) {
             results.innerHTML = 'Fetching page ' + p + '...<br><br>';
@@ -73,7 +74,7 @@ Usage:
 
     function createPopup(title) {
         const div = document.body.appendChild(document.createElement("div"));
-        div.innerHTML = title + "<a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer; padding: 4px'>X</a><br><br>";
+        div.innerHTML = title + " <a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer; padding: 4px'>X</a><br><br>";
         div.style.position = "absolute";
         div.style.zIndex = "1000";
         div.style.left = "4px";

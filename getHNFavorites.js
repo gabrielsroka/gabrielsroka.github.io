@@ -25,8 +25,18 @@ Usage:
         return;
     }
     const id = location.search.split('=')[1];
-    const toCsv = a => toCSV(a.title, a.link);
-    const toHtml = a => `<p><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>`;
+    const types = {
+        csv: {
+            header: 'Title,URL',
+            filename: id + "'s HN favorites",
+            totype: a => toCSV(a.title, a.link)
+        },
+        html: {
+            header: '<title>' + id + "'s HN favorites</title><h1>" + id + "'s HN favorites</h1>",
+            filename: id + "'s-HN-favorites",
+            totype: a => `<p><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>`
+        }
+    };
     const favorites = [];
     popup.innerHTML = 
         '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
@@ -35,23 +45,14 @@ Usage:
         '<div id=results></div>';
     exportToCsv.onclick = exportToHtml.onclick = async function () {
         const filetype = this.dataset.filetype;
-        if (filetype == 'csv') {
-            var header = 'Title,URL';
-            var filename = id + "'s HN favorites";
-            var totype = toCsv;
-        } else if (filetype == 'html') {
-            header = '<title>' + id + "'s HN favorites</title><h1>" + id + "'s HN favorites</h1>";
-            filename = id + "'s-HN-favorites";
-            totype = toHtml;
-        }
         await getFavorites();
-        downloadFile(header, favorites.map(totype), filename, filetype);
+        downloadFile(types[filetype].header, favorites.map(types[filetype].totype), types[filetype].filename, filetype);
         results.innerHTML = 'Finished exporting.';
     };
     search.onclick = async function () {
         const re = new RegExp(query.value, 'i');
-        await getFavorites(toHtml);
-        const found = favorites.map(toHtml).filter(f => f.match(re));
+        await getFavorites();
+        const found = favorites.map(types.html.totype).filter(f => f.match(re));
         if (found.length == 0) {
             results.innerHTML = 'not found';
         } else {

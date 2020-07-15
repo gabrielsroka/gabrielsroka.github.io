@@ -1,9 +1,9 @@
 /* 
-Export HN Favorites to CSV.
+Export HN Favorites to CSV or HTML.
 It runs in your browser like a browser extension. It scrapes the HTML and navigates from page to page.
 
 Setup:
-Copy this code to the browser console, or a bookmarklet, or, if using Chrome, to a Snippet. For example:
+Copy this code to the browser console or, if using Chrome, to a Snippet. For example:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
 3. Give it a name, eg, "Export HN Favorites".
@@ -19,16 +19,18 @@ Usage:
 
 (function () {
     const popup = createPopup('HN Favorites');
+    const base = 'news.ycombinator.com';
+    if (location.host != base || location.pathname != '/user') {
+        popup.innerHTML = 'ERROR: Go to your user page and then try again.';
+        return;
+    }
     const form = popup.appendChild(document.createElement('form'));
-    form.innerHTML = '<button>Export</button>';
-    form.onsubmit = async function (event) {
-        event.preventDefault();
-        const base = 'news.ycombinator.com';
-        if (location.host != base || location.pathname != '/user') {
-            popup.innerHTML = 'ERROR: Go to your user page and then try again.';
-            return;
-        }
-
+    form.innerHTML = '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
+        '<button id=exportToHtml data-filetype=html>Export to HTML</button>';
+    exportToCsv.onclick = exportToHtml.onclick = function () {
+        exportTo(this.dataset.filetype);
+    };
+    async function exportTo(filetype) {
         const id = location.search.split('=')[1];
         const url = `https://${base}/favorites?id=${id}&p=`;
         
@@ -40,10 +42,21 @@ Usage:
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
             const as = doc.querySelectorAll('a.storylink');
-            as.forEach(a => favorites.push(toCSV(a.innerText, a.href)));
+            if (filetype == 'csv') {
+                 as.forEach(a => favorites.push(toCSV(a.innerText, a.href)));
+            } else if (filetype == 'html') {
+                as.forEach(a => favorites.push(`<p><a href="${a.href}">${a.innerText}</a>`));
+            }
             if (doc.querySelector('a.morelink') == null) break;
         }
-        downloadCSV('Title,URL', favorites, id + "'s HN favorites");
+        if (filetype == 'csv') {
+            var header = 'Title,URL';
+            var filename = id + "'s HN favorites";
+        } else if (filetype == 'html') {
+            header = '<title>' + id + "'s HN favorites</title><h1>" + id + "'s HN favorites</h1>";
+            filename = id + "'s-HN-favorites";
+        }
+        downloadFile(header, favorites, filename, filetype);
         popup.innerHTML = 'Done.';
     };
 
@@ -62,11 +75,11 @@ Usage:
     function toCSV(...fields) {
         return fields.map(field => `"${field == undefined ? "" : field.toString().replace(/"/g, '""')}"`).join(',');
     }
-    function downloadCSV(header, lines, filename) {
+    function downloadFile(header, lines, filename, filetype) {
         const a = document.body.appendChild(document.createElement('a'));
-        a.href = URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/csv'}));
-        const date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
-        a.download = `${filename} ${date}.csv`;
+        a.href = URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/' + filetype}));
+        const date = (new Date()).toISOString().replace(/[T:]/g, "-").substr(0, 19);
+        a.download = `${filename}-${date}.${filetype}`;
         a.click();
     }
 })();

@@ -24,37 +24,46 @@ Usage:
         popup.innerHTML = 'ERROR: Go to your user page and then try again.';
         return;
     }
+    const id = location.search.split('=')[1];
+    const toCsv = a => favorites.push(toCSV(a.innerText, a.href));
+    const toHtml = a => favorites.push(`<p><a href="${a.href}">${a.innerText}</a>`);
+    const favorites = [];
     popup.innerHTML = 
         '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
-        '<button id=exportToHtml data-filetype=html>Export to HTML</button>';
+        '<button id=exportToHtml data-filetype=html>Export to HTML</button><br><br>' +
+        '<input id=query> <button id=search>Search</button>';
     exportToCsv.onclick = exportToHtml.onclick = async function () {
         const filetype = this.dataset.filetype;
-        const id = location.search.split('=')[1];
-        const url = `https://${base}/favorites?id=${id}&p=`;
         if (filetype == 'csv') {
             var header = 'Title,URL';
             var filename = id + "'s HN favorites";
-            var totype = a => favorites.push(toCSV(a.innerText, a.href));
+            var totype = toCsv;
         } else if (filetype == 'html') {
             header = '<title>' + id + "'s HN favorites</title><h1>" + id + "'s HN favorites</h1>";
             filename = id + "'s-HN-favorites";
-            totype = a => favorites.push(`<p><a href="${a.href}">${a.innerText}</a>`);
+            totype = toHtml;
         }
-        
-        const favorites = [];
+        await getFavorites(totype);
+        downloadFile(header, favorites, filename, filetype);
+        popup.innerHTML = 'Done.';
+    };
+    search.onclick = async function (totype) {
+        const re = new RegExp(query.value, 'i');
+        await getFavorites(toHtml);
+        popup.innerHTML = favorites.filter(f => f.match(re)).join('');
+    };
+    async function getFavorites(totype) {
+        const url = `https://${base}/favorites?id=${id}&p=`;
         for (var p = 1; true; p++) {
-            popup.innerHTML = 'Exporting page ' + p + '...<br><br>';
+            popup.innerHTML = 'Fetching page ' + p + '...<br><br>';
             const response = await fetch(url + p);
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
-            const as = doc.querySelectorAll('a.storylink');
-            as.forEach(totype);
+            doc.querySelectorAll('a.storylink').forEach(totype);
             if (doc.querySelector('a.morelink') == null) break;
         }
-        downloadFile(header, favorites, filename, filetype);
-        popup.innerHTML = 'Done.';
-    };
+    }
 
     function createPopup(title) {
         const div = document.body.appendChild(document.createElement("div"));

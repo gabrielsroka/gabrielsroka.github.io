@@ -1,5 +1,5 @@
 /* 
-Export HN Favorites to CSV or HTML.
+Search HN Favorites and Export to CSV or HTML.
 It runs in your browser like a browser extension. It scrapes the HTML and navigates from page to page.
 
 Setup:
@@ -26,12 +26,13 @@ Usage:
     }
     const id = location.search.split('=')[1];
     const toCsv = a => favorites.push(toCSV(a.innerText, a.href));
-    const toHtml = a => favorites.push(`<p><a href="${a.href}">${a.innerText}</a>`);
+    const toHtml = a => favorites.push(`<p><a href="${a.href}" target="_blank" rel="noopener">${a.innerText}</a>`);
     const favorites = [];
     popup.innerHTML = 
         '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
         '<button id=exportToHtml data-filetype=html>Export to HTML</button><br><br>' +
-        '<input id=query> <button id=search>Search</button>';
+        '<input id=query> <button id=search>Search</button><br><br>' + 
+        '<div id=results></div>';
     exportToCsv.onclick = exportToHtml.onclick = async function () {
         const filetype = this.dataset.filetype;
         if (filetype == 'csv') {
@@ -45,17 +46,22 @@ Usage:
         }
         await getFavorites(totype);
         downloadFile(header, favorites, filename, filetype);
-        popup.innerHTML = 'Done.';
+        results.innerHTML = 'Finished exporting.';
     };
     search.onclick = async function (totype) {
         const re = new RegExp(query.value, 'i');
-        await getFavorites(toHtml);
-        popup.innerHTML = favorites.filter(f => f.match(re)).join('');
+        if (favorites.length == 0) await getFavorites(toHtml);
+        const found = favorites.filter(f => f.match(re));
+        if (found.length == 0) {
+            results.innerHTML = 'not found';
+        } else {
+            results.innerHTML = found.join('');
+        }
     };
     async function getFavorites(totype) {
         const url = `https://${base}/favorites?id=${id}&p=`;
         for (var p = 1; true; p++) {
-            popup.innerHTML = 'Fetching page ' + p + '...<br><br>';
+            results.innerHTML = 'Fetching page ' + p + '...<br><br>';
             const response = await fetch(url + p);
             const html = await response.text();
             const parser = new DOMParser();

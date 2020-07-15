@@ -27,12 +27,19 @@ Usage:
     const form = popup.appendChild(document.createElement('form'));
     form.innerHTML = '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
         '<button id=exportToHtml data-filetype=html>Export to HTML</button>';
-    exportToCsv.onclick = exportToHtml.onclick = function () {
-        exportTo(this.dataset.filetype);
-    };
-    async function exportTo(filetype) {
+    exportToCsv.onclick = exportToHtml.onclick = async function () {
+        const filetype = this.dataset.filetype;
         const id = location.search.split('=')[1];
         const url = `https://${base}/favorites?id=${id}&p=`;
+        if (filetype == 'csv') {
+            var header = 'Title,URL';
+            var filename = id + "'s HN favorites";
+            var totype = a => favorites.push(toCSV(a.innerText, a.href));
+        } else if (filetype == 'html') {
+            header = '<title>' + id + "'s HN favorites</title><h1>" + id + "'s HN favorites</h1>";
+            filename = id + "'s-HN-favorites";
+            totype = a => favorites.push(`<p><a href="${a.href}">${a.innerText}</a>`);
+        }
         
         const favorites = [];
         for (var p = 1; true; p++) {
@@ -42,19 +49,8 @@ Usage:
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
             const as = doc.querySelectorAll('a.storylink');
-            if (filetype == 'csv') {
-                 as.forEach(a => favorites.push(toCSV(a.innerText, a.href)));
-            } else if (filetype == 'html') {
-                as.forEach(a => favorites.push(`<p><a href="${a.href}">${a.innerText}</a>`));
-            }
+            as.forEach(totype);
             if (doc.querySelector('a.morelink') == null) break;
-        }
-        if (filetype == 'csv') {
-            var header = 'Title,URL';
-            var filename = id + "'s HN favorites";
-        } else if (filetype == 'html') {
-            header = '<title>' + id + "'s HN favorites</title><h1>" + id + "'s HN favorites</h1>";
-            filename = id + "'s-HN-favorites";
         }
         downloadFile(header, favorites, filename, filetype);
         popup.innerHTML = 'Done.';

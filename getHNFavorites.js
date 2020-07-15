@@ -1,12 +1,12 @@
 /* 
 Search HN Favorites and Export to CSV or HTML.
-It runs in your browser like a browser extension. It scrapes the HTML and navigates from page to page.
+It runs in your browser like a browser extension. It scrapes the HN HTML and navigates from page to page.
 
 Setup:
 Copy this code to the browser console or, if using Chrome, to a Snippet. For example:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
-3. Give it a name, eg, "Export HN Favorites".
+3. Give it a name, eg, "HN Favorites".
 4. Copy/paste the code from https://gabrielsroka.github.io/getHNFavorites.js
 5. Save (Ctrl+S, Windows).
 
@@ -20,7 +20,7 @@ Usage:
 (function () {
     const popup = createPopup('HN Favorites');
     const base = 'news.ycombinator.com';
-    if (location.host != base || (location.pathname != '/user' && location.pathname != '/favorites'))  {
+    if (location.host != base || !(location.pathname == '/user' || location.pathname == '/favorites'))  {
         popup.innerHTML = 'ERROR: Go to your user page and then try again.';
         return;
     }

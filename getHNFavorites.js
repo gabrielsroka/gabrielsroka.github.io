@@ -24,8 +24,8 @@ Usage:
         popup.innerHTML = 'ERROR: Go to your user page and then try again.';
         return;
     }
-    const form = popup.appendChild(document.createElement('form'));
-    form.innerHTML = '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
+    popup.innerHTML = 
+        '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
         '<button id=exportToHtml data-filetype=html>Export to HTML</button>';
     exportToCsv.onclick = exportToHtml.onclick = async function () {
         const filetype = this.dataset.filetype;
@@ -55,7 +55,6 @@ Usage:
         downloadFile(header, favorites, filename, filetype);
         popup.innerHTML = 'Done.';
     };
-
 
     function createPopup(title) {
         const div = document.body.appendChild(document.createElement("div"));

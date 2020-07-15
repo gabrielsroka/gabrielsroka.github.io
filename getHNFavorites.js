@@ -25,8 +25,8 @@ Usage:
         return;
     }
     const id = location.search.split('=')[1];
-    const toCsv = a => favorites.push(toCSV(a.innerText, a.href));
-    const toHtml = a => favorites.push(`<p><a href="${a.href}" target="_blank" rel="noopener">${a.innerText}</a>`);
+    const toCsv = a => toCSV(a.title, a.link);
+    const toHtml = a => `<p><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>`;
     const favorites = [];
     popup.innerHTML = 
         '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
@@ -44,21 +44,21 @@ Usage:
             filename = id + "'s-HN-favorites";
             totype = toHtml;
         }
-        await getFavorites(totype);
-        downloadFile(header, favorites, filename, filetype);
+        await getFavorites();
+        downloadFile(header, favorites.map(totype), filename, filetype);
         results.innerHTML = 'Finished exporting.';
     };
-    search.onclick = async function (totype) {
+    search.onclick = async function () {
         const re = new RegExp(query.value, 'i');
         await getFavorites(toHtml);
-        const found = favorites.filter(f => f.match(re));
+        const found = favorites.map(toHtml).filter(f => f.match(re));
         if (found.length == 0) {
             results.innerHTML = 'not found';
         } else {
             results.innerHTML = found.join('');
         }
     };
-    async function getFavorites(totype) {
+    async function getFavorites() {
         if (favorites.length > 0) return;
         const url = `https://${base}/favorites?id=${id}&p=`;
         for (var p = 1; true; p++) {
@@ -67,7 +67,7 @@ Usage:
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
-            doc.querySelectorAll('a.storylink').forEach(totype);
+            doc.querySelectorAll('a.storylink').forEach(a => favorites.push({title: a.innerText, link: a.href}));
             if (doc.querySelector('a.morelink') == null) break;
         }
     }

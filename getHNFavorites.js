@@ -20,7 +20,7 @@ Usage:
 (function () {
     const popup = createPopup('HN Favorites');
     const base = 'news.ycombinator.com';
-    if (location.host != base || location.pathname != '/user') {
+    if (location.host != base || (location.pathname != '/user' && location.pathname != '/favorites'))  {
         popup.innerHTML = 'ERROR: Go to your user page and then try again.';
         return;
     }

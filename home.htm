@@ -158,7 +158,7 @@ async function getForecast() {
     response = await fetch(point.properties.forecastHourly);
     const hourly = await response.json();
 
-    return {daily: daily.properties.periods, hourly: hourly.properties.periods[0], upd: new Date(daily.properties.updated).toLocaleString(undefined, {hour: 'numeric', minute: 'numeric'})};
+    return {daily: daily.properties.periods, hourly: hourly.properties.periods[0], upd: new Date(daily.properties.generatedAt).toLocaleString(undefined, {hour: 'numeric', minute: 'numeric'})};
 }
 
 // function getPosition() {

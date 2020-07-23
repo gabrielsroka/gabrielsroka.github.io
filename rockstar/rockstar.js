@@ -280,6 +280,41 @@
                 event.preventDefault();
             };
         });
+
+        createDiv("Expire Password", mainPopup, function () {
+            const expirePasswordPopup = createPopup("Expire Password");
+            const expirePasswordForm = expirePasswordPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
+            expirePasswordForm.innerHTML = "<div>New password will be required at next login</div><br><button class='link-button'>Expire Password</button>";
+            expirePasswordForm.onsubmit = function (event) {
+                const url = `/api/v1/users/${userId}/lifecycle/expire_password?tempPassword=false`;
+                postJSON({url})
+                .then(() => expirePasswordPopup.html("Password expired."))
+                .fail(jqXHR => expirePasswordPopup.html(e(jqXHR.responseJSON.errorCauses[0].errorSummary)));
+                event.preventDefault();
+            };
+        });
+
+        createDiv("Set Recovery Question", mainPopup, function () {
+            const recoveryQuestionPopup = createPopup("Set Recovery Question");
+            const recoveryQuestionForm = recoveryQuestionPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
+            recoveryQuestionForm.innerHTML = "<input id=newRecoveryQuestion placeholder='New Question'><br><input id=newRecoveryAnswer placeholder='New Answer'><br><button class='link-button'>Set</button>";
+            newRecoveryQuestion.focus(); // Cuz "autofocus" didn't work.
+            recoveryQuestionForm.onsubmit = function (event) {
+                const url = `/api/v1/users/${userId}`;
+                const data =  {
+                    credentials: {
+                        recovery_question: {
+                            question: newRecoveryQuestion.value,
+                            answer: newRecoveryAnswer.value
+                        }
+                    }
+                };
+                postJSON({url, data})
+                .then(() => recoveryQuestionPopup.html("Recovery question set."))
+                .fail(jqXHR => recoveryQuestionPopup.html(e(jqXHR.responseJSON.errorCauses[0].errorSummary)));
+                event.preventDefault();
+            };
+        });
     }
 
     function directoryGroups() {

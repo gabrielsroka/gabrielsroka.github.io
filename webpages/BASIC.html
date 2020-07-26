@@ -61,9 +61,10 @@ run.onclick = function () {
     save();
     var lines = editor.value.split('\n');
     for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].trim();
-        if (line.startsWith("for ")) {
-            v = line[4];
+        var line = lines[i];
+        const tLine = line.trim();
+        if (tLine.startsWith("for ")) {
+            v = tLine[4];
             line = line
                 .replace("for", "for (var")
                 .replace(" to", "; " + v + " <=");
@@ -72,25 +73,25 @@ run.onclick = function () {
             } else {
                 line += "; " + v + "++) {";
             }
-        } else if (line.startsWith("print ")) {
-            line = line.replace("print ", "print(") + ");";
-        } else if (line.startsWith("next")) {
-            line = "}";
-        } else if (line.startsWith("if ") || line.startsWith("else if ")) {
+        } else if (tLine.startsWith("next")) {
+            line = line.replace('next', '} //');
+        } else if (tLine.startsWith("if ") || tLine.startsWith("else if ")) {
             line = line
                 .replace("else", "} else")
                 .replace("if ", "if (")
                 .replace(" then", ") {")
                 .replace(" = ", " == ");
-        } else if (line.startsWith("else")) {
+        } else if (tLine.startsWith("else")) {
             line = line.replace("else", "} else {");
-        } else if (line.startsWith("end if")) {
-            line = "}";
-        } else if (line.startsWith('then ')) {
+        } else if (tLine.startsWith("end if")) {
+            line = line.replace('end if', '}');
+        } else if (tLine.startsWith("print ")) {
+            line = line.replace("print ", "print(") + ")";
+        } else if (tLine.startsWith('then ')) { // .then for Promises.
             line = line.replace('then ', '.then(') + ' => {';
-        } else if (line.startsWith('end then')) {
-            line = '})';
-        } else if (line.startsWith("rem ")) {
+        } else if (tLine.startsWith('end then')) {
+            line = line.replace('end then', '})');
+        } else if (tLine.startsWith("rem ")) {
             line = line.replace("rem", "//");
         }
         lines[i] = line;

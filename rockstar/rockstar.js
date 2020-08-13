@@ -478,6 +478,7 @@
         var appId;
         var groupId;
         var cancel;
+        var _expand;
         if (location.pathname == "/admin/users") {
             // see also Reports > Reports, Okta Password Health: https://ORG-admin.oktapreview.com/api/v1/users?format=csv
             createDiv("Export Users", mainPopup, () => exportUsers("Users", "/api/v1/users", true));
@@ -488,7 +489,7 @@
             });
             createDiv("Export Groups with User and App Counts", mainPopup, function () {
                 startExport("Groups", "/api/v1/groups?expand=stats", "id,name,description,type,usersCount,appsCount", 
-                    group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type, group._embedded.stats.usersCount, group._embedded.stats.appsCount));
+                    group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type, group._embedded.stats.usersCount, group._embedded.stats.appsCount), 'stats');
             });
             createDiv("Export Group Rules", mainPopup, function () {
                 startExport("Group Rules", "/api/v1/groups/rules", "id,name,status,if,assignToGroupIds,countOfExcludedUsers", 
@@ -590,7 +591,7 @@
                 startExport("YubiKeys", "/api/v1/org/factors/yubikey_token/tokens?expand=user", "serial,status,id,firstName,lastName,login", 
                     token => toCSV(token.profile.serial, token.status, token._embedded && token._embedded.user.id, 
                         token._embedded && token._embedded.user.profile.firstName, token._embedded && token._embedded.user.profile.lastName, 
-                        token._embedded && token._embedded.user.profile.login));
+                        token._embedded && token._embedded.user.profile.login), 'user');
             });
         } else if (location.pathname == "/admin/universaldirectory") {
             createDiv("Export Mappings", mainPopup, function () {
@@ -615,7 +616,7 @@
                     "id,name,licenses,roles,role,salesforceGroups,featureLicenses,publicGroups", 
                     appGroup => toCSV(appGroup.id, appGroup._embedded.group.profile.name, atos(appGroup.profile.licenses), 
                         atos(appGroup.profile.roles), appGroup.profile.role, atos(appGroup.profile.salesforceGroups), 
-                        atos(appGroup.profile.featureLicenses), atos(appGroup.profile.publicGroups)));
+                        atos(appGroup.profile.featureLicenses), atos(appGroup.profile.publicGroups)), 'group');
             });
         } else if (groupId = getGroupId()) {
             createDiv("Export Group Members", mainPopup, function () {
@@ -742,13 +743,14 @@
                 }
             });
         }
-        function startExport(title, url, headerRow, templateCallback) {
+        function startExport(title, url, headerRow, templateCallback, expand) {
             total = 0;
             objectType = title;
             exportPopup = createPopup(title);
             exportPopup.html("Loading ...");
             template = templateCallback;
             header = headerRow;
+            _expand = expand;
             lines = [];
             cancel = false;
             getJSON(url).then(getObjects).fail(failObjects);
@@ -776,6 +778,7 @@
             if (paginate) {
                 var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
                 var url = nextUrl.pathname + nextUrl.search;
+                if (_expand) url += '&expand=' + _expand; // TODO: improve this.
                 var remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
                 if (remaining && remaining < 10) {
                     var intervalID = setInterval(() => {

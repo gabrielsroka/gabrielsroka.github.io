@@ -3,12 +3,17 @@ Update the certificate for a SAML app. See:
 https://developer.okta.com/docs/guides/updating-saml-cert
 
 Setup:
-1. Drag this to the bookmark toolbar:
-javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/updateSAMLCert.js";})();
+Copy this code to the browser console or, if using Chrome, to a Snippet. For example:
+1. Press F12 (Windows) to open DevTools.
+2. Go to Sources > Snippets, click New Snippet.
+3. Give it a name, eg, "updateSAMLCert.js".
+4. Copy/paste the code from https://gabrielsroka.github.io/updateSAMLCert.js
+5. Save (Ctrl+S, Windows).
 
 Usage:
 1. In Okta Admin, go to Applications > Applications and click on an app.
-2. Click the bookmark from your toolbar.
+2. Press F12 (Windows) to open DevTools.
+3. Run the code. If using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
 */
 
 (async function () {

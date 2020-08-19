@@ -53,7 +53,7 @@
     }
 
     function quickUpdate() {
-        $(`<a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener'>Quick Update and Good News! (Feb 21, 2020)</a><br><br>`).appendTo(mainPopup);
+        $(`<a href='https://www.youtube.com/watch?v=mNTThKVjztc' target='_blank' rel='noopener'>rockstar overview (youtube)</a><br><br>`).appendTo(mainPopup);
     }
 
     // Admin functions
@@ -511,7 +511,7 @@
                     return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, enduserAppNotes, adminAppNotes);
                 });
             });
-            createDiv("Export App Sign On Policies", mainPopup, function () {
+            createDiv("Export App Sign On Policies (experimental)", mainPopup, function () {
                 startExport("App Sign On Policies", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
                     var response = await fetch(`/admin/app/instance/${app.id}/app-sign-on-policy-list`);
                     var html = await response.text();
@@ -1016,7 +1016,7 @@
             datalist.id = "urls";
             const paths = 'apps,apps/${appId},apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,' + 
                 'groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type},' + 
-                'meta/schemas/user/default,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,' + 
+                'meta/schemas/apps/${instanceId}/default,meta/schemas/user/default,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,' + 
                 'users,users/me,users/${userId},users/${userId}/appLinks,users/${userId}/factors,users/${userId}/groups,users/${userId}/roles,zones';
             datalist.innerHTML = paths.split(',').map(path => `<option>/api/v1/${path}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));
@@ -1048,18 +1048,19 @@
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                     if (objects) {
                         var pathname = url.split('?')[0];
-                        var json = formatPre(linkify(e(JSON.stringify(objects, null, 4))), pathname); // Pretty Print the JSON.
+                        var addId = false;
                         if (Array.isArray(objects)) {
                             var table = formatObjects(objects, pathname);
-                            $(results).append(table.header);
+                            addId = true;
+                            $(results).append(table.header + "<br>" + table.body);
                             if (nextUrl) {
                                 createA("Next >", results, () => {
                                     form.url.value = nextUrl;
                                     send.click();
                                 });
                             }
-                            json = "<br>" + table.body + json;
                         }
+                        var json = formatPre(linkify(e(JSON.stringify(objects, null, 4))), pathname, addId); // Pretty Print the JSON.
                         $(results).append(json);
                     }
                 }).fail(jqXHR => $(results).html("<br>Status: " + jqXHR.status + " " + jqXHR.statusText + "<br><br>Error:<pre>" + e(JSON.stringify(jqXHR.responseJSON, null, 4)) + "</pre>"));
@@ -1076,7 +1077,7 @@
             document.head.innerHTML = "<style>body {font-family: Arial;} table {border-collapse: collapse;} tr:hover {background-color: #f9f9f9;} " +
                 "td,th {border: 1px solid silver; padding: 4px;} th {background-color: #f2f2f2; text-align: left;}</style>";
             var table = formatObjects(objects, location.pathname);
-            document.body.innerHTML = table.header + table.body + formatPre(json, location.pathname);
+            document.body.innerHTML = table.header + table.body + formatPre(json, location.pathname, true);
         } else {
             pre.innerHTML = json;
         }
@@ -1118,11 +1119,11 @@
             body: "<br><table class='data-list-table' style='border: 1px solid #ddd; white-space: nowrap;'><tr><th>" + ths.join("<th>") + linkify(rows.join("")) + "</table><br>" +
                 "<div id=json><a href=#table>Table</a> <b>JSON</b></div><br>" + len};
     }
-    function formatPre(s, url) {
-        return "<pre>" + s.replace(/"id": "(.*)"/g, '"id": "<a href="' + url + '/$1">$1</a>"') + "</pre>";
+    function formatPre(s, url, addId) {
+        return "<pre>" + s.replace(/"id": "(.*)"/g, (match, id) => id.startsWith('<') ? match : `"id": "<a href="${url}${addId ? '/' + id: ''}">${id}</a>"`) + "</pre>";
     }
     function linkify(s) {
-        return s.replace(/"(https.*)"/g, '"<a href="$1">$1</a>"');
+        return s.replace(/"(https?.*)"/g, '"<a href="$1">$1</a>"');
     }
     /*
     // This doesn't seem to work since the new dev site went up.

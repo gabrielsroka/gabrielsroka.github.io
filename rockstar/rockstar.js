@@ -497,8 +497,9 @@
             });
         } else if (location.pathname == "/admin/apps/active") {
             createDiv("Export Apps", mainPopup, function () {
-                startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status", 
-                    app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status));
+                startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status,embedLinks", 
+                    app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status,
+                        app._links.appLinks.map(a => a.href).join(', ')));
             });
             createDiv("Export App Notes", mainPopup, function () {
                 startExport("App Notes", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status,endUserAppNotes,adminAppNotes", async app => {
@@ -543,7 +544,8 @@
                     "credentials.userNameTemplate.template": "Username Template",
                     "settings.app.identityProviderArn": "AWS Identity Provider ARN",
                     "settings.signOn.ssoAcsUrl": "SSO ACS URL",
-                    "settings.app.postBackURL": "Post Back URL"
+                    "settings.app.postBackURL": "Post Back URL",
+                    "_links.embedLinks": "Embed Links"
                 };
                 const defaultColumns = "id,label,name,credentials.userNameTemplate.template,features,signOnMode,status";
                 const exportColumns = (localStorage.rockstarExportAppColumns || defaultColumns).replace(/ /g, "").split(",");
@@ -568,7 +570,10 @@
                         exportHeaders = exportHeaders.join(",");
                         localStorage.rockstarExportAppColumns = exportColumns.join(",");
                         localStorage.rockstarExportAppArgs = exportArgs;
-                        startExport("Apps", `/api/v1/apps?${exportArgs}`, exportHeaders, app => toCSV(...fields(app, exportColumns)));
+                        startExport("Apps", `/api/v1/apps?${exportArgs}`, exportHeaders, app => {
+                            app._links.embedLinks = app._links.appLinks.map(a => a.href).join(', ');
+                            return toCSV(...fields(app, exportColumns));
+                        });
                     } else {
                         $("#error").html("Select at least 1 column.");
                     }

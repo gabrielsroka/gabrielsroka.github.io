@@ -180,11 +180,11 @@ async function getNotifications() {
         seen.onclick = () => {
             seen.innerHTML += '✓';
             seen.onclick = null;
-            notifications.classList.remove('hide')
+            notifications.classList.add('hide')
             seenNotifications.push(guid);
             localStorage.notifications = JSON.stringify(seenNotifications);
         };
-        notifications.classList.add('hide');
+        notifications.classList.remove('hide');
     }
 }
 </script>

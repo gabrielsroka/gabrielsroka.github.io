@@ -1,8 +1,12 @@
-/* 
+javascript:
+/*
+bookmark name: /HN Favorites#
+
 Search HN Favorites and Export to CSV or HTML.
 It runs in your browser like a browser extension. It scrapes the HN HTML and navigates from page to page.
 
 Setup:
+Bookmark: Drag this to your bookmarks toolbar, or
 Copy this code to the browser console or, if using Chrome, to a Snippet. For example:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
@@ -11,6 +15,7 @@ Copy this code to the browser console or, if using Chrome, to a Snippet. For exa
 5. Save (Ctrl+S, Windows).
 
 Usage:
+Bookmark: Click the bookmark, or
 1. Navigate your browser to https://news.ycombinator.com/user?id=YOUR_USER_ID
 2. Press F12 (Windows) to open DevTools.
 3. Run the code. If using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
@@ -19,8 +24,7 @@ Usage:
 
 (function () {
     const popup = createPopup('HN Favorites');
-    const base = 'news.ycombinator.com';
-    if (location.host != base || !(location.pathname == '/user' || location.pathname == '/favorites'))  {
+    if (location.host != 'news.ycombinator.com' || !(location.pathname == '/user' || location.pathname == '/favorites'))  {
         popup.innerHTML = 'ERROR: Go to your user page and then try again.';
         return;
     }
@@ -32,7 +36,7 @@ Usage:
             totype: a => toCSV(a.title, a.link)
         },
         html: {
-            header: '<title>' + id + "'s HN favorites</title><h1>" + id + "'s HN favorites</h1>",
+            header: '<title>' + id + "'s HN favorites</title><style>body {font-family: sans-serif;}</style><h1>" + id + "'s HN favorites</h1>",
             filename: id + "'s-HN-favorites",
             totype: a => `<p><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>`
         }
@@ -52,7 +56,7 @@ Usage:
     search.onclick = async function () {
         const re = new RegExp(query.value, 'i');
         await getFavorites();
-        const found = favorites.map(types.html.totype).filter(f => f.match(re));
+        const found = favorites.filter(f => f.title.match(re) || f.link.match(re)).map(types.html.totype);
         if (found.length == 0) {
             results.innerHTML = 'not found';
         } else {
@@ -61,16 +65,18 @@ Usage:
     };
     async function getFavorites() {
         if (favorites.length > 0) return;
-        const url = `https://${base}/favorites?id=${id}&p=`;
-        for (var p = 1; true; p++) {
-            results.innerHTML = 'Fetching page ' + p + '...<br><br>';
-            const response = await fetch(url + p);
+        var url = `/favorites?id=${id}`;
+        var page = 1;
+        do {
+            results.innerHTML = `Fetching page ${page++} ...<br><br>`;
+            const response = await fetch(url);
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
             doc.querySelectorAll('a.storylink').forEach(a => favorites.push({title: a.innerText, link: a.href}));
-            if (doc.querySelector('a.morelink') == null) break;
-        }
+            const more = doc.querySelector('a.morelink');
+            url = more?.href;
+        } while (url);
     }
 
     function createPopup(title) {

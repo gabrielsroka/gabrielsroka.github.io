@@ -36,7 +36,7 @@ Bookmark: Click the bookmark, or
             totype: a => toCSV(a.title, a.link)
         },
         html: {
-            header: '<title>' + id + "'s HN favorites</title><h1>" + id + "'s HN favorites</h1>",
+            header: '<title>' + id + "'s HN favorites</title><style>body {font-family: sans-serif;}</style><h1>" + id + "'s HN favorites</h1>",
             filename: id + "'s-HN-favorites",
             totype: a => `<p><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>`
         }

@@ -4,7 +4,7 @@ It runs in your browser like a browser extension. It scrapes the Wiki HTML and n
 
 Setup:
 Bookmark: Drag this to your bookmarks toolbar, or
-javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/wikiFavorites.js";})();
+javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/wikiFavorites.js";})(); //Wiki Favorites
 
 Copy this code to the browser console or, if using Chrome, to a Snippet. For example:
 1. Press F12 (Windows) to open DevTools.
@@ -24,40 +24,41 @@ Usage:
     const popup = createPopup('Wiki Favorites');
     const types = {
         csv: {
-            header: 'Link',
+            header: 'Title,Link',
             filename: 'Wiki favorites',
-            totype: a => a // toCSV(a.title, a.link)
+            totype: a => toCSV(a.title, a.href)
         },
         html: {
             header: '<title>Wiki favorites</title><style>body {font-family: sans-serif;}</style><h1>Wiki favorites</h1>',
             filename: 'Wiki-favorites',
-            totype: a => `<p>${a.html}` // `<p><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>`
+            totype: a => `<p>${a.html}` // `<p><a href="${a.href}" target="_blank" rel="noopener">${a.title}</a>`
         }
     };
     const favorites = [];
     popup.innerHTML = 
-//         '<button id=exportToCsv data-filetype=csv>Export to CSV</button> ' + 
+        '<button id=exportToCsv data-filetype=csv>Export to CSV</button> ' + 
 //         '<button id=exportToHtml data-filetype=html>Export to HTML</button> ' +
         '<button id=sortresults>Sort by Title</button><br><br>' +
         '<input id=query> <button id=search>Search</button><br><br>' + 
         '<div id=results></div>';
-//     exportToCsv.onclick = exportToHtml.onclick = async function () {
-//         const filetype = this.dataset.filetype;
-//         await getFavorites();
-//         downloadFile(types[filetype].header, favorites.map(types[filetype].totype), types[filetype].filename, filetype);
-//         results.innerHTML = 'Finished exporting.';
-//     };
+    exportToCsv.onclick = /*exportToHtml.onclick =*/ async function () {
+        const filetype = this.dataset.filetype;
+        await getFavorites();
+        downloadFile(types[filetype].header, favorites.map(types[filetype].totype), types[filetype].filename, filetype);
+        results.innerHTML = 'Finished exporting.';
+    };
     search.onclick = async function () {
         const re = new RegExp(query.value, 'i');
         await getFavorites();
-        const found = favorites.filter(f => f.title.match(re) || f.link.match(re)).map(types.html.totype);
+        const found = favorites.filter(f => f.title.match(re) || f.href.match(re)).map(types.html.totype);
         if (found.length == 0) {
             results.innerHTML = 'not found';
         } else {
             results.innerHTML = found.join('');
         }
     };
-    sortresults.onclick = function () {
+    sortresults.onclick = async function () {
+        await getFavorites();
         favorites.sort((f1, f2) => f1.title.localeCompare(f2.title));
         results.innerHTML = favorites.map(types.html.totype).join('');
     };
@@ -74,8 +75,8 @@ Usage:
             const tds = doc.querySelectorAll('td');
             if (tds.length == 1 && tds[0].innerText.includes('There are no pages at the moment.')) break;
             tds.forEach(td => {
-                const {title, link} = td.querySelectorAll('a')[1];
-                favorites.push({html: td.innerHTML, title, link})
+                const {title, href} = td.querySelectorAll('a')[1];
+                favorites.push({html: td.innerHTML, title, href})
             });
             url = doc.querySelector('.aui-nav-next a').href;
         } while (true);
@@ -95,11 +96,11 @@ Usage:
     function toCSV(...fields) {
         return fields.map(field => `"${field == undefined ? "" : field.toString().replace(/"/g, '""')}"`).join(',');
     }
-//     function downloadFile(header, lines, filename, filetype) {
-//         const a = document.body.appendChild(document.createElement('a'));
-//         a.href = URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/' + filetype}));
-//         const date = (new Date()).toISOString().replace(/[T:]/g, "-").substr(0, 19);
-//         a.download = `${filename}-${date}.${filetype}`;
-//         a.click();
-//     }
+    function downloadFile(header, lines, filename, filetype) {
+        const a = document.body.appendChild(document.createElement('a'));
+        a.href = URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/' + filetype}));
+        const date = (new Date()).toISOString().replace(/[T:]/g, "-").substr(0, 19);
+        a.download = `${filename}-${date}.${filetype}`;
+        a.click();
+    }
 })();

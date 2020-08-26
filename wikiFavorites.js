@@ -78,8 +78,8 @@ Usage:
                 const {title, href} = td.querySelectorAll('a')[1];
                 favorites.push({html: td.innerHTML, title, href})
             });
-            url = doc.querySelector('.aui-nav-next a').href;
-        } while (true);
+            url = tds.length == 20 ? doc.querySelector('.aui-nav-next a').href : false;
+        } while (url);
     }
 
     function createPopup(title) {

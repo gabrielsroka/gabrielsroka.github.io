@@ -738,7 +738,7 @@
                     var localUrl = url; // Don't modify url!
                     if (filter) {
                         exportArgs = $("#exportargs").val();
-                        if (exportArgs.startsWith("?")) exportArgs = exportArgs.substring(1);
+                        if (exportArgs.startsWith("?")) exportArgs = exportArgs.slice(1);
                         localStorage.rockstarExportUserArgs = exportArgs;
                         localUrl += '?' + exportArgs;
                     }
@@ -1238,7 +1238,7 @@
                 settings.dataType = "text";
                 $.get(settings).then(text => {
                     const prefix = "while(1){};";
-                    var json = text.substr(prefix.length); // text has a prefix to prevent JSON hijacking. We have to remove the prefix.
+                    var json = text.slice(prefix.length); // text has a prefix to prevent JSON hijacking. We have to remove the prefix.
                     var data = JSON.parse(json);
                     var properties = data[object.properties].properties;
                     var objects = [];
@@ -1299,7 +1299,7 @@
         popup.html(html + "Done.");
         var a = $("<a>").appendTo(popup);
         a.attr("href", URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/csv'})));
-        var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").substr(0, 19);
+        var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").slice(0, 19);
         a.attr("download", `${filename} ${date}.csv`);
         a[0].click();
     }

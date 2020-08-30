@@ -96,7 +96,7 @@ Bookmark: Click the bookmark, or
     function downloadFile(header, lines, filename, filetype) {
         const a = document.body.appendChild(document.createElement('a'));
         a.href = URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/' + filetype}));
-        const date = (new Date()).toISOString().replace(/[T:]/g, "-").substr(0, 19);
+        const date = (new Date()).toISOString().replace(/[T:]/g, "-").slice(0, 19);
         a.download = `${filename}-${date}.${filetype}`;
         a.click();
     }

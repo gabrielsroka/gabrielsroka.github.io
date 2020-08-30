@@ -32,11 +32,11 @@ td {
 // Configure your application and authorization server details
 const baseUrl = 'https://gsroka-neto.oktapreview.com';
 const config = {
-    client_id: '0oatnwl9cotZ1xPph0h7',
+    client_id: '0oatnwl9cotZ1xPph0h7', // OAuth for Okta SPA
     redirect_uri: `${location.origin}/pkce/`,
-    authorization_endpoint: `${baseUrl}/oauth2/v1/authorize`,
+    authorize_endpoint: `${baseUrl}/oauth2/v1/authorize`,
     token_endpoint: `${baseUrl}/oauth2/v1/token`,
-    requested_scopes: 'okta.groups.read okta.users.read'
+    requested_scopes: 'okta.users.read okta.groups.read'
 };
 
 // OAUTH REDIRECT HANDLING
@@ -55,7 +55,6 @@ if (q.code) {
     if (localStorage.getItem("pkce_state") != q.state) {
         alert("Invalid state");
     } else {
-        // Exchange the authorization code for an access token
         sendPostRequest(config.token_endpoint, {
             grant_type: "authorization_code",
             code: q.code,
@@ -63,33 +62,29 @@ if (q.code) {
             redirect_uri: config.redirect_uri,
             code_verifier: localStorage.getItem("pkce_code_verifier")
         }, async function (request, body) {
-            const r = await fetch(`${baseUrl}/api/v1/groups`, {headers: {Authorization: `Bearer ${body.access_token}`}});
-            const groups = await r.json();
-            const rows = '<tr><td>' + groups.map(g => g.profile.name).join('<tr><td>');
-            results.innerHTML = '<table><tr><th>Name' + rows + '</table>'
-
-            // Replace the history entry to remove the auth code from the browser address bar
-            history.replaceState({}, null, "/pkce/index.html");
+            const headers = {Authorization: `Bearer ${body.access_token}`};
+            const r = await fetch(`${baseUrl}/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15`, {headers});
+            const users = await r.json();
+            const rows = '<tr>' + users.map(u => `<td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}`).join('<tr>');
+            results.innerHTML = '<table><tr><th>Username<th>First<th>Last<th>Email' + rows + '</table>'
+            history.replaceState({}, null, "/pkce/index.html"); // Remove the auth code from the browser address bar.
         }, function (request, error) {
             console.log(error.error + "\n\n" + error.error_description);
         });
     }
-
-    // Clean these up since we don't need them anymore
     localStorage.removeItem("pkce_state");
     localStorage.removeItem("pkce_code_verifier");
 } else {
-    pkce();
+    startPkce();
 }
 
-async function pkce() {
-    // Initiate the PKCE Auth Code flow
+async function startPkce() {
     const state = generateRandomString();
-    localStorage.setItem("pkce_state", state);
     const code_verifier = generateRandomString();
+    localStorage.setItem("pkce_state", state);
     localStorage.setItem("pkce_code_verifier", code_verifier);
     const code_challenge = await pkceChallengeFromVerifier(code_verifier);
-    const url = config.authorization_endpoint
+    const url = config.authorize_endpoint
         + "?response_type=code"
         + "&client_id=" + encodeURIComponent(config.client_id)
         + "&state=" + encodeURIComponent(state)
@@ -128,10 +123,10 @@ function sendPostRequest(url, params, success, error) {
 }
 
 function parseQueryString(string) {
-    if (string == "") { return {}; }
+    if (string == '') { return {}; }
     const queryString = {};
-    string.split("&").forEach(s => {
-        const [name, value] = s.split("=");
+    string.split('&').forEach(s => {
+        const [name, value] = s.split('=');
         queryString[name] = value;
     });
     return queryString;
@@ -148,12 +143,11 @@ function generateRandomString() {
     return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
 }
 
-// Calculate the SHA256 hash of the input text. 
-// Returns a promise that resolves to an ArrayBuffer
-function sha256(plain) {
+async function pkceChallengeFromVerifier(v) {
     const encoder = new TextEncoder();
-    const data = encoder.encode(plain);
-    return crypto.subtle.digest('SHA-256', data);
+    const data = encoder.encode(v);
+    const hashed = await crypto.subtle.digest('SHA-256', data);
+    return base64urlencode(hashed);
 }
 
 function base64urlencode(str) {
@@ -163,12 +157,6 @@ function base64urlencode(str) {
     //   (replace + with -, replace / with _, trim trailing =)
     return btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
         .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-// Return the base64-urlencoded sha256 hash for the PKCE challenge
-async function pkceChallengeFromVerifier(v) {
-    const hashed = await sha256(v);
-    return base64urlencode(hashed);
 }
 </script>
 </body>

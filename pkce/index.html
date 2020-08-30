@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <title>Users</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <style>
 body, th, td {
     font-family: sans-serif;
@@ -24,6 +24,7 @@ td {
 </style>
 </head>
 <body>
+<h1>Users</h1>
 <div id=results></div>
 <script>
 // from https://developer.okta.com/blog/2019/05/01/is-the-oauth-implicit-flow-dead
@@ -31,112 +32,85 @@ td {
 
 // Configure your application and authorization server details
 const baseUrl = 'https://gsroka-neto.oktapreview.com';
-const config = {
-    client_id: '0oatnwl9cotZ1xPph0h7', // OAuth for Okta SPA
-    redirect_uri: `${location.origin}/pkce/`,
-    authorize_endpoint: `${baseUrl}/oauth2/v1/authorize`,
-    token_endpoint: `${baseUrl}/oauth2/v1/token`,
-    requested_scopes: 'okta.users.read okta.groups.read'
-};
+const client_id = '0oatnwl9cotZ1xPph0h7'; // OAuth for Okta SPA
+const redirect_uri = `${location.origin}/pkce/`;
+const authorize_endpoint =  `${baseUrl}/oauth2/v1/authorize`;
+const token_endpoint = `${baseUrl}/oauth2/v1/token`;
+const scope = 'okta.users.read okta.groups.read';
 
 // OAUTH REDIRECT HANDLING
 
 // Handle the redirect back from the authorization server and
 // get an access token from the token endpoint
 
-const q = parseQueryString(location.search.substring(1));
+const q = new URLSearchParams(location.search);
 
-if (q.error) {
-    console.log(q.error + "\n\n" + q.error_description);
+if (q.has('error')) {
+    console.log(q.get('error') + '\n\n' + q.get('error_description'));
 }
 
-// If the server returned an authorization code, attempt to exchange it for an access token
-if (q.code) {
-    if (localStorage.getItem("pkce_state") != q.state) {
-        alert("Invalid state");
+// If the server returned an authorization code, exchange it for an access token.
+if (q.has('code')) {
+    if (localStorage.state == q.get('state')) {
+        getUsers();
     } else {
-        sendPostRequest(config.token_endpoint, {
-            grant_type: "authorization_code",
-            code: q.code,
-            client_id: config.client_id,
-            redirect_uri: config.redirect_uri,
-            code_verifier: localStorage.getItem("pkce_code_verifier")
-        }, async function (request, body) {
-            const headers = {Authorization: `Bearer ${body.access_token}`};
-            const r = await fetch(`${baseUrl}/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15`, {headers});
-            const users = await r.json();
-            const rows = '<tr>' + users.map(u => `<td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}`).join('<tr>');
-            results.innerHTML = '<table><tr><th>Username<th>First<th>Last<th>Email' + rows + '</table>'
-            history.replaceState({}, null, "/pkce/index.html"); // Remove the auth code from the browser address bar.
-        }, function (request, error) {
-            console.log(error.error + "\n\n" + error.error_description);
-        });
+        alert('Invalid state');
     }
-    localStorage.removeItem("pkce_state");
-    localStorage.removeItem("pkce_code_verifier");
+    delete localStorage.state;
+    delete localStorage.code_verifier;
 } else {
     startPkce();
+}
+
+async function getUsers() {
+    const tokens = await getTokens();
+    const headers = {Authorization: `Bearer ${tokens.access_token}`};
+    const r = await fetch(`${baseUrl}/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15`, {headers});
+    const users = await r.json();
+    const rows = users.map(u => `<tr><td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}`).join('');
+    results.innerHTML = '<table><tr><th>Username<th>First<th>Last<th>Email' + rows + '</table>'
+    history.replaceState({}, null, '/pkce/index.html'); // Remove the auth code from the browser address bar.
+}
+
+async function getTokens() {
+    const params = {
+        grant_type: 'authorization_code',
+        code: q.get('code'),
+        client_id,
+        redirect_uri,
+        code_verifier: localStorage.code_verifier
+    };
+    const r = await fetch(token_endpoint, {
+        method: 'post',
+        body: new URLSearchParams(params),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    });
+    const tokens = await r.json();
+    return tokens;
 }
 
 async function startPkce() {
     const state = generateRandomString();
     const code_verifier = generateRandomString();
-    localStorage.setItem("pkce_state", state);
-    localStorage.setItem("pkce_code_verifier", code_verifier);
+    localStorage.state = state;
+    localStorage.code_verifier = code_verifier;
     const code_challenge = await pkceChallengeFromVerifier(code_verifier);
-    const url = config.authorize_endpoint
-        + "?response_type=code"
-        + "&client_id=" + encodeURIComponent(config.client_id)
-        + "&state=" + encodeURIComponent(state)
-        + "&scope=" + encodeURIComponent(config.requested_scopes)
-        + "&redirect_uri=" + encodeURIComponent(config.redirect_uri)
-        + "&code_challenge=" + encodeURIComponent(code_challenge)
-        + "&code_challenge_method=S256";
-    location = url;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// GENERAL HELPER FUNCTIONS
-
-function sendPostRequest(url, params, success, error) {
-    const request = new XMLHttpRequest();
-    request.open('POST', url, true);
-    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-    request.onload = function () {
-        let body = {};
-        try {
-            body = JSON.parse(this.response);
-        } catch (e) { }
-
-        if (this.status == 200) {
-            success(this, body);
-        } else {
-            error(this, body);
-        }
+    const params = {
+        response_type: 'code',
+        client_id,
+        state,
+        scope,
+        redirect_uri,
+        code_challenge,
+        code_challenge_method: 'S256'
     };
-    request.onerror = function () {
-        error(this, {});
-    };
-    const body = Object.keys(params).map(key => key + '=' + params[key]).join('&');
-    request.send(body);
-}
-
-function parseQueryString(string) {
-    if (string == '') { return {}; }
-    const queryString = {};
-    string.split('&').forEach(s => {
-        const [name, value] = s.split('=');
-        queryString[name] = value;
-    });
-    return queryString;
+    location = authorize_endpoint + '?' + new URLSearchParams(params);
 }
 
 
-//////////////////////////////////////////////////////////////////////
 // PKCE HELPER FUNCTIONS
 
-// Generate a secure random string using the browser crypto functions
+// Generate a secure random string using the browser crypto functions.
 function generateRandomString() {
     const array = new Uint32Array(28);
     crypto.getRandomValues(array);

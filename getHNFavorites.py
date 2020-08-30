@@ -5,10 +5,12 @@ from bs4 import BeautifulSoup
 
 username = input('username: ')
 
+session = requests.Session()
+
 base = 'https://news.ycombinator.com/'
-path = 'favorites?id=' + username
+path = f'favorites?id={username}'
 while path:
-    r = requests.get(base + path)
+    r = session.get(base + path)
     s = BeautifulSoup(r.text, 'html.parser')
     for a in s.select('a.storylink'):
         print(a.text, a['href'])

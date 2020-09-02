@@ -24,8 +24,7 @@ td {
 </style>
 </head>
 <body>
-<h1>Users</h1>
-<div id=results></div>
+<div id=results>Signing in...</div>
 <script>
 // from https://developer.okta.com/blog/2019/05/01/is-the-oauth-implicit-flow-dead
 // and  https://github.com/aaronpk/pkce-vanilla-js
@@ -46,15 +45,12 @@ const scope = 'okta.users.read okta.groups.read';
 const q = new URLSearchParams(location.search);
 
 if (q.has('error')) {
-    console.log(q.get('error') + '\n\n' + q.get('error_description'));
-}
-
-// If the server returned an authorization code, exchange it for an access token.
-if (q.has('code')) {
+    results.innerHTML = q.get('error') + '<br>' + q.get('error_description');
+} else if (q.has('code')) { // If the server returned an authorization code, exchange it for an access token.
     if (localStorage.state == q.get('state')) {
         getUsers();
     } else {
-        alert('Invalid state');
+        results.innerHTML = 'Invalid state';
     }
     delete localStorage.state;
     delete localStorage.code_verifier;
@@ -68,7 +64,7 @@ async function getUsers() {
     const r = await fetch(`${baseUrl}/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15`, {headers});
     const users = await r.json();
     const rows = users.map(u => `<tr><td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}`).join('');
-    results.innerHTML = '<table><tr><th>Username<th>First<th>Last<th>Email' + rows + '</table>'
+    results.innerHTML = '<h1>Users</h1><table><tr><th>Username<th>First<th>Last<th>Email' + rows + '</table>'
     history.replaceState({}, null, '/pkce/index.html'); // Remove the auth code from the browser address bar.
 }
 

@@ -30,13 +30,12 @@ td {
 // and  https://github.com/aaronpk/pkce-vanilla-js
 // OAuth for Okta: https://developer.okta.com/docs/guides/implement-oauth-for-okta
 
-// 1. Create a SPA called "OAuth for Okta SPA"
-// 2. Set the Login Redirect URI = http://localhost:5500/pkce . You can add a URL for production, too.
-// 3. Copy the Client ID and paste it below
-// 4. Assign the app to yourself
-// 5. Set the Okta API Scope to okta.users.read
-
-// Configure your application and authorization server details
+// 1. Create a SPA called "OAuth for Okta SPA".
+// 2. Set the Login Redirect URI to "http://localhost:5500/pkce". You can add a URL for production, too.
+// 3. Copy the Client ID and paste it below.
+// 4. Assign the app to yourself.
+// 5. Set the Okta API Scope to "okta.users.read".
+// 6. Configure your application and authorization server details:
 const baseUrl = 'https://gsroka-neto.oktapreview.com';
 const client_id = '0oatnwl9cotZ1xPph0h7'; // OAuth for Okta SPA
 const redirect_uri = `${location.origin}/pkce/`;

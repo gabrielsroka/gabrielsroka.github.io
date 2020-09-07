@@ -70,7 +70,7 @@ async function getUsers() {
     const r = await fetch(`${baseUrl}/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15`, {headers});
     const users = await r.json();
     const rows = users.map(u => `<tr><td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}`).join('');
-    results.innerHTML = '<h1>Users</h1><table><tr><th>Username<th>First<th>Last<th>Email' + rows + '</table>'
+    results.innerHTML = '<h1>Users</h1><table><tr><th>Username<th>First<th>Last<th>Email' + rows + '</table>';
     history.replaceState({}, null, '/pkce/index.html'); // Remove the auth code from the browser address bar.
 }
 
@@ -84,8 +84,7 @@ async function getTokens() {
     };
     const r = await fetch(token_endpoint, {
         method: 'post',
-        body: new URLSearchParams(params),
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        body: new URLSearchParams(params)
     });
     const tokens = await r.json();
     return tokens;

@@ -53,7 +53,7 @@
     }
 
     function quickUpdate() {
-        $(`<a href='https://www.youtube.com/watch?v=mNTThKVjztc' target='_blank' rel='noopener'>rockstar overview (youtube)</a><br><br>`).appendTo(mainPopup);
+        $(`<a href='https://www.youtube.com/watch?v=mNTThKVjztc&list=PLZ4_Rj_Aw2Ym-NkC8SFB6wuSfBiBto_6C' target='_blank' rel='noopener'>rockstar overview (youtube)</a><br><br>`).appendTo(mainPopup);
     }
 
     // Admin functions
@@ -659,6 +659,7 @@
                 lastUpdated: "Last Updated Date", 
                 passwordChanged: "Password Changed Date", 
                 transitioningToStatus: "Transitioning to Status", 
+                'credentials.recovery_question.question': 'Credential Recovery Question',
                 "credentials.provider.type": "Credential Provider Type",
                 "credentials.provider.name": "Credential Provider Name"
             };

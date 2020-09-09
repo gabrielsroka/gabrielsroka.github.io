@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 username = input('username: ')
 
+# session uses connection pooling, often resulting in faster execution.
 session = requests.Session()
 
 base = 'https://news.ycombinator.com/'

@@ -16,11 +16,20 @@ a:visited {
     color: #828282;
     text-decoration: none;
 }
+#more {
+    text-align: center;
+    display: block;
+    border: 1px solid silver;
+    padding: 4px;
+}
 .item {
     font-size: 0.8em;
     padding-bottom: 1em;
     border-bottom: 1px solid silver;
     margin-bottom: 1em;
+}
+.item:last-of-type {
+    border-bottom: none;
 }
 #user {
     float: right;
@@ -28,13 +37,13 @@ a:visited {
 </style>
 </head>
 <body>
-<header><a href="https://news.ycombinator.com">Hacker News</a><span id=user>user</span></header>
+<header><a href="https://news.ycombinator.com" target="_blank" rel="noopener">Hacker News</a><span id=user>user</span></header>
 <main>
 <div id=loading></div>
 <div id=contents></div>
 </main>
 <nav>
-<a id=prev>Prev</a> | <a id=next>Next</a>
+<a id=more>More</a>
 <br><br>
 <a href="hn.html">Default</a> | <a href="hn.html?small">Small</a>
 </nav>
@@ -59,12 +68,13 @@ if (localStorage.user) {
     user.onclick = () => {
         const u = prompt('username');
         if (!u) return;
+        user.onclick = null;
         localStorage.user = u;
         setUser();
     };
 }
 function setUser() {
-    user.innerHTML = `<a href='${hnBaseUrl}/user?id=${localStorage.user}'>${localStorage.user}</a> | <a id=submissions>submissions</a>`;
+    user.innerHTML = `<a href='${hnBaseUrl}/user?id=${localStorage.user}' target="_blank" rel="noopener">${localStorage.user}</a> | <a id=submissions>submissions</a>`;
     submissions.onclick = async () => {
         loading.innerHTML = "<br>Loading...";
         const r = await fetch(`${baseUrl}/user/${localStorage.user}.json`);
@@ -81,7 +91,7 @@ function setUser() {
         loading.innerHTML = "";
     };
 }
-prev.onclick = next.onclick = getItems;
+more.onclick = getItems;
 if (!localStorage.seen) localStorage.seen = "{}";
 fetchItems();
 
@@ -92,7 +102,7 @@ async function fetchItems() {
 }
 
 // TODO: Items might render out of order. Do we care?
-function getItems() {
+async function getItems() {
     function showItem(item) { // other item props: kids
         function anc(href, text) {
             return `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
@@ -157,16 +167,20 @@ function getItems() {
             fetchItems();
         } else {
             loading.innerHTML = "<br>No more";
+            more.style.display = 'none';
         }
     } else {
         loading.innerHTML = "<br>Loading...";
-        for (var i = 0; i < Math.min(pageLen, ids.length); i++) {
-            const id = ids[i];
-            seen[id] = now;
-            if (!newSeen[id]) {
-                fetch(`${baseUrl}/item/${id}.json`)
-                .then(response => response.json())
-                .then(showItem);
+        for (var i = 0; i < pageLen; i++) {
+            if (i < ids.length) {
+                const id = ids[i];
+                seen[id] = now;
+                if (!newSeen[id]) {
+                    const r = await fetch(`${baseUrl}/item/${id}.json`);
+                    showItem(await r.json());
+                }
+            } else {
+                contents.innerHTML += `<p><br><br><br></p>`;
             }
         }
         fetchCounter = 0;

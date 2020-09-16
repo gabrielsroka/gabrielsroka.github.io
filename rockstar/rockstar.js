@@ -1053,20 +1053,21 @@
                     }
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                     if (objects) {
-                        var pathname = url.split('?')[0];
+                        const pathname = url.split('?')[0];
                         var addId = false;
                         if (Array.isArray(objects)) {
                             var table = formatObjects(objects, pathname);
                             addId = true;
-                            $(results).append(table.header + "<br>" + table.body);
-                            if (nextUrl) {
+                            $(results).append(table.header);
+                            if (nextUrl) { // This is part of the header.
                                 createA("Next >", results, () => {
                                     form.url.value = nextUrl;
                                     send.click();
                                 });
                             }
+                            $(results).append("<br>" + table.body);
                         }
-                        var json = formatPre(linkify(e(JSON.stringify(objects, null, 4))), pathname, addId); // Pretty Print the JSON.
+                        const json = formatPre(linkify(e(JSON.stringify(objects, null, 4))), pathname, addId); // Pretty Print the JSON.
                         $(results).append(json);
                     }
                 }).fail(jqXHR => $(results).html("<br>Status: " + jqXHR.status + " " + jqXHR.statusText + "<br><br>Error:<pre>" + e(JSON.stringify(jqXHR.responseJSON, null, 4)) + "</pre>"));

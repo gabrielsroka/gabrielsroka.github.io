@@ -56,7 +56,7 @@ if (q.has('error')) {
     if (localStorage.state == q.get('state')) {
         getUsers();
     } else {
-        results.innerHTML = 'Invalid state';
+        results.innerHTML = 'Invalid state. <a href="/pkce">retry</a>';
     }
     delete localStorage.state;
     delete localStorage.code_verifier;

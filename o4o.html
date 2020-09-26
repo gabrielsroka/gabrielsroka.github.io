@@ -1,0 +1,37 @@
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+<div id=app></div>
+<script>
+(async function () {
+    paths = []
+    r = await fetch('https://raw.githubusercontent.com/okta/okta-sdk-java/master/src/swagger/api.yaml')
+    lines = (await r.text()).split('\n')
+    lines.forEach(line => {
+        if (match = line.match(/^  '?(\/.*?)'?:/)) {
+            path = match[1]
+        } else if (match = line.match(/^    (get|post|put|delete)/)) {
+            method = match[1]
+            paths.push({method, path})
+        }
+    })
+
+    base = 'https://gsroka-neto.oktapreview.com'
+    headers = {Authorization: 'Bearer invalidToken'}
+
+    rows = []
+    for (const {method, path} of paths.slice(0, 4)) {
+        try {
+            app.innerHTML = `fetching ${path}`
+            r = await fetch(`${base}${path}`, {headers, method: method})
+            scope = r.headers.get('www-authenticate').match(/scope="(.*?)"/)[1]
+        } catch (e) {
+            scope = ''
+        }
+        rows.push(`<tr><td>${method}<td>${path}<td>${scope}`)
+    }
+    app.innerHTML = '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>'
+})()
+</script>

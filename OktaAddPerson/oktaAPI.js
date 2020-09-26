@@ -13,6 +13,10 @@ function getUser(onload, id) {
     callAPI("GET", "/api/v1/users/" + id, onload);
 }
 
+function activateUser(onload, id, query) {
+    callAPI("POST", "/api/v1/users/" + id + "/lifecycle/activate?" + queryToString(query), onload);
+}
+
 /*
     onload - callback
     query - eg: q, filter, limit, search, ...

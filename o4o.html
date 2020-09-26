@@ -1,3 +1,4 @@
+<title>OAuth for Okta</title>
 <style>
 body {
     font-family: sans-serif;
@@ -22,7 +23,7 @@ body {
     headers = {Authorization: 'Bearer invalidToken'}
 
     rows = []
-    for (const {method, path} of paths.slice(0, 4)) {
+    for ({method, path} of paths) {
         try {
             app.innerHTML = `fetching ${path}`
             r = await fetch(`${base}${path}`, {headers, method: method})

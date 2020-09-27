@@ -22,8 +22,7 @@ body {
     base = 'https://gsroka-neto.oktapreview.com'
     headers = {Authorization: 'Bearer invalidToken'}
 
-    rows = []
-    for ({method, path} of paths) {
+    rows = await Promise.all(paths.map(async ({method, path}) => {
         try {
             app.innerHTML = `fetching ${path}`
             r = await fetch(`${base}${path}`, {headers, method: method})
@@ -31,8 +30,8 @@ body {
         } catch (e) {
             scope = ''
         }
-        rows.push(`<tr><td>${method}<td>${path}<td>${scope}`)
-    }
+        return `<tr><td>${method}<td>${path}<td>${scope}`
+    }))
     app.innerHTML = '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>'
 })()
 </script>

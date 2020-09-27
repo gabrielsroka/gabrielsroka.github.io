@@ -25,7 +25,7 @@ body {
     rows = await Promise.all(paths.map(async ({method, path}) => {
         try {
             app.innerHTML = `fetching ${path}`
-            r = await fetch(`${base}${path}`, {headers, method: method})
+            r = await fetch(base + path, {headers, method})
             scope = r.headers.get('www-authenticate').match(/scope="(.*?)"/)[1]
         } catch (e) {
             scope = ''

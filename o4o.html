@@ -4,9 +4,10 @@ body {
     font-family: sans-serif;
 }
 </style>
-<div id=app></div>
+<h1>OAuth for Okta</h1>
+<div id=app>Loading...</div>
 <script>
-(async function () {
+onload = async function () {
     paths = []
     r = await fetch('https://raw.githubusercontent.com/okta/okta-sdk-java/master/src/swagger/api.yaml')
     lines = (await r.text()).split('\n')
@@ -16,6 +17,8 @@ body {
         } else if (match = line.match(/^    (get|post|put|delete)/)) {
             method = match[1]
             paths.push({method, path})
+        } else if (match = line.match(/^  version: (.*)/)) {
+            version = match[1]
         }
     })
 
@@ -24,7 +27,6 @@ body {
 
     rows = await Promise.all(paths.map(async ({method, path}) => {
         try {
-            app.innerHTML = `fetching ${path}`
             r = await fetch(base + path, {headers, method})
             scope = r.headers.get('www-authenticate').match(/scope="(.*?)"/)[1]
         } catch (e) {
@@ -32,6 +34,7 @@ body {
         }
         return `<tr><td>${method}<td>${path}<td>${scope}`
     }))
-    app.innerHTML = '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>'
-})()
+    app.innerHTML = `<a href="https://github.com/okta/okta-sdk-java/blob/master/src/swagger/api.yaml">Swagger v. ${version}</a>` +
+        '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>'
+}
 </script>

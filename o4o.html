@@ -67,6 +67,6 @@ onload = async function () {
         return `<tr><td>${method}<td>${path}<td>${scope}<td>${r.status}`
     }))
     app.innerHTML = `<a href="https://github.com/okta/okta-sdk-java/blob/master/src/swagger/api.yaml">Swagger v. ${version}</a>` +
-        '<table><tr><th>Method<th>Path<th>Scope<td>Status' + rows.join('') + '</table>'
+        '<table><tr><th>Method<th>Path<th>Scope<th>Status' + rows.join('') + '</table>'
 }
 </script>

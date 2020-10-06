@@ -41,6 +41,15 @@
 
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
         $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
+        var count = 0;
+        const intervalID = setInterval(() => { // new admin
+            console.log(Date());
+            if (count++ == 25) clearInterval(intervalID);
+            if (!document.querySelector('[data-se=o-side-nav-item-APPLICATIONS] ul')) return;
+            $("<li><a class='nav-item--wrapper' href='/admin/apps/add-app'><p class='nav-item--label'>Integration Network</p></a>").appendTo('[data-se=o-side-nav-item-APPLICATIONS] ul');
+            $("<li><a class='nav-item--wrapper' href='/admin/access/api/tokens'><p class='nav-item--label'>API Tokens</p></a>").appendTo('[data-se=o-side-nav-item-SECURITY] ul');
+            clearInterval(intervalID);
+        }, 200);        
         exportObjects();
         //createPrefixA("<li>", "Export Objects", "#nav-admin-reports-2", exportObjects);
         apiExplorer();

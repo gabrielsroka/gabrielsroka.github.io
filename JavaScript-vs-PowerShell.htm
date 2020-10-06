@@ -19,13 +19,51 @@ hljs.initHighlightingOnLoad();
 <td>
 <pre><code class="javascript">
 // This is a single line comment.
-/* This is a comment block. */
+/* This is a 
+comment block. 
+
+JS is case-sensitive.
+*/
 </code></pre>
 </td>
 <td>
 <pre><code class="powershell">
 # This is a single line comment.
-<# This is a comment block. #>
+<# This is a 
+comment block. 
+
+PowerShell is not case-sensitive.
+#>
+</code></pre>
+</td>
+
+<tr>
+<td>
+<pre><code class="javascript">
+// JS variables can start with a letter, $, _
+var v = 1;
+const c = 2;
+let b = 3;
+    
+stringDouble = "double quotes";
+stringSingle = 'single quotes';
+escape = "\"";
+template = `a = ${a}`; // ES6 [?]
+
+</code></pre>
+</td>
+<td>
+<pre><code class="powershell">
+# PowerShell variables start with $
+$v = 1
+Set-Variable c -option constant -value 2
+# n/a [use script:, global:, etc ?]
+    
+$stringDouble = "double quotes"
+$stringSingle = 'single quotes' # no string interpolation
+$escape = "`""
+$template1 = "a = $a" # $a is simple.
+$template2 = "a.b = $($a.b)" # $a.b is not simple.
 </code></pre>
 </td>
 
@@ -37,7 +75,7 @@ arr = [];
 arr.push(3);
 b = arr[0];
 // no support for negative indexes
-// arr.slice() [?]
+arr.slice(0, 3); // end is not included
 arr.length;
 </code></pre>
 </td>
@@ -48,7 +86,7 @@ $arr = @()
 $arr += 3
 $b = $arr[0]
 # negative indexes
-# array slices
+$arr[0..2] # end is included
 $arr.length # or $arr.count
 </code></pre>
 </td>
@@ -63,7 +101,8 @@ hash.n3 = 3;
 longhash = {
     name1: "value",
     n2: 2
-}; 
+};
+user = {firstName: 'Gabriel', lastName: 'Sroka'};
 </code></pre>
 </td>
 <td>
@@ -76,34 +115,7 @@ $longhash = @{ # longhash doesn't use semicolons.
     name1 = "value"
     n2 = 2
 }
-</code></pre>
-</td>
-
-<tr>
-<td>
-<pre><code class="javascript">
-var v = 1;
-const c = 2;
-let b = 3;
- 
-stringDouble = "double quotes";
-stringSingle = 'single quotes';
-escape = "\"";
-template = `a = ${a}`; // ES6 [?]
-
-</code></pre>
-</td>
-<td>
-<pre><code class="powershell">
-$v = 1
-Set-Variable c -option constant -value 2
-# n/a [use script:, global:, etc ?]
- 
-$stringDouble = "double quotes"
-$stringSingle = 'single quotes' # no string interpolation
-$escape = "`""
-$template1 = "a = $a" # $a is simple.
-$template2 = "a.b = $($a.b)" # $a.b is not simple.
+$user = {firstName = 'Gabriel'; lastName = 'Sroka'}
 </code></pre>
 </td>
 
@@ -178,7 +190,7 @@ if ($a -eq $b) {
 
 
 
-for ($i = 0; $i -le $MAX; $i++) { }
+for ($i = 0; $i -lt $MAX; $i++) { }
 foreach ($item in $collection)
 </code></pre>
 </td>

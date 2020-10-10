@@ -75,13 +75,13 @@ if (localStorage.user) {
     };
 }
 function setUser() {
-    user.innerHTML = `<a href='${hnBaseUrl}/user?id=${localStorage.user}' target="_blank" rel="noopener">${localStorage.user}</a> | <a id=submissions>submissions</a>`;
+    user.innerHTML = anc(`${hnBaseUrl}/user?id=${localStorage.user}`, localStorage.user) + ' | <a id=submissions>submissions</a>';
     submissions.onclick = async () => {
         const r = await fetch(`${alBaseUrl}/api/v1/search_by_date?tags=story,author_${localStorage.user}`);
         const u = await r.json();
-        const items = u.hits.map(item => '<div class=item>' + item.title + '<br>' + 
+        const items = u.hits.map(item => '<div class=item>' + anc(`${hnBaseUrl}/item?id=${item.objectID}`, item.title + '<br>' + 
             new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(item.created_at_i * 1000)) + ' | ' + 
-            plu(item.points, 'point') + '</div>');
+            plu(item.points, 'point')) + '</div>');
         contents.innerHTML = `<br>${localStorage.user}'s submissions<br><br>` + items.join('');
     };
 }
@@ -98,9 +98,6 @@ async function fetchItems() {
 // TODO: Items might render out of order. Do we care?
 async function getItems() {
     function showItem(item) { // other item props: kids
-        function anc(href, text) {
-            return `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
-        }
         loading.innerHTML = "";
         const hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
         if (item.url) {
@@ -182,6 +179,9 @@ async function getItems() {
 }
 function plu(n, s) {
     return n + " " + (n == 1 ? s : s + "s");
+}
+function anc(href, text) {
+    return `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
 }
 </script>
 </body>

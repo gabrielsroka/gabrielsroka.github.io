@@ -82,7 +82,7 @@ function setUser() {
         const items = u.hits.map(item => '<div class=item>' + item.title + '<br>' + 
             new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(item.created_at_i * 1000)) + ' | ' + 
             plu(item.points, 'point') + '</div>');
-        contents.innerHTML = `<br>${localStorage.user}'s submissions<br><br>"` + items.join('');
+        contents.innerHTML = `<br>${localStorage.user}'s submissions<br><br>` + items.join('');
     };
 }
 more.onclick = getItems;

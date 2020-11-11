@@ -22,7 +22,7 @@ hljs.initHighlightingOnLoad();
 /* This is a 
 comment block. 
 
-JS is case-sensitive.
+JavaScript is case-sensitive.
 */
 </code></pre>
 </td>
@@ -40,14 +40,14 @@ PowerShell is not case-sensitive.
 <tr>
 <td>
 <pre><code class="javascript">
-// JS variables can start with a letter, $, _
+// JavaScript variables can start with a letter, $, _
 var v = 1;
 const c = 2;
 let b = 3;
     
 stringDouble = "double quotes";
 stringSingle = 'single quotes';
-escape = "\"";
+escaped = "\"";
 template = `a = ${a}`; // ES6 [?]
 
 </code></pre>
@@ -61,7 +61,7 @@ Set-Variable c -option constant -value 2
     
 $stringDouble = "double quotes"
 $stringSingle = 'single quotes' # no string interpolation
-$escape = "`""
+$escaped = "`""
 $template1 = "a = $a" # $a is simple.
 $template2 = "a.b = $($a.b)" # $a.b is not simple.
 </code></pre>
@@ -115,7 +115,7 @@ $longhash = @{ # longhash doesn't use semicolons.
     name1 = "value"
     n2 = 2
 }
-$user = {firstName = 'Gabriel'; lastName = 'Sroka'}
+$user = @{firstName = 'Gabriel'; lastName = 'Sroka'}
 </code></pre>
 </td>
 
@@ -171,14 +171,14 @@ if (a == b) {
 }
  
 while ( ) { }
-do { } while ( )
+do { } while ( );
 for (i = 0; i < MAX; i++) { }
 for (item of collection) // ES6 [?]
 </code></pre>
 </td>
 <td>
 <pre><code class="powershell">
-$b = $true;
+$b = $true
  
 if ($a -eq $b) {
     #

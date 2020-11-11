@@ -43,7 +43,6 @@
         $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
         var count = 0;
         const intervalID = setInterval(() => { // new admin
-            console.log(Date());
             if (count++ == 25) clearInterval(intervalID);
             if (!document.querySelector('[data-se=o-side-nav-item-APPLICATIONS] ul')) return;
             $("<li><a class='nav-item--wrapper' href='/admin/apps/add-app'><p class='nav-item--label'>Integration Network</p></a>").appendTo('[data-se=o-side-nav-item-APPLICATIONS] ul');
@@ -659,15 +658,16 @@
                 checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' ${checked}>${e(text)}</label><br>`);
             }
             const user = {
-                id: "User Id", 
-                status: "Status", 
-                created: "Created Date", 
-                activated: "Activated Date", 
-                statusChanged: "Status Changed Date", 
-                lastLogin: "Last Login Date", 
-                lastUpdated: "Last Updated Date", 
-                passwordChanged: "Password Changed Date", 
-                transitioningToStatus: "Transitioning to Status", 
+                id: "User Id",
+                status: "Status",
+                created: "Created Date",
+                activated: "Activated Date",
+                statusChanged: "Status Changed Date",
+                lastLogin: "Last Login Date",
+                lastUpdated: "Last Updated Date",
+                passwordChanged: "Password Changed Date",
+                transitioningToStatus: "Transitioning to Status",
+                'type.id': 'User Type ID',
                 'credentials.recovery_question.question': 'Credential Recovery Question',
                 "credentials.provider.type": "Credential Provider Type",
                 "credentials.provider.name": "Credential Provider Name"

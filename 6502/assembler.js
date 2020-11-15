@@ -168,7 +168,7 @@ function SimulatorWidget(node) {
         if (e.which == ENTER && e.ctrlKey) {
             $(".assembleButton").click();
             setTimeout(function () {
-                $(".runButton").click().focus();
+                $(".runButton").click();
             }, 0);
         }
     }

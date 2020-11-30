@@ -1,6 +1,3 @@
-
-
-
 ; draw pixel at y,x (registers)
 ; xPos + yPos * 32 + 512
 ; xPos + yPos * #$20 + #$200

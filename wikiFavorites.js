@@ -10,7 +10,7 @@ Copy this code to the browser console or, if using Chrome, to a Snippet. For exa
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
 3. Give it a name, eg, "Wiki Favorites".
-4. Copy/paste the code from https://gabrielsroka.github.io/getHNFavorites.js
+4. Copy/paste the code from https://gabrielsroka.github.io/wikiFavorites.js
 5. Save (Ctrl+S, Windows).
 
 Usage:
@@ -76,7 +76,7 @@ Usage:
             if (tds.length == 1 && tds[0].innerText.includes('There are no pages at the moment.')) break;
             tds.forEach(td => {
                 const {title, href} = td.querySelectorAll('a')[1];
-                favorites.push({html: td.innerHTML, title, href})
+                favorites.push({html: td.innerHTML.replace(/<a /g, '<a target="_blank" rel="noopener"'), title, href})
             });
             url = tds.length == 20 ? doc.querySelector('.aui-nav-next a').href : false;
         } while (url);

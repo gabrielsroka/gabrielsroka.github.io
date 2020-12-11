@@ -509,7 +509,7 @@
                     app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status,
                         app._links.appLinks.map(a => a.href).join(', ')));
             });
-            createDiv("Export App Notes", mainPopup, function () {
+            createDiv("Export App Notes (experimental)", mainPopup, function () {
                 startExport("App Notes", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status,endUserAppNotes,adminAppNotes", async app => {
                     var response = await fetch(`/admin/app/${app.name}/instance/${app.id}/settings/general`);
                     var html = await response.text();

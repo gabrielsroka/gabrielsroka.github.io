@@ -14,7 +14,7 @@ Usage:
 2. Run the code. Click the Run button on the bottom right or press Ctrl+Enter (Windows).
 3. Look for the popup window in the upper-left corner of your browser.
 
-Sample CSV (description is optional):
+Sample CSV (header row is required, description is optional):
 name,description
 Group 1,The first group
 */

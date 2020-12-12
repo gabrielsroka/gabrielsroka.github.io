@@ -54,7 +54,7 @@ Group 1,The first group
     }
 
     function newGroup(i) {
-        popup.html("Importing " + groups[i].id + " (" + (i + 1) + " of " + groups.length + ")");
+        popup.html("Importing " + groups[i].profile.name + " (" + (i + 1) + " of " + groups.length + ")");
         $.post({
             url: '/api/v1/groups',
             data: JSON.stringify(groups[i]),

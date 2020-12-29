@@ -6,46 +6,47 @@
 200 rem load tokens from basic rom
 210 e = 0
 220 t = 0
-230 ct = 75
-240 dim a, c, t$, t$(ct)
+230 ts = 75
+240 dim a, c, t$, t$(ts)
 250 for a = 41118 to 41372
 260 c = peek(a)
 270 if c > 127 then c = c - 128 : e = 1
 280 t$ = t$ + chr$(c)
 290 if e = 0 goto 320
-300 print"{clear}loading token" t "of" ct; t$
+300 print"{clear}loading token" t "of" ts; t$
 310 e=0 : t$(t)=t$ : t$="" : t=t+1
 320 next
 
 400 rem load lines
 410 a = 2049 : ls = 0
-420 dim l, h, l$, q, l$(80)
+420 dim l, h, n, q, l$, l$(80)
 430 print "{clear}";
 440 rem address of next line
-450 q = 0
 460 l = peek(a):a=a+1
 470 h = peek(a):a=a+1
 480 if l = 0 and h = 0 goto 700
 490 rem basic line number
 500 l = peek(a):a=a+1
 510 h = peek(a):a=a+1
-520 l$=mid$(str$(l + h * 256), 2) + " "
+515 n = l + h * 256
+520 l$ = mid$(str$(n), 2) + " "
+525 q = 0
 530 rem main line loop. line ends w/ 0
 540 c = peek(a):a=a+1
-550 if c > 0 goto 600
-560 l$(ls) = l$
-570 print "{home}line" ls
-580 ls = ls + 1
-590 goto 440
+550 if c = 0 goto 660
 600 ifc>=128 and c<255 and not qgoto640
 610 if c = 34 then q = not q
 620 l$ = l$ + chr$(c)
 630 goto 530
 640 l$ = l$ + t$(c - 128)
 650 goto 530
+660 l$(ls) = l$
+670 print "{home}line" n
+680 ls = ls + 1
+690 goto 440
 
 700 rem print and kbd
-710 pg = 23 : dim j, k$, y, bo
+710 pg = 23 : dim j, y, bo, k$
 720 print "{clear}";
 730 if j > ls - pg then j = ls - pg
 740 if j < 0 then j = 0

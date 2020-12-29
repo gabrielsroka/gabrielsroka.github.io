@@ -3,6 +3,7 @@
 30 poke 53281, 1
 40 print "{black}"
 
+
 200 rem load tokens from basic rom
 210 e = 0
 220 t = 0
@@ -17,10 +18,12 @@
 310 e=0 : t$(t)=t$ : t$="" : t=t+1
 320 next
 
+
 400 rem load lines
 410 a = 2049 : ls = 0
 420 dim l, h, n, q, l$, l$(80)
 430 print "{clear}";
+
 440 rem address of next line
 460 l = peek(a):a=a+1
 470 h = peek(a):a=a+1
@@ -31,6 +34,7 @@
 515 n = l + h * 256
 520 l$ = mid$(str$(n), 2) + " "
 525 q = 0
+
 530 rem main line loop. line ends w/ 0
 540 c = peek(a):a=a+1
 550 if c = 0 goto 660
@@ -38,15 +42,19 @@
 610 if c = 34 then q = not q
 620 l$ = l$ + chr$(c)
 630 goto 530
+
 640 l$ = l$ + t$(c - 128)
 650 goto 530
+
 660 l$(ls) = l$
 670 print "{home}line" n
 680 ls = ls + 1
 690 goto 440
 
+
 700 rem print and kbd
 710 pg = 23 : dim j, y, bo, k$
+
 720 print "{clear}";
 730 if j > ls - pg then j = ls - pg
 740 if j < 0 then j = 0
@@ -72,6 +80,7 @@
 920 print "f1 f7 - scroll to top/end"
 930 print "x q - exit";
 940 goto 800
+
 950 if k$ <>"x" and k$ <>"q" goto 800
 960 print "{left*15}";
 970 print "                {up}";

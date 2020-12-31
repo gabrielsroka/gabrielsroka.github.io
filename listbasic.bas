@@ -1,80 +1,71 @@
-1 rem list basic
-2 poke53280,13
-3 poke53281,1
-4 print"{black}"
-
-!- globals: ls
-!- locals
-20 dim a,c,l$,e,t,t$
-60 dim l,h,q:qt=34:tl=128:b=127
-70 dim ls,j,i,bo,k$:pg=23
-!- arrays should go last
-90 ts=75:dim t$(ts),l$(80)
-
-
-!- copy basic rom tokens to t$()
-110 for a=41118to41372
-120 c=peek(a)
-130 ifcandtlthenc=candb:e=1
-140 t$=t$+chr$(c)
-150 ife=.goto180
-160 print"{clear}loading token"t"of"ts;t$
-170 e=.:t$(t)=t$:t$="":t=t+1
-180 next
+0 gosub100
 
 
 !- copy basic lines to l$()
-310 a=2049
-320 print"{clear}";
-
-!- address of next line
-400 l=peek(a):a=a+1:h=peek(a):a=a+1
-430 ifl=.and h=. goto700
+1 fora=2050topeek(45)+h*peek(46)-2
 !- basic line number
-450 l=peek(a):a=a+1
-460 h=peek(a):a=a+1
-480 l$=mid$(str$(l+h*256),2)+" "
-485 print"{home}line " l$
-490 q=.
+2 l$=mid$(str$(peek(a+1)+h*peek(a+2)),2)+" "
+3 a=a+3:q=.:print"{home}line "l$
 
 !- main line loop. line ends w/ 0
-500 c=peek(a):a=a+1
-520 ifcandtlthenif not q thenl$=l$+t$(candb):goto500
-530 ifc=.thenl$(ls)=l$:ls=ls+1:goto400
-540 ifc=qtthenq=notq
-550 l$=l$+chr$(c)
-560 goto500
+4 c=peek(a):a=a+1
+5 ifcandtkthenifnotqthenl$=l$+t$(candb):goto4
+6 ifc=qtthenq=notq
+7 ifcthenl$=l$+chr$(c):goto4
+8 l$(ls)=l$:ls=ls+1
+9 next
 
 
 !- print and kbd
-700 print"{clear}";
-720 ifj>ls-pgthenj=ls-pg
-730 ifj<.thenj=.
-740 for i=0topg-1
-750 ifi+j<ls thenprintl$(i+j)
-760 next
-770 bo=j+pg
-780 ifbo>ls thenbo=ls
-790 print j+1 "-" bo "of" ls "(h)elp";
+70 print"{clear}";
+71 ifj>ls-pgthenj=ls-pg
+72 ifj<.thenj=.
+73 for i=.topg-1
+74 ifi+j<ls thenprintl$(i+j)
+75 next
+76 bo=j+pg
+77 ifbo>ls thenbo=ls
+78 print j+1 "-" bo "of" ls "(h)elp";
 
-800 getk$
-810 ifk$=""goto800
-820 ifk$="{up}"thenj=j-1:goto700
-830 ifk$="{down}"thenj=j+1:goto700
-840 ifk$="{left}"thenj=j-pg:goto700
-850 ifk$="{right}"thenj=j+pg:goto700
-860 ifk$="{home}"thenj=.:goto700
-870 ifk$="{delete}"thenj=ls:goto700
-880 ifk$="x"ork$="q"goto970
-890 ifk$="h"goto910
-900 goto800
+80 getk$:ifk$=""goto80
+81 ifk$="{up}"thenj=j-1:goto70
+82 ifk$="{down}"thenj=j+1:goto70
+83 ifk$="{left}"thenj=j-pg:goto70
+84 ifk$="{right}"thenj=j+pg:goto70
+85 ifk$="{home}"thenj=.:goto70
+86 ifk$="{delete}"thenj=ls:goto70
+87 ifk$="x"ork$="q"goto97
+88 ifk$="h"goto90
+89 goto80
 
-910 print
-920 print"up dn - scroll 1 line"
-930 print"lt rt - scroll 1 page"
-940 print"hm dl - scroll to top/end"
-950 print"x q - exit";
-960 goto800
+90 print
+92 print"up dn - scroll 1 line"
+93 print"lt rt - scroll 1 page"
+94 print"hm dl - scroll to top/end"
+95 print"x q - exit";
+96 goto80
 
-970 print"{left*15}";
-980 print"{space*15}{up}";
+97 print"{left*15}";
+98 print"{space*15}{up}";
+99 end
+
+
+!- start
+100 poke53280,13:poke53281,1:print"{black}"
+
+!- globals: ls
+!- locals (most frequently used first)
+110 dim a,c,l$,t,t$,q
+120 qt=34:tk=128:b=127:h=256
+130 dim ls,j,i,bo,k$:pg=23
+!- arrays (should go last)
+150 ts=75:dim t$(ts),l$(50)
+
+
+!- copy basic tokens from rom to t$()
+200 fora=41118to41372
+210 c=peek(a):t$=t$+chr$(candb)
+220 ifcandtkthenprint"{clear}loading token"t"of"ts:t$(t)=t$:t$="":t=t+1
+230 next
+
+300 print"{clear}";:return

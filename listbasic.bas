@@ -1,3 +1,4 @@
+!-load time: 3900->2150
 0 gosub 1000
 
 
@@ -19,6 +20,7 @@
 85 next
 
 90 next
+94 l$=""
 
 
 !- print and kbd
@@ -39,13 +41,14 @@
 240 if k$="{right}" then j=bo:goto 100
 250 if k$="{home}" then j=.:goto 100
 260 if k$="{delete}" then q=ls-1:goto 400
-270 if k$="f" then print:input "find";l$:goto 500
-275 if k$="n" then print chr$(13) "finding next " l$:goto 500
+270 if k$="f" then l$="":goto 500
+275 if k$="n" goto 500
 280 if k$="g" goto 600
 290 if k$="x" or k$="q" goto 900
 300 if k$="h" goto 800
 310 goto 200
 
+!- scroll backwards
 400 if q<. goto 100
 410 a=.:c=pg-2:print "{clear}thinking..."
 420 for i=q to . step -1
@@ -53,16 +56,21 @@
 440 next
 450 goto 100
 
-500 t=-1:q=len(l$)
+!- find/find next
+500 if l$<>"" then print chr$(13) "finding next " l$
+501 t=-1:if l$="" then print:input "find";l$
+505 q=len(l$)
 510 for i=j+1 to ls-1
-520 for c=1 to len(l$(i))-q+1
-530 if mid$(l$(i),c,q)=l$ then t=i:c=h:i=ls
-540 next
+520 t$=l$(i)
+530 for c=1 to len(t$)-q+1
+540 if mid$(t$,c,q)=l$ then t=i:c=h:i=ls
 550 next
-560 if t=-1 then print l$ " not found";:goto 200
-570 j=t
-580 goto 100
+560 next
+570 if t=-1 then print l$ " not found";:goto 200
+580 j=t
+590 goto 100
 
+!- go to line number
 600 t=-1:print:input "line#";l$:l$=l$+" ":q=len(l$)
 610 for i=. to ls-1
 620 if left$(l$(i),q)=l$ then t=i:i=ls

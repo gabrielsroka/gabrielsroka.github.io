@@ -17,51 +17,51 @@
 
 
 !- print and kbd
-30 a=.:print"{clear}";
-32 if j<. then j=.
-33 for i=j to j+pg-1
-34 if i>=ls then bo=i:i=j+pg:goto 37
-35 a=a+l(i):if a>pg-1 then bo=i:i=j+pg:goto 37
-36 print l$(i)
-37 next
-38 if bo>ls then bo=ls
-39 print chr$(13)" lines" str$(j+1);-bo "of" ls "- (h)elp";
+100 a=.:print"{clear}";
+110 if j<. then j=.
+120 for i=j to j+pg-1
+130 if i>=ls then bo=i:i=j+pg:goto 160
+140 a=a+l(i):if a>pg-1 then bo=i:i=j+pg:goto 160
+150 print l$(i)
+160 next
+170 if bo>ls then bo=ls
+180 print chr$(13)" lines" str$(j+1);-bo "of" ls "- (h)elp";
 
-50 get k$:if k$="" goto 50
-51 if k$="{up}" then j=j-1:goto 30
-52 if k$="{down}" then j=j+1:goto 30
-53 if k$="{left}" then q=j-1:goto 100
-54 if k$="{right}" then j=bo:goto 30
-55 if k$="{home}" then j=.:goto 30
-56 if k$="{delete}" then q=ls-1:goto 100
-57 if k$="f" goto 200
-58 if k$="g" goto 300
-59 if k$="x" or k$="q" goto 900
-60 if k$="h" goto 800
-61 goto 50
+200 get k$:if k$="" goto 200
+210 if k$="{up}" then j=j-1:goto 100
+220 if k$="{down}" then j=j+1:goto 100
+230 if k$="{left}" then q=j-1:goto 400
+240 if k$="{right}" then j=bo:goto 100
+250 if k$="{home}" then j=.:goto 100
+260 if k$="{delete}" then q=ls-1:goto 400
+270 if k$="f" goto 500
+280 if k$="g" goto 600
+290 if k$="x" or k$="q" goto 900
+300 if k$="h" goto 800
+310 goto 200
 
-100 if q<. goto 30
-110 a=.:c=pg-2:print "{clear}thinking..."
-120 for i=q to . step -1
-130 a=a+l(i):j=i:if a>c then i=.
-140 next
-150 goto 30
+400 if q<. goto 100
+410 a=.:c=pg-2:print "{clear}thinking..."
+420 for i=q to . step -1
+430 a=a+l(i):j=i:if a>c then i=.
+440 next
+450 goto 100
 
-200 input "{left*6}find ";l$:q=-1
-210 for i=. to ls-1:for c=1 to len(l$(i))-len(l$)+1
-220 if mid$(l$(i),c,len(l$))=l$ then q=i:i=ls-1
-230 next:next
-240 if q=-1 then print "{up} " l$ " not found{space*11}";:goto 50
-250 j=q
-260 goto 30
+500 print:input "find";l$:q=-1
+510 for i=. to ls-1:for c=1 to len(l$(i))-len(l$)+1
+520 if mid$(l$(i),c,len(l$))=l$ then q=i:i=ls-1
+530 next:next
+540 if q=-1 then print l$ " not found";:goto 200
+550 j=q
+560 goto 100
 
-300 input "{left*6}line#";l$:q=-1:l$=l$+" "
-310 for i=. to ls-1
-320 if left$(l$(i),len(l$))=l$ then q=i:i=ls-1
-330 next
-340 if q=-1 then print "{up} line not found{space*11}";:goto 50
-350 j=q
-360 goto 30
+600 print:input "line#";l$:q=-1:l$=l$+" "
+610 for i=. to ls-1
+620 if left$(l$(i),len(l$))=l$ then q=i:i=ls-1
+630 next
+640 if q=-1 then print "line not found";:goto 200
+650 j=q
+660 goto 100
 
 800 print
 810 print "up dn - scroll 1 line"
@@ -70,11 +70,11 @@
 840 print "f - find"
 850 print "g - go to line number" 
 880 print "x q - exit";
-890 goto 50
+890 goto 200
 
-900 print "{left*20}";
-910 print "{space*20}{up}";
-920 end
+900 print "{left*25}";
+910 print "{space*25}{up*2}";
+999 end
 
 
 !- start

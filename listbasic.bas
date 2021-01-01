@@ -1,4 +1,3 @@
-!-load time: 3900->2150
 0 gosub 1000
 
 
@@ -41,7 +40,7 @@
 250 if k$="{home}" then j=.:goto 100
 260 if k$="{delete}" then q=ls-1:goto 400
 270 if k$="f" then print:input "find";l$:goto 500
-275 if k$="F" then print chr$(13) "finding next " l$:goto 500
+275 if k$="n" then print chr$(13) "finding next " l$:goto 500
 280 if k$="g" goto 600
 290 if k$="x" or k$="q" goto 900
 300 if k$="h" goto 800
@@ -64,19 +63,19 @@
 570 j=t
 580 goto 100
 
-600 print:input "line#";l$:q=-1:l$=l$+" "
+600 t=-1:print:input "line#";l$:l$=l$+" ":q=len(l$)
 610 for i=. to ls-1
-620 if left$(l$(i),len(l$))=l$ then q=i:i=ls
+620 if left$(l$(i),q)=l$ then t=i:i=ls
 630 next
-640 if q=-1 then print "line not found";:goto 200
-650 j=q
+640 if t=-1 then print "line not found";:goto 200
+650 j=t
 660 goto 100
 
 800 print
 810 print "up dn - scroll 1 line"
 820 print "lt rt - scroll 1 page"
 830 print "hm dl - scroll to top/end"
-840 print "f sh+f - find/find next"
+840 print "f n - find/find next"
 850 print "g - go to line number" 
 880 print "x q - exit";
 890 goto 200

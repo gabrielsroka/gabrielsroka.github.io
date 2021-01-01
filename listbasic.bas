@@ -22,11 +22,6 @@
 90 next
 
 
-97 print ti-t0 "j," (ti-t0)/60 "s"
-98 print "press any key"
-99 rem get k$:if k$="" goto 99
-
-
 !- print and kbd
 100 a=.:print"{clear}";
 110 if j<. then j=.
@@ -46,7 +41,7 @@
 250 if k$="{home}" then j=.:goto 100
 260 if k$="{delete}" then q=ls-1:goto 400
 270 if k$="f" then print:input "find";l$:goto 500
-275 if k$="F" then print chr$(13) "finding":goto 500
+275 if k$="F" then print chr$(13) "finding next " l$:goto 500
 280 if k$="g" goto 600
 290 if k$="x" or k$="q" goto 900
 300 if k$="h" goto 800
@@ -99,7 +94,6 @@
 1100 dim a,c,l$,t,t$,q
 1200 qt=34:tk=128:b=127:h=256
 1300 dim ls,j,i,bo,k$:pg=24
-1400 t0=ti
 !- arrays (should go last)
 1500 ts=75:lm=90:dim t$(ts),l$(lm),l(lm)
 

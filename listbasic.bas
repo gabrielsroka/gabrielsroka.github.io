@@ -1,5 +1,5 @@
 !-load time: 3900->1736
-0 gosub100
+0 gosub 100
 
 
 !- copy basic lines to l$()
@@ -10,9 +10,9 @@
 
 !- main line loop. line ends w/ 0
 4 c=peek(a):a=a+1
-5 if c and tk then if not q then l$=l$+t$(c and b):goto4
+5 if c and tk then if not q then l$=l$+t$(c and b):goto 4
 6 if c=qt then q=not q
-7 if c then l$=l$+chr$(c):goto4
+7 if c then l$=l$+chr$(c):goto 4
 8 l$(ls)=l$:l(ls)=int(len(l$)/40)+1:ls=ls+1
 9 next
 

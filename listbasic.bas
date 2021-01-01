@@ -1,5 +1,5 @@
-!-load time: 3900->1687
-0 gosub 100
+!-load time: 3900->1736
+0 gosub100
 
 
 !- copy basic lines to l$()
@@ -16,9 +16,6 @@
 8 l$(ls)=l$:l(ls)=int(len(l$)/40)+1:ls=ls+1
 9 next
 
-20 ?ti-t0"j."(ti-t0)/60"s"
-21 ?"press any key"
-22 rem getk$:if k$="" goto22
 
 !- print and kbd
 30 a=.:print"{clear}";
@@ -69,7 +66,6 @@
 110 dim a,c,l$,t,t$,q
 120 qt=34:tk=128:b=127:h=256
 130 dim ls,j,i,bo,k$:pg=24
-140 t0=ti
 !- arrays (should go last)
 150 ts=75:lm=60:dim t$(ts),l$(lm),l(lm)
 
@@ -77,7 +73,7 @@
 !- copy basic tokens from rom to t$()
 200 for a=41118 to 41372
 210 c=peek(a):t$=t$+chr$(c and b)
-220 if c and tk then print"{clear}loading token"t"of"ts:t$(t)=t$:t$="":t=t+1
+220 if c and tk then print"{clear}loading token" t "of" ts:t$(t)=t$:t$="":t=t+1
 230 next
 
 300 print"{clear}";:return

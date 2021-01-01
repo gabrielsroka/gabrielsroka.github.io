@@ -1,19 +1,30 @@
+!-load time: 3900->2150
 0 gosub 1000
 
 
 !- copy basic lines to l$()
-1 for a=2050 to peek(45)+h*peek(46)-2
+9 i=peek(45)+h*peek(46)-2
+10 for a=2050 to i
 !- basic line number
-2 l$=mid$(str$(peek(a+1)+h*peek(a+2)),2)+" "
-3 a=a+3:q=.:print "{home}line " l$
+20 l$=mid$(str$(peek(a+1)+h*peek(a+2)),2)+" "
+30 q=.:print "{home}line " l$
 
 !- main line loop. line ends w/ 0
-4 c=peek(a):a=a+1
-5 if c and tk then if not q then l$=l$+t$(c and b):goto 4
-6 if c=qt then q=not q
-7 if c then l$=l$+chr$(c):goto 4
-8 l$(ls)=l$:l(ls)=int(len(l$)/40)+1:ls=ls+1
-9 next
+40 for t=a+3 to i
+45 c=peek(t)
+50 if c and tk then if not q then l$=l$+t$(c and b):goto 85
+60 if c=qt then q=not q
+70 if c then l$=l$+chr$(c):goto 85
+!- c==0, end of line
+80 l$(ls)=l$:l(ls)=int(len(l$)/40)+1:ls=ls+1:a=t+1:t=i
+85 next
+
+90 next
+
+
+97 print ti-t0 "j," (ti-t0)/60 "s"
+98 print "press any key"
+99 rem get k$:if k$="" goto 99
 
 
 !- print and kbd
@@ -34,7 +45,8 @@
 240 if k$="{right}" then j=bo:goto 100
 250 if k$="{home}" then j=.:goto 100
 260 if k$="{delete}" then q=ls-1:goto 400
-270 if k$="f" goto 500
+270 if k$="f" then print:input "find";l$:goto 500
+275 if k$="F" then print chr$(13) "finding":goto 500
 280 if k$="g" goto 600
 290 if k$="x" or k$="q" goto 900
 300 if k$="h" goto 800
@@ -47,17 +59,19 @@
 440 next
 450 goto 100
 
-500 print:input "find";l$:q=-1
-510 for i=. to ls-1:for c=1 to len(l$(i))-len(l$)+1
-520 if mid$(l$(i),c,len(l$))=l$ then q=i:i=ls-1
-530 next:next
-540 if q=-1 then print l$ " not found";:goto 200
-550 j=q
-560 goto 100
+500 t=-1:q=len(l$)
+510 for i=j+1 to ls-1
+520 for c=1 to len(l$(i))-q+1
+530 if mid$(l$(i),c,q)=l$ then t=i:c=h:i=ls
+540 next
+550 next
+560 if t=-1 then print l$ " not found";:goto 200
+570 j=t
+580 goto 100
 
 600 print:input "line#";l$:q=-1:l$=l$+" "
 610 for i=. to ls-1
-620 if left$(l$(i),len(l$))=l$ then q=i:i=ls-1
+620 if left$(l$(i),len(l$))=l$ then q=i:i=ls
 630 next
 640 if q=-1 then print "line not found";:goto 200
 650 j=q
@@ -67,7 +81,7 @@
 810 print "up dn - scroll 1 line"
 820 print "lt rt - scroll 1 page"
 830 print "hm dl - scroll to top/end"
-840 print "f - find"
+840 print "f sh+f - find/find next"
 850 print "g - go to line number" 
 880 print "x q - exit";
 890 goto 200
@@ -85,8 +99,9 @@
 1100 dim a,c,l$,t,t$,q
 1200 qt=34:tk=128:b=127:h=256
 1300 dim ls,j,i,bo,k$:pg=24
+1400 t0=ti
 !- arrays (should go last)
-1500 ts=75:lm=80:dim t$(ts),l$(lm),l(lm)
+1500 ts=75:lm=90:dim t$(ts),l$(lm),l(lm)
 
 
 !- copy basic tokens from rom to t$()

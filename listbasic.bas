@@ -1,5 +1,4 @@
-!-load time: 3900->1736
-0 gosub 100
+0 gosub 1000
 
 
 !- copy basic lines to l$()
@@ -31,49 +30,69 @@
 50 get k$:if k$="" goto 50
 51 if k$="{up}" then j=j-1:goto 30
 52 if k$="{down}" then j=j+1:goto 30
-53 if k$="{left}" then q=j-1:goto 70
+53 if k$="{left}" then q=j-1:goto 100
 54 if k$="{right}" then j=bo:goto 30
 55 if k$="{home}" then j=.:goto 30
-56 if k$="{delete}" then q=ls-1:goto 70
-57 if k$="x" or k$="q" goto 90
-58 if k$="h" goto 80
-59 goto 50
+56 if k$="{delete}" then q=ls-1:goto 100
+57 if k$="f" goto 200
+58 if k$="g" goto 300
+59 if k$="x" or k$="q" goto 900
+60 if k$="h" goto 800
+61 goto 50
 
-70 if q<. goto 30
-71 a=.:c=pg-2:print "{clear}thinking..."
-72 for i=q to . step -1
-73 a=a+l(i):j=i:if a>c then i=.
-74 next
-75 goto 30
+100 if q<. goto 30
+110 a=.:c=pg-2:print "{clear}thinking..."
+120 for i=q to . step -1
+130 a=a+l(i):j=i:if a>c then i=.
+140 next
+150 goto 30
 
-80 print
-81 print "up dn - scroll 1 line"
-82 print "lt rt - scroll 1 page"
-83 print "hm dl - scroll to top/end"
-84 print "x q - exit";
-85 goto 50
+200 input "{left*6}find ";l$:q=-1
+210 for i=. to ls-1:for c=1 to len(l$(i))-len(l$)+1
+220 if mid$(l$(i),c,len(l$))=l$ then q=i:i=ls-1
+230 next:next
+240 if q=-1 then print "{up} " l$ " not found{space*11}";:goto 50
+250 j=q
+260 goto 30
 
-90 print "{left*20}";
-91 print "{space*20}{up}";
-99 end
+300 input "{left*6}line#";l$:q=-1:l$=l$+" "
+310 for i=. to ls-1
+320 if left$(l$(i),len(l$))=l$ then q=i:i=ls-1
+330 next
+340 if q=-1 then print "{up} line not found{space*11}";:goto 50
+350 j=q
+360 goto 30
+
+800 print
+810 print "up dn - scroll 1 line"
+820 print "lt rt - scroll 1 page"
+830 print "hm dl - scroll to top/end"
+840 print "f - find"
+850 print "g - go to line number" 
+880 print "x q - exit";
+890 goto 50
+
+900 print "{left*20}";
+910 print "{space*20}{up}";
+920 end
 
 
 !- start
-100 poke 53280,13:poke 53281,1:print "{black}"
+1000 poke 53280,13:poke 53281,1:print "{black}"
 
 !- globals: ls,l$(),l()
 !- locals (most frequently used first)
-110 dim a,c,l$,t,t$,q
-120 qt=34:tk=128:b=127:h=256
-130 dim ls,j,i,bo,k$:pg=24
+1100 dim a,c,l$,t,t$,q
+1200 qt=34:tk=128:b=127:h=256
+1300 dim ls,j,i,bo,k$:pg=24
 !- arrays (should go last)
-150 ts=75:lm=60:dim t$(ts),l$(lm),l(lm)
+1500 ts=75:lm=80:dim t$(ts),l$(lm),l(lm)
 
 
 !- copy basic tokens from rom to t$()
-200 for a=41118 to 41372
-210 c=peek(a):t$=t$+chr$(c and b)
-220 if c and tk then print "{clear}loading token" t "of" ts:t$(t)=t$:t$="":t=t+1
-230 next
+2000 for a=41118 to 41372
+2100 c=peek(a):t$=t$+chr$(c and b)
+2200 if c and tk then print "{clear}loading token" t "of" ts:t$(t)=t$:t$="":t=t+1
+2300 next
 
-300 print "{clear}";:return
+3000 print "{clear}";:return

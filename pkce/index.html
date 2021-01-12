@@ -36,12 +36,13 @@ td {
 // 4. Assign the app to yourself.
 // 5. Set the Okta API Scope to "okta.users.read".
 // 6. Configure your application and authorization server details:
-const baseUrl = 'https://gsroka-neto.oktapreview.com';
-const client_id = '0oatnwl9cotZ1xPph0h7'; // OAuth for Okta SPA
+const baseUrl = 'https://gsroka-neto.oktapreview.com'; // https://gsroka-neto.oktapreview.com
+const client_id = '0oatnwl9cotZ1xPph0h7'; // OAuth for Okta SPA, gsroka-neto: 0oatnwl9cotZ1xPph0h7
+const groupId = '00gwb2x6jewAvwYSX0h7'; // "Admin" group
 const redirect_uri = `${location.origin}/pkce/`;
 const authorize_endpoint =  `${baseUrl}/oauth2/v1/authorize`;
 const token_endpoint = `${baseUrl}/oauth2/v1/token`;
-const scope = 'okta.users.read';
+const scope = 'openid groups okta.users.read okta.groups.manage'; // space delimited. 'okta.users.manage.self', 'okta.groups.manage'... needed for update
 
 // OAUTH REDIRECT HANDLING
 
@@ -49,12 +50,14 @@ const scope = 'okta.users.read';
 // get an access token from the token endpoint
 
 const q = new URLSearchParams(location.search);
+var tokens;
 
 if (q.has('error')) {
     results.innerHTML = q.get('error') + '<br>' + q.get('error_description') + `<br><br>Fix the error and <a href="${redirect_uri}">try again</a>`;
 } else if (q.has('code')) { // If the server returned an authorization code, exchange it for an access token.
     if (localStorage.state == q.get('state')) {
         getUsers();
+        // updateMe();
     } else {
         results.innerHTML = 'Invalid state. <a href="/pkce">retry</a>';
     }
@@ -65,13 +68,72 @@ if (q.has('error')) {
 }
 
 async function getUsers() {
-    const tokens = await getTokens();
-    const headers = {Authorization: `Bearer ${tokens.access_token}`};
-    const r = await fetch(`${baseUrl}/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15`, {headers});
-    const users = await r.json();
-    const rows = users.map(u => `<tr><td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}`).join('');
-    results.innerHTML = '<h1>Users</h1><table><tr><th>Username<th>First<th>Last<th>Email' + rows + '</table>';
+    tokens = await getTokens();
     history.replaceState({}, null, '/pkce/index.html'); // Remove the auth code from the browser address bar.
+    const id = JSON.parse(atob(tokens.id_token.split('.')[1]));
+    console.log('id', id);
+    const access = JSON.parse(atob(tokens.access_token.split('.')[1]));
+    console.log('access', access);
+    const groups = await getGroups();
+    console.log('groups', groups);
+    if (groups == 'error') {
+        results.innerHTML = access.sub + ' is not authorized';
+        return;
+    }
+    const isAdmin = groups.includes('Admin');
+    console.log(isAdmin);
+    if (!isAdmin) {
+        results.innerHTML = access.sub + ' is not authorized';        
+        return;
+    }
+    const options = {
+        headers: {Authorization: `Bearer ${tokens.access_token}`}
+    };
+    const r = await fetch(`${baseUrl}/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15`, options);
+    const users = await r.json();
+    const rows = users.map(u => `<tr><td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}<td><a onclick="makeAdmin('${u.id}', '${u.profile.firstName} ${u.profile.lastName}')"">Grant Admin</a>`).join('');
+    results.innerHTML = 'Welcome ' + access.sub + '<h1>Users</h1><table><tr><th>Username<th>First<th>Last<th>Email<th>Action' + rows + '</table>';
+}
+
+async function getGroups() {
+    const options = {
+        headers: {Authorization: `Bearer ${tokens.access_token}`},
+        method: 'post'
+    };
+    const r = await fetch(`${baseUrl}/oauth2/v1/userinfo`, options);
+    if (r.ok) {
+        const info = await r.json();
+        return info.groups;
+    } else {
+        return 'error';
+    }
+}
+
+async function makeAdmin(userId, displayName) {
+    const options = {
+        headers: {Authorization: `Bearer ${tokens.access_token}`},
+        method: 'put'
+    };
+    const r = await fetch(`${baseUrl}/api/v1/groups/${groupId}/users/${userId}`, options);
+    results.innerHTML += '<br>' + displayName + ' is now an Admin.';
+}
+
+async function updateMe() {
+    tokens = await getTokens();
+    const options = {
+        headers: {
+            Authorization: `Bearer ${tokens.access_token}`,
+            'Content-Type': 'application/json'
+        }, 
+        method: 'post', 
+        body: JSON.stringify({
+            profile: {
+                lastName: 'Sroka test'
+            }
+        })
+    };
+    const r = await fetch(`${baseUrl}/api/v1/users/me`, options);
+    console.log(await r.json());
 }
 
 async function getTokens() {

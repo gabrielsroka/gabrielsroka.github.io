@@ -70,20 +70,20 @@ if (q.has('error')) {
 async function getUsers() {
     tokens = await getTokens();
     history.replaceState({}, null, '/pkce/index.html'); // Remove the auth code from the browser address bar.
-    const id = JSON.parse(atob(tokens.id_token.split('.')[1]));
-    console.log('id', id);
-    const access = JSON.parse(atob(tokens.access_token.split('.')[1]));
-    console.log('access', access);
+    const id_token = JSON.parse(atob(tokens.id_token.split('.')[1]));
+    console.log('id_token', id_token);
+    const access_token = JSON.parse(atob(tokens.access_token.split('.')[1]));
+    console.log('access_token', access_token);
     const groups = await getGroups();
     console.log('groups', groups);
     if (groups == 'error') {
-        results.innerHTML = access.sub + ' is not authorized';
+        results.innerHTML = access_token.sub + ' is not authorized';
         return;
     }
     const isAdmin = groups.includes('Admin');
-    console.log(isAdmin);
+    console.log('isAdmin', isAdmin);
     if (!isAdmin) {
-        results.innerHTML = access.sub + ' is not authorized';        
+        results.innerHTML = access_token.sub + ' is not authorized';        
         return;
     }
     const options = {
@@ -92,7 +92,7 @@ async function getUsers() {
     const r = await fetch(`${baseUrl}/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15`, options);
     const users = await r.json();
     const rows = users.map(u => `<tr><td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}<td><a onclick="makeAdmin('${u.id}', '${u.profile.firstName} ${u.profile.lastName}')"">Grant Admin</a>`).join('');
-    results.innerHTML = 'Welcome ' + access.sub + '<h1>Users</h1><table><tr><th>Username<th>First<th>Last<th>Email<th>Action' + rows + '</table>';
+    results.innerHTML = 'Welcome ' + access_token.sub + '<h1>Users</h1><table><tr><th>Username<th>First<th>Last<th>Email<th>Action' + rows + '</table>';
 }
 
 async function getGroups() {

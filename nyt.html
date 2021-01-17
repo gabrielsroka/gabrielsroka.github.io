@@ -1,0 +1,33 @@
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<style>
+a {
+    color: black;
+    text-decoration: none;
+}
+img {
+    width: 100%;
+    height: auto;
+}
+</style>
+</head>
+<body>
+<p>NY Times</p>
+<b>Sections</b>
+<div id=links></div>
+<p>
+<div id=results></div>
+<script>
+const sections = ['home', 'arts', 'automobiles', 'books', 'business', 'fashion', 'food', 'health', 'insider', 'magazine', 'movies', 'nyregion', 'obituaries', 'opinion', 'politics', 'realestate', 'science', 'sports', 'sundayreview', 'technology', 'theater', 't-magazine', 'travel', 'upshot', 'us', 'world'];
+const apiKey = localStorage.apiKey || (localStorage.apiKey = prompt('api key'));
+sections.forEach(async section => {
+    links.innerHTML += `<div><a href='#${section}'>${section}</a></div>`;
+    results.innerHTML += `<a id='${section}'>${section}</a>`;
+    const r = await fetch(`https://api.nytimes.com/svc/topstories/v2/${section}.json?api-key=${apiKey}`);
+    const rs = (await r.json()).results;
+    rs.forEach(r => results.innerHTML += `<p><a href='${r.url}'><b>${r.title}</b><br>${r.abstract}<br><img src='${r.multimedia[0].url}'></a>`);
+})
+</script>
+</body>
+</html>

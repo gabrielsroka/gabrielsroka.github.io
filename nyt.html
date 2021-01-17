@@ -10,24 +10,47 @@ img {
     width: 100%;
     height: auto;
 }
+#more {
+    text-align: center;
+    display: block;
+    border: 1px solid silver;
+    padding: 4px;
+}
 </style>
 </head>
 <body>
 <p>NY Times</p>
 <b>Sections</b>
 <div id=links></div>
+<div id=info></div>
 <p>
 <div id=results></div>
+<div id=more>More</div>
 <script>
-const sections = ['home', 'arts', 'automobiles', 'books', 'business', 'fashion', 'food', 'health', 'insider', 'magazine', 'movies', 'nyregion', 'obituaries', 'opinion', 'politics', 'realestate', 'science', 'sports', 'sundayreview', 'technology', 'theater', 't-magazine', 'travel', 'upshot', 'us', 'world'];
+// see https://developer.nytimes.com to register, get api key, read docs, etc.
 const apiKey = localStorage.apiKey || (localStorage.apiKey = prompt('api key'));
-sections.forEach(async section => {
-    links.innerHTML += `<div><a href='#${section}'>${section}</a></div>`;
-    results.innerHTML += `<a id='${section}'>${section}</a>`;
-    const r = await fetch(`https://api.nytimes.com/svc/topstories/v2/${section}.json?api-key=${apiKey}`);
-    const rs = (await r.json()).results;
-    rs.forEach(r => results.innerHTML += `<p><a href='${r.url}'><b>${r.title}</b><br>${r.abstract}<br><img src='${r.multimedia[0].url}'></a>`);
-})
+const sections = ['home', 'arts', 'automobiles', 'books', 'business', 'food', 'health', 'insider', 'magazine', 'movies', 
+    'nyregion', 'opinion', 'politics', 'realestate', 'science', 'sundayreview', 'technology', 'theater', 't-magazine', 'travel', 
+    'upshot', 'us', 'world'];
+// misc sections: ['fashion', 'obituaries', 'sports']
+var s = 0;
+onload = more.onclick = async function () {
+    info.innerHTML = 'Loading...';
+    do {
+        const section = sections[s];
+        const r = await fetch(`https://api.nytimes.com/svc/topstories/v2/${section}.json?api-key=${apiKey}`);
+        const rs = (await r.json()).results;
+        links.innerHTML += `<div><a href='#${section}'>${section}</a></div>`;
+        results.innerHTML += `<a id='${section}'>${section}</a>`;
+        rs.forEach(r => results.innerHTML += `<p><a href='${r.url}' target='_blank' rel='noopener'><b>${r.title}</b><br>${r.abstract}<br>${r.multimedia ? `<img src='${r.multimedia[0].url}'>` : ''}</a>`);
+        s++;
+        if (s == sections.length) {
+            more.style.display = 'none';
+            break;
+        }
+    } while (s % 10); // rate limit
+    info.innerHTML = '';
+};
 </script>
 </body>
 </html>

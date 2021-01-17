@@ -2,13 +2,13 @@
 <head>
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <style>
-a {
-    color: black;
-    text-decoration: none;
+a:link {
+    color: #000000;
+    text-decoration: none; 
 }
-img {
-    width: 100%;
-    height: auto;
+a:visited {
+    color: #828282;
+    text-decoration: none;
 }
 #more {
     text-align: center;
@@ -42,7 +42,7 @@ onload = more.onclick = async function () {
         const rs = (await r.json()).results;
         links.innerHTML += `<div><a href='#${section}'>${section}</a></div>`;
         results.innerHTML += `<a id='${section}'>${section}</a>`;
-        rs.forEach(r => results.innerHTML += `<p><a href='${r.url}' target='_blank' rel='noopener'><b>${r.title}</b><br>${r.abstract}<br>${r.multimedia ? `<img src='${r.multimedia[0].url}'>` : ''}</a>`);
+        rs.forEach(r => results.innerHTML += `<p><a href='${r.url}' target='_blank' rel='noopener'><b>${r.title}</b><br>${r.abstract}<br>${r.multimedia ? `<img src='${r.multimedia[3].url}'>` : ''}</a>`);
         s++;
         if (s == sections.length) {
             more.style.display = 'none';

@@ -168,7 +168,8 @@ async function getItems() {
                 seen[id] = now;
                 if (!newSeen[id]) {
                     const r = await fetch(`${baseUrl}/item/${id}.json`);
-                    showItem(await r.json());
+                    const item = await r.json();
+                    if (item) showItem(item); // sometimes item === null
                 }
             } else {
                 contents.innerHTML += `<p><br><br></p>`;

@@ -15,6 +15,7 @@ td {
 onload = async function () {
     paths = []
     hash = {}
+    // TODO: use JSON version at https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.json
     r = await fetch('https://raw.githubusercontent.com/okta/okta-sdk-java/master/src/swagger/api.yaml')
     lines = (await r.text()).split('\n')
     lines.forEach(line => {

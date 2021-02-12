@@ -15,6 +15,7 @@ td {
 onload = async function () {
     paths = []
     hash = {}
+    // TODO: use JSON version at https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.json
     r = await fetch('https://raw.githubusercontent.com/okta/okta-sdk-java/master/src/swagger/api.yaml')
     lines = (await r.text()).split('\n')
     lines.forEach(line => {
@@ -57,6 +58,9 @@ onload = async function () {
             headers['content-type'] = 'application/pkix-cert'
         } else {
             headers['content-type'] = 'application/json'
+        }
+        if (path == '/api/v1/policies?type={type}') {
+            path = '/api/v1/policies?type=Okta:SignOn'
         }
         try {
             r = await fetch(base + path, {headers, method})

@@ -296,6 +296,7 @@
             var form = $("<form>Name <input class=name style='width: 300px'> " + 
                 "<input type=submit value=Search></form><br><div class=results></div>").appendTo(popup);
             form.submit(event => {
+                popup.find("div.results").html("Loading...");
                 getJSON("/api/v1/groups").then(groups => {
                     groups = groups
                         .filter(group => group.profile.name.match(new RegExp(form.find("input.name").val(), "i")))
@@ -608,7 +609,7 @@
             });
         } else if (location.pathname == "/admin/universaldirectory") {
             createDiv("Export Mappings", mainPopup, function () {
-                startExport("Mappings", "/api/v1/mappings", "id,sourceId,sourceName,soureceType,targetId,targetName,targetType", 
+                startExport("Mappings", "/api/v1/mappings", "id,sourceId,sourceName,sourceType,targetId,targetName,targetType", 
                     mapping => toCSV(mapping.id, mapping.source.id, mapping.source.name, mapping.source.type, 
                         mapping.target.id, mapping.target.name, mapping.target.type));
             });
@@ -1029,7 +1030,7 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "urls";
-            const paths = 'apps,apps/${appId},apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,' + 
+            const paths = 'apps,apps/${appId},apps/${appId}/groups,apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,' + 
                 'groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type},' + 
                 'meta/schemas/apps/${instanceId}/default,meta/schemas/user/default,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,' + 
                 'users,users/me,users/${userId},users/${userId}/appLinks,users/${userId}/factors,users/${userId}/groups,users/${userId}/roles,zones';

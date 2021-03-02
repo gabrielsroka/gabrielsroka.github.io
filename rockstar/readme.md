@@ -1,4 +1,4 @@
-# Enhance Okta with these features:
+# rockstar is a Chrome extension that adds these features to Okta
 - Export Objects to CSV: eg, Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, App Notes.
 - Administrators page: Export Admins
 - User home page: Show SSO (SAML assertion, etc)

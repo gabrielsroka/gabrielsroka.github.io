@@ -722,7 +722,7 @@
             if (filter) {
                 var exportArgs = localStorage.rockstarExportUserArgs || "";
                 exportPopup.append(
-                    `<br><br>Query, Filter, or Search&nbsp;&nbsp;` +
+                    `<form><br><br>Query, Filter, or Search&nbsp;&nbsp;` +
                     `<a href='https://developer.okta.com/docs/reference/api/users/#list-users' target='_blank' rel='noopener'>Help</a><br>` +
                     `<input id=exportargs list=parlist value='${e(exportArgs)}' style='width: 500px'>` + 
                     `<datalist id=parlist><option>q=Smith<option>filter=status eq "DEPROVISIONED"<option>filter=profile.lastName eq "Smith"` +
@@ -732,7 +732,7 @@
                     `Query lists up 10 users; query by first name, last name or email.<br><br>` + 
                     `Filter lists all users; filter by status, last updated, id, login, email, first name or last name.<br><br>` +
                     `Search lists all users; search by any user profile property, including custom-defined<br>` +
-                    `properties, and id, status, created, activated, status changed and last updated.`);
+                    `properties, and id, status, created, activated, status changed and last updated.</form>`);
             }
             exportPopup.append(`<br><br><div id=error>&nbsp;</div><br>`);
             createDivA("Export", exportPopup, function () {

@@ -41,6 +41,9 @@ eng raise rate limit?
 
 scale test: 1000 apps * 4 rules/app
 
+Unni:
+- delete all existing policies ?
+
 NOTE: when u delete an app, it still has a policy !!!
 
 */
@@ -49,19 +52,21 @@ NOTE: when u delete an app, it still has a policy !!!
     /* Main popup. */
     const popup = createPopup('Clone Application Policies');
     const form = $('<form>Applications<div class=results>Loading...</div><br> ' +
-        '<button type=submit disabled>Clone</button> ' +
-        '<input type=button class=checkAll value="Check All"> <input type=button class=uncheckAll value="Uncheck All">' +
+        '<input type=submit disabled value=Clone> ' +
+        '<input type=button class=checkAll value="Check All"> <input type=button class=uncheckAll value="Uncheck All"> ' +
+        '<input type=button class=exportCSV value="Export CSV">' +
+        '<br><br><label>Import Apps CSV<br><input type=file class=importApps></label>' +
+        '<br><label>Rollback Rules<br><input type=file class=rollbackRules></label>' +
         '<br><br><div class=cloned></div></form>').appendTo(popup);
     
-    $('<input type="file">')
-    .appendTo(popup)
-    .change(function () {
+    /* Import CSV and clone rule. */
+    form.find('input.importApps').change(function () {
         const reader = new FileReader();
-        reader.onload = () => parseFile(reader.result);
+        reader.onload = () => parseAppFile(reader.result);
         reader.readAsText(this.files[0]);
     });
 
-    async function parseFile(file) {
+    async function parseAppFile(file) {
         const lineSeparator = /\r\n|\r|\n/;
         const fieldSeparator = ",";
 
@@ -71,17 +76,48 @@ NOTE: when u delete an app, it still has a policy !!!
         const headers = {};
         fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
+        /* TODO: merge with Clone Rule code below */
         form.find('div.cloned').html('Cloned:<br>');
         const cloned = [];
+        const csv = [];
         for (const line of lines) {
             const fields = line.split(fieldSeparator);
             const policyId = fields[headers.id];
-            await postJSON({url: `/api/v1/policies/${policyId}/rules`, data: rule});
+            const clonedRule = await postJSON({url: `/api/v1/policies/${policyId}/rules`, data: rule});
+            csv.push(toCSV(policyId, clonedRule.id, fields[headers.name]));
             cloned.push(fields[headers.name]);
-            if (cloned.length == lines.length) {
-                form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
-            }
         }
+        form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
+        downloadCSV(popup, 'policyId,ruleId,name', csv, 'cloned rules');
+    }
+
+    /* Rollback. */
+    form.find('input.rollbackRules').change(function () {
+        const reader = new FileReader();
+        reader.onload = () => parseRuleFile(reader.result);
+        reader.readAsText(this.files[0]);
+    });
+
+    async function parseRuleFile(file) {
+        const lineSeparator = /\r\n|\r|\n/;
+        const fieldSeparator = ",";
+
+        const lines = file.split(lineSeparator);
+        if (lines[lines.length - 1] == '') lines.pop();
+        const fields = lines.shift().split(fieldSeparator);
+        const headers = {};
+        fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
+
+        form.find('div.cloned').html('Rolled back:<br>');
+        const rolled = [];
+        for (const line of lines) {
+            const fields = line.replace(/"/g, '').split(fieldSeparator); /* TODO: improve support for "" */
+            const policyId = fields[headers.policyId];
+            const ruleId = fields[headers.ruleId];
+            const clonedRule = await $.ajax({url: `/api/v1/policies/${policyId}/rules/${ruleId}`, method: 'delete'});
+            rolled.push(fields[headers.name]);
+        }
+        form.find('div.cloned').html(form.find('div.cloned').html() + rolled.sort().join('<br>'));
     }
 
     /* Find policies and apps, show checkboxes. */
@@ -106,12 +142,13 @@ NOTE: when u delete an app, it still has a policy !!!
                 found.push(`${sortBy}<label><input type=checkbox value='${p.id}' checked>${p.name}</label>`);
             }
             csv.push(toCSV(p.id, p.name));
+            form.find('div.results').html(`Loading app ${csv.length + 1}...`);
         }
     }
-    downloadCSV(popup, 'id,name', csv, 'apps');
+    form.find('input.exportCSV').click(() => downloadCSV(popup, 'id,name', csv, 'apps'));
     const results = found.length > 0 ? found.sort().join('<br>') : 'Not found';
     form.find('div.results').html(results);
-    form.find('button').prop('disabled', false);
+    form.find('input[type=submit]').prop('disabled', false);
 
     /* Find and edit rule. */
     const rules = await $.getJSON(`/api/v1/policies/${policyId}/rules?type=Okta:SignOn`);
@@ -121,7 +158,7 @@ NOTE: when u delete an app, it still has a policy !!!
     delete rule.resourceDisplayName;
     delete rule._links;
 
-    /* Clone rule. */
+    /* Clone rule (from Clone button). */
     form.submit(event => {
         form.find('div.cloned').html('Cloned:<br>');
         const checked = form.find('input:checked');

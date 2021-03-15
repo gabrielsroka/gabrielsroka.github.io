@@ -133,6 +133,9 @@
 
         createDiv("Verify Factors", mainPopup, async function () {
             function mapFactors(factor) {
+                // Duo probably won't work, it seems to need a UI/SDK/etc.
+                // WebAuthn probably won't work, either, since the user and browser have to be the same.
+                // Same is probably true for at least some of the factors not listed below.
                 const supportedFactors = [
                     {provider: 'OKTA', type: 'push', icon: "okta-otp", name: "Okta Verify with Push", sort: 0},
                     {provider: 'OKTA', type: "token:software:totp", icon: "okta-otp", name: "Okta Verify (OTP)", sort: 1},
@@ -602,10 +605,9 @@
             });
         } else if (location.pathname == "/reports/user/yubikey") {
             createDiv("Export YubiKeys", mainPopup, function () {
-                startExport("YubiKeys", "/api/v1/org/factors/yubikey_token/tokens?expand=user", "serial,status,id,firstName,lastName,login", 
-                    token => toCSV(token.profile.serial, token.status, token._embedded && token._embedded.user.id, 
-                        token._embedded && token._embedded.user.profile.firstName, token._embedded && token._embedded.user.profile.lastName, 
-                        token._embedded && token._embedded.user.profile.login), 'user');
+                startExport("YubiKeys", "/api/v1/org/factors/yubikey_token/tokens?expand=user", "keyId,serial,status,userId,firstName,lastName,login", 
+                    token => toCSV(token.id, token.profile.serial, token.status, token._embedded?.user.id, token._embedded?.user.profile.firstName, 
+                        token._embedded?.user.profile.lastName, token._embedded?.user.profile.login), 'user');
             });
         } else if (location.pathname == "/admin/universaldirectory") {
             createDiv("Export Mappings", mainPopup, function () {

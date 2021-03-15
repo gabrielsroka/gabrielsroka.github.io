@@ -323,7 +323,7 @@
                 limit: 10000,
                 comparer: (group1, group2) => group1.profile.name.localeCompare(group2.profile.name),
                 template(group) {
-                    const logo = group._links.logo[0].href.split('/')[7].split('-')[0];
+                    const logo = group._links.logo[0].href.split('/')[7].split('-')[0].replace(/odyssey/, 'okta');
                     return `<tr><td class=column-width><span class='icon icon-24 group-logos-24 logo-${logo}'></span>` +
                         `<td><a href="/admin/group/${group.id}">${e(group.profile.name)}</a>` +
                         `<td>${e(group.profile.description || "No description")}` + 

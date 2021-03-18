@@ -59,7 +59,7 @@ NOTE: when u delete an app, it still has a policy !!!
         '<br><label>Rollback Rules<br><input type=file class=rollbackRules></label>' +
         '<br><br><div class=cloned></div></form>').appendTo(popup);
     
-    /* Import CSV and clone rule. */
+    /* Import app CSV and clone rules. */
     form.find('input.importApps').change(function () {
         const reader = new FileReader();
         reader.onload = () => parseAppFile(reader.result);
@@ -76,19 +76,21 @@ NOTE: when u delete an app, it still has a policy !!!
         const headers = {};
         fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
-        /* TODO: merge with Clone Rule code below */
+        /* TODO: merge with Clone Rules code below */
         form.find('div.cloned').html('Cloned:<br>');
         const cloned = [];
         const csv = [];
         for (const line of lines) {
-            const fields = line.split(fieldSeparator);
+            const fields = line.replace(/"/g, '').split(fieldSeparator); /* TODO: improve support for "" */
             const policyId = fields[headers.id];
-            const clonedRule = await postJSON({url: `/api/v1/policies/${policyId}/rules`, data: rule});
-            csv.push(toCSV(policyId, clonedRule.id, fields[headers.name]));
-            cloned.push(fields[headers.name]);
+            for (const rule of rules) {
+                const clonedRule = await postJSON({url: `/api/v1/policies/${policyId}/rules`, data: rule});
+                csv.push(toCSV(policyId, clonedRule.id, fields[headers.name], rule.name));
+                cloned.push(fields[headers.name] + ', ' + rule.name);
+            }
         }
         form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
-        downloadCSV(popup, 'policyId,ruleId,name', csv, 'cloned rules');
+        downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
     }
 
     /* Rollback. */
@@ -114,8 +116,8 @@ NOTE: when u delete an app, it still has a policy !!!
             const fields = line.replace(/"/g, '').split(fieldSeparator); /* TODO: improve support for "" */
             const policyId = fields[headers.policyId];
             const ruleId = fields[headers.ruleId];
-            const clonedRule = await $.ajax({url: `/api/v1/policies/${policyId}/rules/${ruleId}`, method: 'delete'});
-            rolled.push(fields[headers.name]);
+            await $.ajax({url: `/api/v1/policies/${policyId}/rules/${ruleId}`, method: 'delete'});
+            rolled.push(fields[headers.appName] + ', ' + fields[headers.ruleName]);
         }
         form.find('div.cloned').html(form.find('div.cloned').html() + rolled.sort().join('<br>'));
     }
@@ -142,6 +144,7 @@ NOTE: when u delete an app, it still has a policy !!!
                 found.push(`${sortBy}<label><input type=checkbox value='${p.id}' checked>${p.name}</label>`);
             }
             csv.push(toCSV(p.id, p.name));
+/* if (csv.length == 6) break; */ /* DEBUG CODE */
             form.find('div.results').html(`Loading app ${csv.length + 1}...`);
         }
     }
@@ -150,26 +153,31 @@ NOTE: when u delete an app, it still has a policy !!!
     form.find('div.results').html(results);
     form.find('input[type=submit]').prop('disabled', false);
 
-    /* Find and edit rule. */
+    /* Fetch and edit rules. */
     const rules = await $.getJSON(`/api/v1/policies/${policyId}/rules?type=Okta:SignOn`);
-    const rule = rules[0];
-    rule.name += ' (clone)';
-    delete rule.id;
-    delete rule.resourceDisplayName;
-    delete rule._links;
+    rules.pop(); /* Discard the "Catch-all Rule". */
+    rules.forEach(rule => {
+        rule.name += ' (clone)';
+        delete rule.id;
+        delete rule.resourceDisplayName;
+        delete rule._links;
+    });
 
-    /* Clone rule (from Clone button). */
-    form.submit(event => {
+    /* Clone rules (from Clone button). */
+    form.submit(async event => {
         form.find('div.cloned').html('Cloned:<br>');
         const checked = form.find('input:checked');
         const cloned = [];
-        checked.each(async function () {
-            await postJSON({url: `/api/v1/policies/${this.value}/rules`, data: rule});
-            cloned.push(this.parentNode.textContent);
-            if (cloned.length == checked.length) {
-                form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
+        const csv = [];
+        for (const chk of checked) {
+            for (const rule of rules) {
+                const clonedRule = await postJSON({url: `/api/v1/policies/${chk.value}/rules`, data: rule});
+                cloned.push(chk.parentNode.textContent + ', ' + rule.name);
+                csv.push(toCSV(chk.value, clonedRule.id, chk.parentNode.textContent, rule.name));
             }
-        });
+        }
+        form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
+        downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
         event.preventDefault();
     });
 

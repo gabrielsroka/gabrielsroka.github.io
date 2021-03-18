@@ -7,12 +7,18 @@ This bookmarklet clones app policies.
 
 Setup:
 1. Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-2. Drag all this to the bookmark toolbar
+2. Select all and drag/drop or copy/paste the code to your bookmarks toolbar (call it "Clone Policies")
+
 
 Usage:
-1. In Okta Admin, go to Applications > Applications.
-2. Select the app whose policy you'd like to clone.
-3. Click the bookmark from your toolbar.
+1. Go into your org and pick one app as your "source"
+2. Create one or more policies in it
+3. Click the "Clone Policies" button from your bookmarks toolbar
+4. Click "Export CSV" to export all apps
+5. Edit the CSV so only your desired "destination" apps remain (i.e., delete any apps you don't want to clone to)
+6. Click "Import Apps CSV" and it will clone
+7. If necessary, rollback using the "Rollback Rules" button
+
 
 
 TODO:

@@ -1,13 +1,8 @@
-javascript: 
-/*
-
-Bookmark Name: /Clone Policies#
-
-This bookmarklet clones app policies.
+<pre>This bookmarklet clones app policies.
 
 Setup:
 1. Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-2. Select all and drag/drop or copy/paste the code to your bookmarks toolbar (call it "Clone Policies")
+2. Drag/drop this <a id=bm>Clone Policies</a> to bookmarks toolbar.
 
 
 Usage:
@@ -18,9 +13,10 @@ Usage:
 5. Edit the CSV so only your desired "destination" apps remain (i.e., delete any apps you don't want to clone to)
 6. Click "Import Apps CSV" and it will clone
 7. If necessary, rollback using the "Rollback Rules" button
-
-
-
+</pre>
+<textarea id=code hidden>
+javascript:
+/*
 TODO:
 rate limits - per minute & concurrent
 pagination [?]
@@ -53,7 +49,6 @@ Unni:
 NOTE: when u delete an app, it still has a policy !!!
 
 */
-
 (async function () {
     /* Main popup. */
     const popup = createPopup('Clone Application Policies');
@@ -220,3 +215,7 @@ NOTE: when u delete an app, it still has a policy !!!
         return $.post(settings);
     }
 })();
+</textarea>
+<script>
+bm.href = code.value;
+</script>

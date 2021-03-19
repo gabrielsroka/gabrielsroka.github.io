@@ -1,55 +1,34 @@
-<pre>This bookmarklet clones app policies.
-
-Setup:
-1. Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-2. Drag/drop this <a id=bm>Clone Policies</a> to bookmarks toolbar.
-
-
-Usage:
-1. Go into your org and pick one app as your "source"
-2. Create one or more policies in it
-3. Click the "Clone Policies" button from your bookmarks toolbar
-4. Click "Export CSV" to export all apps
-5. Edit the CSV so only your desired "destination" apps remain (i.e., delete any apps you don't want to clone to)
-6. Click "Import Apps CSV" and it will clone
-7. If necessary, rollback using the "Rollback Rules" button
-</pre>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+<h1>Clone App Policies</h1>
+<p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>Clone Policies</a> to bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>Go into your org and pick one app as your "source"
+<li>Create one or more policies in it
+<li>Click the "Clone Policies" button from your bookmarks toolbar
+<li>Click "Export CSV" to export all apps
+<li>Edit the CSV so only your desired "destination" apps remain (i.e., delete any apps you don't want to clone to)
+<li>Click "Import Apps CSV" and it will clone
+<li>If necessary, rollback using the "Rollback Rules" button
+</ol>
 <textarea id=code hidden>
 javascript:
-/*
-TODO:
-rate limits - per minute & concurrent
-pagination [?]
-test on 800 apps (rate limit is 300)
-test on OIDC/SAML/OIN/SWA/Bookmark/all kinds o' apps, excluding AD
-concurrent limits (different per org)
-clone multiple rules
-- test priorities of multiple rules
-
-rollback/undo:
-- if it fails, do no harm.
-- delete all
-- when Shareable App is in product, will it migrate?
-
-- add a "deny all" policy.
-- [NOPE] don't delete existing policies, post go live cleanup
-
-eng raise rate limit?
-- [NOPE] clone deactivated, then button click->activate 
-- rpt on current policies, csv
-- batch size 100s, AL1, AL2
-- search, filter?, import IDs from CSV
-- [UI, but prolly NOPE] Security > Profile Enrollment
-
-scale test: 1000 apps * 4 rules/app
-
-Unni:
-- delete all existing policies ?
-
-NOTE: when u delete an app, it still has a policy !!!
-
-*/
 (async function () {
+    if (!window.$) {
+        alert('Drag/drop this link to your bookmarks toolbar.'); 
+        return;
+    }
+
     /* Main popup. */
     const popup = createPopup('Clone Application Policies');
     const form = $('<form>Applications<div class=results>Loading...</div><br> ' +

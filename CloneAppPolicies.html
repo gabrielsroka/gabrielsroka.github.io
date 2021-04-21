@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title>Clone App Policies</title>
+<title>Clone App Rules</title>
 <style>
 body {
     font-family: sans-serif;
@@ -9,23 +9,28 @@ body {
 </style>
 </head>
 <body>
-<h1>Clone App Policies</h1>
+<h1>Clone App Rules</h1>
 <p>
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone Policies</a> to bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone App Rules v0.1</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
 <ol>
-<li>Go into your org and pick one app as your "source"
-<li>Create one or more policies in it
-<li>Click the "Clone Policies" button from your bookmarks toolbar
-<li>Click "Export CSV" to export all apps
-<li>Edit the CSV so only your desired "destination" apps remain (i.e., delete any apps you don't want to clone to)
-<li>Click "Import Apps CSV" and it will clone
-<li>If necessary, rollback using the "Rollback Rules" button
+<li>In your Okta org, pick one app as your "source".
+<li>Create one or more rules in it -- it won't clone the "Catch-all Rule".
+<li>Click the "Clone App Rules" button from your bookmarks toolbar.
+<li>To use an app CSV:
+    <ol>
+    <li>Click "Export Apps CSV" to export all apps.
+    <li>Edit the CSV so only your desired "destination" apps remain (i.e., delete any apps you don't want to clone to).
+    <li>Click "Import Apps CSV" to clone the rules.
+    </ol>
+<li>Or, to use the UI, select 1 or more "destination" apps and click "Clone".
+<li>It will generate a "cloned rules" CSV for your records, or if you need to rollback.
+<li>If necessary, rollback using the "Rollback Rules" button to import the "cloned rules" CSV.
 </ol>
 <textarea id=code hidden>
 javascript:
@@ -36,11 +41,11 @@ javascript:
     }
 
     /* Main popup. */
-    const popup = createPopup('Clone Application Policies');
+    const popup = createPopup('Clone Application Rules');
     const form = $('<form>Applications<div class=results>Loading...</div><br> ' +
         '<input type=submit disabled value=Clone> ' +
         '<input type=button class=checkAll value="Check All"> <input type=button class=uncheckAll value="Uncheck All"> ' +
-        '<input type=button class=exportCSV value="Export CSV">' +
+        '<input type=button class=exportAppsCSV value="Export Apps CSV">' +
         '<br><br><label>Import Apps CSV<br><input type=file class=importApps></label>' +
         '<br><label>Rollback Rules<br><input type=file class=rollbackRules></label>' +
         '<br><br><div class=cloned></div></form>').appendTo(popup);
@@ -134,7 +139,7 @@ javascript:
             form.find('div.results').html(`Loading app ${csv.length + 1}...`);
         }
     }
-    form.find('input.exportCSV').click(() => downloadCSV(popup, 'id,name', csv, 'apps'));
+    form.find('input.exportAppsCSV').click(() => downloadCSV(popup, 'id,name', csv, 'apps'));
     const results = found.length > 0 ? found.sort().join('<br>') : 'Not found';
     form.find('div.results').html(results);
     form.find('input[type=submit]').prop('disabled', false);

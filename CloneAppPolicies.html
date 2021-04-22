@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone App Rules v0.1</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone App Rules v0.2</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -54,7 +54,7 @@ javascript:
     form.find('input.importApps').change(function () {
         const reader = new FileReader();
         reader.onload = () => parseAppFile(reader.result);
-        reader.readAsText(this.files[0]);
+        if (this.files.length > 0) reader.readAsText(this.files[0]);
     });
 
     async function parseAppFile(file) {
@@ -88,7 +88,7 @@ javascript:
     form.find('input.rollbackRules').change(function () {
         const reader = new FileReader();
         reader.onload = () => parseRuleFile(reader.result);
-        reader.readAsText(this.files[0]);
+        if (this.files.length > 0) reader.readAsText(this.files[0]);
     });
 
     async function parseRuleFile(file) {
@@ -146,7 +146,7 @@ javascript:
 
     /* Fetch and edit rules. */
     const rules = await $.getJSON(`/api/v1/policies/${policyId}/rules?type=Okta:SignOn`);
-    rules.pop(); /* Discard the "Catch-all Rule". */
+    rules.pop(); /* Don't clone the "Catch-all Rule". */
     rules.forEach(rule => {
         rule.name += ' (clone)';
         delete rule.id;
@@ -156,6 +156,7 @@ javascript:
 
     /* Clone rules (from Clone button). */
     form.submit(async event => {
+        event.preventDefault();
         form.find('div.cloned').html('Cloned:<br>');
         const checked = form.find('input:checked');
         const cloned = [];
@@ -169,7 +170,6 @@ javascript:
         }
         form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
         downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
-        event.preventDefault();
     });
 
     form.find('input.checkAll').click(() => form.find('input[type="checkbox"]').prop('checked', true));

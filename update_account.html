@@ -37,7 +37,11 @@ onload = async function () {
         <tr><td>Email<td>${user.profile.email}
         <tr><td>Second Email *<td><input id=secondEmail value="${user.profile.secondEmail || ''}">
         <tr><td>Mobile Phone *<td><input id=mobilePhone value="${user.profile.mobilePhone || ''}">
-        </table><button id=updateUser type=submit>Update</button></form>`;
+        </table><button id=updateUser type=submit>Update</button></form><br><br>
+        Change Password<form><table>
+        <tr><td>Old<td><input id=oldPassword type=password>
+        <tr><td>New<td><input id=newPassword type=password>
+        </table><button id=changePassword type=submit>Change</button></form>`;
     secondEmail.select();
 
     updateUser.onclick = async (event) => {
@@ -63,7 +67,25 @@ onload = async function () {
             const e = await response.json();
             error.innerHTML = 'Error:<br>' + e.errorCauses.map(e => e.errorSummary).join('<br>');
         }
-    }
+    };
+
+    changePassword.onclick = async (event) => {
+        event.preventDefault();
+        error.innerHTML = '';
+        const body = {
+            oldPassword: {value: oldPassword.value},
+            newPassword: {value: newPassword.value}
+        };
+        init.body = JSON.stringify(body);
+        init.method = 'POST';
+        const response = await fetch(baseUrl + `/api/v1/users/${user.id}/credentials/change_password`, init);
+        if (response.ok) {
+            app.innerHTML = 'Your Okta password has been updated. You may close this window.';
+        } else {
+            const e = await response.json();
+            error.innerHTML = 'Error:<br>' + e.errorSummary + ', ' + e.errorCauses.map(e => e.errorSummary).join('<br>');
+        }
+    };
 };
 </script>
 </body>

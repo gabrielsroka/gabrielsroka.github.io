@@ -65,7 +65,7 @@ onload = async function () {
             app.innerHTML = 'Your Okta account has been updated. You may close this window.';
         } else {
             const e = await response.json();
-            error.innerHTML = 'Error:<br>' + e.errorCauses.map(e => e.errorSummary).join('<br>');
+            error.innerHTML = 'Error:<br>' + e.errorSummary + ', ' + e.errorCauses.map(e => e.errorSummary).join('<br>');
         }
     };
 

@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
-<title>Update Okta Account</title>
+<title>Okta Account Settings</title>
 <style>
 body {
     font-family: sans-serif;
@@ -10,11 +10,30 @@ body {
 </style>
 </head>
 <body>
-<div id=app></div>
+<div id=app>
+<b>Personal Information</b>
+<form><table>
+<tr><td>Username<td><span id=login></span>
+<tr><td>Primary Email<td><span id=email></span>
+<tr><td>Secondary email *<td><input id=secondEmail>
+<tr><td>Mobile phone *<td><input id=mobilePhone>
+</table>
+<button id=saveUser type=submit>Save</button>
+</form>
+<br><br>
+<b>Change Password</b>
+<form><table>
+<tr><td>Current password<td><input id=oldPassword type=password>
+<tr><td>New password<td><input id=newPassword type=password>
+<tr><td>Confirm password<td><input id=confirmPassword type=password>
+</table>
+<button id=changePassword type=submit>Change Password</button>
+</form>
+</div>
 <br>
-<div id=error></div>
+<div id=result></div>
 <script>
-onload = async function () {
+onload = async () => {
     // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
     const baseUrl = 'https://gsroka-neto.oktapreview.com';
 
@@ -28,29 +47,23 @@ onload = async function () {
     
     const response = await fetch(baseUrl + '/api/v1/users/me', init);
     if (!response.ok) {
-        error.innerHTML = `You are not signed in. Go to <a href='${baseUrl}' target=_blank>Okta</a>, sign in, then come back here and refresh the page.`;
+        app.innerHTML = `You are not signed in. Go to <a href='${baseUrl}' target=_blank>Okta</a>, sign in, then come back here and refresh the page.`;
         return;
     }
     const user = await response.json();
-    app.innerHTML = `Your profile<form><table>
-        <tr><td>Login<td>${user.profile.login}
-        <tr><td>Email<td>${user.profile.email}
-        <tr><td>Second Email *<td><input id=secondEmail value="${user.profile.secondEmail || ''}">
-        <tr><td>Mobile Phone *<td><input id=mobilePhone value="${user.profile.mobilePhone || ''}">
-        </table><button id=updateUser type=submit>Update</button></form><br><br>
-        Change Password<form><table>
-        <tr><td>Old<td><input id=oldPassword type=password>
-        <tr><td>New<td><input id=newPassword type=password>
-        </table><button id=changePassword type=submit>Change</button></form>`;
+    login.innerHTML = user.profile.login;
+    email.innerHTML = user.profile.email;
+    secondEmail.value = user.profile.secondEmail || '';
     secondEmail.select();
+    mobilePhone.value = user.profile.mobilePhone || '';
 
-    updateUser.onclick = async (event) => {
+    saveUser.onclick = async (event) => {
         event.preventDefault();
         if (!secondEmail.value || !mobilePhone.value) {
-            error.innerHTML = 'Please fill in all required fields.';
+            result.innerHTML = 'Please fill in all required fields.';
             return;
         }
-        error.innerHTML = '';
+        result.innerHTML = 'Saving...';
         const body = {
             profile: {
                 secondEmail: secondEmail.value,
@@ -62,28 +75,34 @@ onload = async function () {
         const response = await fetch(baseUrl + '/api/v1/users/me', init);
         if (response.ok) {
             // const user = await response.json();
-            app.innerHTML = 'Your Okta account has been updated. You may close this window.';
+            app.innerHTML = 'Your Okta account has been saved. You may close this window.';
+            result.innerHTML = '';
         } else {
             const e = await response.json();
-            error.innerHTML = 'Error:<br>' + e.errorSummary + ', ' + e.errorCauses.map(e => e.errorSummary).join('<br>');
+            result.innerHTML = 'Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>');
         }
     };
 
     changePassword.onclick = async (event) => {
         event.preventDefault();
-        error.innerHTML = '';
+        if (newPassword.value != confirmPassword.value) {
+            result.innerHTML = 'Error: Confirm new password: Fields do not match.';
+            return;
+        }
+        result.innerHTML = 'Changing password...';
         const body = {
             oldPassword: {value: oldPassword.value},
             newPassword: {value: newPassword.value}
         };
         init.body = JSON.stringify(body);
         init.method = 'POST';
-        const response = await fetch(baseUrl + `/api/v1/users/${user.id}/credentials/change_password`, init);
+        const response = await fetch(baseUrl + '/api/v1/users/me/credentials/change_password', init);
         if (response.ok) {
-            app.innerHTML = 'Your Okta password has been updated. You may close this window.';
+            app.innerHTML = 'Your Okta password has been changed. You may close this window.';
+            result.innerHTML = '';
         } else {
             const e = await response.json();
-            error.innerHTML = 'Error:<br>' + e.errorSummary + ', ' + e.errorCauses.map(e => e.errorSummary).join('<br>');
+            result.innerHTML = 'Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>');
         }
     };
 };

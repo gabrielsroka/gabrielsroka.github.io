@@ -514,7 +514,7 @@
                         app._links.appLinks.map(a => a.href).join(', ')));
             });
             createDiv("Export App Notes (experimental)", mainPopup, function () {
-                startExport("App Notes", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status,endUserAppNotes,adminAppNotes", async app => {
+                startExport("App Notes", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,endUserAppNotes,adminAppNotes", async app => {
                     var response = await fetch(`/admin/app/${app.name}/instance/${app.id}/settings/general`);
                     var html = await response.text();
                     var parser = new DOMParser();
@@ -525,7 +525,7 @@
                 });
             });
             createDiv("Export App Sign On Policies (experimental)", mainPopup, function () {
-                startExport("App Sign On Policies", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
+                startExport("App Sign On Policies", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
                     var response = await fetch(`/admin/app/instance/${app.id}/app-sign-on-policy-list`);
                     var html = await response.text();
                     var parser = new DOMParser();

@@ -3,7 +3,7 @@
     position: absolute; 
     z-index: 1000; 
     left: 4px; 
-    top: 4px; 
+    bottom: 4px; 
     background-color: white; 
     padding: 8px; 
     border: 1px solid #ddd;

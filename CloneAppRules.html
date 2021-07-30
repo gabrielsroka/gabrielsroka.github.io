@@ -145,7 +145,7 @@ javascript:
     form.find('input[type=submit]').prop('disabled', false);
 
     /* Fetch and edit rules. */
-    const rules = await $.getJSON(`/api/v1/policies/${policyId}/rules?type=Okta:SignOn`);
+    const rules = await $.getJSON(`/api/v1/policies/${policyId}/rules`); /* was ?type=Okta:SignOn */
     rules.pop(); /* Don't clone the "Catch-all Rule". */
     rules.forEach(rule => {
         rule.name += ' (clone)';

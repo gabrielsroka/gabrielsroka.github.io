@@ -18,6 +18,9 @@
 .rs_closed {
     display: none;
 }
+.rs_toggle {
+    right: 20px;
+}
 .hoverDiv {
     cursor: pointer;
     padding: 5px;

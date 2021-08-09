@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
 <title>Okta Account Settings</title>
@@ -20,7 +20,8 @@ body {
 </table>
 <button id=saveUser type=submit>Save</button>
 </form>
-<br><br>
+<br>
+<br>
 <b>Change Password</b>
 <form><table>
 <tr><td>Current password<td><input id=oldPassword type=password>
@@ -31,7 +32,7 @@ body {
 </form>
 </div>
 <br>
-<div id=result></div>
+<div id=result>Loading...</div>
 <script>
 onload = async () => {
     // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
@@ -45,17 +46,22 @@ onload = async () => {
         }
     };
     
-    const response = await fetch(baseUrl + '/api/v1/users/me', init);
-    if (!response.ok) {
-        app.innerHTML = `You are not signed in. Go to <a href='${baseUrl}' target=_blank>Okta</a>, sign in, then come back here and refresh the page.`;
-        return;
+    try {
+        const response = await fetch(baseUrl + '/api/v1/users/me', init);
+        if (!response.ok) {
+            app.innerHTML = `You are not signed in. Go to <a href='${baseUrl}' target=_blank>Okta</a>, sign in, then come back here and refresh the page.`;
+            return;
+        }
+        const user = await response.json();
+        login.innerHTML = user.profile.login;
+        email.innerHTML = user.profile.email;
+        secondEmail.value = user.profile.secondEmail || '';
+        secondEmail.select();
+        mobilePhone.value = user.profile.mobilePhone || '';
+        result.innerHTML = '';
+    } catch (err) {
+        result.innerHTML = err;
     }
-    const user = await response.json();
-    login.innerHTML = user.profile.login;
-    email.innerHTML = user.profile.email;
-    secondEmail.value = user.profile.secondEmail || '';
-    secondEmail.select();
-    mobilePhone.value = user.profile.mobilePhone || '';
 
     saveUser.onclick = async (event) => {
         event.preventDefault();

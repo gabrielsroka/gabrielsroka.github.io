@@ -40,6 +40,12 @@ javascript:
         return;
     }
 
+    const appId = getAppId();
+    if (!appId) {
+        alert('Please pick an app first.');
+        return;
+    }
+
     /* Main popup. */
     const popup = createPopup('Clone Application Rules');
     const form = $('<form><div class=status></div>' +
@@ -88,7 +94,6 @@ javascript:
             }
         }
         form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
-        form.find('div.status').html('');
         downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
     }
 
@@ -125,35 +130,36 @@ javascript:
             rolled.push(fields[headers.appName] + ', ' + fields[headers.ruleName]);
         }
         form.find('div.cloned').html(form.find('div.cloned').html() + rolled.sort().join('<br>'));
-        form.find('div.status').html('');
     }
 
     /* Find policies and apps, show checkboxes. */
-    const appId = getAppId();
-    if (!appId) {
-        alert('Please pick an app first.');
-        form.find('div.status').html('<br>Please pick an app first.');
-        return;
-    }
-
     var policyId;
     const found = [];
     const csv = [];
-    const policies = await $.getJSON('/api/v1/policies?type=ACCESS_POLICY'); /* old: "Okta:SignOn", new: "ACCESS_POLICY" */
-    for (const p of policies) {
-        const app = await $.getJSON(`/api/v1/policies/${p.id}/app`);
-        if (app.length) {
-            if (app[0].id == appId) {
-                policyId = p.id;
+    var url = '/api/v1/apps';
+    do {
+        const response = await fetch(url);
+        const apps = await response.json();
+        for (const a of apps) {
+            const pId = a._links.accessPolicy.href.split('/').pop();
+            if (appId == a.id) {
+                policyId = pId;
             } else {
-                const sortBy = `<!--${p.name}-->`;
-                found.push(`${sortBy}<label><input type=checkbox value='${p.id}' checked>${p.name}</label>`);
-            }
-            csv.push(toCSV(p.id, p.name));
+                const sortBy = `<!--${a.label}-->`;
+                found.push(`${sortBy}<label><input type=checkbox value='${pId}' checked>${a.label}</label>`);
+                csv.push(toCSV(pId, a.label));
 /* if (csv.length == 6) break; */ /* DEBUG CODE */
-            form.find('div.status').html(`Loading app ${csv.length + 1}...`);
+                form.find('div.status').html(`Loading app ${csv.length + 1}...`);
+            }
         }
-    }
+        const links = getLinks(response.headers.get('link'));
+        if (links.next) {
+            const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+            url = nextUrl.pathname + nextUrl.search;
+        } else {
+            url = null;
+        }
+    } while (url);
     form.find('input.exportAppsCSV').click(() => downloadCSV(popup, 'id,name', csv, 'apps'));
     const results = found.length > 0 ? found.sort().join('<br>') : 'Not found';
     form.find('div.results').html(results);
@@ -191,7 +197,6 @@ javascript:
             }
         }
         form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
-        form.find('div.status').html('');
         downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
     });
 
@@ -226,6 +231,15 @@ javascript:
         settings.contentType = "application/json";
         settings.data = JSON.stringify(settings.data);
         return $.post(settings);
+    }
+    function getLinks(linkHeader) {
+        var headers = linkHeader.split(", ");
+        var links = {};
+        for (var i = 0; i < headers.length; i++) {
+            var [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
+            links[name] = url;
+        }
+        return links;
     }
 })();
 </textarea>

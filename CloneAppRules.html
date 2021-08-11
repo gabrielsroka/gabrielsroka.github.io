@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone Rules v0.6</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone Rules v0.7</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -80,6 +80,7 @@ javascript:
         /* TODO: merge with Clone Rules code below */
         if (rules.length == 0) await getRules();
         form.find('div.cloned').html('Cloned:<br>');
+        form.find('div.error').html('');
         const cloned = [];
         const csv = [];
         for (const line of lines) {
@@ -120,6 +121,7 @@ javascript:
         fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
         form.find('div.cloned').html('Rolled back:<br>');
+        form.find('div.error').html('');
         const rolled = [];
         for (const line of lines) {
             const fields = line.replace(/"/g, '').split(fieldSeparator); /* TODO: improve support for "s */
@@ -190,6 +192,7 @@ javascript:
         event.preventDefault();
         if (rules.length == 0) await getRules();
         form.find('div.cloned').html('Cloned:<br>');
+        form.find('div.error').html('');
         const checked = form.find('input:checked');
         const cloned = [];
         const csv = [];

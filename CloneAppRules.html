@@ -154,7 +154,7 @@ javascript:
         }
         const links = getLinks(response.headers.get('link'));
         if (links.next) {
-            const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+            const nextUrl = new URL(links.next); /* links.next is an absolute URL; we need a relative URL. */
             url = nextUrl.pathname + nextUrl.search;
         } else {
             url = null;

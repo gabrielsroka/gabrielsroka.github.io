@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone Rules v0.5</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone Rules v0.6</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -46,16 +46,19 @@ javascript:
         return;
     }
 
+    var policyId;
+    var rules = [];
+
     /* Main popup. */
     const popup = createPopup('Clone Application Rules');
-    const form = $('<form><div class=status></div>' +
-        'Applications<div class=results></div><br> ' +
+    const form = $('<form>' +
+        'Applications<div class=results><input type=button class=getApps value="Get Apps"></div><br> ' +
         '<input type=submit disabled value=Clone> ' +
         '<input type=button disabled class=checkAll value="Check All"> <input type=button disabled class=uncheckAll value="Uncheck All"> ' +
-        '<input type=button disabled class=exportAppsCSV value="Export Apps CSV">' +
-        '<br><br><label>Import Apps CSV<br><input type=file disabled class=importApps></label>' +
-        '<br><label>Rollback Rules<br><input type=file disabled class=rollbackRules></label>' +
-        '<br><br><div class=cloned></div></form>').appendTo(popup);
+        '<br><br><input type=button disabled class=exportAppsCSV value="Export Apps CSV">' +
+        '<br><br><label>Import Apps CSV<br><input type=file class=importApps></label>' +
+        '<br><br><label>Rollback Rules<br><input type=file class=rollbackRules></label>' +
+        '<br><br><div class=status></div><div class=error></div><div class=cloned></div></form>').appendTo(popup);
     
     /* Import app CSV and clone rules. */
     form.find('input.importApps').change(function () {
@@ -75,6 +78,7 @@ javascript:
         fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
         /* TODO: merge with Clone Rules code below */
+        if (rules.length == 0) await getRules();
         form.find('div.cloned').html('Cloned:<br>');
         const cloned = [];
         const csv = [];
@@ -89,15 +93,16 @@ javascript:
                     cloned.push(fields[headers.name] + ', ' + rule.name);
                 } catch (jqXHR) {
                     const e = jqXHR.responseJSON;
-                    form.find('div.status').html('Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>'));
+                    form.find('div.error').html('Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>'));
                 }
             }
         }
         form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
+        form.find('div.status').html('');
         downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
     }
 
-    /* Rollback. */
+    /* Rollback from CSV. */
     form.find('input.rollbackRules').change(function () {
         const reader = new FileReader();
         reader.onload = () => parseRuleFile(reader.result);
@@ -125,60 +130,65 @@ javascript:
                 form.find('div.status').html(fields[headers.appName] + ', ' + fields[headers.ruleName]);
             } catch (jqXHR) {
                 const e = jqXHR.responseJSON;
-                form.find('div.status').html('Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>'));
+                form.find('div.error').html('Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>'));
             }
             rolled.push(fields[headers.appName] + ', ' + fields[headers.ruleName]);
         }
         form.find('div.cloned').html(form.find('div.cloned').html() + rolled.sort().join('<br>'));
+        form.find('div.status').html('');
     }
 
     /* Find policies and apps, show checkboxes. */
-    var policyId;
-    const found = [];
-    const csv = [];
-    var url = '/api/v1/apps';
-    do {
-        const response = await fetch(url);
-        const apps = await response.json();
-        for (const a of apps) {
-            const pId = a._links.accessPolicy.href.split('/').pop();
-            if (appId == a.id) {
-                policyId = pId;
-            } else {
-                const sortBy = `<!--${a.label}-->`;
-                found.push(`${sortBy}<label><input type=checkbox value='${pId}' checked>${a.label}</label>`);
-                csv.push(toCSV(pId, a.label));
+    form.find('input.getApps').click(async function () {
+        const chks = [];
+        const csv = [];
+        var url = '/api/v1/apps';
+        do {
+            const response = await fetch(url);
+            const apps = await response.json();
+            for (const a of apps) {
+                const pId = a._links.accessPolicy.href.split('/').pop();
+                if (appId == a.id) {
+                    policyId = pId;
+                } else {
+                    const sortBy = `<!--${a.label}-->`;
+                    chks.push(`${sortBy}<label><input type=checkbox value='${pId}' checked>${a.label}</label>`);
+                    csv.push(toCSV(pId, a.label));
 /* if (csv.length == 6) break; */ /* DEBUG CODE */
-                form.find('div.status').html(`Loading app ${csv.length + 1}...`);
+                    form.find('div.status').html(`Loading app ${csv.length + 1}...`);
+                }
             }
-        }
-        const links = getLinks(response.headers.get('link'));
-        if (links.next) {
-            const nextUrl = new URL(links.next); /* links.next is an absolute URL; we need a relative URL. */
-            url = nextUrl.pathname + nextUrl.search;
-        } else {
-            url = null;
-        }
-    } while (url);
-    form.find('input.exportAppsCSV').click(() => downloadCSV(popup, 'id,name', csv, 'apps'));
-    const results = found.length > 0 ? found.sort().join('<br>') : 'Not found';
-    form.find('div.results').html(results);
-    form.find('div.status').html('');
-    form.find('input').prop('disabled', false);
-
-    /* Fetch and edit rules. */
-    const rules = await $.getJSON(`/api/v1/policies/${policyId}/rules`); /* old "?type=Okta:SignOn", new: "" */
-    rules.pop(); /* Don't clone the "Catch-all Rule". */
-    rules.forEach(rule => {
-        rule.name += ' (clone)';
-        delete rule.id;
-        delete rule.resourceDisplayName;
-        delete rule._links;
+            const links = getLinks(response.headers.get('link'));
+            if (links.next) {
+                const nextUrl = new URL(links.next); /* links.next is an absolute URL; we need a relative URL. */
+                url = nextUrl.pathname + nextUrl.search;
+            } else {
+                url = null;
+            }
+        } while (url);
+        form.find('input.exportAppsCSV').click(() => downloadCSV(popup, 'id,name', csv, 'apps'));
+        const results = chks.length > 0 ? chks.sort().join('<br>') : 'Not found';
+        form.find('div.results').html(results);
+        form.find('div.status').html('');
+        form.find('input').prop('disabled', false);
     });
+
+    async function getRules() {
+        if (!policyId) policyId = (await $.getJSON(`/api/v1/apps/${appId}`))._links.accessPolicy.href.split('/').pop();
+        rules = await $.getJSON(`/api/v1/policies/${policyId}/rules`); /* old "?type=Okta:SignOn", new: "" */
+        rules.pop(); /* Don't clone the "Catch-all Rule". */
+        rules.forEach(rule => {
+            rule.name += ' (clone)';
+            delete rule.id;
+            delete rule.resourceDisplayName;
+            delete rule._links;
+        });
+    }
 
     /* Clone rules (from Clone button). */
     form.submit(async event => {
         event.preventDefault();
+        if (rules.length == 0) await getRules();
         form.find('div.cloned').html('Cloned:<br>');
         const checked = form.find('input:checked');
         const cloned = [];
@@ -192,11 +202,12 @@ javascript:
                     csv.push(toCSV(chk.value, clonedRule.id, chk.parentNode.textContent, rule.name));
                 } catch (jqXHR) {
                     const e = jqXHR.responseJSON;
-                    form.find('div.status').html('Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>'));
+                    form.find('div.error').html('Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>'));
                 }
             }
         }
         form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
+        form.find('div.status').html('');
         downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
     });
 

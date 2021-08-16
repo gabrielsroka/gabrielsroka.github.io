@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone Rules v0.7</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone Rules v0.8</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -58,7 +58,7 @@ javascript:
         '<br><br><input type=button disabled class=exportAppsCSV value="Export Apps CSV">' +
         '<br><br><label>Import Apps CSV<br><input type=file class=importApps></label>' +
         '<br><br><label>Rollback Rules<br><input type=file class=rollbackRules></label>' +
-        '<br><br><div class=status></div><div class=error></div><div class=cloned></div></form>').appendTo(popup);
+        '<br><br><div class=status></div><div class=error></div><br><div class=cloned></div></form>').appendTo(popup);
     
     /* Import app CSV and clone rules. */
     form.find('input.importApps').change(function () {
@@ -79,7 +79,7 @@ javascript:
 
         /* TODO: merge with Clone Rules code below */
         if (rules.length == 0) await getRules();
-        form.find('div.cloned').html('Cloned:<br>');
+        form.find('div.cloned').html('');
         form.find('div.error').html('');
         const cloned = [];
         const csv = [];
@@ -98,7 +98,7 @@ javascript:
                 }
             }
         }
-        form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
+        form.find('div.cloned').html('Cloned:<br>' + cloned.sort().join('<br>'));
         form.find('div.status').html('');
         downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
     }
@@ -120,7 +120,7 @@ javascript:
         const headers = {};
         fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
-        form.find('div.cloned').html('Rolled back:<br>');
+        form.find('div.cloned').html('');
         form.find('div.error').html('');
         const rolled = [];
         for (const line of lines) {
@@ -136,7 +136,7 @@ javascript:
             }
             rolled.push(fields[headers.appName] + ', ' + fields[headers.ruleName]);
         }
-        form.find('div.cloned').html(form.find('div.cloned').html() + rolled.sort().join('<br>'));
+        form.find('div.cloned').html('Rolled back:<br>' + rolled.sort().join('<br>'));
         form.find('div.status').html('');
     }
 
@@ -191,7 +191,7 @@ javascript:
     form.submit(async event => {
         event.preventDefault();
         if (rules.length == 0) await getRules();
-        form.find('div.cloned').html('Cloned:<br>');
+        form.find('div.cloned').html('');
         form.find('div.error').html('');
         const checked = form.find('input:checked');
         const cloned = [];
@@ -209,7 +209,7 @@ javascript:
                 }
             }
         }
-        form.find('div.cloned').html(form.find('div.cloned').html() + cloned.sort().join('<br>'));
+        form.find('div.cloned').html('Cloned:<br>' + cloned.sort().join('<br>'));
         form.find('div.status').html('');
         downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
     });

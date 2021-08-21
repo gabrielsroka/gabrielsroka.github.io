@@ -157,7 +157,7 @@ javascript:
                     chks.push(`${sortBy}<label><input type=checkbox value='${pId}' checked>${a.label}</label>`);
                     csv.push(toCSV(pId, a.label));
 /* if (csv.length == 6) break; */ /* DEBUG CODE */
-                    form.find('div.status').html(`Loading app ${csv.length + 1}...`);
+                    form.find('div.status').html(`Loading app ${csv.length}...`);
                 }
             }
             const links = getLinks(response.headers.get('link'));

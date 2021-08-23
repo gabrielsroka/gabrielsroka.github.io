@@ -14,17 +14,17 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone Rules v0.8</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone Rules v0.9</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
 <ol>
 <li>In your Okta org, pick one app as your "source".
 <li>Create one or more rules in it -- it won't clone the "Catch-all Rule".
-<li>Click the "Clone App Rules" button from your bookmarks toolbar.
-<li>To use an app CSV:
+<li>Click the "Clone Rules" button from your bookmarks toolbar.
+<li>You can use a CSV or the UI. To use a CSV:
     <ol>
-    <li>Click "Export Apps CSV" to export all apps.
+    <li>If needed, click "Get Apps", then "Export Apps CSV" to export all apps.
     <li>Edit the CSV so only your desired "destination" apps remain (i.e., delete any apps you don't want to clone to).
     <li>Click "Import Apps CSV" to clone the rules.
     </ol>
@@ -48,6 +48,7 @@ javascript:
 
     var policyId;
     var rules = [];
+    var appLabel;
 
     /* Main popup. */
     const popup = createPopup('Clone Application Rules');
@@ -100,7 +101,7 @@ javascript:
         }
         form.find('div.cloned').html('Cloned:<br>' + cloned.sort().join('<br>'));
         form.find('div.status').html('');
-        downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
+        downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, appLabel + ' cloned rules');
     }
 
     /* Rollback from CSV. */
@@ -148,14 +149,15 @@ javascript:
         do {
             const response = await fetch(url);
             const apps = await response.json();
-            for (const a of apps) {
-                const pId = a._links.accessPolicy.href.split('/').pop();
-                if (appId == a.id) {
+            for (const app of apps) {
+                const pId = app._links.accessPolicy.href.split('/').pop();
+                if (appId == app.id) {
                     policyId = pId;
+                    appLabel = app.label;
                 } else {
-                    const sortBy = `<!--${a.label}-->`;
-                    chks.push(`${sortBy}<label><input type=checkbox value='${pId}' checked>${a.label}</label>`);
-                    csv.push(toCSV(pId, a.label));
+                    const sortBy = `<!--${app.label}-->`;
+                    chks.push(`${sortBy}<label><input type=checkbox value='${pId}' checked>${app.label}</label>`);
+                    csv.push(toCSV(pId, app.label));
 /* if (csv.length == 6) break; */ /* DEBUG CODE */
                     form.find('div.status').html(`Loading app ${csv.length}...`);
                 }
@@ -176,7 +178,11 @@ javascript:
     });
 
     async function getRules() {
-        if (!policyId) policyId = (await $.getJSON(`/api/v1/apps/${appId}`))._links.accessPolicy.href.split('/').pop();
+        if (!policyId) {
+            const app = await $.getJSON(`/api/v1/apps/${appId}`);
+            policyId = app._links.accessPolicy.href.split('/').pop();
+            appLabel = app.label;
+        }
         rules = await $.getJSON(`/api/v1/policies/${policyId}/rules`); /* old "?type=Okta:SignOn", new: "" */
         rules.pop(); /* Don't clone the "Catch-all Rule". */
         rules.forEach(rule => {
@@ -211,7 +217,7 @@ javascript:
         }
         form.find('div.cloned').html('Cloned:<br>' + cloned.sort().join('<br>'));
         form.find('div.status').html('');
-        downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, 'cloned rules');
+        downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, appLabel + ' cloned rules');
     });
 
     form.find('input.checkAll').click(() => form.find('input[type="checkbox"]').prop('checked', true));

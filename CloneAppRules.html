@@ -78,21 +78,46 @@ javascript:
         const headers = {};
         fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
-        /* TODO: merge with Clone Rules code below */
+        const apps = [];
+        for (const line of lines) {
+            const fields = line.replace(/"/g, '').split(fieldSeparator); /* TODO: improve support for "s */
+            const policyId = fields[headers.id];
+            const name = fields[headers.name];
+            apps.push({policyId, name});
+        }
+
+        await cloneRules(apps);
+    }
+
+    /* Clone rules (from Clone button). */
+    form.submit(async event => {
+        event.preventDefault();
+
+        const checked = form.find('input:checked');
+
+        const apps = [];
+        for (const chk of checked) {
+            const policyId = chk.value;
+            const name = chk.parentNode.textContent;
+            apps.push({policyId, name});
+        }
+
+        await cloneRules(apps)
+    });
+
+    async function cloneRules(apps) {
         if (rules.length == 0) await getRules();
         form.find('div.cloned').html('');
         form.find('div.error').html('');
         const cloned = [];
         const csv = [];
-        for (const line of lines) {
-            const fields = line.replace(/"/g, '').split(fieldSeparator); /* TODO: improve support for "s */
-            const policyId = fields[headers.id];
+        for (const app of apps) {
             for (const rule of rules) {
                 try {
-                    const clonedRule = await postJSON({url: `/api/v1/policies/${policyId}/rules`, data: rule});
-                    csv.push(toCSV(policyId, clonedRule.id, fields[headers.name], rule.name));
-                    form.find('div.status').html(fields[headers.name] + ', ' + rule.name);
-                    cloned.push(fields[headers.name] + ', ' + rule.name);
+                    const clonedRule = await postJSON({url: `/api/v1/policies/${app.policyId}/rules`, data: rule});
+                    form.find('div.status').html(app.name + ', ' + rule.name);
+                    cloned.push(app.name + ', ' + rule.name);
+                    csv.push(toCSV(app.policyId, clonedRule.id, app.name, rule.name));
                 } catch (jqXHR) {
                     const e = jqXHR.responseJSON;
                     form.find('div.error').html('Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>'));
@@ -104,7 +129,7 @@ javascript:
         downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, appLabel + ' cloned rules');
     }
 
-    /* Rollback from CSV. */
+    /* Rollback rules from CSV. */
     form.find('input.rollbackRules').change(function () {
         const reader = new FileReader();
         reader.onload = () => parseRuleFile(reader.result);
@@ -131,11 +156,11 @@ javascript:
             try {
                 await $.ajax({url: `/api/v1/policies/${policyId}/rules/${ruleId}`, method: 'delete'});
                 form.find('div.status').html(fields[headers.appName] + ', ' + fields[headers.ruleName]);
+                rolled.push(fields[headers.appName] + ', ' + fields[headers.ruleName]);
             } catch (jqXHR) {
                 const e = jqXHR.responseJSON;
                 form.find('div.error').html('Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>'));
             }
-            rolled.push(fields[headers.appName] + ', ' + fields[headers.ruleName]);
         }
         form.find('div.cloned').html('Rolled back:<br>' + rolled.sort().join('<br>'));
         form.find('div.status').html('');
@@ -192,33 +217,6 @@ javascript:
             delete rule._links;
         });
     }
-
-    /* Clone rules (from Clone button). */
-    form.submit(async event => {
-        event.preventDefault();
-        if (rules.length == 0) await getRules();
-        form.find('div.cloned').html('');
-        form.find('div.error').html('');
-        const checked = form.find('input:checked');
-        const cloned = [];
-        const csv = [];
-        for (const chk of checked) {
-            for (const rule of rules) {
-                try {
-                    const clonedRule = await postJSON({url: `/api/v1/policies/${chk.value}/rules`, data: rule});
-                    form.find('div.status').html(chk.parentNode.textContent + ', ' + rule.name);
-                    cloned.push(chk.parentNode.textContent + ', ' + rule.name);
-                    csv.push(toCSV(chk.value, clonedRule.id, chk.parentNode.textContent, rule.name));
-                } catch (jqXHR) {
-                    const e = jqXHR.responseJSON;
-                    form.find('div.error').html('Error:<br>' + e.errorSummary + '<br>' + e.errorCauses.map(c => c.errorSummary).join('<br>'));
-                }
-            }
-        }
-        form.find('div.cloned').html('Cloned:<br>' + cloned.sort().join('<br>'));
-        form.find('div.status').html('');
-        downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, appLabel + ' cloned rules');
-    });
 
     form.find('input.checkAll').click(() => form.find('input[type="checkbox"]').prop('checked', true));
     form.find('input.uncheckAll').click(() => form.find('input[type="checkbox"]').prop('checked', false));

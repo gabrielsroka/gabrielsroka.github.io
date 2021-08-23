@@ -34,7 +34,7 @@ body {
 </ol>
 <textarea id=code hidden>
 javascript:
-(async function () {
+(function () {
     if (!window.$) {
         alert('Drag/drop this link to your bookmarks toolbar.'); 
         return;
@@ -78,13 +78,10 @@ javascript:
         const headers = {};
         fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
-        const apps = [];
-        for (const line of lines) {
+        const apps = lines.map(line => {
             const fields = line.replace(/"/g, '').split(fieldSeparator); /* TODO: improve support for "s */
-            const policyId = fields[headers.id];
-            const name = fields[headers.name];
-            apps.push({policyId, name});
-        }
+            return {policyId: fields[headers.id], name: fields[headers.name]};
+        });
 
         await cloneRules(apps);
     }
@@ -95,12 +92,7 @@ javascript:
 
         const checked = form.find('input:checked');
 
-        const apps = [];
-        for (const chk of checked) {
-            const policyId = chk.value;
-            const name = chk.parentNode.textContent;
-            apps.push({policyId, name});
-        }
+        const apps = checked.map(chk => ({policyId: chk.value, name: chk.parentNode.textContent}));
 
         await cloneRules(apps)
     });
@@ -127,6 +119,22 @@ javascript:
         form.find('div.cloned').html('Cloned:<br>' + cloned.sort().join('<br>'));
         form.find('div.status').html('');
         downloadCSV(popup, 'policyId,ruleId,appName,ruleName', csv, appLabel + ' cloned rules');
+    }
+
+    async function getRules() {
+        if (!policyId) {
+            const app = await $.getJSON(`/api/v1/apps/${appId}`);
+            policyId = app._links.accessPolicy.href.split('/').pop();
+            appLabel = app.label;
+        }
+        rules = await $.getJSON(`/api/v1/policies/${policyId}/rules`); /* old "?type=Okta:SignOn", new: "" */
+        rules.pop(); /* Don't clone the "Catch-all Rule". */
+        rules.forEach(rule => {
+            rule.name += ' (clone)';
+            delete rule.id;
+            delete rule.resourceDisplayName;
+            delete rule._links;
+        });
     }
 
     /* Rollback rules from CSV. */
@@ -201,22 +209,6 @@ javascript:
         form.find('div.status').html('');
         form.find('input').prop('disabled', false);
     });
-
-    async function getRules() {
-        if (!policyId) {
-            const app = await $.getJSON(`/api/v1/apps/${appId}`);
-            policyId = app._links.accessPolicy.href.split('/').pop();
-            appLabel = app.label;
-        }
-        rules = await $.getJSON(`/api/v1/policies/${policyId}/rules`); /* old "?type=Okta:SignOn", new: "" */
-        rules.pop(); /* Don't clone the "Catch-all Rule". */
-        rules.forEach(rule => {
-            rule.name += ' (clone)';
-            delete rule.id;
-            delete rule.resourceDisplayName;
-            delete rule._links;
-        });
-    }
 
     form.find('input.checkAll').click(() => form.find('input[type="checkbox"]').prop('checked', true));
     form.find('input.uncheckAll').click(() => form.find('input[type="checkbox"]').prop('checked', false));

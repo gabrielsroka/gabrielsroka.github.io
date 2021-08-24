@@ -3,12 +3,17 @@ I got a basic Data Connector to work. It needs more work, but this should get yo
 
 This works with Power BI Desktop (as of now). Excel support may be added by Microsoft in the future.
 
+Install:
 1. In your Documents folder, create a folder called "Power BI Desktop\Custom Connectors" (mine already existed).
-2. Download the code below to Okta.pq and save it in the "Custom Connectors" folder.
+2. Download the code below to Okta.pq and save it in the "Custom Connectors" folder. Make sure it's a PQ file, not a Text file.
 3. In Power BI Desktop, go to File | Options and settings | Options.
 4. Go the Security tab.
 5. Under Data Extensions, select Allow any extension to load without validation or warning.
 6. Restart Power BI Desktop.
+
+Usage:
+1. Click Get Data, Okta. It will prompt you for the domain name and API Token (SSWS key).
+2. Click Transform Data, then the Expand button at the top to expand Profile, Credentials, etc.
 
 See https://github.com/Microsoft/DataConnectors for more info.
 

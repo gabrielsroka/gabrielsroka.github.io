@@ -126,7 +126,6 @@ async function getLinks(baseUrl) {
         localStorage.links = JSON.stringify(links);
         return links;
     } catch (e) {
-        alert(e);
         location.href = '/login.htm';
     }
 }

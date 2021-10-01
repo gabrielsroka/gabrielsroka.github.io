@@ -9,6 +9,7 @@ td {
     padding: 1px 8px;
 }
 </style>
+<body>
 <h1>OAuth for Okta</h1>
 <div id=app>Loading...</div>
 <script>
@@ -16,7 +17,7 @@ onload = async function () {
     paths = []
     hash = {}
     // TODO: use JSON version at https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.json
-    r = await fetch('https://raw.githubusercontent.com/okta/okta-sdk-java/master/src/swagger/api.yaml')
+    r = await fetch('https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.yaml')
     lines = (await r.text()).split('\n')
     lines.forEach(line => {
         if (match = line.match(/^  '?(\/.*?)'?:/)) {
@@ -70,7 +71,8 @@ onload = async function () {
         }
         return `<tr><td>${method}<td>${path}<td>${scope}<td>${r.status}`
     }))
-    app.innerHTML = `<a href="https://github.com/okta/okta-sdk-java/blob/master/src/swagger/api.yaml">Swagger v. ${version}</a>` +
+    app.innerHTML = `<a href="https://github.com/okta/okta-management-openapi-spec">OpenAPI v. ${version}</a><br><br>` +
         '<table><tr><th>Method<th>Path<th>Scope<th>Status' + rows.join('') + '</table>'
 }
 </script>
+</body>

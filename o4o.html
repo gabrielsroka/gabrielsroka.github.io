@@ -37,6 +37,7 @@ onload = async function () {
         lines.forEach(line => {
             if (match = line.match(/ApiOperation method="(.*?)" url="(.*?)"/)) {
                 [_, method, path] = match
+                if (path.match(/https:\/\/app.scaleft.com/)) return;
                 method = method.toLowerCase()
                 path = path.replace(/\${/g, '{').replace('{baseUrl}', '').replace('https://{yourOktaDomain}', '').trim()
                 if (path.startsWith('/v1')) path = '/api' + path

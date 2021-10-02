@@ -14,63 +14,77 @@ td {
 <div id=app>Loading...</div>
 <script>
 onload = async function () {
-    paths = []
-    hash = {}
+    const paths = [];
+    const hash = {};
 
     // Parse OpenAPI spec for paths.
-    r = await fetch('https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.json')
-    spec = await r.json()
+    const r = await fetch('https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.json');
+    const spec = await r.json();
     for (const [path, methods] of Object.entries(spec.paths)) {
         for (const method of Object.keys(methods)) {
-            paths.push({method, path})
-            hash[method + path.replace(/\{(.*?)\}/g, '{}')] = true
+            paths.push({method, path});
+            hash[method + path.replace(/\{(.*?)\}/g, '{}')] = true;
         }
     }
-    version = spec.info.version
+    const version = spec.info.version;
 
     // Search docs for additional paths.
-    r = await fetch('https://api.github.com/search/code?q=repo:okta/okta-developer-docs ApiOperation extension:md');
-    page = await r.json()
-    await Promise.all(page.items.filter(i => !i.path.match('/asa/')).map(async item => {
-        r = await fetch('https://raw.githubusercontent.com/okta/okta-developer-docs/master/' + item.path)
-        lines = (await r.text()).split('\n')
-        lines.forEach(line => {
-            if (match = line.match(/ApiOperation method="(.*?)" url="(.*?)"/)) {
-                [_, method, path] = match
-                method = method.toLowerCase()
-                path = path.replace(/\${/g, '{').replace('{baseUrl}', '').replace('https://{yourOktaDomain}', '').trim()
-                if (path.startsWith('/v1')) path = '/api' + path
-                if (!hash[method + path.replace(/\{(.*?)\}/g, '{}')]) {
-                    paths.push({method, path})
+    var url = 'https://api.github.com/search/code?q=repo:okta/okta-developer-docs ApiOperation extension:md';
+    do {
+        const r = await fetch(url);
+        const page = await r.json();
+        await Promise.all(page.items.filter(i => !i.path.match('/asa/')).map(async item => {
+            const r = await fetch('https://raw.githubusercontent.com/okta/okta-developer-docs/master/' + item.path);
+            const lines = (await r.text()).split('\n');
+            lines.forEach(line => {
+                if (match = line.match(/ApiOperation method="(.*?)" url="(.*?)"/)) {
+                    var [, method, path] = match;
+                    method = method.toLowerCase();
+                    path = path.replace(/\${/g, '{').replace('{baseUrl}', '').replace('https://{yourOktaDomain}', '').trim();
+                    if (path.startsWith('/v1')) path = '/api' + path;
+                    if (!hash[method + path.replace(/\{(.*?)\}/g, '{}')]) {
+                        paths.push({method, path});
+                    }
                 }
-            }
-        })
-    }))
+            })
+        }))
+        url = getLinks(r.headers.get('link')).next;
+    } while (url);
 
-    base = 'https://gsroka-neto.oktapreview.com'
-    headers = {Authorization: 'Bearer invalidToken'}
+    const base = 'https://gsroka-neto.oktapreview.com';
+    const headers = {Authorization: 'Bearer invalidToken'};
 
-    paths.sort((p1, p2) => (p1.path + p1.method).localeCompare(p2.path + p2.method))
+    paths.sort((p1, p2) => (p1.path + p1.method).localeCompare(p2.path + p2.method));
 
-    rows = await Promise.all(paths.map(async ({method, path}) => {
+    const rows = await Promise.all(paths.map(async ({method, path}) => {
         if (path == '/api/v1/idps/{idpId}/credentials/csrs/{csrId}/lifecycle/publish') {
-            headers['content-type'] = 'application/pkix-cert'
+            headers['content-type'] = 'application/pkix-cert';
         } else {
-            headers['content-type'] = 'application/json'
+            headers['content-type'] = 'application/json';
         }
         if (path == '/api/v1/policies?type={type}') {
-            path = '/api/v1/policies?type=Okta:SignOn'
+            path = '/api/v1/policies?type=Okta:SignOn';
         }
         try {
-            r = await fetch(base + path, {headers, method})
-            scope = r.headers.get('www-authenticate').match(/scope="(.*?)"/)[1]
+            const r = await fetch(base + path, {headers, method});
+            var scope = r.headers.get('www-authenticate').match(/scope="(.*?)"/)[1];
         } catch (e) {
-            scope = ''
+            scope = '';
         }
-        return `<tr><td>${method}<td>${path}<td>${scope}<td>${r.status}`
-    }))
+        return `<tr><td>${method}<td>${path}<td>${scope}`;
+    }));
     app.innerHTML = `<a href="https://github.com/okta/okta-management-openapi-spec">OpenAPI v. ${version}</a><br><br>` +
-        '<table><tr><th>Method<th>Path<th>Scope<th>Status' + rows.join('') + '</table>'
+        '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>';
+
+    function getLinks(linkHeader) {
+        const headers = linkHeader.split(", ");
+        const links = {};
+        for (var i = 0; i < headers.length; i++) {
+            const [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
+            links[name] = url;
+        }
+        return links;
+    }
 }
 </script>
 </body>

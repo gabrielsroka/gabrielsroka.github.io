@@ -29,7 +29,7 @@ onload = async function () {
     const version = spec.info.version;
 
     // Search docs for additional paths.
-    var url = 'https://api.github.com/search/code?q=repo:okta/okta-developer-docs ApiOperation extension:md';
+    var url = 'https://api.github.com/search/code?q=repo:okta/okta-developer-docs+ApiOperation+extension:md';
     do {
         const r = await fetch(url);
         const page = await r.json();
@@ -46,8 +46,8 @@ onload = async function () {
                         paths.push({method, path});
                     }
                 }
-            })
-        }))
+            });
+        }));
         url = getLinks(r.headers.get('link')).next;
     } while (url);
 
@@ -63,7 +63,7 @@ onload = async function () {
             headers['content-type'] = 'application/json';
         }
         if (path == '/api/v1/policies?type={type}') {
-            path = '/api/v1/policies?type=Okta:SignOn';
+            path = '/api/v1/policies?type=OKTA_SIGN_ON';
         }
         try {
             const r = await fetch(base + path, {headers, method});
@@ -85,6 +85,6 @@ onload = async function () {
         }
         return links;
     }
-}
+};
 </script>
 </body>

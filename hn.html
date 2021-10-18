@@ -103,7 +103,7 @@ async function getItems() {
         if (item.url) {
             var site = new URL(item.url).hostname.replace(/^www\./, "");
             var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${site}`, site)})`;
-            var web = ' | ' + anc(`https://www.google.com/search?q=${item.title} site:${site}`, 'web');
+            var web = ' | ' + anc(`https://www.google.com/search?q=${encodeURIComponent(item.title)}+site:${site}`, 'web');
         } else {
             ln1 = anc(hnItemUrl, item.title);
             web = '';

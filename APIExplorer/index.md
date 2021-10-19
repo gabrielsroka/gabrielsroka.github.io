@@ -25,7 +25,7 @@ I've long been fascinated by the abillity to run arbitrary JavaScript against a 
 
 Now I write more complex scripts like this one. I can add HTML/CSS popups and power them with JavaScript.
 
-Browsers have gotten better at this, too. Chrome, for example, has a fairly complete set of [developer tools](https://developers.google.com/web/tools/chrome-devtools) for writing and debugging JavaScript.
+Browsers have gotten better at this, too. Chrome, for example, has a fairly complete set of [developer tools](https://developer.chrome.com/docs/devtools/) for writing and debugging JavaScript.
 
 There are a few options for running your JavaScript on someone else's website:
 - the address bar using the `javascript:` scheme. For example, `javascript:alert('hi')` [1]. Note that some browsers remove the `javascript:` part if you paste it in, and some browsers or sites block these.

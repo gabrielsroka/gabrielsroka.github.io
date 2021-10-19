@@ -1,37 +1,24 @@
-# Explore the GitHub API
+# SearchGroups.js
 
-A short (100-line) JavaScript snippet to call the GitHub API from a browser UI -- like a mini-Postman.
-
-It runs in your browser like a browser extension. In fact, it can easily be turned into a browser extension.
-
-![Screenshot](screen-shot.png)
+A short (25-line) JavaScript snippet to call the Okta API from a browser UI -- like a mini-rockstar.
 
 # Setup
-1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-2. Drag this to the bookmarks toolbar:
-<a href='javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/GitHubAPIExplorer.js";})();'>GitHub API Explorer</a>
-
-# Usage
-1. Navigate your browser to [https://developer.github.com](https://developer.github.com)
-2. Click the GitHub bookmark from your toolbar.
-
-# Alternative Setup
 Copy this code to the browser console, or, if using Chrome, to a Snippet. For example:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
-3. Give it a name, eg, "GitHub API Explorer".
-4. Copy/paste the code from [https://gabrielsroka.github.io/GitHubAPIExplorer.js](https://gabrielsroka.github.io/GitHubAPIExplorer.js)
+3. Give it a name, eg, "SearchGroups.js".
+4. Copy/paste the code from [https://gabrielsroka.github.io/SearchGroups.js](https://gabrielsroka.github.io/SearchGroups.js)
 5. Save (Ctrl+S, Windows).
 
-# Alternative Usage
-1. Navigate your browser to [https://developer.github.com](https://developer.github.com)
+# Usage
+1. Navigate your browser to your Okta tenant
 2. Press F12 (Windows) to open DevTools.
 3. Run the code. If using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
 4. Look for the popup window in the upper-left corner of your browser.
 
-Check out [GitHubAPIExplorer.js](https://gabrielsroka.github.io/GitHubAPIExplorer.js)
+Check out [SearchGroups.js](https://gabrielsroka.github.io/SearchGroups.js)
 
-[Source Code](https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/GitHubAPIExplorer.js)
+[Source Code](https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/SearchGroups.js)
 
 # Why?
 I've long been fascinated by the abillity to run arbitrary JavaScript against a website. This can be something simple, like scraping HTML. Or adding a "missing feature" to a website. I started learning about this around 15 years ago when I was using a time tracking website, but I found it tedious and error-prone. I was able to automate data entry with a simple piece of JavaScript.

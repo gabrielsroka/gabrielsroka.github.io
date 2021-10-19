@@ -29,8 +29,8 @@ Browsers have gotten better at this, too. Chrome, for example, has a fairly comp
 
 There are a few options for running your JavaScript on someone else's website:
 - the address bar using the `javascript:` scheme. For example, `javascript:alert('hi')` [1]. Note that some browsers remove the `javascript:` part if you paste it in, and some browsers or sites block these.
-- bookmarklets - like regular bookmarks, but they can run JavaScript [2]. These even work on mobile browsers, which usually don't have dev tools! You can host them on sites like GitHub so you can share them, update them, etc. For example, `javascript:(function(){document.body.appendChild(document.createElement("script")).src= "https://gabrielsroka.github.io/GitHubAPIExplorer.js";})();`
-- [Chrome DevTools console](https://developers.google.com/web/tools/chrome-devtools/console) [3]
+- bookmarklets - like regular bookmarks, but they can run JavaScript [2]. These even work on mobile browsers, which usually don't have dev tools! You can host them on sites like GitHub so you can share them, update them, etc. For example, `javascript:(function(){document.body.appendChild(document.createElement("script")).src= "https://gabrielsroka.github.io/SearchGroups.js";})();`
+- [Chrome DevTools console](https://developer.chrome.com/docs/devtools/console/) [3]
 - [Chrome Snippets](https://developers.google.com/web/tools/chrome-devtools/javascript/snippets) [4]
 - [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) user scripts
 - [Chrome](https://developer.chrome.com/extensions) or [Firefox](https://developer.mozilla.org/en-US/Add-ons/WebExtensions) browser extensions

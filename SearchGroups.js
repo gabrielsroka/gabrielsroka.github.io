@@ -4,13 +4,13 @@
         '<button type=submit disabled>Search</button></form><br><div class=results>Loading...</div>').appendTo(popup);
     form.find('input.name').focus();
     form.submit(event => {
+        event.preventDefault();
         const re = new RegExp(form.find('input.name').val(), 'i');
         const found = groups
             .filter(group => re.test(group.profile.name))
             .map(group => group.profile.name.link('/admin/group/' + group.id));
         const results = found.length > 0 ? found.join('<br>') : 'Not found';
         popup.find('div.results').html(results);
-        event.preventDefault();
     });
     const groups = await $.getJSON('/api/v1/groups');
     popup.find('button').prop('disabled', false);

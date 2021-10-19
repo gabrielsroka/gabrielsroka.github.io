@@ -16,9 +16,7 @@ Copy this code to the browser console, or, if using Chrome, to a Snippet. For ex
 3. Run the code. If using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
 4. Look for the popup window in the upper-left corner of your browser.
 
-Check out [SearchGroups.js](https://gabrielsroka.github.io/SearchGroups.js)
-
-[Source Code](https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/SearchGroups.js)
+Check out the [Source Code](https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/SearchGroups.js)
 
 # Why?
 I've long been fascinated by the abillity to run arbitrary JavaScript against a website. This can be something simple, like scraping HTML. Or adding a "missing feature" to a website. I started learning about this around 15 years ago when I was using a time tracking website, but I found it tedious and error-prone. I was able to automate data entry with a simple piece of JavaScript.

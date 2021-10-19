@@ -1,3 +1,20 @@
+javascript:
+/*
+Setup:
+Copy this code to the browser console, or, if using Chrome, to a Snippet. For example:
+1. Press F12 (Windows) to open DevTools.
+2. Go to Sources > Snippets, click New Snippet.
+3. Give it a name, eg, "SearchGroups.js".
+4. Copy/paste the code from [https://gabrielsroka.github.io/SearchGroups.js](https://gabrielsroka.github.io/SearchGroups.js)
+5. Save (Ctrl+S, Windows).
+
+Usage
+1. Navigate your browser to your Okta admin console.
+2. Press F12 (Windows) to open DevTools.
+3. Run the code. If using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
+4. Look for the popup window in the upper-left corner of your browser.
+*/
+
 (async function () {
     const popup = createPopup('Search 10,000 Groups with Name Containing');
     const form = $('<form>Name <input class=name style="width: 250px"> ' + 

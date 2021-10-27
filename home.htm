@@ -21,6 +21,15 @@ a:active, a:link, a:visited, span, .app-button-name {
     text-decoration: none;
     color: black;
 }
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: black;
+        color: white;
+    }
+    a:active, a:link, a:visited, span, .app-button-name {
+        color: white;
+    }
+}
 #stocks td {
     width: 33%;
     height: 22px;

@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone Rules v0.10</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone Rules v0.11</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -92,13 +92,8 @@ javascript:
 
         const checked = form.find('input:checked');
 
-        /* Don't use .map() -- this is a jQuery collection, not an array. */
-        const apps = [];
-        for (const chk of checked) {
-            const policyId = chk.value;
-            const name = chk.parentNode.textContent;
-            apps.push({policyId, name});
-        }
+        /* Use standard array map instead of jQuery map. */
+        const apps = checked.toArray().map(chk => ({policyId: chk.value, name: chk.parentNode.textContent}));
 
         await cloneRules(apps)
     });
@@ -193,7 +188,7 @@ javascript:
                 if (appId == app.id) {
                     policyId = pId;
                     appLabel = app.label;
-                } else {
+                } else if (!['active_directory', 'ldap_sun_one', 'csv_directory_v2'].includes(app.name)) {
                     const sortBy = `<!--${app.label}-->`;
                     chks.push(`${sortBy}<label><input type=checkbox value='${pId}' checked>${app.label}</label>`);
                     csv.push(toCSV(pId, app.label));

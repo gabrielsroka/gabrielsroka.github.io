@@ -73,9 +73,10 @@ Bookmark: Click the bookmark, or
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
-            doc.querySelectorAll('a.storylink').forEach(a => favorites.push({title: a.innerText, link: a.href}));
+            doc.querySelectorAll('a.titlelink').forEach(a => favorites.push({title: a.innerText, link: a.href}));
             const more = doc.querySelector('a.morelink');
             url = more?.href;
+            await sleep(850);
         } while (url);
     }
 
@@ -99,5 +100,8 @@ Bookmark: Click the bookmark, or
         const date = (new Date()).toISOString().replace(/[T:]/g, "-").slice(0, 19);
         a.download = `${filename}-${date}.${filetype}`;
         a.click();
+    }
+    function sleep(time) {
+        return new Promise(resolve => setTimeout(resolve, time));
     }
 })();

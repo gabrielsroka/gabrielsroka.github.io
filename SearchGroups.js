@@ -3,7 +3,10 @@ javascript:
 Bookmark name: /Search Groups#
 
 Setup:
-Copy this code to the browser console, or, if using Chrome, to a Snippet. For example:
+1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.
+2. Drag all this to the bookmark toolbar.
+
+Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
 3. Give it a name, eg, "SearchGroups.js".

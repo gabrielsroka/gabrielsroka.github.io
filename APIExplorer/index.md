@@ -16,7 +16,7 @@ Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
 # Usage
 1. Navigate your browser to your Okta admin console.
 2. Press F12 (Windows) to open DevTools.
-3. Run the code. If using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
+3. Run the code. Click the bookmarklet, of if using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
 4. Look for the popup window in the upper-left corner of your browser.
 
 Check out the [Source Code](https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/SearchGroups.js)

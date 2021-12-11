@@ -3,11 +3,14 @@
 A short (25-line) JavaScript snippet to call the Okta API from a browser UI -- like a mini-rockstar.
 
 # Setup
-Copy this code to the browser console, or, if using Chrome, to a Snippet. For example:
+1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.
+2. Drag all of https://gabrielsroka.github.io/SearchGroups.js to the bookmarks toolbar.
+
+Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
 3. Give it a name, eg, "SearchGroups.js".
-4. Copy/paste the code from [https://gabrielsroka.github.io/SearchGroups.js](https://gabrielsroka.github.io/SearchGroups.js)
+4. Copy/paste the code from https://gabrielsroka.github.io/SearchGroups.js
 5. Save (Ctrl+S, Windows).
 
 # Usage

@@ -32,8 +32,8 @@ Usage:
         const re = new RegExp(form.find('input.name').val(), 'i');
         const found = groups
             .filter(group => re.test(group.profile.name))
-            .map(group => group.profile.name.link('/admin/group/' + group.id) + '<br>')
-            .join('');
+            .map(group => group.profile.name.link('/admin/group/' + group.id))
+            .join('<br>');
         popup.find('div.results').html(found || 'Not found');
     });
 

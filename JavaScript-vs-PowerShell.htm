@@ -58,9 +58,9 @@ let b = 3;
     
 stringDouble = "double quotes";
 stringSingle = 'single quotes';
-escaped = "\"";
 template = `a = ${a}`; // ES6 [?]
 
+escaped = "\"";
 </code></pre>
 </td>
 <td>
@@ -72,22 +72,22 @@ Set-Variable c -option constant -value 2
     
 $stringDouble = "double quotes"
 $stringSingle = 'single quotes' # no string interpolation
-$escaped = "`""
 $template1 = "a = $a" # $a is simple.
 $template2 = "a.b = $($a.b)" # $a.b is not simple.
+$escaped = "`""
 </code></pre>
 </td>
 <td>
 <pre><code class=python>
-# Python variables can start with a letter, $, _
+# Python variables can start with a letter, _
 v = 1
 c = 2
 b = 3
 
 string_double = "double quotes"
 string_single = 'single quotes'
-
 template = f'a = {a}'
+
 
 </code></pre>
 </td>

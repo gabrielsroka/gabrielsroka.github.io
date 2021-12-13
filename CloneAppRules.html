@@ -70,7 +70,7 @@ javascript:
 
     async function parseAppFile(file) {
         const lineSeparator = /\r\n|\r|\n/;
-        const fieldSeparator = ",";
+        const fieldSeparator = ',';
 
         const lines = file.split(lineSeparator);
         if (lines[lines.length - 1] == '') lines.pop();
@@ -128,8 +128,8 @@ javascript:
             policyId = app._links.accessPolicy.href.split('/').pop();
             appLabel = app.label;
         }
-        rules = await $.getJSON(`/api/v1/policies/${policyId}/rules`); /* old "?type=Okta:SignOn", new: "" */
-        rules.pop(); /* Don't clone the "Catch-all Rule". */
+        rules = await $.getJSON(`/api/v1/policies/${policyId}/rules`); /* old '?type=Okta:SignOn', new: '' */
+        rules.pop(); /* Don't clone the 'Catch-all Rule'. */
         rules.forEach(rule => {
             rule.name += ' (clone)';
             delete rule.id;
@@ -147,7 +147,7 @@ javascript:
 
     async function parseRuleFile(file) {
         const lineSeparator = /\r\n|\r|\n/;
-        const fieldSeparator = ",";
+        const fieldSeparator = ',';
 
         const lines = file.split(lineSeparator);
         if (lines[lines.length - 1] == '') lines.pop();
@@ -211,8 +211,8 @@ javascript:
         form.find('input').prop('disabled', false);
     });
 
-    form.find('input.checkAll').click(() => form.find('input[type="checkbox"]').prop('checked', true));
-    form.find('input.uncheckAll').click(() => form.find('input[type="checkbox"]').prop('checked', false));
+    form.find('input.checkAll').click(() => form.find('input[type=checkbox]').prop('checked', true));
+    form.find('input.uncheckAll').click(() => form.find('input[type=checkbox]').prop('checked', false));
 
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto; ` +
@@ -222,29 +222,29 @@ javascript:
         return $('<div></div>').appendTo(popup);
     }
     function toCSV(...fields) {
-        return fields.map(field => `"${field == undefined ? "" : field.toString().replace(/"/g, '""')}"`).join(',');
+        return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
     }
     function downloadCSV(popup, header, lines, filename) {
-        var a = $("<a>").appendTo(popup);
-        a.attr("href", URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/csv'})));
-        var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").slice(0, 19);
-        a.attr("download", `${filename} ${date}.csv`);
+        var a = $('<a>').appendTo(popup);
+        a.attr('href', URL.createObjectURL(new Blob([header + '\n' + lines.join('\n')], {type: 'text/csv'})));
+        var date = (new Date()).toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
+        a.attr('download', `${filename} ${date}.csv`);
         a[0].click();
     }
     function getAppId() {
         const path = location.pathname;
         const pathparts = path.split('/');
-        if (path.match("admin/app") && (pathparts.length == 6 || pathparts.length == 7)) {
+        if (path.match('admin/app') && (pathparts.length == 6 || pathparts.length == 7)) {
             return pathparts[5];
         }
     }
     function postJSON(settings) {
-        settings.contentType = "application/json";
+        settings.contentType = 'application/json';
         settings.data = JSON.stringify(settings.data);
         return $.post(settings);
     }
     function getLinks(linkHeader) {
-        var headers = linkHeader.split(", ");
+        var headers = linkHeader.split(', ');
         var links = {};
         for (var i = 0; i < headers.length; i++) {
             var [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);

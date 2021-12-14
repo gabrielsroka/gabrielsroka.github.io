@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>JavaScript vs. PowerShell</title>
+<title>JavaScript vs. PowerShell vs. Python</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/powershell.min.js"></script>
@@ -123,7 +123,7 @@ arr = []
 arr.append(3)
 b = arr[0]
 
-
+arr[0:2]
 len(arr)
 </code></pre>
 </td>
@@ -237,7 +237,7 @@ if (a == b) {
     //
 }
  
-while ( ) { }
+while (b) { }
 do { } while ( );
 for (i = 0; i < MAX; i++) { }
 for (item of collection) // ES6 [?]
@@ -255,8 +255,8 @@ if ($a -eq $b) {
     #
 }
 
-
-
+while (b) { }
+do { } while (b)
 for ($i = 0; $i -lt $MAX; $i++) { }
 foreach ($item in $collection)
 </code></pre>
@@ -274,7 +274,7 @@ else:
 
 
 while b: #
-# no do/while loop
+# no do/while loop, use while/break
 for i in range(MAX): # ...
 for item in collection: # ...
 </code></pre>

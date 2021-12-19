@@ -21,11 +21,8 @@ Usage:
 */
 (async function () {
     const popup = createPopup('Search 10,000 Groups with Name Containing');
-    const form = $('<form>Name <input class=name style="width: 250px"> <button type=submit disabled>Search</button></form><br>' + 
-        '<div class=results>Loading...</div>').appendTo(popup);
+    const form = $('<form>Name <input class=name style="width: 250px"> <button type=submit>Search</button></form><br><div class=results>Loading...</div>').appendTo(popup);
     const groups = await $.getJSON('/api/v1/groups');
-    popup.find('button').prop('disabled', false);
-    popup.find('div.results').html('');
     form.find('input.name').focus();
     form.submit(event => {
         event.preventDefault();
@@ -35,11 +32,11 @@ Usage:
             .map(group => group.profile.name.link('/admin/group/' + group.id))
             .join('<br>');
         popup.find('div.results').html(found || 'Not found');
-    });
+    }).submit();
 
     function createPopup(title) {
-        const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto; ` +
-                `background-color: white; border: 1px solid #ddd;'>` +
+        const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; ` +
+                `overflow: auto; background-color: white; border: 1px solid #ddd;'>` +
             `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/APIExplorer/' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
             `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
         return $('<div></div>').appendTo(popup);

@@ -342,86 +342,7 @@
     function securityAdministrators() {
         createDiv("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
             const adminsPopup = createPopup("Administrators");
-            adminsPopup.html("Exporting ...");
-            const header = "First name,Last name,Email,Username,UserId,Title,Manager,Department,Administrator Role";
-            const lines = [];
-            getJSON("/api/internal/administrators?expand=user,apps,instances,appAndInstances,userAdminGroups,helpDeskAdminGroups,groupMembershipAdminGroups")
-            .then(getAdmins)
-            .fail(jqXHR => adminsPopup.html(e(jqXHR.responseJSON.errorSummary) + "<br><br>"));
-
-            function getAdmins(admins, status, jqXHR) {
-                admins.forEach(admin => {
-                    const profile = admin._embedded.user.profile;
-                    var mgr = profile.manager || profile.managerId || "";
-                    const matches = mgr.match(/CN=(.*?),OU/);
-                    if (matches) mgr = matches[1];
-                    mgr = mgr.replace("\\", "");
-                    function showRole(role) {
-                        // FIXME: would like to show user.status, but it comes back as null. TODO: fetch it from /users
-                        lines.push(toCSV(profile.firstName, profile.lastName, profile.email, profile.login, admin.userId, profile.title || "", mgr, profile.department || "", role));
-                    }
-                    function appAndInstanceNames() {
-                        const appAndInstanceNames = [];
-
-                        const apps = admin._embedded.apps;
-                        if (apps && apps.length > 0) {
-                            apps.forEach(app => appAndInstanceNames.push("All " + app.displayName + " apps"));
-                        } else {
-                            appAndInstanceNames.push("(all)");
-                        }
-
-                        const instances = admin._embedded.instances;
-                        if (instances && instances.length > 0) {
-                            instances.forEach(instance => appAndInstanceNames.push(instance.displayName));
-                        } else {
-                            appAndInstanceNames.push("(all)");
-                        }
-
-                        return appAndInstanceNames.join('; ');
-                    }
-                    function groupNames(groupType) {
-                        const groupNames = [];
-                        const groups = admin._embedded[groupType];
-                        if (groups && groups.length > 0) {
-                            groups.forEach(group => groupNames.push(group.profile.name));
-                        } else {
-                            groupNames.push("(all)");
-                        }
-                        return groupNames.join('; ');
-                    }
-                    if (admin.superAdmin || admin.orgAdministratorGroup.superAdmin) showRole("Super Administrator");
-                    if (admin.orgAdmin || admin.orgAdministratorGroup.orgAdmin) showRole("Organization Administrator");
-                    if (admin.appAdmin || admin.orgAdministratorGroup.appAdmin) showRole("Application Administrator: " + appAndInstanceNames());
-                    if (admin.userAdmin || admin.orgAdministratorGroup.userAdmin) showRole("Group Administrator: " + groupNames("userAdminGroups")); // "Group Admin", not "User Admin"
-                    if (admin.helpDeskAdmin || admin.orgAdministratorGroup.helpDeskAdmin) showRole("Help Desk Administrator: " + groupNames("helpDeskAdminGroups"));
-                    if (admin.groupMembershipAdmin || admin.orgAdministratorGroup.groupMembershipAdmin) showRole("Group Membership Administrator: " + groupNames("groupMembershipAdminGroups"));
-                    if (admin.readOnlyAdmin || admin.orgAdministratorGroup.readOnlyAdmin) showRole("Read Only Administrator");
-                    if (admin.mobileAdmin || admin.orgAdministratorGroup.mobileAdmin) showRole("Mobile Administrator");
-                    if (admin.apiAccessManagementAdmin || admin.orgAdministratorGroup.apiAccessManagementAdmin) showRole("API Access Management Administrator");
-                    if (admin.reportAdmin || admin.orgAdministratorGroup.reportAdmin) showRole("Report Administrator");
-                });
-
-                const link = jqXHR.getResponseHeader("Link");
-                const links = link ? getLinks(link) : null;
-                if (links && links.next) {
-                    const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
-                    const url = nextUrl.pathname + nextUrl.search;
-                    const remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
-                    if (remaining && remaining < 10) {
-                        const intervalID = setInterval(() => {
-                            adminsPopup.html(adminsPopup.html() + "<br>Sleeping...");
-                            if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {
-                                clearInterval(intervalID);
-                                getJSON(url).then(getAdmins);
-                            }
-                        }, 1000);
-                    } else {
-                        getJSON(url).then(getAdmins);
-                    }
-                } else {
-                    downloadCSV(adminsPopup, "", header, lines, `Administrators ${location.host.replace("-admin", "")}`);
-                }                
-            }
+            adminsPopup.html('This report has been deprecated. Please use the built-in report.');
         });
     }
     function systemLog() {
@@ -605,9 +526,9 @@
             });
         } else if (location.pathname == "/reports/user/yubikey") {
             createDiv("Export YubiKeys", mainPopup, function () {
-                startExport("YubiKeys", "/api/v1/org/factors/yubikey_token/tokens?expand=user", "keyId,serial,status,userId,firstName,lastName,login", 
+                startExport("YubiKeys", "/api/v1/org/factors/yubikey_token/tokens?expand=user", "keyId,serial,status,userId,firstName,lastName,login,lastVerified", 
                     token => toCSV(token.id, token.profile.serial, token.status, token._embedded?.user.id, token._embedded?.user.profile.firstName, 
-                        token._embedded?.user.profile.lastName, token._embedded?.user.profile.login), 'user');
+                        token._embedded?.user.profile.lastName, token._embedded?.user.profile.login, token.lastVerified), 'user');
             });
         } else if (location.pathname == "/admin/universaldirectory") {
             createDiv("Export Mappings", mainPopup, function () {
@@ -1025,7 +946,7 @@
         createDiv("API Explorer", mainPopup, function () {
             var apiPopup = createPopup("API Explorer");
             var form = apiPopup[0].appendChild(document.createElement("form"));
-            form.innerHTML = "<select id=method><option>GET<option>POST<option>PUT<option>DELETE</select> " +
+            form.innerHTML = "<select id=method><option>GET<option>POST<option>PUT<option>PATCH<option>DELETE</select> " +
                 "<input id=url list=urls> "; // HACK: input.list is read-only, must set it at create time. :(
             url.style.width = "700px";
             url.placeholder = "URL";
@@ -1262,7 +1183,7 @@
                     const prefix = "while(1){};";
                     var json = text.slice(prefix.length); // text has a prefix to prevent JSON hijacking. We have to remove the prefix.
                     var data = JSON.parse(json);
-                    var properties = data[object.properties].properties;
+                    var properties = data[object.properties].sColumns.split(',');
                     var objects = [];
                     for (var i = 0; i < data.aaData.length; i++) {
                         var obj = {};

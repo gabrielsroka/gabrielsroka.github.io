@@ -187,7 +187,7 @@ javascript:
         const chks = [];
         const csv = [];
         var url = '/api/v1/apps';
-        do {
+        while (url) {
             const response = await fetch(url);
             const apps = await response.json();
             for (const app of apps) {
@@ -203,14 +203,8 @@ javascript:
                     form.find('div.status').html(`Loading app ${csv.length}...`);
                 }
             }
-            const links = getLinks(response.headers.get('link'));
-            if (links.next) {
-                const nextUrl = new URL(links.next); /* links.next is an absolute URL; we need a relative URL. */
-                url = nextUrl.pathname + nextUrl.search;
-            } else {
-                url = null;
-            }
-        } while (url);
+            url = getNextUrl(response.headers.get('link'));
+        }
         form.find('input.exportAppsCSV').click(() => downloadCSV(popup, 'id,name', csv, 'apps'));
         const results = chks.length > 0 ? chks.sort().join('<br>') : 'Not found';
         form.find('div.results').html(results);
@@ -250,14 +244,17 @@ javascript:
         settings.data = JSON.stringify(settings.data);
         return $.post(settings);
     }
-    function getLinks(linkHeader) {
-        var headers = linkHeader.split(', ');
-        var links = {};
-        for (var i = 0; i < headers.length; i++) {
-            var [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
+    function getNextUrl(linkHeader) {
+        const headers = linkHeader.split(', ');
+        const links = {};
+        headers.forEach(header => {
+            const [, url, name] = header.match(/<(.*)>; rel="(.*)"/);
             links[name] = url;
+        });
+        if (links.next) {
+            const nextUrl = new URL(links.next); /* links.next is an absolute URL; we need a relative URL. */
+            return nextUrl.pathname + nextUrl.search;
         }
-        return links;
     }
 })();
 </textarea>

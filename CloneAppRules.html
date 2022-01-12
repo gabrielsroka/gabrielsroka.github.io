@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone Rules v0.11</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone Rules v0.12</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -42,6 +42,8 @@ body {
 <textarea id=code hidden>
 javascript:
 (function () {
+    const headers = {'x-okta-user-agent-extended': 'clone-tool/12'};
+
     if (!window.$) {
         alert('Drag/drop this link to your bookmarks toolbar.'); 
         return;
@@ -131,11 +133,11 @@ javascript:
 
     async function getRules() {
         if (!policyId) {
-            const app = await $.getJSON(`/api/v1/apps/${appId}`);
+            const app = await getJSON(`/api/v1/apps/${appId}`);
             policyId = app._links.accessPolicy.href.split('/').pop();
             appLabel = app.label;
         }
-        rules = await $.getJSON(`/api/v1/policies/${policyId}/rules`); /* old '?type=Okta:SignOn', new: '' */
+        rules = await getJSON(`/api/v1/policies/${policyId}/rules`);
         rules.pop(); /* Don't clone the 'Catch-all Rule'. */
         rules.forEach(rule => {
             rule.name += ' (clone)';
@@ -170,7 +172,7 @@ javascript:
             const policyId = fields[headers.policyId];
             const ruleId = fields[headers.ruleId];
             try {
-                await $.ajax({url: `/api/v1/policies/${policyId}/rules/${ruleId}`, method: 'delete'});
+                await deleteJSON(`/api/v1/policies/${policyId}/rules/${ruleId}`);
                 form.find('div.status').html(fields[headers.appName] + ', ' + fields[headers.ruleName]);
                 rolled.push(fields[headers.appName] + ', ' + fields[headers.ruleName]);
             } catch (jqXHR) {
@@ -188,7 +190,7 @@ javascript:
         const csv = [];
         var url = '/api/v1/apps';
         while (url) {
-            const response = await fetch(url);
+            const response = await fetch(url, {headers});
             const apps = await response.json();
             for (const app of apps) {
                 const pId = app._links.accessPolicy.href.split('/').pop();
@@ -239,10 +241,17 @@ javascript:
             return pathparts[5];
         }
     }
+    function getJSON(url) {
+        return $.get({url, headers});
+    }
     function postJSON(settings) {
         settings.contentType = 'application/json';
         settings.data = JSON.stringify(settings.data);
+        settings.headers = headers;
         return $.post(settings);
+    }
+    function deleteJSON(url) {
+        return $.ajax({url, headers, method: "DELETE"});
     }
     function getNextUrl(linkHeader) {
         const headers = linkHeader.split(', ');

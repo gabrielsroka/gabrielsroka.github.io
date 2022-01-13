@@ -2,7 +2,7 @@
     console.clear();
     const users = [];
     var total = 0;
-    const pageLimit = 75; // 75-ish works, 76-79-ish doesn't. concurrent limit is 15, 35, or 75. see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
+    const pageLimit = 75; // 75 works, > 75 doesn't. concurrent limit is 15, 35, or 75. see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
     const urlLimit = 600 - pageLimit - 5;
     const delay = 60 * 1000 / (urlLimit / pageLimit);
     for await (const page of getPages('/api/v1/users?limit=' + pageLimit)) { //  /?filter=profile.lastName eq "Doe"&limit=2
@@ -22,35 +22,30 @@
 //         }
 
         total += page.length;
-        await sleep(delay); // This works!
         
-        if (total > 600) {
+//         if (total > 600) {
 //             console.table(users);
-            break;
-        }
+//             break;
+//         }
+
+        await sleep(delay); // This works!
     }
 
     async function* getPages(url) {
-        do {
+        while (url) {
             const response = await fetch(url);
             const page = await response.json();
             yield page;
-            var links = getLinks(response.headers.get('link'));
-            if (links.next) {
-                const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
-                url = nextUrl.pathname + nextUrl.search;
-            }
-        } while (links.next);
+            url = getNextUrl(response.headers.get('link'));
+        }
     }
-
-    function getLinks(linkHeader) {
-        const headers = linkHeader.split(", ");
-        const links = {};
-        headers.forEach(header => {
-            const [, url, name] = header.match(/<(.*)>; rel="(.*)"/);
-            links[name] = url;
-        });
-        return links;
+    function getNextUrl(linkHeader) {
+        const nextLink = linkHeader.split(', ').find(ln => ln.match('rel="next"'));
+        if (nextLink) {
+            const [, url] = nextLink.match(/<(.*)>/);
+            const nextUrl = new URL(url); // url is an absolute URL; we need a relative URL.
+            return nextUrl.pathname + nextUrl.search;
+        }
     }
     function sleep(time) {
         return new Promise(resolve => setTimeout(resolve, time));

@@ -42,7 +42,7 @@
     function getNextUrl(linkHeader) {
         const nextLink = linkHeader.split(', ').find(ln => ln.match('rel="next"'));
         if (nextLink) {
-            const [, url] = nextLink.match(/<(.*)>/);
+            const url = nextLink.match(/<(.*)>/)[1];
             const nextUrl = new URL(url); // url is an absolute URL; we need a relative URL.
             return nextUrl.pathname + nextUrl.search;
         }

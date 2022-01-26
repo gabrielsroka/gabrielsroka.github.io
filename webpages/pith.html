@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+<title>Pith</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<meta name="author" content="Gabriel Sroka">
+<meta name="copyright" content="Copyright 2007-2022 Gabriel Sroka">
+</head>
+<body>
+<h1>Pith</h1>
+<button id=run accesskey="R" title="Run (Ctrl + Enter or F2)">Run</button>
+<button id=newProgram accesskey="N" title="New">New</button>
+<select id=prognames></select>
+<br><br>
+<textarea id="editor" style="padding: 0px; width: 99%" cols="80" rows="15" spellcheck="false" autocapitalize="none"></textarea>
+<textarea id="debug" style="padding: 0px; width: 99%" cols="80" rows="12" spellcheck="false" autocapitalize="none"></textarea>
+<div id=results></div>
+<script>
+var programs;
+var progname;
+
+if (localStorage.pithPrograms) {
+    programs = JSON.parse(localStorage.pithPrograms);
+    for (var [progname, value] of Object.entries(programs)) {
+        if (value) addOption(progname, value);
+    }
+    editor.value = Object.values(programs)[0];
+    progname = Object.keys(programs)[0];
+} else {
+    programs = {};
+    editor.value = `# Pith is awesome !!!
+
+j = 1
+for i in range(1, 10)
+    if j == 0
+        print i
+        j = 1
+    else
+        j = 0`;
+    progname = "First Pith program";
+    addOption(progname, editor.value);
+    save();
+}
+
+if (!navigator.userAgent.match("Android")) {
+    run.innerHTML = "<u>R</u>un";
+    newProgram.innerHTML = "<u>N</u>ew";
+}
+
+run.onclick = function () {
+    debug.clear();
+    console.clear();
+    save();
+    var lines = editor.value.split('\n');
+    var ind = 0;
+    var newInd;
+    const tab = 4;
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        const tLine = line.trim();
+        if (tLine.startsWith("for ")) {
+            v = tLine[4]; // Variables are 1 char long.
+            line = line
+                .replace("for", "for (var")
+                .replace('in', 'of');
+            line += ") {";
+        } else if (tLine.startsWith("if ") || tLine.startsWith("else if ") || tLine.startsWith("elif ")) {
+            line = line
+                .replace('elif', 'else if')
+                .replace("if ", "if (")
+                .replace(" = ", " == ");
+            line += ") {";
+        } else if (tLine.startsWith("else")) {
+            line = line.replace("else", "else {");
+        } else if (tLine.startsWith("print ")) {
+            line = line.replace("print ", "print(") + ")";
+        } else if (tLine.startsWith("# ")) {
+            line = line.replace("#", "//");
+        }
+        newInd = line.match(/^( *)/)[1].length / tab;
+        for (var t = newInd; t < ind; t++) {
+            line = ' '.repeat(tab * t) + '}\n' + line;
+        }
+        ind = newInd;
+        lines[i] = line;
+    }
+    lines = lines.join('\n') + '\n}'.repeat(ind);
+    console.log(lines);
+    eval(lines);
+    //document.body.appendChild(document.createElement("script")).innerHTML = lines;
+};
+
+// TODO: use yield
+function range(start, stop, step = 1) {
+    if (stop === undefined) {
+        stop = start;
+        start = 0;
+    }
+    return Array.from({length: (stop - start - 1) / step + 1}, (_, i) => start + (i * step));
+}
+
+newProgram.onclick = function () {
+    progname = prompt("Program name");
+    if (progname) {
+        addOption(progname, "");
+        prognames.selectedIndex = prognames.options.length - 1;
+        editor.value = "";
+        debug.clear();
+    }
+};
+
+prognames.onchange = function () {
+    editor.value = this.value;
+    progname = this.options[this.selectedIndex].text;
+    debug.clear();
+};
+
+editor.focus();
+editor.onkeydown = function (event) {
+    var ENTER = 13, F2 = 113;
+    if (event.keyCode == F2 || (event.keyCode == ENTER && event.ctrlKey)) {
+        run.onclick();
+    }
+};
+
+debug.print = function (s) {
+    debug.value += (s ? s.toString() : s) + "\r\n";
+    debug.scrollTo(0, debug.scrollHeight);
+};
+    
+debug.clear = function () {
+    debug.value = "";
+    results.innerHTML = '';
+};
+
+function print(...args) {
+    debug.print(args.join(" "));
+}
+
+function save() {
+    if (editor.value) {
+        programs[progname] = editor.value;
+        prognames.options[prognames.selectedIndex].value = editor.value;
+    } else {
+        delete programs[progname];
+        prognames.options.remove(prognames.selectedIndex);
+    }
+    localStorage.pithPrograms = JSON.stringify(programs);
+}
+
+function addOption(name, value) {
+    var option = document.createElement("option");
+    option.text = name;
+    option.value = value;
+    prognames.add(option);
+}
+</script>
+</body>
+</html>

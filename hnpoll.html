@@ -4,9 +4,10 @@
 <script>
 (async function() {
     const base = 'https://hacker-news.firebaseio.com/v0/item/';
-    const r = await fetch(base + (new URLSearchParams(location.search).get('id') || '30210378') + '.json');
+    const id = new URLSearchParams(location.search).get('id') || '30210378';
+    const r = await fetch(base + id + '.json');
     const poll = await r.json();
-    h.innerHTML = poll.title;
+    h.innerHTML = `<a href='https://news.ycombinator.com/item?id=${id}'>` + poll.title + '</a>';
     const items = await Promise.all(poll.parts.map(async i => {
         const r = await fetch(`${base}${i}.json`);
         return await r.json();

@@ -1,0 +1,16 @@
+<title>HN Poll</title>
+<div id=app>Loading...</app>
+<script>
+(async function() {
+    const base = 'https://hacker-news.firebaseio.com/v0/item/';
+    const r = await fetch(base + (new URLSearchParams(location.search).get('id') || '30210378') + '.json');
+    const poll = await r.json();
+    const items = await Promise.all(poll.parts.map(async i => {
+        const r = await fetch(`${base}${i}.json`);
+        return await r.json();
+    }));
+    items.sort((a, b) => b.score - a.score);
+    items.push({text: 'Total', score: items.map(a => a.score).reduce((a,b) => a + b)});
+    app.innerHTML = '<table>' + items.map(e => `<tr><td>${e.text}<td align=right>${e.score}`).join('') + '</table>';
+})();
+</script>

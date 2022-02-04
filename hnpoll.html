@@ -12,7 +12,7 @@
         const r = await fetch(`${base}${i}.json`);
         return await r.json();
     }));
-    items.sort((a, b) => b.score - a.score);
+    items.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
     items.push({text: 'Total', score: items.map(a => a.score).reduce((a,b) => a + b)});
     app.innerHTML = '<table>' + items.map(e => `<tr><td>${e.text}<td align=right>${e.score}`).join('') + '</table>';
 })();

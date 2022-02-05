@@ -22,14 +22,16 @@ body {
     const r = await fetch(base + id + '.json');
     const poll = await r.json();
     hdr.innerHTML = `<a href='https://news.ycombinator.com/item?id=${id}'>` + poll.title + '</a>';
+    var total = 0;
     const items = await Promise.all(poll.parts.map(async i => {
         const r = await fetch(`${base}${i}.json`);
         const part = await r.json();
         part.score--; // all items start with score of 1, so -1 to see actual votes.
+        total += part.score;
         return part;
     }));
     items.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
-    items.push({text: '<b>Total</b>', score: '<b>' + items.map(a => a.score).reduce((a, b) => a + b) + '</b>'});
+    items.push({text: '<b>Total</b>', score: '<b>' + total + '</b>'});
     app.innerHTML = '<table>' + items.map(e => `<tr><td>${e.text}<td align=right>${e.score}`).join('') + '</table>';
 })();
 </script>

@@ -69,10 +69,11 @@ onload = more.onclick = async function () {
         s++;
         if (s == sections.length) {
             more.style.display = 'none';
-            break;
+            info.innerHTML = info2.innerHTML = '';
+            return;
         }
     } while (s % 10); // rate limit
-    info.innerHTML = info2.innerHTML = '';
+    info.innerHTML = info2.innerHTML = '...';
 };
 </script>
 </body>

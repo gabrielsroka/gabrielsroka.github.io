@@ -1,6 +1,7 @@
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<title>NY Times</title>
 <style>
 a:link {
     color: #000000;
@@ -26,6 +27,12 @@ img {
 }
 .item:last-of-type {
     border-bottom: none;
+}
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+        color: #888;
+    }
 }
 </style>
 </head>
@@ -53,7 +60,7 @@ onload = more.onclick = async function () {
         const rs = (await r.json()).results;
         links.innerHTML += `<div><a href='#${section}'>${section}</a></div>`;
         results.innerHTML += `<a id='${section}'>${section}</a>`;
-        rs.forEach(r => results.innerHTML += `<div class=item><a href='${r.url}' target='_blank' rel='noopener'><b>${r.title}</b><br>${r.abstract}<br>${r.multimedia ? `<img src='${r.multimedia[3].url}'>` : ''}</a></div>`);
+        rs.forEach(r => results.innerHTML += `<div class=item><a href='${r.url}' target='_blank' rel='noopener'><b>${r.title}</b><br>${r.abstract}<br>${r.multimedia ? `<img src='${r.multimedia[0].url}'>` : ''}</a></div>`);
         s++;
         if (s == sections.length) {
             more.style.display = 'none';

@@ -1,5 +1,4 @@
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
-<title>Hacker News</title>
 <style>
 body {
     font-family: sans-serif;
@@ -13,7 +12,7 @@ body {
 }
 </style>
 <title>HN Poll</title>
-<div id=h></div>
+<div id=hdr></div>
 <div id=app>Loading...</div>
 <script>
 (async function() {
@@ -22,15 +21,15 @@ body {
     const id = new URLSearchParams(location.search).get('id') || '30210378';
     const r = await fetch(base + id + '.json');
     const poll = await r.json();
-    h.innerHTML = `<a href='https://news.ycombinator.com/item?id=${id}'>` + poll.title + '</a>';
+    hdr.innerHTML = `<a href='https://news.ycombinator.com/item?id=${id}'>` + poll.title + '</a>';
     const items = await Promise.all(poll.parts.map(async i => {
         const r = await fetch(`${base}${i}.json`);
-        const pa = await r.json();
-        pa.score--; // all items start with score of 1, so score-- to see actual votes.
-        return pa;
+        const part = await r.json();
+        part.score--; // all items start with score of 1, so -1 to see actual votes.
+        return part;
     }));
     items.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
-    items.push({text: '<b>Total</b>', score: items.map(a => a.score).reduce((a, b) => a + b)});
+    items.push({text: '<b>Total</b>', score: '<b>' + items.map(a => a.score).reduce((a, b) => a + b) + '</b>'});
     app.innerHTML = '<table>' + items.map(e => `<tr><td>${e.text}<td align=right>${e.score}`).join('') + '</table>';
 })();
 </script>

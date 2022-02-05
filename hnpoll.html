@@ -17,7 +17,7 @@ body {
 <div id=app>Loading...</div>
 <script>
 (async function() {
-    // see https://github.com/HackerNews/API
+    // see https://github.com/HackerNews/API and https://nate.org/hacker-news-location-poll
     const base = 'https://hacker-news.firebaseio.com/v0/item/';
     const id = new URLSearchParams(location.search).get('id') || '30210378';
     const r = await fetch(base + id + '.json');
@@ -25,10 +25,12 @@ body {
     h.innerHTML = `<a href='https://news.ycombinator.com/item?id=${id}'>` + poll.title + '</a>';
     const items = await Promise.all(poll.parts.map(async i => {
         const r = await fetch(`${base}${i}.json`);
-        return await r.json();
+        const pa = await r.json();
+        pa.score--; // all items start with score of 1, so score-- to see actual votes.
+        return pa;
     }));
     items.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
-    items.push({text: 'Total', score: items.map(a => a.score).reduce((a, b) => a + b)});
+    items.push({text: '<b>Total</b>', score: items.map(a => a.score).reduce((a, b) => a + b)});
     app.innerHTML = '<table>' + items.map(e => `<tr><td>${e.text}<td align=right>${e.score}`).join('') + '</table>';
 })();
 </script>

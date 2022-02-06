@@ -4,6 +4,9 @@
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <title>NY Times</title>
 <style>
+body {
+    padding: 1em;
+}
 a:link {
     color: #000000;
     text-decoration: none; 
@@ -15,12 +18,15 @@ a:visited {
 img {
     width: 100%;
 }
+img, .title {
+    font-weight: bold;
+    padding: 1em 0;
+}
 #more {
     width: 100%;
     background-color: white;
 }
 .item {
-    padding-bottom: 1em;
     border-bottom: 1px solid silver;
     margin-bottom: 1em;
 }
@@ -64,7 +70,7 @@ onload = more.onclick = async function () {
         const rs = (await r.json()).results;
         links.innerHTML += `<div><a href='#${section}'>${section} - ${rs.length}</a></div>`;
         results.innerHTML += `<a id='${section}'>${section} - ${rs.length}</a>`;
-        rs.forEach(r => results.innerHTML += `<div class=item><a href='${r.url}' target='_blank' rel='noopener'><b>${r.title}</b><br>${r.abstract}<br>${r.multimedia ? `<img src='${r.multimedia[0].url}'>` : ''}</a></div>`);
+        rs.forEach(r => results.innerHTML += `<p class=item><a href='${r.url}' target='_blank' rel='noopener'><div class=title>${r.title}</div>${r.abstract}<br>${r.multimedia ? `<img src='${r.multimedia[0].url}'>` : ''}</a></p>`);
         s++;
         if (s == sections.length) {
             more.style.display = 'none';

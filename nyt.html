@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
@@ -15,10 +16,8 @@ img {
     width: 100%;
 }
 #more {
-    text-align: center;
-    display: block;
-    border: 1px solid silver;
-    padding: 4px;
+    width: 100%;
+    background-color: white;
 }
 .item {
     padding-bottom: 1em;
@@ -44,7 +43,7 @@ img {
 <p>
 <div id=results></div>
 <div id=info2></div>
-<div id=more>More</div>
+<button id=more>More</button>
 <script>
 // see https://developer.nytimes.com to register, get api key, read docs, etc.
 const apiKey = localStorage.apiKey || (localStorage.apiKey = prompt('api key') || '');
@@ -72,7 +71,7 @@ onload = more.onclick = async function () {
             info.innerHTML = info2.innerHTML = '';
             return;
         }
-    } while (s % 10); // rate limit
+    } while (s % 10); // "there are two rate limits per API: 4,000 requests per day and 10 requests per minute" https://developer.nytimes.com/faq#a11
     info.innerHTML = info2.innerHTML = '...';
 };
 </script>

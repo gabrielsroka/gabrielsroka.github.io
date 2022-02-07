@@ -70,7 +70,7 @@ onload = more.onclick = async function () {
         const rs = (await r.json()).results;
         links.innerHTML += `<div><a href='#${section}'>${section} - ${rs.length}</a></div>`;
         results.innerHTML += `<a id='${section}'>${section} - ${rs.length}</a>`;
-        rs.forEach(r => results.innerHTML += `<p class=item><a href='${r.url}' target='_blank' rel='noopener'><div class=title>${r.title}</div>${r.abstract}<br>${r.multimedia ? `<img src='${r.multimedia[0].url}'>` : ''}</a></p>`);
+        rs.forEach(r => results.innerHTML += `<p class=item><a href='${r.url}' target='_blank' rel='noopener'><div class=title>${r.title}</div>${r.abstract}<br>${r.multimedia ? `<img src='${r.multimedia[1].url}'>` : ''}</a></p>`);
         s++;
         if (s == sections.length) {
             more.style.display = 'none';

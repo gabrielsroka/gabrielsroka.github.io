@@ -2,7 +2,7 @@
 /// <reference path="js.js" />
 
 // Bookmarklets and JavaScript Editor
-// Copyright 2007-2019 Gabriel Sroka
+// Copyright 2007-2022 Gabriel Sroka
 
 var codeId = "code";
 var debug;
@@ -75,7 +75,7 @@ function editor() {
     s += '<button onclick="runBookmarklet();" accesskey="R" title="Run (Ctrl + Enter or F2)">' + accesskey("R") + 'un</button>&nbsp;';
     s += '<button onclick="debug.toggle();" accesskey="b" title="Toggle Debug Window">De' + accesskey("b") + 'ug</button>&nbsp;';
     s += '<button onclick="writeHTML()" accesskey="L" title="Render HTML">HTM' + accesskey("L") + '</button>&nbsp;';
-    if (!android) s += '<button onclick="copyText(document.getElementById(\'aRunBookmarklet\').href)" accesskey="C">' + accesskey("C") + 'opy</button>&nbsp;';
+    s += '<button onclick="taEdit.value=``" accesskey="C">' + accesskey("C") + 'lear</button>&nbsp;';
     // s += '<button onclick="beautifyCode()" accesskey="b">' + accesskey("B") + 'eautify</button>&nbsp;';
     s += '<button onclick="parseEditor()" accesskey="p">' + accesskey("P") + 'arse</button>&nbsp;';
     s += '<button onclick="formatEditor()" accesskey="f">' + accesskey("F") + 'ormat</button>&nbsp;';

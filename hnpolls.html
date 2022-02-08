@@ -16,7 +16,7 @@ td {
 }
 </style>
 <title>HN Polls</title>
-<h1>Recent HN Polls</h1>
+<h1>HN Polls</h1>
 <div id=app>Loading...</div>
 <br>
 <div>Source code on <a href='https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/hnpolls.html' target='_blank'>GitHub</a></div>
@@ -24,10 +24,15 @@ td {
 <script>
 (async function() {
     // see https://hn.algolia.com/api
-    const r = await fetch('https://hn.algolia.com/api/v1/search_by_date?tags=poll');
+    const page = new URLSearchParams(location.search).get('page') || 0;
+    const r = await fetch(`https://hn.algolia.com/api/v1/search_by_date?tags=poll&page=${page}`);
     const polls = await r.json();
+    if (polls.message) {
+        app.innerHTML = polls.message;
+        return;
+    }
     app.innerHTML = '<table><tr><th>Title<th>Created At<th>Author<th>Points<th>Num Comments' + 
         polls.hits.map(p => `<tr><td><a href='https://gabrielsroka.github.io/hnpoll.html?id=${p.objectID}' target=_blank>${p.title}</a><td>${p.created_at}<td>${p.author}<td align=right>${p.points}<td align=right>${p.num_comments}`).join('') +
-        '</table>';
+        '</table>' + `<br><a href=?page=${+page + 1}>Next ></a>`;
 })();
 </script>

@@ -37,7 +37,7 @@ onload = function () {
         document.getElementById("taEdit").focus();
     };
     
-    debug.print = function (s) {
+    debug.log = debug.print = function (s) {
         debug.value += (s ? s.toString() : s) + "\r\n";
         if (debug.doScroll) debug.doScroll();
     };
@@ -47,6 +47,16 @@ onload = function () {
         return "";
     };
 };
+
+function pp(s) {
+    if (Array.isArray(s)) {
+        return '[' + s.map(i => pp(i)).join(', ') + ']';
+    } else if (typeof s == 'object') {
+        return '{' + Object.entries(s).map(([n, v]) => `${n}: ${pp(v)}`).join(', ') + '}';
+    } else if (typeof s == 'string') {
+        return `'${s}'`;
+    } else return s;
+}
 
 onresize = function () {
     var height = document.body.parentNode.clientHeight || document.body.clientHeight;

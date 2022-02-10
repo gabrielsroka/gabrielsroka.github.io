@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone Rules v0.12</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone Rules v0.13</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -41,7 +41,7 @@ body {
 </ol>
 <script id=code>
 (function () {
-    const headers = {'x-okta-user-agent-extended': 'clone-tool/12'};
+    const headers = {'x-okta-user-agent-extended': 'clone-tool/13'};
 
     if (!window.$) {
         alert('Drag/drop this link to your bookmarks toolbar.'); 
@@ -192,11 +192,11 @@ body {
             const response = await fetch(url, {headers});
             const apps = await response.json();
             for (const app of apps) {
-                const pId = app._links.accessPolicy.href.split('/').pop();
+                const pId = app._links.accessPolicy?.href.split('/').pop();
                 if (appId == app.id) {
                     policyId = pId;
                     appLabel = app.label;
-                } else if (!['active_directory', 'ldap_sun_one', 'csv_directory_v2'].includes(app.name)) {
+                } else if (!['active_directory', 'ldap_sun_one', 'csv_directory_v2', 'radius_generic_app'].includes(app.name)) {
                     const sortBy = `<!--${app.label}-->`;
                     chks.push(`${sortBy}<label><input type=checkbox value='${pId}' checked>${app.label}</label>`);
                     csv.push(toCSV(pId, app.label));

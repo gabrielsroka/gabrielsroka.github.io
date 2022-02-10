@@ -193,7 +193,7 @@ body {
             if (!response.ok) {
                 const err = await response.json();
                 if (response.status == 404) {
-                    alert("you might have a deactivated app that's corrupted. please contact Okta Support." + err.errorSummary);
+                    alert("you might have a deactivated app that's corrupted. please contact Okta Support. " + err.errorSummary);
                 } else {
                     alert(err.errorSummary);
                 }

@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone Rules v0.14</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Clone Rules v0.15</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -41,7 +41,7 @@ body {
 </ol>
 <script id=code>
 (function () {
-    const headers = {'x-okta-user-agent-extended': 'clone-tool/14'};
+    const headers = {'x-okta-user-agent-extended': 'clone-tool/12'};
 
     if (!window.$) {
         alert('Drag/drop this link to your bookmarks toolbar.'); 
@@ -190,6 +190,15 @@ body {
         var url = '/api/v1/apps';
         while (url) {
             const response = await fetch(url, {headers});
+            if (!response.ok) {
+                const err = await response.json();
+                if (response.status == 404) {
+                    alert("you might have a deactivated app that's corrupted. please contact Okta Support." + err.errorSummary);
+                } else {
+                    alert(err.errorSummary);
+                }
+                return;
+            }
             const apps = await response.json();
             for (const app of apps) {
                 if (app._links.accessPolicy) {

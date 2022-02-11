@@ -126,7 +126,7 @@ editor.onkeydown = function (event) {
     }
 };
 
-debug.print = function (s) {
+debug.log = debug.print = function (s) {
     debug.value += (s ? s.toString() : s) + "\r\n";
     debug.scrollTo(0, debug.scrollHeight);
 };

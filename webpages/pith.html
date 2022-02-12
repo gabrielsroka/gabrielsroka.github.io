@@ -74,7 +74,7 @@ run.onclick = function () {
                 .replace('in', 'of');
             line += ") {";
         } else if (tLine.startsWith("def ") || tLine.startsWith("async def ")) {
-            if (line.endsWith(' main')) lines[0] = 'main();\n' + lines[0];
+            if (line.endsWith(' main')) line = 'main();\n' + line;
             line = line.replace('def', 'function') + '() {';
         } else if (tLine.startsWith("if ") || tLine.startsWith("else if ") || tLine.startsWith("elif ")) {
             line = line

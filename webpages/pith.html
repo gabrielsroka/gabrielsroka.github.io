@@ -73,6 +73,8 @@ run.onclick = function () {
                 .replace("for", "for (var")
                 .replace('in', 'of');
             line += ") {";
+        } else if (tLine.startsWith("def ") || tLine.startsWith("async def ")) {
+            line = line.replace('def', 'function') + '() {';
         } else if (tLine.startsWith("if ") || tLine.startsWith("else if ") || tLine.startsWith("elif ")) {
             line = line
                 .replace('elif', 'else if')

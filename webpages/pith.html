@@ -110,6 +110,8 @@ function range(start, stop, step = 1) {
     return Array.from({length: (stop - start - 1) / step + 1}, (_, i) => start + (i * step));
 }
 
+const get = fetch;
+
 newProgram.onclick = function () {
     progname = prompt("Program name");
     if (progname) {

@@ -75,7 +75,6 @@ run.onclick = function () {
         var line = lines[i];
         const tLine = line.trim();
         if (tLine.startsWith("for ")) {
-            v = tLine[4]; // Variables are 1 char long.
             line = line
                 .replace("for", "for (var")
                 .replace('in', 'of');

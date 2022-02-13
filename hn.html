@@ -171,18 +171,16 @@ async function getItems() {
         }
     } else {
         loading.innerHTML = "<br>Loading...";
-        for (var i = 0; i < pageLen; i++) {
-            if (i < ids.length) {
-                const id = ids[i];
-                seen[id] = now;
-                if (!newSeen[id]) {
-                    const r = await fetch(`${baseUrl}/item/${id}.json`);
-                    const item = await r.json();
-                    if (item) showItem(item); // sometimes item === null
-                }
-            } else {
-                contents.innerHTML += `<p><br><br></p>`;
+        await Promise.all(ids.slice(0, pageLen).map(async id => {
+            seen[id] = now;
+            if (!newSeen[id]) {
+                const r = await fetch(`${baseUrl}/item/${id}.json`);
+                const item = await r.json();
+                if (item) showItem(item); // sometimes item === null
             }
+        }));
+        for (var i = 0; i < pageLen - ids.length; i++) {
+            contents.innerHTML += `<p><br><br></p>`;
         }
         fetchCounter = 0;
     }

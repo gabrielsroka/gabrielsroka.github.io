@@ -103,7 +103,7 @@ run.onclick = function () {
         ind = newInd;
         lines[i] = line;
     }
-    lines = '(async function () {' + lines.join('\n') + '\n}'.repeat(ind) + '})()';
+    lines = '(async function () {\n' + lines.join('\n') + '\n}'.repeat(ind) + '\n})()';
     console.log(lines);
     eval(lines);
     //document.body.appendChild(document.createElement("script")).innerHTML = lines;

@@ -81,7 +81,7 @@ run.onclick = function () {
                 .replace('in', 'of');
             line += ") {";
         } else if (tLine.startsWith("def ") || tLine.startsWith("async def ")) {
-            if (line.endsWith(' main')) line = 'main();\n' + line;
+            if (line.endsWith(' main')) line = 'main()\n' + line;
             line = line.replace('def', 'function') + '() {';
         } else if (tLine.startsWith("if ") || tLine.startsWith("else if ") || tLine.startsWith("elif ")) {
             line = line
@@ -103,7 +103,7 @@ run.onclick = function () {
         ind = newInd;
         lines[i] = line;
     }
-    lines = lines.join('\n') + '\n}'.repeat(ind);
+    lines = '(async function () {' + lines.join('\n') + '\n}'.repeat(ind) + '})()';
     console.log(lines);
     eval(lines);
     //document.body.appendChild(document.createElement("script")).innerHTML = lines;

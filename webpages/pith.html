@@ -81,7 +81,9 @@ run.onclick = function () {
             line += ") {";
         } else if (tLine.startsWith("def ") || tLine.startsWith("async def ")) {
             if (line.endsWith(' main')) line = 'main()\n' + line;
-            line = line.replace('def', 'function') + '() {';
+            line = line.replace('def', 'function');
+            if (!line.endsWith(')')) line += '()';
+            line += ' {';
         } else if (tLine.startsWith("if ") || tLine.startsWith("else if ") || tLine.startsWith("elif ")) {
             line = line
                 .replace('elif', 'else if')

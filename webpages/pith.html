@@ -23,9 +23,9 @@ a {
 </style>
 </head>
 <body>
-<h1>Pith</h1>
 <button id=run accesskey="R" title="Run (Ctrl + Enter or F2)">Run</button>
 <button id=newProgram accesskey="N" title="New">New</button>
+<button id=saveProgram accesskey="S" title="Save">Save</button>
 <select id=prognames></select>
 <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/webpages/pith.html target=_blank>Source</a>
 <br><br>
@@ -35,6 +35,7 @@ a {
 <script>
 var programs;
 var progname;
+var tab = 2;
 
 if (localStorage.pithPrograms) {
     programs = JSON.parse(localStorage.pithPrograms);
@@ -49,19 +50,20 @@ if (localStorage.pithPrograms) {
 
 j = 1
 for i in range(1, 10)
-    if j == 0
-        print i
-        j = 1
-    else
-        j = 0`;
+  if j == 0
+    print i
+    j = 1
+  else
+    j = 0`;
     progname = "First Pith program";
     addOption(progname, editor.value);
     save();
 }
 
 if (!navigator.userAgent.match("Android")) {
-    run.innerHTML = "<u>R</u>un";
-    newProgram.innerHTML = "<u>N</u>ew";
+    run.innerHTML = '<u>R</u>un';
+    newProgram.innerHTML = '<u>N</u>ew';
+    saveProgram.innerHTML = '<u>S</u>ave';
 }
 
 run.onclick = function () {
@@ -71,7 +73,6 @@ run.onclick = function () {
     var lines = editor.value.split('\n');
     var ind = 0;
     var newInd;
-    var tab = 2;
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         const tLine = line.trim();
@@ -132,6 +133,8 @@ newProgram.onclick = function () {
     }
 };
 
+saveProgram.onclick = save;
+
 prognames.onchange = function () {
     editor.value = this.value;
     progname = this.options[this.selectedIndex].text;
@@ -155,6 +158,18 @@ debug.clear = function () {
     debug.value = "";
     results.innerHTML = '';
 };
+
+debug.show = function () {
+    debug.visible = true;
+    debug.style.display = '';
+};
+
+debug.hide = function () {
+    debug.visible = false;
+    debug.style.display = 'none';
+};
+
+debug.visible = true;
 
 function print(...args) {
     debug.print(args.join(' '));

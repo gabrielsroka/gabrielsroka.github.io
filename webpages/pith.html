@@ -71,7 +71,7 @@ run.onclick = function () {
     var lines = editor.value.split('\n');
     var ind = 0;
     var newInd;
-    const tab = 4;
+    var tab = 2;
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         const tLine = line.trim();
@@ -157,7 +157,7 @@ debug.clear = function () {
 };
 
 function print(...args) {
-    debug.print(args.join(" "));
+    debug.print(args.join(' '));
 }
 
 function save() {

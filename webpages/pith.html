@@ -77,35 +77,33 @@ run.onclick = function () {
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         const tLine = line.trim();
-        if (tLine.startsWith("for ")) {
+        if (tLine.startsWith('for ')) {
             line = line
-                .replace("for", "for (var")
+                .replace('for', 'for (var')
                 .replace(' in ', ' of ');
-            line += ") {";
-        } else if (tLine.startsWith("while ")) {
-            line = line.replace("while ", "while (") + ") {";
-        } else if (tLine.startsWith("def ") || tLine.startsWith("async def ")) {
+            line += ')';
+        } else if (tLine.startsWith('while ')) {
+            line = line.replace('while ', 'while (') + ')';
+        } else if (tLine.startsWith('def ') || tLine.startsWith('async def ')) {
             if (line.endsWith(' main')) line = 'main()\n' + line;
             line = line.replace('def', 'function');
             if (!line.endsWith(')')) line += '()';
-            line += ' {';
-        } else if (tLine.startsWith("if ") || tLine.startsWith("else if ") || tLine.startsWith("elif ")) {
+        } else if (tLine.startsWith('if ') || tLine.startsWith('else if ') || tLine.startsWith('elif ')) {
             line = line
                 .replace('elif', 'else if')
-                .replace("if ", "if (")
-                .replace(" = ", " == ");
-            line += ") {";
-        } else if (tLine.startsWith("else")) {
-            line = line.replace("else", "else {");
-        } else if (tLine.startsWith("print ")) {
-            line = line.replace("print ", "print(") + ")";
-        } else if (tLine.startsWith("# ")) {
-            line = line.replace("#", "//");
+                .replace('if ', 'if (')
+                .replace(' = ', ' == ');
+            line += ')';
+        } else if (tLine.startsWith('print ')) {
+            line = line.replace('print ', 'print(') + ')';
+        } else if (tLine.startsWith('# ')) {
+            line = line.replace('#', '//');
         }
         newInd = line.match(/^( *)/)[1].length / tab;
         for (var t = newInd; t < ind; t++) {
             line = ' '.repeat(tab * t) + '}\n' + line;
         }
+        if (newInd > ind) lines[i - 1] += ' {';
         ind = newInd;
         lines[i] = line;
     }

@@ -28,6 +28,7 @@ a {
 <button id=newProgram accesskey="N" title="New">New</button> 
 <button id=saveProgram accesskey="S" title="Save">Save</button> 
 <select id=prognames></select>
+<span id=bar></span>
 <br><br>
 <textarea id="editor" style="width: 99%;" cols="80" rows="16" spellcheck="false" autocapitalize="none"></textarea>
 <textarea id="debug" style="width: 99%;" cols="80" rows="12" spellcheck="false" autocapitalize="none"></textarea>
@@ -115,7 +116,7 @@ run.onclick = function () {
 };
 
 function* range(start, stop, step = 1) {
-    if (stop === undefined) {
+    if (stop == undefined) {
         stop = start;
         start = 0;
     }
@@ -174,7 +175,23 @@ debug.hide = function () {
     debug.style.display = 'none';
 };
 
+debug.toggle = function () {
+    debug.visible ? debug.hide() : debug.show();
+};
+
 debug.visible = true;
+
+function button(html, onclick) {
+    return `<button onclick=${onclick}>${html}</button>`;
+}
+
+results.html = bar.html = function (s) {
+    if (s == undefined) {
+        return this.innerHTML;
+    } else {
+        this.innerHTML = s;
+    }
+};
 
 function print(...args) {
     debug.print(args.join(' '));

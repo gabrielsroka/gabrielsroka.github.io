@@ -81,6 +81,8 @@ run.onclick = function () {
                 .replace("for", "for (var")
                 .replace('in', 'of');
             line += ") {";
+        } else if (tLine.startsWith("while ")) {
+            line = line.replace("while", "while (") + ") {";
         } else if (tLine.startsWith("def ") || tLine.startsWith("async def ")) {
             if (line.endsWith(' main')) line = 'main()\n' + line;
             line = line.replace('def', 'function');
@@ -112,13 +114,15 @@ run.onclick = function () {
     //document.body.appendChild(document.createElement("script")).innerHTML = lines;
 };
 
-// TODO: use yield
-function range(start, stop, step = 1) {
+function* range(start, stop, step = 1) {
     if (stop === undefined) {
         stop = start;
         start = 0;
     }
-    return Array.from({length: (stop - start - 1) / step + 1}, (_, i) => start + (i * step));
+    while (start < stop) {
+        yield start;
+        start += step;
+    }
 }
 
 const get = fetch;

@@ -124,8 +124,9 @@ function range(start, stop, step = 1) {
 const get = fetch;
 
 newProgram.onclick = function () {
-    progname = prompt("Program name");
-    if (progname) {
+    const n = prompt("Program name");
+    if (n) {
+        progname = n;
         addOption(progname, "");
         prognames.selectedIndex = prognames.options.length - 1;
         editor.value = "";

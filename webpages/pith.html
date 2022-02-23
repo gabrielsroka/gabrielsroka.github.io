@@ -79,10 +79,10 @@ run.onclick = function () {
         if (tLine.startsWith("for ")) {
             line = line
                 .replace("for", "for (var")
-                .replace('in', 'of');
+                .replace(' in ', ' of ');
             line += ") {";
         } else if (tLine.startsWith("while ")) {
-            line = line.replace("while", "while (") + ") {";
+            line = line.replace("while ", "while (") + ") {";
         } else if (tLine.startsWith("def ") || tLine.startsWith("async def ")) {
             if (line.endsWith(' main')) line = 'main()\n' + line;
             line = line.replace('def', 'function');

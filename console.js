@@ -29,4 +29,7 @@ while (url) {\n
   r.nextUrl = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
   return r;
  }
+ async function remove(url) {
+  return await $.ajax(url, {method: 'delete'});
+ }
 })()

@@ -1,4 +1,6 @@
-javascript:(function () {
+javascript:
+/* Bookmarklet name: /console# */
+(function () {
  div = document.body.appendChild(document.createElement('div'));
  div.innerHTML = `<button id=run>Run</button>
   <button onclick=document.body.removeChild(this.parentNode)>Close</button><br>
@@ -14,7 +16,7 @@ while (url) {\n
 }
   </textarea><br>
   <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>`;
- div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white;';
+ div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
  run.onclick = function () {
   debug.value = '';
   eval('(async function () {' + editor.value + '})()');

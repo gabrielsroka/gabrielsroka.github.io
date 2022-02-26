@@ -148,6 +148,7 @@ prognames.onchange = function () {
 editor.focus();
 editor.onkeydown = function (event) {
     var ENTER = 13, F2 = 113;
+    saveProgram.innerHTML = 'Save *';
     if (event.keyCode == F2 || (event.keyCode == ENTER && event.ctrlKey)) {
         run.onclick();
     }
@@ -204,6 +205,7 @@ function save() {
         prognames.options.remove(prognames.selectedIndex);
     }
     localStorage.pithPrograms = JSON.stringify(programs);
+    saveProgram.innerHTML = 'Save';
 }
 
 function addOption(name, value) {

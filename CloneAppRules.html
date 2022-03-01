@@ -193,7 +193,7 @@ body {
             if (!response.ok) {
                 const err = await response.json();
                 if (response.status == 404) {
-                    alert("unable to fetch all apps. you might have an app that's corrupted. please contact Okta Support. " + err.errorSummary);
+                    alert("Unable to fetch all apps. You might have a corrupted app. Please contact Okta Support. " + err.errorSummary);
                 } else {
                     alert(err.errorSummary);
                 }

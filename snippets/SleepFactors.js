@@ -94,7 +94,7 @@
 */
 
 /*
-// does not work
+// does not work (needs await)
 (function () {
     function sleep(i, time) {
         return new Promise(resolve => setTimeout(function () {resolve(i)}, time));
@@ -115,7 +115,7 @@
 */
 
 /*
-// does not work
+// does not work (needs await)
 (function () {
     function sleep(time) {
         return new Promise(resolve => setTimeout(resolve, time));

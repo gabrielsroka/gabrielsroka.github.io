@@ -107,14 +107,6 @@
 */
 
 /*
-// does not work
-[0, 1, 2, 3].forEach(async i => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log(i);
-});
-*/
-
-/*
 // does not work (needs await)
 (function () {
     function sleep(time) {
@@ -126,6 +118,14 @@
         sleep(1000).then(() => console.log(i));
     }
 })();
+*/
+
+/*
+// does not work (since the async => inside the forEach is `await`ed, but we'd want the "outside" to await)
+[0, 1, 2, 3].forEach(async i => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log(i);
+});
 */
 
 /*

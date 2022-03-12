@@ -27,8 +27,8 @@ Search HN URLs <input type=search id=query>
 <div id=results></div>
 <script>
 search.onsubmit = function (event) {
-	event.preventDefault();
-	getPage(0);
+    event.preventDefault();
+    getPage(0);
 };
 
 async function getPage(page) {
@@ -42,8 +42,8 @@ async function getPage(page) {
         return;
     }
     const b = `<br><br>`;
-	const h = s.hits
-    	.filter(h => new URL(h.url).hostname.endsWith(query.value))
+    const h = s.hits
+        .filter(h => new URL(h.url).hostname.endsWith(query.value.toLowerCase()))
         .map(h => h.points + ' ' + h.title.link(h.url))
         .join(b);
     results.innerHTML = h + b + `<button id=more>Page ${page + 1}</button>`;

@@ -20,7 +20,7 @@ body {
 </head>
 <body>
 <form id=search>
-<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/hnsearch.html>Search HN URLs</a> <input type=search id=query>
+<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/hnsearch.html target=_blank>Search HN URLs</a> <input type=search id=query>
 <button type=submit>Search</button>
 </form>
 <br>
@@ -46,7 +46,7 @@ async function getPage(page) {
         .filter(h => new URL(h.url).hostname.endsWith(query.value.toLowerCase()))
         .map(h => h.points + ' ' + h.title.link(h.url))
         .join(b);
-    results.innerHTML = h + b + `<button id=more>Page ${page + 1}</button>`;
+    results.innerHTML = h + b + `<button id=more>Page ${page + 1}</button>` + b;
     more.onclick = () => getPage(page + 1);
 }
 </script>

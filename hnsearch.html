@@ -1,0 +1,39 @@
+<style>
+body {
+  font-family: sans-serif;
+}
+</style>
+<form id=search>
+Search Hacker News <input type=search id=query>
+<button type=submit>Search</button>
+</form>
+<br>
+<div id=results></div>
+<script>
+query.value = 'youtube.com';
+
+onload = () => getPage(0);
+
+search.onsubmit = function (event) {
+	event.preventDefault();
+	getPage(0);
+};
+
+async function getPage(page) {
+    // see https://hn.algolia.com/api
+    const url = 'https://hn.algolia.com/api/v1/search?query=' + query.value + '/&restrictSearchableAttributes=url';
+    const r = await fetch(url + '&page=' + page);
+    const s = await r.json();
+    if (s.message) {
+    	results.innerHTML = s.message;
+        return;
+    }
+    const b = `<br><br>`;
+	const h = s.hits
+    	.filter(h => new URL(h.url).hostname.endsWith(query.value))
+        .map(h => h.points + ' ' + h.title.link(h.url))
+        .join(b);
+    results.innerHTML = h + b + `<button id=more>Page ${page + 1}</button>`;
+    more.onclick = () => getPage(page + 1);
+}
+</script>

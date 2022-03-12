@@ -1,25 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<title>Search HN URLs</title>
 <style>
 body {
-  font-family: sans-serif;
+    font-family: sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+        color: #888;
+    }
+    a:link {
+        color: white;
+    }
 }
 </style>
+</head>
+<body>
 <form id=search>
-Search Hacker News <input type=search id=query>
+Search HN URLs <input type=search id=query>
 <button type=submit>Search</button>
 </form>
 <br>
 <div id=results></div>
 <script>
-query.value = 'youtube.com';
-
-onload = () => getPage(0);
-
 search.onsubmit = function (event) {
 	event.preventDefault();
 	getPage(0);
 };
 
 async function getPage(page) {
+    results.innerHTML = 'Loading...';
     // see https://hn.algolia.com/api
     const url = 'https://hn.algolia.com/api/v1/search?query=' + query.value + '/&restrictSearchableAttributes=url';
     const r = await fetch(url + '&page=' + page);
@@ -37,3 +50,5 @@ async function getPage(page) {
     more.onclick = () => getPage(page + 1);
 }
 </script>
+</body>
+</html>

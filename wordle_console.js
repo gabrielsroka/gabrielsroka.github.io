@@ -16,7 +16,7 @@ t = await r.text();
 t = t.match(/Ma=(\\[[^\\]]+])/)[1];
 a = JSON.parse(t);
 b = '.....';
-m = '[]';
+m = '[a-z]';
 x = '[]';
 ws = a.filter(w => w.match(b) && w.match(m) && !w.match(x));
 log(ws.sort().join(', '));

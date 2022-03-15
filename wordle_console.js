@@ -15,10 +15,10 @@ r = await fetch(s.src);
 t = await r.text();
 t = t.match(/Ma=(\\[[^\\]]+])/)[1];
 a = JSON.parse(t);
-b = '.....';
-m = '[a-z]';
-x = '[]';
-ws = a.filter(w => w.match(b) && w.match(m) && !w.match(x));
+b = /...../;
+m = '';
+x = /[]/;
+ws = a.filter(w => w.match(b) && Array.from(m).every(t => w.match(t)) && !w.match(x));
 log(ws.sort().join(', '));
 log(ws.length);`.replace(/;/g, ';\n');
  run.onclick = function () {

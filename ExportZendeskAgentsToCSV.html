@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<title>Export Zendesk Agents To CSV</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>Export Zendesk Agents To CSV</h1>
+<p>This tool will export Zendesk agents to a CSV file.</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>Export Agents</a> to the bookmarks toolbar.
+</ol>
+<br>
+<script id=code>
+(async function () {
+    var url = '/api/v2/search.json?query=role:agent'; /* &per_page=1, page=2 */
+    const results = [];
+    while (url) {
+        const r = await fetch(url);
+        const data = await r.json();
+        data.results.forEach(r => results.push(toCSV(r.id, r.email, r.name, r.role, r.active)));
+        url = data.next_page;
+    }
+
+    downloadCSV('id,email,name,role,active', results, 'Zendesk Agents');
+
+    /* all columns:
+        'active', 'alias', 'created_at', 'custom_role_id', 'default_group_id', 'details', 'email', 
+        'external_id', 'iana_time_zone', 'id', 'last_login_at', 'locale', 'locale_id', 'moderator', 'name', 'notes', 
+        'only_private_comments', 'organization_id', 'phone', 'photo', 'report_csv', 'restricted_agent', 'result_type', 
+        'role', 'role_type', 'shared', 'shared_agent', 'shared_phone_number', 'signature', 'suspended', 'tags', 
+        'ticket_restriction', 'time_zone', 'two_factor_auth_enabled', 'updated_at', 'url', 'user_fields', 'verified'
+    */
+
+    function downloadCSV(header, lines, filename) {
+        const a = document.body.appendChild(document.createElement("a"));
+        a.href = URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/csv'}));
+        const date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").slice(0, 19);
+        a.download = `${filename} ${date}.csv`;
+        a.click();
+        document.body.removeChild(a);
+    }
+    function toCSV(...fields) {
+        return fields.map(field => `"${field == undefined ? "" : field.toString().replace(/"/g, '""')}"`).join(',');
+    }
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</body>
+</html>

@@ -26,6 +26,7 @@ body {
 <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/ExportZendeskAgentsToCSV.html>Source code</a>
 <script id=code>
 (async function () {
+    // See https://developer.zendesk.com/api-reference/ticketing/ticket-management/search/
     var url = '/api/v2/search.json?query=role:agent'; /* &per_page=1, page=2 */
     const results = [];
     while (url) {

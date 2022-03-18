@@ -1,45 +1,39 @@
 // This seems to work. (works)
-(function () {
+(async function () {
     console.clear();
-    var headers;
 
-    fetch('/api/v1/users') // ?filter=status eq "ACTIVE"' or  ?search=(status lt "STAGED" or status gt "STAGED") and (status lt "DEPROVISIONED" or status gt "DEPROVISIONED")')
-    .then(response => {
-        headers = response.headers;
-        return response.json();
-    })
-    .then(getObjects);
-
-    async function getObjects(objects) {
-        for (let i = 0; i < objects.length; i++) {
-            var response = await fetch("/api/v1/users/" + objects[i].id + "/factors");
-            var childHeaders = response.headers;
-            var factors = await response.json();
-            var remaining = childHeaders.get("X-Rate-Limit-Remaining");
+    // ?limit=2&filter=profile.lastName eq "Doe"
+    // ?filter=status eq "ACTIVE"' or  ?search=(status lt "STAGED" or status gt "STAGED") and (status lt "DEPROVISIONED" or status gt "DEPROVISIONED")')
+    var url = '/api/v1/users';
+    while (url) {
+        const r = await fetch(url);
+        const users = await r.json();
+        
+        for (const user of users) {
+            const response = await fetch("/api/v1/users/" + user.id + "/factors");
+            const factors = await response.json();
+            const remaining = response.headers.get("X-Rate-Limit-Remaining");
             if (remaining && remaining < 10) {
                 do {
                     console.log("child sleeping...", Date());
                     await sleep(1000);
-                } while((new Date()).getTime() / 1000 < childHeaders.get("X-Rate-Limit-Reset"));
+                } while ((new Date()).getTime() / 1000 < response.headers.get("X-Rate-Limit-Reset"));
             }
         }
-        var links = getLinks(headers.get("Link"));
+        const links = getLinks(r.headers.get("Link"));
         if (links.next) {
-            var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
-            var url = nextUrl.pathname + nextUrl.search;
-            var remaining = headers.get("X-Rate-Limit-Remaining");
+            const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+            url = nextUrl.pathname + nextUrl.search;
+            const remaining = r.headers.get("X-Rate-Limit-Remaining");
             if (remaining && remaining < 10) {
                 do {
                     console.log("main sleeping...", Date());
                     await sleep(1000);
-                } while((new Date()).getTime() / 1000 < headers.get("X-Rate-Limit-Reset"));
+                } while ((new Date()).getTime() / 1000 < r.headers.get("X-Rate-Limit-Reset"));
             }
-            var response = await fetch(url);
-            headers = response.headers;
-            objects = await response.json();
-            getObjects(objects);
         }
     }
+    
 
     function getLinks(linkHeader) {
         var headers = linkHeader.split(", ");

@@ -29,7 +29,7 @@ a {
 </head>
 <body>
 <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/webpages/pith.html target=_blank>Pith</a> 
-<button id=run accesskey="R" title="Run (Ctrl + Enter or F2)">Run</button> 
+<button id=runProgram accesskey="R" title="Run (Ctrl + Enter)">Run</button> 
 <button id=newProgram accesskey="N" title="New">New</button> 
 <button id=saveProgram accesskey="S" title="Save">Save</button> 
 <select id=prognames></select>
@@ -62,12 +62,12 @@ for i in range(1, 10)
 }
 
 if (!navigator.userAgent.match("Android")) {
-    run.innerHTML = '<u>R</u>un';
+    runProgram.innerHTML = '<u>R</u>un';
     newProgram.innerHTML = '<u>N</u>ew';
     saveProgram.innerHTML = '<u>S</u>ave';
 }
 
-run.onclick = run;
+runProgram.onclick = run;
 
 function run() {
     debug.clear();

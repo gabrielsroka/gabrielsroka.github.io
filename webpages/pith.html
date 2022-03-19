@@ -44,12 +44,7 @@ var progname;
 var tab = 2;
 
 if (localStorage.pithPrograms) {
-    programs = JSON.parse(localStorage.pithPrograms);
-    for (var [progname, value] of Object.entries(programs)) {
-        if (value) addOption(progname, value);
-    }
-    editor.value = Object.values(programs)[0];
-    progname = Object.keys(programs)[0];
+    load();
 } else {
     programs = {};
     editor.value = `# Pith is awesome !!!
@@ -72,7 +67,9 @@ if (!navigator.userAgent.match("Android")) {
     saveProgram.innerHTML = '<u>S</u>ave';
 }
 
-run.onclick = function () {
+run.onclick = run;
+
+function run() {
     debug.clear();
     console.clear();
     save();
@@ -116,7 +113,7 @@ run.onclick = function () {
     console.log(lines);
     eval(lines);
     //document.body.appendChild(document.createElement("script")).innerHTML = lines;
-};
+}
 
 function* range(start, stop, step = 1) {
     if (stop == undefined) {
@@ -135,7 +132,7 @@ newProgram.onclick = function () {
     const n = prompt("Program name");
     if (n) {
         progname = n;
-        addOption(progname, "");
+        addOption(progname, '');
         prognames.selectedIndex = prognames.options.length - 1;
         editor.value = "";
         debug.clear();
@@ -152,20 +149,21 @@ prognames.onchange = function () {
 
 editor.focus();
 editor.onkeydown = function (event) {
-    var ENTER = 13, F2 = 113;
-    saveProgram.innerHTML = 'Save *';
-    if (event.keyCode == F2 || (event.keyCode == ENTER && event.ctrlKey)) {
-        run.onclick();
+    const ENTER = 13;
+    if (event.ctrlKey && event.keyCode == ENTER) {
+        run();
+    } else {
+        saveProgram.innerHTML = 'Save *';
     }
 };
 
 debug.log = debug.print = function (s) {
-    debug.value += (s ? s.toString() : s) + "\r\n";
+    debug.value += (s ? s.toString() : s) + '\n';
     debug.scrollTo(0, debug.scrollHeight);
 };
     
 debug.clear = function () {
-    debug.value = "";
+    debug.value = '';
     results.innerHTML = '';
 };
 
@@ -213,8 +211,17 @@ function save() {
     saveProgram.innerHTML = 'Save';
 }
 
+function load() {
+    programs = JSON.parse(localStorage.pithPrograms);
+    for (const [progname, value] of Object.entries(programs)) {
+        if (value) addOption(progname, value);
+    }
+    editor.value = Object.values(programs)[0];
+    progname = Object.keys(programs)[0];
+}
+
 function addOption(name, value) {
-    var option = document.createElement("option");
+    const option = document.createElement('option');
     option.text = name;
     option.value = value;
     prognames.add(option);

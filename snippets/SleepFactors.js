@@ -10,7 +10,7 @@
         const users = await r.json();
         
         for (const user of users) {
-            const response = await fetch("/api/v1/users/" + user.id + "/factors");
+            const response = await fetch(`/api/v1/users/${user.id}/factors`);
             const factors = await response.json();
             const remaining = response.headers.get("X-Rate-Limit-Remaining");
             if (remaining && remaining < 10) {
@@ -20,10 +20,8 @@
                 } while ((new Date()).getTime() / 1000 < response.headers.get("X-Rate-Limit-Reset"));
             }
         }
-        const links = getLinks(r.headers.get("Link"));
-        if (links.next) {
-            const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
-            url = nextUrl.pathname + nextUrl.search;
+        url = r.headers.get("link")?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+        if (url) {
             const remaining = r.headers.get("X-Rate-Limit-Remaining");
             if (remaining && remaining < 10) {
                 do {
@@ -34,17 +32,6 @@
         }
     }
     
-
-    function getLinks(linkHeader) {
-        var headers = linkHeader.split(", ");
-        var links = {};
-        for (var i = 0; i < headers.length; i++) {
-            var [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
-            links[name] = url;
-        }
-        return links;
-    }
-
     function sleep(time) {
         return new Promise(resolve => setTimeout(resolve, time));
     }

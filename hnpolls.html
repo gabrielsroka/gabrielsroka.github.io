@@ -1,3 +1,6 @@
+<!doctype html>
+<html lang="en">
+<head>
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <style>
 body {
@@ -16,23 +19,25 @@ td {
 }
 </style>
 <title>HN Polls</title>
+</head>
+<body>
 <h1>HN Polls</h1>
 <div id=app>Loading...</div>
 <br>
-<div>Source code on <a href='https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/hnpolls.html' target='_blank'>GitHub</a></div>
-<div>Using the <a href='https://hn.algolia.com/api' target='_blank'>HN Search API</a></div>
-<script>
-(async function() {
-    // see https://hn.algolia.com/api
-    const page = new URLSearchParams(location.search).get('page') || 0;
-    const r = await fetch(`https://hn.algolia.com/api/v1/search_by_date?tags=poll&page=${page}`);
-    const polls = await r.json();
-    if (polls.message) {
-        app.innerHTML = polls.message;
-        return;
-    }
+<div>Source code on <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/hnpolls.html target=_blank>GitHub</a></div>
+<div>Using the <a href=https://hn.algolia.com/api target=_blank>HN Search API</a></div>
+<script type=module>
+// see https://hn.algolia.com/api
+const page = new URLSearchParams(location.search).get('page') || 0;
+const r = await fetch(`https://hn.algolia.com/api/v1/search_by_date?tags=poll&page=${page}`);
+const polls = await r.json();
+if (polls.message) {
+    app.innerHTML = polls.message;
+} else {
     app.innerHTML = '<table><tr><th>Title<th>Created At<th>Author<th>Points<th>Num Comments' + 
-        polls.hits.map(p => `<tr><td><a href='hnpoll.html?id=${p.objectID}' target=_blank>${p.title}</a><td>${p.created_at.replace('T', ' ')}<td>${p.author}<td align=right>${p.points}<td align=right>${p.num_comments}`).join('') +
+        polls.hits.map(p => `<tr><td><a href=hnpoll.html?id=${p.objectID} target=_blank>${p.title}</a><td>${p.created_at.replace(/(T|\.000Z)/g, ' ')}<td>${p.author}<td align=right>${p.points}<td align=right>${p.num_comments}`).join('') +
         '</table>' + `<br><a href=?page=${+page + 1}>Next ></a>`;
-})();
+}
 </script>
+</body>
+</html>

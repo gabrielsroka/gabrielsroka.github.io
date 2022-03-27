@@ -12,22 +12,22 @@
         for (const user of users) {
             const response = await fetch(`/api/v1/users/${user.id}/factors`);
             const factors = await response.json();
-            const remaining = response.headers.get("X-Rate-Limit-Remaining");
+            const remaining = response.headers.get('X-Rate-Limit-Remaining');
             if (remaining && remaining < 10) {
                 do {
-                    console.log("child sleeping...", Date());
+                    console.log('child sleeping...', Date());
                     await sleep(1000);
-                } while ((new Date()).getTime() / 1000 < response.headers.get("X-Rate-Limit-Reset"));
+                } while ((new Date()).getTime() / 1000 < response.headers.get('X-Rate-Limit-Reset'));
             }
         }
-        url = r.headers.get("link")?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+        url = r.headers.get('link')?.match('<https://[^/]+([^>]+)>; rel="next"')?.[1];
         if (url) {
-            const remaining = r.headers.get("X-Rate-Limit-Remaining");
+            const remaining = r.headers.get('X-Rate-Limit-Remaining');
             if (remaining && remaining < 10) {
                 do {
-                    console.log("main sleeping...", Date());
+                    console.log('main sleeping...', Date());
                     await sleep(1000);
-                } while ((new Date()).getTime() / 1000 < r.headers.get("X-Rate-Limit-Reset"));
+                } while ((new Date()).getTime() / 1000 < r.headers.get('X-Rate-Limit-Reset'));
             }
         }
     }

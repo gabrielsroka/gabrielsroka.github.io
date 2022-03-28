@@ -8,12 +8,16 @@
     font-family: sans-serif;
     font-size: 1em;
 }
+a {
+    text-decoration: none;
+    color: black;
+}
 @media (prefers-color-scheme: dark) {
     body {
         background-color: #121212;
         color: #888;
     }
-    a:link {
+    a {
         color: white;
     }
 }
@@ -21,7 +25,12 @@
 </head>
 <body>
 <form id=search>
-<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/hnsearch.html target=_blank>Search HN URLs</a> <input type=search id=query>
+<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/hnsearch.html target=_blank>Search HN URLs</a> 
+<input type=search id=query>
+by <select id=by>
+<option value=search>Popularity</option>
+<option value=search_by_date>Date</option>
+</select>
 <button type=submit>Search</button>
 </form>
 <br>
@@ -35,20 +44,19 @@ search.onsubmit = function (event) {
 async function getPage(page) {
     results.innerHTML = 'Loading...';
     // see https://hn.algolia.com/api
-    const url = 'https://hn.algolia.com/api/v1/search?query=' + query.value + '/&restrictSearchableAttributes=url';
+    const path = '/api/v1/' + by.value; // search or search_by_date
+    const url = 'https://hn.algolia.com' + path + '?query=' + query.value + '/&restrictSearchableAttributes=url';
     const r = await fetch(url + '&page=' + page);
     const s = await r.json();
     if (s.message) {
     	results.innerHTML = s.message;
         return;
     }
-    const b = `<br><br>`;
-    const h = s.hits
-        .filter(h => new URL(h.url).hostname.endsWith(query.value.toLowerCase()))
-        .map(h => h.points + ' ' + h.title.link(h.url))
-        .join(b);
-    results.innerHTML = h + b + `<button id=more>Page ${page + 1}</button>` + b;
-    more.onclick = () => getPage(page + 1);
+    const link = (url, html) => `<a href=${url} target=_blank>${html}</a>`;
+	results.innerHTML = s.hits
+    	.filter(h => new URL(h.url).hostname.endsWith(query.value.toLowerCase()))
+        .map(h => `${link(h.url, h.title)}<br>${link('https://news.ycombinator.com/item?id=' + h.objectID, `${h.points} points | ${h.num_comments} comments | ${h.created_at.slice(0, 19).replace(/T/, ' ')}`)}<br><br>`)
+        .join('') + `<button onclick='getPage(${page + 1})'>Page ${page + 1}</button>`;
 }
 </script>
 </body>

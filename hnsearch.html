@@ -36,7 +36,7 @@ by <select id=by>
 <br>
 <div id=results></div>
 <script>
-search.onsubmit = function (event) {
+search.onsubmit = by.onchange = function (event) {
     event.preventDefault();
     getPage(0);
 };

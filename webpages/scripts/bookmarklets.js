@@ -257,7 +257,7 @@ function parseCode(s, format) {
             } else {
                 o += id;
             }
-        } else if (c == '"' || c == "'") {  // "String" or 'String'
+        } else if (c == '"' || c == "'" || c == '`') {  // "String" or 'String' or `String`
             o += span("literal") + c;
             getLiteral();
             o += endSpan();
@@ -297,7 +297,7 @@ function parseCode(s, format) {
             o += endSpan();
         } else if (c2 == "==" || c2 == "!=" || c2 == "&&" || c2 == "||" || c2 == "<=" || c2 == ">=" || c2 == "+=" || 
                    c2 == "-=" || c2 == "*=" || c2 == "/=" || c2 == "%=" || c2 == "&=" || c2 == "|=" || c2 == "^=" || 
-                   c2 == "<<" || c2 == ">>") {
+                   c2 == "<<" || c2 == ">>" || c2 == '=>') {
             getNext();
             o += ps + c2;
             if ((c2 == "==" || c2 == "!=") && n == "=") { // "===" and "!=="

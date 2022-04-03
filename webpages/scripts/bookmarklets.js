@@ -367,7 +367,7 @@ function xmlFormat() {
 
 function formatEditor() {
     var taEdit = document.getElementById("taEdit");
-    newWindow('<link rel="stylesheet" type="text/css" href="syntax.css" />' + "\n<pre>\n" + 
+    newWindow('<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25"><link rel="stylesheet" type="text/css" href="syntax.css" />' + "\n<pre>\n" + 
               formatCode(taEdit.value) + 
               "\n</pre>");
 }

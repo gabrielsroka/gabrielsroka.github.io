@@ -63,7 +63,7 @@ new Vue({
             this.links = (await response.json())
             .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
             .map(link => {
-                var [name, url] = link.label.split(/,/);
+                var [name, url, icon] = link.label.split(/,/);
                 if (url) {
                     url = url.trim();
                 } else {
@@ -71,7 +71,7 @@ new Vue({
                 }
                 if (!url.startsWith('https')) url = 'https://' + url;
                 if (!url.includes('.')) url += '.com';
-                const icon = new URL(url).origin + '/favicon.ico';
+                icon = icon ? icon.trim : new URL(url).origin + '/favicon.ico';
                 return {name, url, icon};
             });
         } catch (e) {

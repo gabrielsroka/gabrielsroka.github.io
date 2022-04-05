@@ -55,7 +55,8 @@ async function getPage(page) {
     const link = (url, html) => `<a href=${url} target=_blank>${html}</a>`;
 	results.innerHTML = s.hits
     	.filter(h => new URL(h.url).hostname.endsWith(query.value.toLowerCase()))
-        .map(h => `${link(h.url, h.title)}<br>${link('https://news.ycombinator.com/item?id=' + h.objectID, `${h.points} points | ${h.num_comments} comments | ${h.created_at.slice(0, 19).replace(/T/, ' ')}`)}<br><br>`)
+        .map(h => `${link(h.url, h.title)}<br>` +
+            `${link('https://news.ycombinator.com/item?id=' + h.objectID, `${h.points} points | ${h.num_comments} comments | ${h.created_at.slice(0, 19).replace(/T/, ' ')}`)}<br><br>`)
         .join('') + `<button onclick='getPage(${page + 1})'>Page ${page + 1}</button>`;
 }
 </script>

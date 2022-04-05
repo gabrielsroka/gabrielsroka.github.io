@@ -71,7 +71,7 @@ new Vue({
                 }
                 if (!url.startsWith('https')) url = 'https://' + url;
                 if (!url.includes('.')) url += '.com';
-                icon = icon ? icon.trim : new URL(url).origin + '/favicon.ico';
+                icon = icon ? icon.trim() : new URL(url).origin + '/favicon.ico';
                 return {name, url, icon};
             });
         } catch (e) {

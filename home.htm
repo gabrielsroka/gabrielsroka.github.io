@@ -66,7 +66,7 @@ ul {
 <span id=notificationMenu style='float: right;'>🔔</span>
 <ul id=menu class=hide>
 <li><a href="/">Gabriel Sroka</a>
-<li><a href='https://gsroka-neto.oktapreview.com'>Home</a>
+<li><a href='https://gsroka-neto.oktapreview.com'>Okta Home</a>
 <li><span id=refresh>Refresh</span>
 <li><a href='/login.htm?signout'>Sign out</a> 
 </ul>
@@ -136,13 +136,13 @@ async function getLinks(baseUrl) {
         localStorage.links = JSON.stringify(links);
         return links;
     } catch (e) {
-        apps.innerHTML = e + ' error. <a href="/login.htm">Sign in</a>. Are third-party cookies enabled?';
+        apps.innerHTML = e + ' error. <a href="/login.htm"><u>Sign in</u></a>. Are third-party/cross-site cookies enabled?';
     }
 }
 
 function showLinks(links) {
     const lis = links.map(link => `<li class='app-button-wrapper'>` +
-        `<a href='${link.url}' target='_blank' class='app-button' rel='noopener'><img src='${link.icon || new URL(link.url).origin + '/favicon.ico'}' class='logo'/></a>` +
+        `<a href='${link.url}' target=_blank class='app-button' rel=noopener><img src='${link.icon || new URL(link.url).origin + '/favicon.ico'}' class='logo'/></a>` +
         `<p class='app-button-name'>${link.label}`);
     apps.innerHTML = `<ul>${lis.join('')}</ul>`;
 }

@@ -64,11 +64,7 @@ new Vue({
             .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
             .map(link => {
                 var [name, url, icon] = link.label.split(/,/);
-                if (url) {
-                    url = url.trim();
-                } else {
-                    url = name.replace(/ /g, '');
-                }
+                url = url ? url.trim() : name.replace(/ /g, '');
                 if (!url.startsWith('https')) url = 'https://' + url;
                 if (!url.includes('.')) url += '.com';
                 icon = icon ? icon.trim() : new URL(url).origin + '/favicon.ico';

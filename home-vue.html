@@ -32,10 +32,10 @@ p {
 <script src='https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js'></script>
 </head>
 <body>
-<div id='app'>
+<div id=app>
     <ul>
         <li v-for='link in links'>
-            <a :href='link.url' target='_blank' rel='noopener'>
+            <a :href='link.url' target=_blank rel=noopener>
                 <img :src='link.icon'>
             </a>
             <p>{{link.name}}</p>
@@ -59,12 +59,8 @@ new Vue({
         const init = {credentials: 'include'};
         // const init = {mode: 'cors'}; // This didn't seem to work.
         try {
-            var response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
-        } catch (e) {
-            location.href = '/login.htm?from=/home-vue.html';
-        }
-        this.links = (await response.json())
-            .filter(link => link.label != 'Everyone App')
+            const response = await fetch(`${baseUrl}/api/v1/users/me/appLinks`, init);
+            this.links = (await response.json())
             .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1)
             .map(link => {
                 var [name, url] = link.label.split(/,/);
@@ -78,6 +74,9 @@ new Vue({
                 const icon = new URL(url).origin + '/favicon.ico';
                 return {name, url, icon};
             });
+        } catch (e) {
+            app.innerHTML = e + ' error. <a href="/login.htm?from=/home-vue.html"><u>Sign in</u></a>. Are third-party/cross-site cookies enabled?';
+        }
     }
 });
 </script>

@@ -111,6 +111,7 @@ async function getLinks(baseUrl) {
            label[, url, icon]
        eg: "NY Times, nytimes.com", or just "NY Times"
        If url is blank, it will figure it out from the label. It will remove spaces, and add "https://" and ".com", etc.*/
+    apps.innerHTML = 'Loading...';
     try {
         const init = {credentials: 'include'};
         // const init = {mode: 'cors'}; // This didn't seem to work.

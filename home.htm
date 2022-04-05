@@ -135,7 +135,7 @@ async function getLinks(baseUrl) {
         localStorage.links = JSON.stringify(links);
         return links;
     } catch (e) {
-        location.href = '/login.htm';
+        apps.innerHTML = e + ' error. <a href="/login.htm">Sign in</a>. Are third-party cookies enabled?';
     }
 }
 

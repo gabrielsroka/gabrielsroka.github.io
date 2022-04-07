@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+<title>Export Jamf XML</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>Export Jamf XML</h1>
+<p>This tool will export Jamf objects to XML.</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>Export Jamf</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>Open Jamf and sign in.
+<li>Select a Policy or a Smart Computer Group.
+<li>Click the "Export Jamf" button from your bookmarks toolbar. 
+</ol>
+<br>
+<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/ExportJamfXML.html>Source code</a>
+<script id=code>
+(function () {
+    if (location.pathname == '/smartComputerGroups.html') getObject('computergroup', 'computergroups');
+    else if (location.pathname == '/policies.html') getObject('policy', 'policies');
+
+    async function getObject(thing, things) {
+        const id = new URLSearchParams(location.search).get('id');
+        if (!id) {
+            alert('pick a ' + thing + ' first');
+            return;
+        }
+        const accessToken = await getAccessToken();
+        const url = '/JSSResource/' + things + '/id/' + id;
+        const headers = {        
+            'accept': 'application/xml',
+            'content-type': 'applicaton/xml',
+            'authorization': 'Bearer ' + accessToken
+        };
+        const response = await fetch(url, {headers});
+        const str = await response.text();
+        const indented = indentXml(str, 4);
+        const filename = thing + '-' + id + '.xml';
+        download(indented, 'text/xml', filename);
+    }
+    
+    async function getAccessToken() {
+        const url = '/api/v1/auth/token';
+        const username = prompt('username');
+        const password = prompt('password');
+        const headers = {
+            'accept': 'application/json',
+            'content-type': 'applicaton/json',
+            'authorization': 'Basic ' + btoa(username + ':' + password)
+        };
+        const response = await fetch(url, {headers, method: 'post'});
+        const apiResponse = await response.json();
+        const accessToken = apiResponse.token;
+        return accessToken;
+    }
+
+    function indentXml(xml, size) {
+        const lines = xml.replace(/></g, '>\n<').split('\n');
+        var level = 0;
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            var end = line.match('</');
+            var empty = line.match('/>') || line.match(/>.*</);
+            if (end && !empty) level--;
+            lines[i] = ' '.repeat(size * level) + line;
+            if (!end && !empty) level++;
+        }
+        return lines.join('\n');
+    }
+
+    function download(content, type, filename) {
+        const a = document.body.appendChild(document.createElement('a'));
+        a.href = URL.createObjectURL(new Blob([content], {type}));
+        a.download = filename;
+        a.click();
+    }
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</body>
+</html>

@@ -27,17 +27,20 @@ body {
 <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/ExportJamfXML.html>Source code</a>
 <script id=code>
 (function () {
-    if (location.pathname == '/smartComputerGroups.html') getObject('computergroup', 'computergroups');
-    else if (location.pathname == '/policies.html') getObject('policy', 'policies');
+    const paths = location.pathname.split('/');
+    const folder = paths.length > 2 ? '/' + paths[1] : '';
 
-    async function getObject(thing, things) {
+    if (location.pathname.match('/smartComputerGroups.html')) getObject('computergroup', 'computergroups');
+    else if (location.pathname.match('/policies.html')) getObject('policy', 'policies');
+
+    async function getObject(obj, path) {
         const id = new URLSearchParams(location.search).get('id');
         if (!id) {
-            alert('pick a ' + thing + ' first');
+            alert('pick a ' + obj + ' first');
             return;
         }
         const accessToken = await getAccessToken();
-        const url = '/JSSResource/' + things + '/id/' + id;
+        const url = folder + '/JSSResource/' + path + '/id/' + id;
         const headers = {        
             'accept': 'application/xml',
             'content-type': 'applicaton/xml',
@@ -46,12 +49,12 @@ body {
         const response = await fetch(url, {headers});
         const str = await response.text();
         const indented = indentXml(str, 4);
-        const filename = thing + '-' + id + '.xml';
+        const filename = obj + '-' + id + '.xml';
         download(indented, 'text/xml', filename);
     }
     
     async function getAccessToken() {
-        const url = '/api/v1/auth/token';
+        const url = folder + '/api/v1/auth/token';
         const username = prompt('username');
         const password = prompt('password');
         const headers = {

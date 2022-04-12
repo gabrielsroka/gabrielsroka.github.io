@@ -403,6 +403,7 @@
     function exportObjects() {
         var exportPopup;
         var total;
+        var totalBytes;
         var objectType;
         var template;
         var header;
@@ -684,6 +685,7 @@
         }
         function startExport(title, url, headerRow, templateCallback, expand) {
             total = 0;
+            totalBytes = 0;
             objectType = title;
             exportPopup = createPopup(title);
             exportPopup.html("Loading ...");
@@ -702,10 +704,11 @@
                     line.then(ln => lines.push(ln));
                 } else {
                     lines.push(line);
+                    totalBytes += line.length + 1;
                 }
             }
             total += objects.length;
-            exportPopup.html(total + " " + objectType + "...<br><br>");
+            exportPopup.html(total + " " + objectType + "...<br>~" + totalBytes + ' bytes<br><br>');
             createDivA("Cancel", exportPopup, () => cancel = true);
             if (cancel) {
                 exportPopup.parent().remove();
@@ -732,7 +735,7 @@
                 }
             } else {
                 if (total == lines.length) {
-                    downloadCSV(exportPopup, total + " " + objectType + " exported. ", header, lines, `Export ${objectType}`);
+                    downloadCSV(exportPopup, total + " " + objectType + " exported, ~" + (totalBytes + header.length) + ' bytes. ', header, lines, `Export ${objectType}`);
                 } else {
                     exportPopup.html("Processing..."); // Wait for other fetches to finish.
                     var intervalID = setInterval(() => {

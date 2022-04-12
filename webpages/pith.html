@@ -125,6 +125,22 @@ function* range(start, stop, step = 1) {
         start += step;
     }
 }
+    
+function* lc(it, cond) {
+    for (const n of it) {
+        if (cond == undefined || cond(n)) {
+            yield n;
+        }
+    }
+}
+
+function sum(it) {
+    var total = 0;
+    for (const n of it) {
+        total += n;
+    }
+    return total;
+}
 
 const get = fetch;
 

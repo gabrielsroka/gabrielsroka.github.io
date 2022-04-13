@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Export Jamf v0.4</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>Export Jamf v0.5</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -47,9 +47,10 @@ body {
     }
     
     const popup = createPopup('rockstar for Jamf');
-    const form = $('<form><table><tr><td style="padding: 8px 8px 8px 0;">Username<td><input id=username style="all: revert; width: 150px;">' +
-        '<tr><td style="padding: 8px 8px 8px 0;">Password<td><input id=password type=password style="all: revert; width: 150px;"></table><br><br>' +
-        '<button type=submit>Export</form>').appendTo(popup);
+    const form = $('<form><table>' +
+        '<tr><td style="padding: 8px 8px 8px 0;">Username<td><input id=username style="all: revert; width: 150px;">' +
+        '<tr><td style="padding: 8px 8px 8px 0;">Password<td><input id=password style="all: revert; width: 150px;" type=password></table><br><br>' +
+        '<button type=submit>Export</button><br><br><div id=results></div></form>').appendTo(popup);
     username.focus();
     form.submit(async event => {
         event.preventDefault();
@@ -60,8 +61,12 @@ body {
             'content-type': 'applicaton/json',
             'authorization': 'Basic ' + btoa(username.value + ':' + password.value)
         };
-        popup.html('Loading...');
+        results.innerHTML = 'Loading...';
         var response = await fetch(url, {headers, method: 'post'});
+        if (!response.ok) {
+            results.innerHTML = 'Invalid username/password.';
+            return;
+        }
         const apiResponse = await response.json();
         const accessToken = apiResponse.token;
 

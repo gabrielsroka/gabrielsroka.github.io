@@ -1243,7 +1243,7 @@
     }
     function downloadCSV(popup, html, header, lines, filename) {
         popup.html(html + "Done.");
-        var a = $("<a>").appsendTo(popup);
+        var a = $("<a>").appendTo(popup);
         a.attr("href", URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/csv'})));
         var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").slice(0, 19);
         a.attr("download", `${filename} ${date}.csv`);

@@ -45,7 +45,7 @@ body {
         alert('pick a ' + obj + ' first');
         return;
     }
-    
+
     const popup = createPopup('rockstar for Jamf');
     const form = $('<form><table>' +
         '<tr><td style="padding: 8px 8px 8px 0;">Username<td><input id=username style="all: revert; width: 150px;">' +
@@ -61,7 +61,6 @@ body {
             'content-type': 'applicaton/json',
             'authorization': 'Basic ' + btoa(username.value + ':' + password.value)
         };
-        results.innerHTML = 'Loading...';
         var response = await fetch(url, {headers, method: 'post'});
         if (!response.ok) {
             results.innerHTML = 'Invalid username/password.';
@@ -70,8 +69,9 @@ body {
         const apiResponse = await response.json();
         const accessToken = apiResponse.token;
 
+        popup.html('Loading...');
         url = folder + '/JSSResource/' + path + '/id/' + id;
-        headers = {        
+        headers = {
             'accept': 'application/xml',
             'content-type': 'applicaton/xml',
             'authorization': 'Bearer ' + accessToken
@@ -83,7 +83,7 @@ body {
         download(indented, 'text/xml', filename);
         popup.html('Done.');
     });
-    
+
     function indentXml(xml, size) {
         const lines = xml.replace(/></g, '>\n<').split('\n');
         var level = 0;
@@ -107,7 +107,7 @@ body {
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto; ` +
                 `background-color: white; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/ExportJamfXML.html' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
+            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/ExportJamfXML.html' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` +
             `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
         return $('<div></div>').appendTo(popup);
     }

@@ -545,9 +545,9 @@
         } else if (appId = getAppId()) {
             const atos = a => a ? a.join(";") : "";
             createDiv("Export App Users", mainPopup, function () {
-                startExport("App Users", `/api/v1/apps/${appId}/users?limit=500`, "id,userName,scope,externalId,firstName,lastName,syncState,salesforceGroups,samlRoles", 
+                startExport("App Users", `/api/v1/apps/${appId}/users?limit=500`, "id,userName,scope,externalId,firstName,lastName,syncState,salesforceGroups,samlRoles,GroupName", 
                     appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId, 
-                        appUser.profile.firstName, appUser.profile.lastName, appUser.syncState, atos(appUser.profile.salesforceGroups), atos(appUser.profile.samlRoles)));
+                        appUser.profile.firstName, appUser.profile.lastName, appUser.syncState, atos(appUser.profile.salesforceGroups), atos(appUser.profile.samlRoles), atos(appUser._links.group.name));
             });
             createDiv("Export App Groups", mainPopup, function () {
                 startExport("App Groups", `/api/v1/apps/${appId}/groups?expand=group`, 
@@ -1243,7 +1243,7 @@
     }
     function downloadCSV(popup, html, header, lines, filename) {
         popup.html(html + "Done.");
-        var a = $("<a>").appendTo(popup);
+        var a = $("<a>").appsendTo(popup);
         a.attr("href", URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/csv'})));
         var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").slice(0, 19);
         a.attr("download", `${filename} ${date}.csv`);

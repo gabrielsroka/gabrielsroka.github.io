@@ -21,7 +21,7 @@ see also https://gabrielsroka.github.io/rockstar
 
 To test:
 1. Temporarily turn off the Chrome store version while you test/debug.
-2. After each change to your dev version of rockstar, click the reload button on the Extension tab, then reload the okta.com page, then test, and repeat.
+2. After each change to your dev version of rockstar, click the reload button on the Extensions tab, then reload the okta.com page, then test, and repeat.
 3. When you're done testing, you can turn the Chrome store version back on, and turn off the dev version.
 
 # Greasemonkey script

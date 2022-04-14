@@ -545,7 +545,7 @@
         } else if (appId = getAppId()) {
             const atos = a => a ? a.join(";") : "";
             createDiv("Export App Users", mainPopup, function () {
-                startExport("App Users", `/api/v1/apps/${appId}/users?limit=500`, "id,userName,scope,externalId,firstName,lastName,syncState,salesforceGroups,samlRoles,groupNames", 
+                startExport("App Users", `/api/v1/apps/${appId}/users?limit=500`, "id,userName,scope,externalId,firstName,lastName,syncState,salesforceGroups,samlRoles,groupName", 
                     appUser => toCSV(appUser.id, appUser.credentials ? appUser.credentials.userName : "", appUser.scope, appUser.externalId, 
                         appUser.profile.firstName, appUser.profile.lastName, appUser.syncState, atos(appUser.profile.salesforceGroups), atos(appUser.profile.samlRoles), appUser._links.group?.name));
             });

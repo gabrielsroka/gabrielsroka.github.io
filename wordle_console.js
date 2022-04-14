@@ -13,7 +13,8 @@ javascript:
 s = document.querySelector(sel);
 r = await fetch(s.src);
 t = await r.text();
-t = t.match(/Ma=(\\[[^\\]]+])/)[1];
+// log(t.match(/(..)...cigar/)[1]);
+t = t.match(/mo=(\\[[^\\]]+])/)[1];
 a = JSON.parse(t);
 b = /...../;
 m = '';

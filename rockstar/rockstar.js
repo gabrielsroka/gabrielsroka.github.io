@@ -740,7 +740,7 @@
                     exportPopup.html("Processing..."); // Wait for other fetches to finish.
                     var intervalID = setInterval(() => {
                         if (total == lines.length) {
-                            downloadCSV(exportPopup, total + " " + objectType + " exported. ", header, lines, `Export ${objectType}`);
+                            downloadCSV(exportPopup, total + " " + objectType + " exported, ~" + (totalBytes + header.length) + ' bytes. ', header, lines, `Export ${objectType}`);
                             clearInterval(intervalID);
                         }
                     }, 300);

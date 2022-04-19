@@ -125,11 +125,15 @@ function* range(start, stop, step = 1) {
         start += step;
     }
 }
-    
-function* lc(it, cond) {
+
+function ac(it, cond, fn) {
+    return [...gen(it, cond, fn)];
+}
+
+function * gen(it, cond, fn) {
     for (const n of it) {
         if (cond == undefined || cond(n)) {
-            yield n;
+            yield fn ? fn(n) : n;
         }
     }
 }

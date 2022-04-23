@@ -4,20 +4,19 @@ Bookmark name: /Search Groups#
 
 Setup:
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.
-2. Drag all this to the bookmark toolbar.
+2. Drag all this to the bookmark toolbar to create a Bookmarklet.
 
-Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
+Or, copy/paste this code to the browser Console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
 3. Give it a name, eg, "SearchGroups.js".
-4. Copy/paste the code from https://gabrielsroka.github.io/SearchGroups.js
+4. Copy/paste this code.
 5. Save (Ctrl+S, Windows).
 
 Usage:
 1. Navigate your browser to your Okta admin console.
-2. Press F12 (Windows) to open DevTools.
-3. Run the code. Click the bookmarklet, or if using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
-4. Look for the popup window in the upper-left corner of your browser.
+2. Run the code. Click the Bookmarklet, or if using a Snippet, Press F12 (Windows) to open DevTools, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
+3. Look for the popup window in the upper-left corner of your browser.
 */
 (async function () {
     const popup = createPopup('Search 10,000 Groups with Name Containing');

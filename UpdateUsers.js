@@ -2,7 +2,21 @@ javascript:
 /*
 Bookmark name: /Update Users#
 
-Run this from your browser, using the Console, or a Snippet, or a Bookmarklet. See https://gabrielsroka.github.io/APIExplorer#how
+Setup:
+1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.
+2. Drag all this to the bookmark toolbar to create a Bookmarklet.
+
+Or, copy/paste this code to the browser Console, or, if using Chrome, to a Snippet:
+1. Press F12 (Windows) to open DevTools.
+2. Go to Sources > Snippets, click New Snippet.
+3. Give it a name, eg, "UpdateUsers.js".
+4. Copy/paste this code.
+5. Save (Ctrl+S, Windows).
+
+Usage:
+1. Navigate your browser to your Okta admin console.
+2. Run the code. Click the Bookmarklet, or if using a Snippet, Press F12 (Windows) to open DevTools, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
+3. Look for the popup window in the upper-left corner of your browser.
 
 Sample CSV. Header row is required and case-sensitive:
 id,login,email

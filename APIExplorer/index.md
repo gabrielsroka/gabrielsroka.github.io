@@ -6,7 +6,7 @@ A short (25-line) JavaScript snippet to call the Okta API from a browser UI -- l
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.
 2. Drag all of [https://gabrielsroka.github.io/SearchGroups.js](https://gabrielsroka.github.io/SearchGroups.js) to the bookmarks toolbar.
 
-Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
+Or, copy this code to the browser Console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
 3. Give it a name, eg, "SearchGroups.js".
@@ -28,9 +28,10 @@ Now I write more complex scripts like this one. I can add HTML/CSS popups and po
 
 Browsers have gotten better at this, too. Chrome, for example, has a fairly complete set of [developer tools](https://developer.chrome.com/docs/devtools/) for writing and debugging JavaScript.
 
+# How
 There are a few options for running your JavaScript on someone else's website:
 - the address bar using the `javascript:` scheme. For example, `javascript:alert('hi')` [1]. Note that some browsers remove the `javascript:` part if you paste it in, and some browsers or sites block these.
-- bookmarklets - like regular bookmarks, but they can run JavaScript [2]. These even work on mobile browsers, which usually don't have dev tools! You can host them on sites like GitHub so you can share them, update them, etc. For example, drag this to your bookmark toolbar, then click it: `javascript:(function(){alert('hi');})();// Say Hi`
+- bookmarklets - like regular bookmarks, but they can run JavaScript [2]. These even work on mobile browsers, which usually don't have dev tools! You can host them on sites like GitHub so you can share them, update them, etc. For example, drag this to your bookmark toolbar, then click it: `javascript:(function(){alert('hi');})(); //Say Hi`
 - [Chrome DevTools console](https://developer.chrome.com/docs/devtools/console/) [3]
 - [Chrome Snippets](https://developer.chrome.com/docs/devtools/javascript/snippets/) [4]
 - [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) user scripts

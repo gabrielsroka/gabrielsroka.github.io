@@ -7,9 +7,13 @@ body {
     font-family: sans-serif;
     font-size: 1em;
 }
-td {
+.num {
     vertical-align: top;
-    padding: 4px 10px;
+    text-align: right;
+    padding-left: 10px;
+}
+.total {
+    font-weight: bold;
 }
 @media (prefers-color-scheme: dark) {
     body {
@@ -39,14 +43,16 @@ var total = 0;
 const allOpts = await Promise.all(poll.parts.map(async p => {
     const r = await fetch(`${base}/${p}.json`);
     const part = await r.json();
-    part.score--; // all parts start with score of 1, so -1 to see actual votes.
+    part.score--; // all parts start with a score of 1, so subtract 1 to see actual score.
     if (!part.deleted) total += part.score;
     return part;
 }));
 const opts = allOpts.filter(i => !i.deleted);
 opts.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
-opts.push({text: '<b>Total</b>', score: total});
-app.innerHTML = '<table>' + opts.map(e => `<tr><td>${e.text}<td align=right>${e.score}<td align=right>${Math.round(e.score / total * 100)}%`).join('') + '</table>';
+opts.push({text: 'Total', score: total, total: true});
+app.innerHTML = '<table>' + 
+    opts.map(e => `<tr ${e.total ? 'class=total' : ''}><td>${e.text}<td class=num>${e.score}<td class=num>${Math.round(e.score / total * 100)}%`).join('') + 
+    '</table>';
 </script>
 </body>
 </html>

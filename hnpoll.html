@@ -7,6 +7,10 @@ body {
     font-family: sans-serif;
     font-size: 1em;
 }
+td {
+    vertical-align: top;
+    padding: 4px 10px;
+}
 @media (prefers-color-scheme: dark) {
     body {
         background-color: #121212;
@@ -18,6 +22,7 @@ body {
 </head>
 <body>
 <div id=hdr></div>
+<br>
 <div id=app>Loading...</div>
 <br>
 <div>Other <a href=hnpolls.html target=_blank>polls</a></div>
@@ -26,7 +31,7 @@ body {
 <script type=module>
 // see https://github.com/HackerNews/API and https://nate.org/hacker-news-location-poll
 const base = 'https://hacker-news.firebaseio.com/v0/item';
-const id = new URLSearchParams(location.search).get('id') || '30210378';
+const id = new URLSearchParams(location.search).get('id') || '31159585';
 const r = await fetch(`${base}/${id}.json`);
 const poll = await r.json();
 hdr.innerHTML = `<a href='https://news.ycombinator.com/item?id=${id}'>` + poll.title + '</a>';
@@ -40,8 +45,8 @@ const allOpts = await Promise.all(poll.parts.map(async p => {
 }));
 const opts = allOpts.filter(i => !i.deleted);
 opts.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
-opts.push({text: '<b>Total</b>', score: `<b>${total}</b>`});
-app.innerHTML = '<table>' + opts.map(e => `<tr><td>${e.text}<td align=right>${e.score}`).join('') + '</table>';
+opts.push({text: '<b>Total</b>', score: total});
+app.innerHTML = '<table>' + opts.map(e => `<tr><td>${e.text}<td align=right>${e.score}<td align=right>${Math.round(e.score / total * 100)}%`).join('') + '</table>';
 </script>
 </body>
 </html>

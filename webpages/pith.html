@@ -51,7 +51,7 @@ if (localStorage.pithPrograms) {
 
 j = 1
 for i in range(1, 10)
-  if j == 0
+  if j = 0
     print i
     j = 1
   else
@@ -67,96 +67,19 @@ if (!navigator.userAgent.match("Android")) {
     saveProgram.innerHTML = '<u>S</u>ave';
 }
 
-runProgram.onclick = run;
-
-function run() {
-    debug.clear();
-    console.clear();
+runProgram.onclick = function () {
     save();
-    var lines = editor.value.split('\n');
-    var ind = 0;
-    var newInd;
-    for (var i = 0; i < lines.length; i++) {
-        var line = lines[i];
-        const tLine = line.trim();
-        if (tLine.startsWith('for ')) {
-            line = line
-                .replace('for', 'for (var')
-                .replace(' in ', ' of ');
-            line += ')';
-        } else if (tLine.startsWith('while ')) {
-            line = line.replace('while ', 'while (') + ')';
-        } else if (tLine.startsWith('def ') || tLine.startsWith('async def ')) {
-            if (line.endsWith(' main')) line = 'main()\n' + line;
-            line = line.replace('def', 'function');
-            if (!line.endsWith(')')) line += '()';
-        } else if (tLine.startsWith('if ') || tLine.startsWith('else if ') || tLine.startsWith('elif ')) {
-            line = line
-                .replace('elif', 'else if')
-                .replace('if ', 'if (')
-                .replace(' = ', ' == ');
-            line += ')';
-        } else if (tLine.startsWith('print ') || tLine.startsWith('?')) {
-            line = line.replace(/(\?|print )/, 'print(') + ')';
-        } else if (tLine.startsWith('# ')) {
-            line = line.replace('#', '//');
-        }
-        newInd = line.match(/^( *)/)[1].length / tab;
-        for (var t = newInd; t < ind; t++) {
-            line = ' '.repeat(tab * t) + '}\n' + line;
-        }
-        if (newInd > ind) lines[i - 1] += ' {';
-        ind = newInd;
-        lines[i] = line;
-    }
-    lines = '(async function () {\n' + lines.join('\n') + '\n}'.repeat(ind) + '\n})()';
-    console.log(lines);
-    eval(lines);
-    //document.body.appendChild(document.createElement("script")).innerHTML = lines;
+    run(editor.value);
 }
-
-function* range(start, stop, step = 1) {
-    if (stop == undefined) {
-        stop = start;
-        start = 0;
-    }
-    while (start < stop) {
-        yield start;
-        start += step;
-    }
-}
-
-function ac(it, cond, fn) {
-    return [...gen(it, cond, fn)];
-}
-
-function * gen(it, cond, fn) {
-    for (const n of it) {
-        if (cond == undefined || cond(n)) {
-            yield fn ? fn(n) : n;
-        }
-    }
-}
-
-function sum(it) {
-    var total = 0;
-    for (const n of it) {
-        total += n;
-    }
-    return total;
-}
-
-const get = fetch;
 
 newProgram.onclick = function () {
     const n = prompt("Program name");
-    if (n) {
-        progname = n;
-        addOption(progname, '');
-        prognames.selectedIndex = prognames.options.length - 1;
-        editor.value = "";
-        debug.clear();
-    }
+    if (!n) return;
+    progname = n;
+    addOption(progname, '');
+    prognames.selectedIndex = prognames.options.length - 1;
+    editor.value = "";
+    debug.clear();
 };
 
 saveProgram.onclick = save;
@@ -171,7 +94,7 @@ editor.focus();
 editor.onkeydown = function (event) {
     const ENTER = 13;
     if (event.ctrlKey && event.keyCode == ENTER) {
-        run();
+        runProgram.onclick();
     } else {
         saveProgram.innerHTML = 'Save *';
     }
@@ -203,6 +126,10 @@ debug.toggle = function () {
 
 debug.visible = true;
 
+function print(...args) {
+    debug.print(args.join(' '));
+}
+
 function button(html, onclick) {
     return `<button onclick=${onclick}>${html}</button>`;
 }
@@ -214,10 +141,6 @@ results.html = bar.html = function (s) {
         this.innerHTML = s;
     }
 };
-
-function print(...args) {
-    debug.print(args.join(' '));
-}
 
 function save() {
     if (editor.value) {
@@ -247,5 +170,6 @@ function addOption(name, value) {
     prognames.add(option);
 }
 </script>
+<script src=/pith.js></script>
 </body>
 </html>

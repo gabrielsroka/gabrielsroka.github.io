@@ -69,6 +69,8 @@ if (!navigator.userAgent.match("Android")) {
 
 runProgram.onclick = function () {
     save();
+    debug.clear();
+    console.clear();
     run(editor.value);
 }
 

@@ -31,7 +31,7 @@ function run(lines) {
             line = line.replace(/(\?|print )/, 'print(') + ')';
         } else if (tLine.startsWith('tab = ')) {
             eval(line);
-        } else if (tLine.startsWith('# ')) {
+        } else if (tLine.startsWith('#')) {
             line = line.replace('#', '//');
         }
         var newInd = line.match(/^( *)/)[1].length / tab;

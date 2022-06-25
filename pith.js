@@ -28,7 +28,7 @@ function run(lines) {
                 .replace(' = ', ' == ');
             line += ')';
         } else if (tLine.startsWith('print ') || tLine.startsWith('?')) {
-            line = line.replace(/(\?|print )/, 'print(') + ')';
+            line = line.replace(/(print|\?) ?/, 'print(') + ')';
         } else if (tLine.startsWith('tab = ')) {
             eval(line);
         } else if (tLine.startsWith('#')) {

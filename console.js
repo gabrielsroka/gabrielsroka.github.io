@@ -8,10 +8,9 @@ url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.
   <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 f = 'filter=profile.lastName eq "Doe"'\n
 url = '/api/v1/users?limit=2&' + f\n
-for await (users of getPages(url)) {\n
+for await (users of getPages(url))\n
   for (user of users)\n
-    log(user.id, user.profile.login)\n
-}</textarea><br>
+    log(user.id, user.profile.login)</textarea><br>
   <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>`;
  div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
  run.onclick = function () {

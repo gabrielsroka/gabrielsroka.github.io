@@ -20,25 +20,27 @@ for await (users of getPages(url))\n
  function log(...s) {
   debug.value += s.join(' ') + '\n';
  }
- const get = fetch;
  async function* getPages(url) {
   while (url) {
-   const response = await fetch(url);
-   const page = await response.json();
+   const r = await fetch(url);
+   const page = await r.json();
    yield page;
-   url = response.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+   url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
   }
  }
- async function post(url, data) {
-  if (!window.$) alert('use admin console');
-  return await $.ajax(url, {method: 'post', data: JSON.stringify(data), contentType: 'application/json'});
+ async function get(url) {
+  const r = await fetch(url);
+  return await r.json();
  }
- async function put(url, data) {
-  if (!window.$) alert('use admin console');
-  return await $.ajax(url, {method: 'put', data: JSON.stringify(data), contentType: 'application/json'});
+ async function post(url, body) {
+  const r = await fetch(url, {method: 'post', body: JSON.stringify(body), headers: {'Content-Type': 'application/json'}});
+  return await r.json();
+ }
+ async function put(url, body) {
+  const r = await fetch(url, {method: 'put', body: JSON.stringify(body), headers: {'Content-Type': 'application/json'}});
+  return await r.json();
  }
  async function remove(url) {
-  if (!window.$) alert('use admin console');
-  return await $.ajax(url, {method: 'delete'});
+  return await fetch(url, {method: 'delete'});
  }
 })()

@@ -29,10 +29,16 @@ for await (users of getPages(url))\n
    url = response.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
   }
  }
+ async function post(url, data) {
+  if (!window.$) alert('use admin console');
+  return await $.ajax(url, {method: 'post', data: JSON.stringify(data), contentType: 'application/json'});
+ }
  async function put(url, data) {
+  if (!window.$) alert('use admin console');
   return await $.ajax(url, {method: 'put', data: JSON.stringify(data), contentType: 'application/json'});
  }
  async function remove(url) {
+  if (!window.$) alert('use admin console');
   return await $.ajax(url, {method: 'delete'});
  }
 })()

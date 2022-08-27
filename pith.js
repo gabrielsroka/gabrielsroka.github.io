@@ -2,6 +2,11 @@ var tab = 2;
 
 const get = fetch;
 
+async function getJson(url) {
+    const r = await fetch(url);
+    return r.json();
+}
+
 document.querySelectorAll('script[type="text/pith"]').forEach(s => run(s.innerText));
 
 function run(lines) {

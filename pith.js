@@ -2,8 +2,8 @@ var tab = 2;
 
 const get = fetch;
 
-async function getJson(url) {
-    const r = await fetch(url);
+async function getJson(url, init) {
+    const r = await fetch(url, init);
     return r.json();
 }
 

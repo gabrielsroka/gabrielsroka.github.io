@@ -47,16 +47,23 @@ if (localStorage.pithPrograms) {
     load();
 } else {
     programs = {};
-    editor.value = `# Pith is awesome !!!
+    editor.value = `# Hello Pith!
 
-j = 1
-for i in range(1, 10)
-  if j = 0
-    print i
-    j = 1
-  else
-    j = 0`;
-    progname = "First Pith program";
+max = 6
+ids = await getApi('topstories')
+for id in ids.slice(0, max)
+  getItem(id)
+
+async def getItem(id)
+  const div = results.appendChild(document.createElement('div'))
+  div.style = 'padding-bottom: 1em;'
+  item = await getApi('item/' + id)
+  ? item.title, '|', item.score, 'points by', item.by
+  div.innerHTML = item.title.link('https://news.ycombinator.com/item?id=' + id)
+
+async def getApi(path)
+  return getJson('https://hacker-news.firebaseio.com/v0/' + path + '.json')`;
+    progname = "Hello Pith";
     addOption(progname, editor.value);
     save();
 }

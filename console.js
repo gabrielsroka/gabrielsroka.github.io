@@ -32,15 +32,19 @@ for await (users of getPages(url))\n
   const r = await fetch(url);
   return await r.json();
  }
+ const headers = {
+  'Content-Type': 'application/json',
+  'X-Okta-XsrfToken': document.getElementById('_xsrfToken').innerText
+ }
  async function post(url, body) {
-  const r = await fetch(url, {method: 'post', body: JSON.stringify(body), headers: {'Content-Type': 'application/json'}});
+  const r = await fetch(url, {method: 'post', body: JSON.stringify(body), headers});
   return await r.json();
  }
  async function put(url, body) {
-  const r = await fetch(url, {method: 'put', body: JSON.stringify(body), headers: {'Content-Type': 'application/json'}});
+  const r = await fetch(url, {method: 'put', body: JSON.stringify(body), headers});
   return await r.json();
  }
  async function remove(url) {
-  return await fetch(url, {method: 'delete'});
+  return await fetch(url, {method: 'delete', headers});
  }
 })()

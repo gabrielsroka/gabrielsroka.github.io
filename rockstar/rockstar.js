@@ -980,15 +980,15 @@
                     $(results).html("<br>");
                     var linkHeader = jqXHR.getResponseHeader("Link");
                     var remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
-                    var limit = jqXHR.getResponseHeader("X-Rate-Limit-Limit")
-                    var reset = new Date(jqXHR.getResponseHeader("X-Rate-Limit-Reset") * 1000)
+                    var limit = jqXHR.getResponseHeader("X-Rate-Limit-Limit");
+                    var reset = new Date(jqXHR.getResponseHeader("X-Rate-Limit-Reset") * 1000);
                     if (linkHeader) {
-                        $(results).html(
-                        "<br>Headers<br><table style='width:30%'><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") 
-                        + "<tr><td>Rate Limit<td>" + limit + " </tr>" 
-                        + "<tr><td>Rate Limit Remaining<td>" + remaining + " </tr>" 
-                        +  "<tr><td>Rate Limit Reset<td>" + reset + " </tr>" 
-                        + "</table><br>"
+                        $(results).html("<br>Headers<br><table>" + 
+                            "<tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>")  +
+                            "<tr><td>Rate Limit<td>" + limit +
+                            "<tr><td>Rate Limit Remaining<td>" + remaining + 
+                            "<tr><td>Rate Limit Reset<td>" + reset +
+                            "</table><br>" 
                         );
                         var links = getLinks(linkHeader);
                         if (links.next) {
@@ -997,6 +997,14 @@
                         }
                     }
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
+                    if (linkHeader == null) {
+                        $(results).html("<br>Headers<br><table>" + 
+                        "<tr><td>Rate Limit<td>" + limit +
+                        "<tr><td>Rate Limit Remaining<td>" + remaining + 
+                        "<tr><td>Rate Limit Reset<td>" + reset +
+                        "</table><br>" 
+                    );
+                    }
                     if (objects) {
                         const pathname = url.split('?')[0];
                         var addId = false;

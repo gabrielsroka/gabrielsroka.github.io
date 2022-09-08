@@ -1000,11 +1000,11 @@
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                     if (linkHeader == null) {
                         $(results).html(
-                        "<br>Headers<br><table>" + 
-                        "<tr><td>Rate Limit<td>" + limit +
-                        "<tr><td>Rate Limit Remaining<td>" + remaining + 
-                        "<tr><td>Rate Limit Reset<td>" + reset +
-                        "</table><br>" 
+                            "<br>Headers<br><table>" + 
+                            "<tr><td>Rate Limit<td>" + limit +
+                            "<tr><td>Rate Limit Remaining<td>" + remaining + 
+                            "<tr><td>Rate Limit Reset<td>" + reset +
+                            "</table><br>" 
                     );
                     }
                     if (objects) {

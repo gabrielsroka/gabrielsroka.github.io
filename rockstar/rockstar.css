@@ -28,3 +28,7 @@
 .hoverDiv:hover {
     background-color: #f0f0f0;
 }
+
+table tr td {
+    padding: 8px;
+}

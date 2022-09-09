@@ -995,18 +995,20 @@
                         if (links.next) {
                             var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
                             nextUrl = nextUrl.pathname + nextUrl.search;
+                        };
+                    }
+                        else if (linkHeader == null) {
+                            $(results).html(
+                                "<br>Headers<br><table class='headerTable'>" + 
+                                "<tr><td>Rate Limit<td>" + limit +
+                                "<tr><td>Rate Limit Remaining<td>" + remaining + 
+                                "<tr><td>Rate Limit Reset<td>" + reset +
+                                "</table><br>" 
+                            );
                         }
-                    }
-                    if (linkHeader == null) {
-                        $(results).html(
-                            "<br>Headers<br><table class='headerTable'>" + 
-                            "<tr><td>Rate Limit<td>" + limit +
-                            "<tr><td>Rate Limit Remaining<td>" + remaining + 
-                            "<tr><td>Rate Limit Reset<td>" + reset +
-                            "</table><br>" 
-                    );
+                    
+
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
-                    }
                     if (objects) {
                         const pathname = url.split('?')[0];
                         var addId = false;

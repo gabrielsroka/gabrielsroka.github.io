@@ -997,7 +997,6 @@
                             nextUrl = nextUrl.pathname + nextUrl.search;
                         }
                     }
-                    $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                     if (linkHeader == null) {
                         $(results).html(
                             "<br>Headers<br><table class='headerTable'>" + 
@@ -1006,6 +1005,7 @@
                             "<tr><td>Rate Limit Reset<td>" + reset +
                             "</table><br>" 
                     );
+                    $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                     }
                     if (objects) {
                         const pathname = url.split('?')[0];

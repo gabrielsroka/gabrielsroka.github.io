@@ -984,7 +984,7 @@
                     var reset = new Date(jqXHR.getResponseHeader("X-Rate-Limit-Reset") * 1000);
                     if (linkHeader) {
                         $(results).html(
-                            "<br>Headers<br><table>" + 
+                            "<br>Headers<br><table class='headerTable'>" + 
                             "<tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>")  +
                             "<tr><td>Rate Limit<td>" + limit +
                             "<tr><td>Rate Limit Remaining<td>" + remaining + 
@@ -1000,7 +1000,7 @@
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                     if (linkHeader == null) {
                         $(results).html(
-                            "<br>Headers<br><table>" + 
+                            "<br>Headers<br><table class='headerTable'>" + 
                             "<tr><td>Rate Limit<td>" + limit +
                             "<tr><td>Rate Limit Remaining<td>" + remaining + 
                             "<tr><td>Rate Limit Reset<td>" + reset +

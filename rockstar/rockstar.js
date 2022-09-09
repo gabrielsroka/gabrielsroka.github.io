@@ -660,6 +660,7 @@
                     `Search lists all users; search by any user profile property, including custom-defined<br>` +
                     `properties, and id, status, created, activated, status changed and last updated.</form>`);
             }
+            exportPopup.append(`<br><br><div id=error>&nbsp;</div><br>`);
             createDivA("Export", exportPopup, function () {
                 var exportHeaders = [];
                 var exportColumns = [];

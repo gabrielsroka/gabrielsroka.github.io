@@ -983,14 +983,16 @@
                     var limit = jqXHR.getResponseHeader("X-Rate-Limit-Limit");
                     var reset = new Date(jqXHR.getResponseHeader("X-Rate-Limit-Reset") * 1000);
                     if (linkHeader) {
-                        $(results).html(
-                            "<br>Headers<br><table class='headerTable'>" + 
-                            "<tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>")  +
-                            "<tr><td>Rate Limit<td>" + limit +
-                            "<tr><td>Rate Limit Remaining<td>" + remaining + 
-                            "<tr><td>Rate Limit Reset<td>" + reset +
-                            "</table><br>" 
-                        );
+                        var headerTableLinks = 
+                        `
+                            <br>Headers<br><table class="headerTable">
+                            <tr><td>Link<td> + ${linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>")}
+                            <tr><td>Rate Limit<td> ${limit} 
+                            <tr><td>Rate Limit Remaining<td> ${remaining} 
+                            <tr><td>Rate Limit Reset<td> ${reset} 
+                            </table><br>
+                        `
+                        $(results).html(headerTableLinks);
                         var links = getLinks(linkHeader);
                         if (links.next) {
                             var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
@@ -998,13 +1000,15 @@
                         };
                     }
                         else if (linkHeader == null) {
-                            $(results).html(
-                                "<br>Headers<br><table class='headerTable'>" + 
-                                "<tr><td>Rate Limit<td>" + limit +
-                                "<tr><td>Rate Limit Remaining<td>" + remaining + 
-                                "<tr><td>Rate Limit Reset<td>" + reset +
-                                "</table><br>" 
-                            );
+                            var headerTableNoLinks = 
+                            `
+                                <br>Headers<br><table class="headerTable">
+                                <tr><td>Rate Limit<td> ${limit} 
+                                <tr><td>Rate Limit Remaining<td> ${remaining} 
+                                <tr><td>Rate Limit Reset<td> ${reset} 
+                                </table><br>
+                            `
+                            $(results).html(headerTableNoLinks);
                         }
                     
 

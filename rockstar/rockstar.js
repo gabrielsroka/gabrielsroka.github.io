@@ -577,10 +577,9 @@
             exportPopup = createPopup("Export " + o);
             exportPopup.append("<br>Columns to export");
             var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 500px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
-            
             function addCheckbox(value, text) {
                 const checked = exportColumns.includes(value) ? "checked" : "";
-                checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' ${checked}>${e(text)}</label><br>`);
+                checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' class='userColumns' ${checked}>${e(text)}</label><br>`);
             }
             const user = {
                 id: "User Id",
@@ -642,7 +641,10 @@
                 // TODO: since user can't see /schemas, let them know they can only use base attrs.
                 for (const p in profile) addCheckbox("profile." + p, profile[p]);
             });
-
+            exportPopup.append('<label><input type=checkbox value="selectAll" id="selectAll"</label>Toggle All');
+            $("#selectAll").click(function () {
+               $("input.userColumns").not(this).prop('checked', this.checked);
+            });
             if (filter) {
                 var exportArgs = localStorage.rockstarExportUserArgs || "";
                 exportPopup.append(
@@ -658,7 +660,6 @@
                     `Search lists all users; search by any user profile property, including custom-defined<br>` +
                     `properties, and id, status, created, activated, status changed and last updated.</form>`);
             }
-            exportPopup.append(`<br><br><div id=error>&nbsp;</div><br>`);
             createDivA("Export", exportPopup, function () {
                 var exportHeaders = [];
                 var exportColumns = [];

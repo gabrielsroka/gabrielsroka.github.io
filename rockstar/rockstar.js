@@ -985,7 +985,7 @@
                     if (linkHeader) {
                         var headerTableLinks = 
                         `
-                            <br>Headers<br><table class="headerTable">
+                            <br>Headers<br><table class="rs_headerTable"">
                             <tr><td>Link<td> + ${linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>")}
                             <tr><td>Rate Limit<td> ${limit} 
                             <tr><td>Rate Limit Remaining<td> ${remaining} 
@@ -1002,7 +1002,7 @@
                         else if (linkHeader == null) {
                             var headerTableNoLinks = 
                             `
-                                <br>Headers<br><table class="headerTable">
+                                <br>Headers<br><table class="rs_headerTable">
                                 <tr><td>Rate Limit<td> ${limit} 
                                 <tr><td>Rate Limit Remaining<td> ${remaining} 
                                 <tr><td>Rate Limit Reset<td> ${reset} 

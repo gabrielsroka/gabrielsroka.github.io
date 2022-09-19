@@ -2,7 +2,7 @@ javascript:
 /* Bookmarklet name: /console#
 url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js */
 (function () {
- div = document.body.appendChild(document.createElement('div'));
+ const div = document.body.appendChild(document.createElement('div'));
  div.innerHTML = `<button id=run>Run</button>
   <button onclick=document.body.removeChild(this.parentNode)>Close</button><br>
   <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>

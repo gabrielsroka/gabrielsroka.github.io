@@ -22,28 +22,29 @@ for await (users of getPages(url)) {\n
  function log(...s) {
   debug.value += s.join(' ') + '\n';
  }
+ const headers = {
+  'Accept': 'application/json',
+  'Content-Type': 'application/json',
+  'X-Okta-XsrfToken': document.getElementById('_xsrfToken').innerText
+ };
  async function* getPages(url) {
   while (url) {
-   const r = await fetch(url);
+   const r = await fetch(url, {method: 'get', headers});
    const page = await r.json();
    yield page;
    url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
   }
  }
  async function get(url) {
-  const r = await fetch(url);
+  const r = await fetch(url, {method: 'get', headers});
   return await r.json();
  }
- const headers = {
-  'Content-Type': 'application/json',
-  'X-Okta-XsrfToken': document.getElementById('_xsrfToken').innerText
- };
  async function post(url, body) {
-  const r = await fetch(url, {method: 'post', body: JSON.stringify(body), headers});
+  const r = await fetch(url, {method: 'post', headers, body: JSON.stringify(body)});
   return await r.json();
  }
  async function put(url, body) {
-  const r = await fetch(url, {method: 'put', body: JSON.stringify(body), headers});
+  const r = await fetch(url, {method: 'put', headers, body: JSON.stringify(body)});
   return await r.json();
  }
  async function remove(url) {

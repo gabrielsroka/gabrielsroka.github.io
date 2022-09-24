@@ -1,4 +1,9 @@
 (async function() {
+    var targetAppId = prompt("Enter the target application id");
+    if (targetAppId == "") {
+        alert("No value provided");
+        return;
+    }
     const headers = {
         'accept': 'application/json',
         'content-type': 'application/json',
@@ -6,20 +11,11 @@
     };
 
     const appId = getAppId();     // getAppId from URL like how Rockstar does it
-    const app = await getApp(appId);
+    const sourceApp = await getApp(appId);
+    const targetApp = await getApp(targetAppId)
 
-    while (true) { // prompt for target application id
-        var targetAppId = prompt("Enter the target application id");
-        if (targetAppId) {
-            break;
-        } else if (targetAppId == "") {
-            alert("No value provided");
-            return;
-        }
-    }
-    
-    postAppKidToTarget(app, targetAppId);     // Clone source app primary kid to target app
-    updateTargetAppPrimaryKid(app, targetAppId);     // Switch target app primary kid to source app primary kid
+    postSourceAppKidToTarget(sourceApp, targetApp);     // Clone source app primary kid to target app
+    updateTargetAppPrimaryKid(sourceApp, targetApp);     // Switch target app primary kid to source app primary kid
 
     async function getApp(appId) {
         const url = '/api/v1/apps/' + appId;
@@ -30,8 +26,8 @@
         return app
     }
 
-    async function postAppKidToTarget(app, targetAppId) {
-        const url = '/api/v1/apps/' + app.id + '/credentials/keys/' + app.credentials.signing.kid + '/clone?targetAid=' + targetAppId;
+    async function postSourceAppKidToTarget(sourceApp, targetApp) {
+        const url = '/api/v1/apps/' + sourceApp.id + '/credentials/keys/' + sourceApp.credentials.signing.kid + '/clone?targetAid=' + targetApp.id;
         console.log(url);
         const r = await fetch(url, {
             method: 'post',
@@ -42,16 +38,16 @@
         console.log(clone);
     }
 
-    async function updateTargetAppPrimaryKid(app, targetAppId) {
-        const url = '/api/v1/apps/' + targetAppId;
+    async function updateTargetAppPrimaryKid(sourceApp, targetApp) {
+        const url = '/api/v1/apps/' + targetApp.id;
         console.log(url);
         const body = JSON.stringify({
-            name: app.name,
-            signOnMode: app.signOnMode,
-            settings: app.settings,
+            name: targetApp.name,
+            label: targetApp.label,
+            signOnMode: targetApp.signOnMode,
             credentials: {
                 signing: {
-                    kid: app.credentials.signing.kid
+                    kid: sourceApp.credentials.signing.kid
                 }
             }
         });

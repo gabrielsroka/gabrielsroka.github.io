@@ -996,7 +996,7 @@
                             '<tr><td>Link<td>' + 
                             linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") + 
                             '</table><br>'
-                            );
+                        );
 
                         var links = getLinks(linkHeader);
                         if (links.next) {
@@ -1005,7 +1005,10 @@
                         };
                     }
                         else if (linkHeader == null) {
-                            $(results).html(headersTable);
+                            $(results).html(
+                                headersTable +
+                                '</table><br>'
+                            );
                         }
                     
 

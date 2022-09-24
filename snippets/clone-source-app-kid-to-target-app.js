@@ -41,16 +41,8 @@
     async function updateTargetAppPrimaryKid(sourceApp, targetApp) {
         const url = '/api/v1/apps/' + targetApp.id;
         console.log(url);
-        const body = JSON.stringify({
-            name: targetApp.name,
-            label: targetApp.label,
-            signOnMode: targetApp.signOnMode,
-            credentials: {
-                signing: {
-                    kid: sourceApp.credentials.signing.kid
-                }
-            }
-        });
+        targetApp.credentials.signing.kid = sourceApp.credentials.signing.kid
+        const body = JSON.stringify(targetApp);
         const r = await fetch(url, {
             method: 'put',
             headers,

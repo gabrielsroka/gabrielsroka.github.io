@@ -47,26 +47,23 @@ if (localStorage.pithPrograms) {
     load();
 } else {
     programs = {};
-    editor.value = `# Hello Pith!
-
-max = 6
+    editor.value = `max = 6
 ids = await getApi('/topstories')
-for id in ids.slice(0, max)
-  getItem(id)
+ids.slice(0, max).forEach(getItem)
 
 async def getItem(id)
   item = await getApi('/item/' + id)
-  ? item.title, '|', item.score, 'points'
-  div = document.createElement('div')
-  url = '//news.ycombinator.com/item?id='
-  div.innerHTML = item.title.link(url + id)
-  div.style = 'padding-bottom: 1em;'
-  results.appendChild(div)
+  ? item.title, '|', item.score, 'pts'
+  d = document.createElement('div')
+  u = '//news.ycombinator.com/item?id='
+  d.innerHTML = item.title.link(u + id)
+  d.style = 'padding-bottom: 1em;'
+  results.appendChild(d)
 
 async def getApi(path)
-  url = '//hacker-news.firebaseio.com/v0'
-  return getJson(url + path + '.json')`;
-    progname = "Hello Pith";
+  u = '//hacker-news.firebaseio.com/v0'
+  return getJson(u + path + '.json')`;
+    progname = "Hello HN, it's Pith";
     addOption(progname, editor.value);
     save();
 }

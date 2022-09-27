@@ -50,21 +50,21 @@ if (localStorage.pithPrograms) {
     editor.value = `# Hello Pith!
 
 max = 6
-ids = await getApi('topstories')
+ids = await getApi('/topstories')
 for id in ids.slice(0, max)
   getItem(id)
 
 async def getItem(id)
-  const div = document.createElement('div')
-  results.appendChild(div)
-  div.style = 'padding-bottom: 1em;'
-  item = await getApi('item/' + id)
-  ? item.title, '|', item.score, 'points by', item.by
-  url = 'https://news.ycombinator.com/item?id='
+  item = await getApi('/item/' + id)
+  ? item.title, '|', item.score, 'points'
+  div = document.createElement('div')
+  url = '//news.ycombinator.com/item?id='
   div.innerHTML = item.title.link(url + id)
+  div.style = 'padding-bottom: 1em;'
+  results.appendChild(div)
 
 async def getApi(path)
-  url = 'https://hacker-news.firebaseio.com/v0/'
+  url = '//hacker-news.firebaseio.com/v0'
   return getJson(url + path + '.json')`;
     progname = "Hello Pith";
     addOption(progname, editor.value);

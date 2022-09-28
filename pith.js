@@ -35,7 +35,7 @@ function run(lines) {
         } else if (tLine.startsWith('print ') || tLine.startsWith('?')) {
             line = line.replace(/(print|\?) ?/, 'print(') + ')';
         } else if (tLine.startsWith('>')) {
-            line = line.replace('>', 'results.innerHTML +=') + '<br>';
+            line = line.replace('>', 'results.innerHTML +=') + ` + '<br>'`;
         } else if (tLine.startsWith('#')) {
             line = line.replace('#', '//');
         } else if (tLine.startsWith('tab = ')) {

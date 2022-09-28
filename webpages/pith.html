@@ -54,16 +54,13 @@ ids.slice(0, max).forEach(getItem)
 async def getItem(id)
   item = await getApi('/item/' + id)
   ? item.title, '|', item.score, 'pts'
-  d = document.createElement('div')
   u = '//news.ycombinator.com/item?id='
-  d.innerHTML = item.title.link(u + id)
-  d.style = 'padding-bottom: 1em;'
-  results.appendChild(d)
+  > item.title.link(u + id) + '<br>'
 
 async def getApi(path)
   u = '//hacker-news.firebaseio.com/v0'
   return getJson(u + path + '.json')`;
-    progname = "Hello HN, it's Pith";
+    progname = 'Hello HN';
     addOption(progname, editor.value);
     save();
 }
@@ -79,7 +76,7 @@ runProgram.onclick = function () {
     debug.clear();
     console.clear();
     run(editor.value);
-}
+};
 
 newProgram.onclick = function () {
     const n = prompt("Program name");

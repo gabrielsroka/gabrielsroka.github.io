@@ -20,17 +20,19 @@ onload = async function () {
     // Parse OpenAPI spec for paths.
     const r = await fetch('https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.json');
     const spec = await r.json();
+    const version = spec.info.version;
+    app.innerHTML = `<a href="https://github.com/okta/okta-management-openapi-spec">OpenAPI v. ${version}</a><br><br>`;
+
     for (const [path, methods] of Object.entries(spec.paths)) {
         for (const method of Object.keys(methods)) {
             paths.push({method, path});
             hash[method + path.replace(/\{(.*?)\}/g, '{}')] = true;
         }
     }
-    const version = spec.info.version;
 
     // Search docs for additional paths.
     var url = 'https://api.github.com/search/code?q=repo:okta/okta-developer-docs+ApiOperation+extension:md';
-    do {
+    while (url) {
         const r = await fetch(url);
         const page = await r.json();
         await Promise.all(page.items.filter(i => !i.path.match('/asa/')).map(async item => {
@@ -49,7 +51,7 @@ onload = async function () {
             });
         }));
         url = getLinks(r.headers.get('link')).next;
-    } while (url);
+    }
 
     const base = 'https://gsroka-neto.oktapreview.com';
     const headers = {Authorization: 'Bearer invalidToken'};
@@ -73,8 +75,7 @@ onload = async function () {
         }
         return `<tr><td>${method}<td>${path}<td>${scope}`;
     }));
-    app.innerHTML = `<a href="https://github.com/okta/okta-management-openapi-spec">OpenAPI v. ${version}</a><br><br>` +
-        '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>';
+    app.innerHTML += '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>';
 
     function getLinks(linkHeader) {
         const headers = linkHeader.split(", ");

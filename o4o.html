@@ -11,6 +11,7 @@ td {
 </style>
 <body>
 <h1>OAuth for Okta</h1>
+<div id=version></div>
 <div id=app>Loading...</div>
 <script>
 onload = async function () {
@@ -20,8 +21,7 @@ onload = async function () {
     // Parse OpenAPI spec for paths.
     const r = await fetch('https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.json');
     const spec = await r.json();
-    const version = spec.info.version;
-    app.innerHTML = `<a href="https://github.com/okta/okta-management-openapi-spec">OpenAPI v. ${version}</a><br><br>`;
+    version.innerHTML = `OpenAPI v. ${spec.info.version}`.link('https://github.com/okta/okta-management-openapi-spec');
 
     for (const [path, methods] of Object.entries(spec.paths)) {
         for (const method of Object.keys(methods)) {
@@ -75,10 +75,10 @@ onload = async function () {
         }
         return `<tr><td>${method}<td>${path}<td>${scope}`;
     }));
-    app.innerHTML += '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>';
+    app.innerHTML = '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>';
 
     function getLinks(linkHeader) {
-        const headers = linkHeader.split(", ");
+        const headers = linkHeader.split(', ');
         const links = {};
         for (var i = 0; i < headers.length; i++) {
             const [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);

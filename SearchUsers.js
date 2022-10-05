@@ -21,14 +21,13 @@ Usage:
 */
 (async function () {
     const popup = createPopup('Search Users with Email Containing');
-    const form = $('<form>Name <input class=search style="width: 250px"> <button type=submit>Search</button></form><br><div class=results>Loading...</div>').appendTo(popup);
+    const form = $('<form>Name <input class=search style="width: 250px"> <button type=submit disabled>Search</button></form><br><div class=results>Loading...</div>').appendTo(popup);
     var users = [];
     for await (const page of getPages('/api/v1/users')) {
         users = users.concat(page);
         popup.find('div.results').html('Loading... ' + users.length + ' users.');
     }
     users.sort((u1, u2) => u1.profile.email.localeCompare(u2.profile.email));
-    console.log('done');
     form.find('input.search').focus();
     form.submit(event => {
         event.preventDefault();
@@ -39,6 +38,7 @@ Usage:
             .join('');
         popup.find('div.results').html(found ? '<table class=data-list-table><tr><th>Name<th>Email<th>Status' + found + '</table>' : 'Not found');
     }).submit();
+    popup.find('button').prop('disabled', false);
 
     async function* getPages(url) {
         while (url) {

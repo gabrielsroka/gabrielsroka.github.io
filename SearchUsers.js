@@ -22,12 +22,6 @@ Usage:
 (async function () {
     const popup = createPopup('Search Users with Email Containing');
     const form = $('<form>Name <input class=search style="width: 250px"> <button type=submit disabled>Search</button></form><br><div class=results>Loading...</div>').appendTo(popup);
-    var users = [];
-    for await (const page of getPages('/api/v1/users')) {
-        users = users.concat(page);
-        popup.find('div.results').html('Loading... ' + users.length + ' users.');
-    }
-    users.sort((u1, u2) => u1.profile.email.localeCompare(u2.profile.email));
     form.find('input.search').focus();
     form.submit(event => {
         event.preventDefault();
@@ -37,7 +31,14 @@ Usage:
             .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.email}<td>${user.status}`)
             .join('');
         popup.find('div.results').html(found ? '<table class=data-list-table><tr><th>Name<th>Email<th>Status' + found + '</table>' : 'Not found');
-    }).submit();
+    });
+    var users = [];
+    for await (const page of getPages('/api/v1/users')) {
+        users = users.concat(page);
+        popup.find('div.results').html('Loading... ' + users.length + ' users.');
+    }
+    users.sort((u1, u2) => u1.profile.email.localeCompare(u2.profile.email));
+    form.submit();
     popup.find('button').prop('disabled', false);
 
     async function* getPages(url) {

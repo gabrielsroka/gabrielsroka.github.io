@@ -20,25 +20,32 @@ Usage:
 4. Look for the popup window in the upper-left corner of your browser.
 */
 (async function () {
-    const popup = createPopup('Search Users with Email Containing');
-    const form = $('<form>Name <input class=search style="width: 250px"> <button type=submit disabled>Search</button></form><br><div class=results>Loading...</div>').appendTo(popup);
+    const popup = createPopup('Search users with email containing');
+    const form = $('<form><input class=search style="width: 250px" placeholder="Search email"> ' + 
+       'Status <select id=searchStatus><option>All<option>Staged<option>Provisioned<option>Active<option>Password_Expired<option>Recovery<option>Locked_Out<option>Suspended<option>Deprovisioned</select> ' +
+       '<button type=submit>Search</button></form><br>' + 
+       '<div class=results></div>').appendTo(popup);
     form.find('input.search').focus();
-    form.submit(event => {
+    var users = [];
+    var oldSearchStatus = '';
+    form.submit(async event => {
         event.preventDefault();
+        if (!users.length || oldSearchStatus != searchStatus.value) {
+            users = [];
+            oldSearchStatus = searchStatus.value;
+            popup.find('div.results').html('Loading... ');
+            for await (const page of getPages('/api/v1/users' + (searchStatus.value == 'All' ? '' : `?search=status eq "${searchStatus.value}"`))) {
+                users = users.concat(page);
+                popup.find('div.results').html('Loading... ' + users.length + ' users.');
+            }
+            users.sort((u1, u2) => u1.profile.email.localeCompare(u2.profile.email));
+        }
         const re = new RegExp(form.find('input.search').val(), 'i');
         const found = users
             .filter(user => re.test(user.profile.email))
-            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.email}<td>${user.status}`);
-        popup.find('div.results').html((found.length ? '<table class=data-list-table><tr><th>Name<th>Email<th>Status' + found.join('') + '</table>' : '') + found.length + ' user(s) found.');
+            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.login}<td>${user.profile.email}<td>${user.status}`);
+        popup.find('div.results').html((found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status' + found.join('') + '</table>' : '') + found.length + ' user(s) found.');
     });
-    var users = [];
-    for await (const page of getPages('/api/v1/users')) {
-        users = users.concat(page);
-        popup.find('div.results').html('Loading... ' + users.length + ' users.');
-    }
-    users.sort((u1, u2) => u1.profile.email.localeCompare(u2.profile.email));
-    form.submit();
-    popup.find('button').prop('disabled', false);
 
     async function* getPages(url) {
         while (url) {

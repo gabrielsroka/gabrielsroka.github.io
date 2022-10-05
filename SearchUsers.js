@@ -28,9 +28,8 @@ Usage:
         const re = new RegExp(form.find('input.search').val(), 'i');
         const found = users
             .filter(user => re.test(user.profile.email))
-            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.email}<td>${user.status}`)
-            .join('');
-        popup.find('div.results').html(found ? '<table class=data-list-table><tr><th>Name<th>Email<th>Status' + found + '</table>' : 'Not found');
+            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.email}<td>${user.status}`);
+        popup.find('div.results').html((found.length ? '<table class=data-list-table><tr><th>Name<th>Email<th>Status' + found.join('') + '</table>' : '') + found.length + ' user(s) found.');
     });
     var users = [];
     for await (const page of getPages('/api/v1/users')) {

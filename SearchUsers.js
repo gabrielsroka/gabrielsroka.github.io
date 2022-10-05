@@ -35,7 +35,7 @@ Usage:
         const re = new RegExp(form.find('input.search').val(), 'i');
         const found = users
             .filter(user => re.test(user.profile.email))
-            .map(user => `<tr><td>${user.profile.firstName} ${user.profile.lastName}<td>${user.profile.email.link('/admin/user/profile/view/' + user.id)}<td>${user.status}`)
+            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.email}<td>${user.status}`)
             .join('');
         popup.find('div.results').html(found ? '<table class=data-list-table><tr><th>Name<th>Email<th>Status' + found + '</table>' : 'Not found');
     }).submit();

@@ -29,9 +29,9 @@ Usage:
         const re = new RegExp(form.find('input.search').val(), 'i');
         const found = users
             .filter(user => re.test(user.profile.email))
-            .map(user => `${user.profile.firstName} ${user.profile.lastName} (${user.profile.email}) ${user.status}`.link('/admin/user/profile/view/' + user.id))
-            .join('<br>');
-        popup.find('div.results').html(found || 'Not found');
+            .map(user => `<tr><td>${user.profile.firstName} ${user.profile.lastName}<td>${user.profile.email.link('/admin/user/profile/view/' + user.id)}<td>${user.status}`)
+            .join('');
+        popup.find('div.results').html(found ? '<table class=data-list-table><tr><th>Name<th>Email<th>Status' + found + '</table>' : 'Not found');
     }).submit();
 
     function createPopup(title) {

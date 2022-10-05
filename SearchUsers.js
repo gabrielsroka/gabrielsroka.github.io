@@ -22,7 +22,12 @@ Usage:
 (async function () {
     const popup = createPopup('Search Users with Email Containing');
     const form = $('<form>Name <input class=search style="width: 250px"> <button type=submit>Search</button></form><br><div class=results>Loading...</div>').appendTo(popup);
-    const users = await $.getJSON('/api/v1/users');
+    var users = [];
+    for await (const page of getPages('/api/v1/users')){
+        users = users.concat(page);
+    }
+    users.sort((u1, u2) => u1.profile.email.localeCompare(u2.profile.email));
+    console.log('done');
     form.find('input.search').focus();
     form.submit(event => {
         event.preventDefault();
@@ -33,6 +38,15 @@ Usage:
             .join('');
         popup.find('div.results').html(found ? '<table class=data-list-table><tr><th>Name<th>Email<th>Status' + found + '</table>' : 'Not found');
     }).submit();
+
+    async function* getPages(url) {
+        while (url) {
+            const r = await fetch(url);
+            const page = await r.json();
+            yield page;
+            url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+        }
+    }
 
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; ` +

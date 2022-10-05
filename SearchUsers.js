@@ -23,8 +23,9 @@ Usage:
     const popup = createPopup('Search Users with Email Containing');
     const form = $('<form>Name <input class=search style="width: 250px"> <button type=submit>Search</button></form><br><div class=results>Loading...</div>').appendTo(popup);
     var users = [];
-    for await (const page of getPages('/api/v1/users')){
+    for await (const page of getPages('/api/v1/users')) {
         users = users.concat(page);
+        popup.find('div.results').html('Loading... ' + users.length + ' users.');
     }
     users.sort((u1, u2) => u1.profile.email.localeCompare(u2.profile.email));
     console.log('done');

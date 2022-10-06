@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<title>Export Jamf Objects XML</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>Export Jamf XML</h1>
+<p>This tool will export Jamf objects (policies, computer groups & patch policies) to XML.</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>Export Jamf Objects v1</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>Open Jamf and sign in.
+<li>Select a Policy or a Smart Computer Group.
+<li>Click the "Export Jamf" button from your bookmarks toolbar. 
+</ol>
+<br>
+<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/ExportJamfObjectsXML.html>Source code</a>
+<script id=code>
+(function () {
+    const paths = location.pathname.split('/');
+    const folder = paths.length > 2 ? '/' + paths[1] : '';
+
+    if (location.pathname.match('/smartComputerGroups.html')) {
+        var obj = 'computergroup';
+        var path = 'computergroups';
+    } else if (location.pathname.match('/policies.html')) {
+        obj = 'policy';
+        path = 'policies';
+    } else if (location.pathname.match('/patchDeployment.html')) {
+        obj = 'patch-policy';
+        path = 'patchpolicies';
+    } else {
+        return;
+    }
+
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) {
+        alert('pick a ' + obj + ' first');
+        return;
+    }
+
+    function addDownloadItemButton(obj){
+        var newButton = document.createElement('download-item-button');
+        newButton.innerHTML = '<div [j-navigation-tooltip]="{ shortcut: \'CMD-D\' }" > <button id="download-item-button" type="button" class="download-jamf-button-rockstar" translate="DOWNLOAD" onclick=main()>Download item</button></div>';
+        if (obj == 'policy') {
+            var downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
+        } else if (obj == 'computergroup' ) {
+            var downloadItemButton = document.querySelector("#main-ui-view > div > div > jamf-legacy-view > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
+        } else if (obj == 'patch-policy') {
+            var downloadItemButton = document.querySelector("#main-ui-view > div > div > div > jamf-legacy-view > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
+        }
+        console.log(downloadItemButton);
+        downloadItemButton.addEventListener("click", main);
+    }
+
+    function getAccessToken() {
+        const authInfo = JSON.parse(localStorage.authToken);
+        if (authInfo) {
+            return authInfo.token;     
+        } else {
+            prompt('Couldn\'t find token, maybe refresh page');
+        }
+    }
+
+    async function getObject(accessToken) {
+        url = folder + '/JSSResource/' + path + '/id/' + id;
+        headers = {
+            'accept': 'application/xml',
+            'content-type': 'applicaton/xml',
+            'authorization': 'Bearer ' + accessToken
+        };
+        response = await fetch(url, {headers});
+        const str = await response.text();
+        const indented = indentXml(str, 4);
+        const filename = obj + '-' + id + '.xml';
+        download(indented, 'text/xml', filename);
+    }
+
+    function indentXml(xml, size) {
+        const lines = xml.replace(/></g, '>\n<').split('\n');
+        var level = 0;
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            var end = line.match('</');
+            var empty = line.match('/>') || line.match(/>.*</);
+            if (end && !empty) level--;
+            lines[i] = ' '.repeat(size * level) + line;
+            if (!end && !empty) level++;
+        }
+        return lines.join('\n');
+    }
+
+    function download(content, type, filename) {
+        const a = document.body.appendChild(document.createElement('a'));
+        a.href = URL.createObjectURL(new Blob([content], {type}));
+        a.download = filename;
+        a.click();
+    }
+
+    function main() {
+        const accessToken = getAccessToken();
+        getObject(accessToken);
+    }
+
+    addDownloadItemButton(obj);
+
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</body>
+</html>

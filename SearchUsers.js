@@ -14,13 +14,13 @@ Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
 5. Save (Ctrl+S, Windows).
 
 Usage:
-1. Navigate your browser to your Okta admin console.
-2. Press F12 (Windows) to open DevTools.
-3. Run the code. Click the bookmarklet, or if using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
-4. Look for the popup window in the upper-left corner of your browser.
+1. Navigate your browser to your Okta Admin console.
+2. Run the code. Click the bookmarklet, or if using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
+3. Look for the popup window in the upper-left corner of your browser.
 */
 (async function () {
-    const popup = createPopup('Search users with email containing');
+    const attr = 'login';
+    const popup = createPopup(`Search users with ${attr} containing`);
     const statuses = {
         '': 'All',
         STAGED: 'Staged',
@@ -32,7 +32,7 @@ Usage:
         SUSPENDED: 'Suspended',
         DEPROVISIONED: 'Deactivated'
     };
-    const form = $('<form><input class=search style="width: 250px" placeholder="Search email"> ' + 
+    const form = $(`<form><input class=search style="width: 250px" placeholder="Search ${attr}"> ` + 
        'Status <select id=searchStatus>' + Object.entries(statuses).map(([n, v]) => `<option value="${n}">${v}`).join('') + '</select> ' +
        '<button type=submit>Search</button></form><br>' + 
        '<div class=results></div>').appendTo(popup);
@@ -49,11 +49,11 @@ Usage:
                 users = users.concat(page);
                 popup.find('div.results').html('Loading... ' + users.length + ' users.');
             }
-            users.sort((u1, u2) => u1.profile.email.localeCompare(u2.profile.email));
+            users.sort((u1, u2) => u1.profile[attr].localeCompare(u2.profile[attr]));
         }
         const re = new RegExp(form.find('input.search').val(), 'i');
         const found = users
-            .filter(user => re.test(user.profile.email))
+            .filter(user => re.test(user.profile[attr]))
             .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.login}<td>${user.profile.email}<td>${statuses[user.status]}`);
         popup.find('div.results').html(found.length + ' user(s) found' + (found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status' + found.join('') + '</table>' : ''));
     });

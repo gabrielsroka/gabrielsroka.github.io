@@ -64,6 +64,20 @@ body {
         downloadItemButton.addEventListener("click", main);
     }
 
+    async function getObject(accessToken) {
+        url = folder + '/JSSResource/' + path + '/id/' + id;
+        headers = {
+            'accept': 'application/xml',
+            'content-type': 'applicaton/xml',
+            'authorization': 'Bearer ' + accessToken
+        };
+        response = await fetch(url, {headers});
+        const str = await response.text();
+        const indented = indentXml(str, 4);
+        const filename = obj + '-' + id + '.xml';
+        download(indented, 'text/xml', filename);
+    }
+
     function indentXml(xml, size) {
         const lines = xml.replace(/></g, '>\n<').split('\n');
         var level = 0;
@@ -92,20 +106,6 @@ body {
         } else {
             prompt('Couldn\'t find token, maybe refresh page');
         }
-    }
-
-    async function getObject(accessToken) {
-        url = folder + '/JSSResource/' + path + '/id/' + id;
-        headers = {
-            'accept': 'application/xml',
-            'content-type': 'applicaton/xml',
-            'authorization': 'Bearer ' + accessToken
-        };
-        response = await fetch(url, {headers});
-        const str = await response.text();
-        const indented = indentXml(str, 4);
-        const filename = obj + '-' + id + '.xml';
-        download(indented, 'text/xml', filename);
     }
 
     addDownloadItemButton(obj);

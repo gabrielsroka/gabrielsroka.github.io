@@ -19,7 +19,7 @@ Usage:
 3. Look for the popup window in the upper-left corner of your browser.
 */
 (async function () {
-    const attr = 'login';
+    const attr = 'email';
     const popup = createPopup(`Search users with ${attr} containing`);
     const statuses = {
         '': 'All',

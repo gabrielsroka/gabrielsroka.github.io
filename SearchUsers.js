@@ -53,7 +53,7 @@ Usage:
                 users = users.concat(page);
                 popup.find('div.results').html('Loading... ' + users.length + ' users.');
             }
-            users.sort((u1, u2) => u1.profile[attr.value].localeCompare(u2.profile[attr.value]));
+            users.sort((u1, u2) => (u1.profile[attr.value] ?? '').localeCompare(u2.profile[attr.value]));
         }
         const re = new RegExp(form.find('input.search').val(), 'i');
         const found = users

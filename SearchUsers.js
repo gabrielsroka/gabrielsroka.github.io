@@ -19,8 +19,12 @@ Usage:
 3. Look for the popup window in the upper-left corner of your browser.
 */
 (async function () {
-    const attr = 'email';
-    const popup = createPopup(`Search users with ${attr} containing`);
+    const r = await fetch('/api/v1/meta/schemas/user/default');
+    const schema = await r.json();
+    const base = schema.definitions.base.properties;
+    const custom = schema.definitions.custom.properties;
+        
+    const popup = createPopup('Search users');
     const statuses = {
         '': 'All',
         STAGED: 'Staged',
@@ -32,7 +36,8 @@ Usage:
         SUSPENDED: 'Suspended',
         DEPROVISIONED: 'Deactivated'
     };
-    const form = $(`<form><input class=search style="width: 250px" placeholder="Search ${attr}"> ` + 
+    const form = $('<form><select id=attr>' + Object.entries(base).concat(Object.entries(custom)).map(([n, v]) => `<option value="${n}">${v.title}`).join('') + '</select> ' +
+       'containing <input class=search style="width: 250px" placeholder="Search"> ' + 
        'Status <select id=searchStatus>' + Object.entries(statuses).map(([n, v]) => `<option value="${n}">${v}`).join('') + '</select> ' +
        '<button type=submit>Search</button></form><br>' + 
        '<div class=results></div>').appendTo(popup);
@@ -49,13 +54,13 @@ Usage:
                 users = users.concat(page);
                 popup.find('div.results').html('Loading... ' + users.length + ' users.');
             }
-            users.sort((u1, u2) => u1.profile[attr].localeCompare(u2.profile[attr]));
+            users.sort((u1, u2) => u1.profile[attr.value].localeCompare(u2.profile[attr.value]));
         }
         const re = new RegExp(form.find('input.search').val(), 'i');
         const found = users
-            .filter(user => re.test(user.profile[attr]))
+            .filter(user => re.test(user.profile[attr.value]))
             .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.login}<td>${user.profile.email}<td>${statuses[user.status]}`);
-        popup.find('div.results').html(found.length + ' user(s) found' + (found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status' + found.join('') + '</table>' : ''));
+        popup.find('div.results').html(found.length + ` user${found.length == 1 ? '' : 's'} found` + (found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status' + found.join('') + '</table>' : ''));
     });
 
     async function* getPages(url) {

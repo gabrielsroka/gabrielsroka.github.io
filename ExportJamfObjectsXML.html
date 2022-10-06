@@ -22,6 +22,7 @@ body {
 <li>Open Jamf and sign in.
 <li>Select a Policy or a Smart Computer Group.
 <li>Click the "Export Jamf" button from your bookmarks toolbar. 
+<li> Click the "Download Item" button in the bottom right of an object.
 </ol>
 <br>
 <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/ExportJamfObjectsXML.html>Source code</a>
@@ -63,6 +64,27 @@ body {
         downloadItemButton.addEventListener("click", main);
     }
 
+    function indentXml(xml, size) {
+        const lines = xml.replace(/></g, '>\n<').split('\n');
+        var level = 0;
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            var end = line.match('</');
+            var empty = line.match('/>') || line.match(/>.*</);
+            if (end && !empty) level--;
+            lines[i] = ' '.repeat(size * level) + line;
+            if (!end && !empty) level++;
+        }
+        return lines.join('\n');
+    }
+
+    function download(content, type, filename) {
+        const a = document.body.appendChild(document.createElement('a'));
+        a.href = URL.createObjectURL(new Blob([content], {type}));
+        a.download = filename;
+        a.click();
+    }
+
     function getAccessToken() {
         const authInfo = JSON.parse(localStorage.authToken);
         if (authInfo) {
@@ -86,33 +108,12 @@ body {
         download(indented, 'text/xml', filename);
     }
 
-    function indentXml(xml, size) {
-        const lines = xml.replace(/></g, '>\n<').split('\n');
-        var level = 0;
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            var end = line.match('</');
-            var empty = line.match('/>') || line.match(/>.*</);
-            if (end && !empty) level--;
-            lines[i] = ' '.repeat(size * level) + line;
-            if (!end && !empty) level++;
-        }
-        return lines.join('\n');
-    }
-
-    function download(content, type, filename) {
-        const a = document.body.appendChild(document.createElement('a'));
-        a.href = URL.createObjectURL(new Blob([content], {type}));
-        a.download = filename;
-        a.click();
-    }
+    addDownloadItemButton(obj);
 
     function main() {
         const accessToken = getAccessToken();
         getObject(accessToken);
     }
-
-    addDownloadItemButton(obj);
 
 })
 </script>

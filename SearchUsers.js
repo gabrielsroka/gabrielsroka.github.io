@@ -4,7 +4,7 @@ Bookmark name: /Search Users#
 
 Setup:
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-2. Drag all this to the bookmark toolbar.
+2. Drag all this to the bookmarks toolbar.
 
 Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
@@ -21,8 +21,19 @@ Usage:
 */
 (async function () {
     const popup = createPopup('Search users with email containing');
+    const statuses = {
+        '': 'All',
+        STAGED: 'Staged',
+        PROVISIONED: 'Pending user action',
+        ACTIVE: 'Active',
+        PASSWORD_EXPIRED: 'Password expired',
+        RECOVERY: 'Password reset',
+        LOCKED_OUT: 'Locked out',
+        SUSPENDED: 'Suspended',
+        DEPROVISIONED: 'Deactivated'
+    };
     const form = $('<form><input class=search style="width: 250px" placeholder="Search email"> ' + 
-       'Status <select id=searchStatus><option>All<option>Staged<option>Provisioned<option>Active<option>Password_Expired<option>Recovery<option>Locked_Out<option>Suspended<option>Deprovisioned</select> ' +
+       'Status <select id=searchStatus>' + Object.entries(statuses).map(([n, v]) => `<option value="${n}">${v}`).join('') + '</select> ' +
        '<button type=submit>Search</button></form><br>' + 
        '<div class=results></div>').appendTo(popup);
     form.find('input.search').focus();
@@ -33,8 +44,8 @@ Usage:
         if (!users.length || oldSearchStatus != searchStatus.value) {
             users = [];
             oldSearchStatus = searchStatus.value;
-            popup.find('div.results').html('Loading... ');
-            for await (const page of getPages('/api/v1/users' + (searchStatus.value == 'All' ? '' : `?search=status eq "${searchStatus.value}"`))) {
+            popup.find('div.results').html('Loading...');
+            for await (const page of getPages('/api/v1/users' + (searchStatus.value ? `?search=status eq "${searchStatus.value}"` : ''))) {
                 users = users.concat(page);
                 popup.find('div.results').html('Loading... ' + users.length + ' users.');
             }
@@ -43,8 +54,8 @@ Usage:
         const re = new RegExp(form.find('input.search').val(), 'i');
         const found = users
             .filter(user => re.test(user.profile.email))
-            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.login}<td>${user.profile.email}<td>${user.status}`);
-        popup.find('div.results').html((found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status' + found.join('') + '</table>' : '') + found.length + ' user(s) found.');
+            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.login}<td>${user.profile.email}<td>${statuses[user.status]}`);
+        popup.find('div.results').html(found.length + ' user(s) found' + (found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status' + found.join('') + '</table>' : ''));
     });
 
     async function* getPages(url) {

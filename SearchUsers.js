@@ -21,8 +21,7 @@ Usage:
 (async function () {
     const r = await fetch('/api/v1/meta/schemas/user/default');
     const schema = await r.json();
-    const base = schema.definitions.base.properties;
-    const custom = schema.definitions.custom.properties;
+    const props = Object.keys(schema.definitions.base.properties).concat(Object.keys(schema.definitions.custom.properties)).sort();
         
     const popup = createPopup('Search users');
     const statuses = {
@@ -36,8 +35,8 @@ Usage:
         SUSPENDED: 'Suspended',
         DEPROVISIONED: 'Deactivated'
     };
-    const form = $('<form><select id=attr>' + Object.entries(base).concat(Object.entries(custom)).map(([n, v]) => `<option value="${n}">${v.title}`).join('') + '</select> ' +
-       'containing <input class=search style="width: 250px" placeholder="Search"> ' + 
+    const form = $('<form><select id=attr>' + props.map(n => `<option>${n}`).join('') + '</select> ' +
+       'Contains <input class=search style="width: 250px" placeholder="Search"> ' + 
        'Status <select id=searchStatus>' + Object.entries(statuses).map(([n, v]) => `<option value="${n}">${v}`).join('') + '</select> ' +
        '<button type=submit>Search</button></form><br>' + 
        '<div class=results></div>').appendTo(popup);

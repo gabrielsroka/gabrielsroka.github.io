@@ -64,6 +64,15 @@ body {
         downloadItemButton.addEventListener("click", main);
     }
 
+    function getAccessToken() {
+        const authInfo = JSON.parse(localStorage.authToken);
+        if (authInfo) {
+            return authInfo.token;     
+        } else {
+            prompt('Couldn\'t find token, maybe refresh page');
+        }
+    }
+
     async function getObject(accessToken) {
         url = folder + '/JSSResource/' + path + '/id/' + id;
         headers = {
@@ -97,15 +106,6 @@ body {
         a.href = URL.createObjectURL(new Blob([content], {type}));
         a.download = filename;
         a.click();
-    }
-
-    function getAccessToken() {
-        const authInfo = JSON.parse(localStorage.authToken);
-        if (authInfo) {
-            return authInfo.token;     
-        } else {
-            prompt('Couldn\'t find token, maybe refresh page');
-        }
     }
 
     addDownloadItemButton(obj);

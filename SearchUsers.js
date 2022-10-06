@@ -26,9 +26,9 @@ Usage:
         STAGED: 'Staged',
         PROVISIONED: 'Pending user action',
         ACTIVE: 'Active',
-        PASSWORD_EXPIRED: 'Password expired',
         RECOVERY: 'Password reset',
         LOCKED_OUT: 'Locked out',
+        PASSWORD_EXPIRED: 'Password expired',
         SUSPENDED: 'Suspended',
         DEPROVISIONED: 'Deactivated'
     };

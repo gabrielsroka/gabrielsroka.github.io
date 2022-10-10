@@ -6,11 +6,11 @@ Setup:
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
 2. Drag all this to the bookmarks toolbar.
 
-Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
+Or, copy/paste this code to the browser console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
 3. Give it a name, eg, "SearchUsers.js".
-4. Copy/paste the code from https://gabrielsroka.github.io/SearchUsers.js
+4. Copy/paste this code.
 5. Save (Ctrl+S, Windows).
 
 Usage:
@@ -37,7 +37,7 @@ Usage:
     };
     const form = $('<form><select id=attr>' + props.map(n => `<option>${n}`).join('') + '</select> ' +
        'Contains <input class=search style="width: 250px" placeholder="Search"> ' + 
-       'Status <select id=searchStatus>' + Object.entries(statuses).map(([n, v]) => `<option value="${n}">${v}`).join('') + '</select> ' +
+       'Status <select id=searchStatus>' + Object.entries(statuses).map(([n, v]) => `<option value='${n}'>${v}`).join('') + '</select> ' +
        '<button type=submit>Search</button></form><br>' + 
        '<div class=results></div>').appendTo(popup);
     form.find('input.search').focus();
@@ -59,7 +59,9 @@ Usage:
         const found = users
             .filter(user => re.test(user.profile[attr.value]))
             .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.login}<td>${user.profile.email}<td>${statuses[user.status]}`);
-        popup.find('div.results').html(found.length + ` user${found.length == 1 ? '' : 's'} found` + (found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status' + found.join('') + '</table>' : ''));
+        popup.find('div.results')
+            .html(found.length + ` user${found.length == 1 ? '' : 's'} found` + 
+                (found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status' + found.join('') + '</table>' : ''));
     });
 
     async function* getPages(url) {

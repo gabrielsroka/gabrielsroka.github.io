@@ -177,7 +177,7 @@ async function getItems() {
             if (!newSeen[id]) {
                 const r = await fetch(`${baseUrl}/item/${id}.json`);
                 const item = await r.json();
-                if (item) showItem(item); // sometimes item === null
+                if (item && !item.deleted && !item.dead) showItem(item); // sometimes item === null
             }
         }));
         for (var i = 0; i < pageLen - ids.length; i++) {

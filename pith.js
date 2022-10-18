@@ -32,12 +32,16 @@ function run(lines) {
                 .replace('if ', 'if (')
                 .replace(' = ', ' == ');
             line += ')';
+        } else if (tLine.startsWith('#')) {
+            line = line.replace('#', '//');
         } else if (tLine.startsWith('print ') || tLine.startsWith('?')) {
             line = line.replace(/(print|\?) ?/, 'print(') + ')';
         } else if (tLine.startsWith('>')) {
             line = line.replace('>', 'results.innerHTML +=') + ` + '<br>'`;
-        } else if (tLine.startsWith('#')) {
-            line = line.replace('#', '//');
+        } else if (tLine.startsWith('|')) {
+            line = line.replace('|', 'table.tHead.innerHTML +=');
+        } else if (tLine.startsWith('+')) {
+            line = line.replace('+', 'table.tBodies[0].innerHTML +=');
         } else if (tLine.startsWith('tab = ')) {
             eval(line);
         }

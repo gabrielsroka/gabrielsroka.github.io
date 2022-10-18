@@ -38,7 +38,7 @@ a {
 <br><br>
 <textarea id="editor" style="width: 99%;" cols="80" rows="16" spellcheck="false" autocapitalize="none"></textarea>
 <textarea id="debug" style="width: 99%;" cols="80" rows="12" spellcheck="false" autocapitalize="none"></textarea>
-<div id=results><table id=table><thead></thead><tbody></tbody></table></div>
+<div id=results></div>
 <script>
 var programs;
 var progname;
@@ -114,7 +114,7 @@ debug.log = debug.print = function (s) {
     
 debug.clear = function () {
     debug.value = '';
-    results.innerHTML = '';
+    results.innerHTML = '<table id=table><thead></thead><tbody></tbody></table>';
 };
 
 debug.show = function () {

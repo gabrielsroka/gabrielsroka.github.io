@@ -84,7 +84,7 @@ if (localStorage.user) {
     };
 }
 function setUser() {
-    user.innerHTML = anc(`${hnBaseUrl}/user?id=${localStorage.user}`, localStorage.user) + ' | <a id=submissions>submissions</a>';
+    user.innerHTML = anc(`${hnBaseUrl}/threads?id=${localStorage.user}`, localStorage.user) + ' | <a id=submissions>submissions</a>';
     submissions.onclick = async () => {
         const r = await fetch(`${alBaseUrl}/api/v1/search_by_date?tags=story,author_${localStorage.user}`);
         const u = await r.json();

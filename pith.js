@@ -39,9 +39,9 @@ function run(lines) {
         } else if (tLine.startsWith('>')) {
             line = line.replace('>', 'results.innerHTML +=') + ` + '<br>'`;
         } else if (tLine.startsWith('|')) {
-            line = line.replace('|', 'table.tHead.innerHTML +=');
+            line = line.replace('|', 'table.tHead.innerHTML += `<tr><th>` + ');
         } else if (tLine.startsWith('+')) {
-            line = line.replace('+', 'table.tBodies[0].innerHTML +=');
+            line = line.replace('+', 'table.tBodies[0].innerHTML += `<tr><td>` + ');
         } else if (tLine.startsWith('tab = ')) {
             eval(line);
         }

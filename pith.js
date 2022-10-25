@@ -44,6 +44,7 @@ function run(lines) {
             line = line.replace('+', 'table.tBodies[0].innerHTML += `<tr><td>` + ');
         } else if (tLine.startsWith('tab = ')) {
             eval(line);
+            line = '// ' + line;
         }
         var newInd = line.match(/^( *)/)[1].length / tab;
         for (var t = newInd; t < ind; t++) {

@@ -1,6 +1,8 @@
 javascript:
-/* Bookmarklet name: /console#
-url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js */
+/*
+Bookmarklet name: /console#
+url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+*/
 (function () {
  const div = document.body.appendChild(document.createElement('div'));
  div.innerHTML = `<button id=run>Run</button>
@@ -8,10 +10,8 @@ url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.
   <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 f = 'filter=profile.lastName eq "Doe"'\n
 url = '/api/v1/users?limit=2&' + f\n
-for await (users of getPages(url)) {\n
-  for (user of users) {\n
-    log(user.id, user.profile.login)\n
-  }\n
+for await (user of getObjects(url)) {\n
+  log(user.id, user.profile.login)\n
 }</textarea><br>
   <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>`;
  div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
@@ -33,6 +33,13 @@ for await (users of getPages(url)) {\n
    const page = await r.json();
    yield page;
    url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+  }
+ }
+ async function* getObjects(url) {
+  for await (const objects of getPages(url)) {
+   for (const o of objects) {
+    yield o;
+   }
   }
  }
  async function get(url) {

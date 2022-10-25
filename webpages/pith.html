@@ -42,7 +42,6 @@ a {
 <script>
 var programs;
 var progname;
-var tab = 2;
 
 if (localStorage.pithPrograms) {
     load();
@@ -80,12 +79,12 @@ runProgram.onclick = function () {
 };
 
 newProgram.onclick = function () {
-    const n = prompt("Program name");
+    const n = prompt('Program name');
     if (!n) return;
     progname = n;
     addOption(progname, '');
     prognames.selectedIndex = prognames.options.length - 1;
-    editor.value = "";
+    editor.value = '';
     debug.clear();
 };
 

@@ -178,9 +178,10 @@ function addOption(name, value) {
 }
 </script>
 <script>
-var tab = 2;
+var tab;
 
-function run(lines) {
+// Mini-Pith for bootstrapping.
+function boot(lines) {
     lines = lines.split('\n');
     var ind = 0;
     for (var i = 0; i < lines.length; i++) {
@@ -188,10 +189,12 @@ function run(lines) {
         const tLine = line.trim();
         if (tLine.startsWith('for ')) {
             line = line.replace('for', 'for (var').replace(' in ', ' of ') + ')';
-        } else if (tLine.startsWith('def ')) {
+        } else if (tLine.startsWith('while ')) {
+            line = line.replace('while ', 'while (') + ')';
+        } else if (tLine.startsWith('def ') || tLine.startsWith('async def ')) {
             line = line.replace('def', 'function');
         } else if (tLine.startsWith('if ') || tLine.startsWith('else if ')) {
-            line = line.replace('if ', 'if (') + ')';
+            line = line.replace('if ', 'if (').replace(' = ', ' == ') + ')';
         }
         var newInd = line.match(/^( *)/)[1].length / tab;
         for (var t = newInd; t < ind; t++) {
@@ -205,9 +208,9 @@ function run(lines) {
     eval(lines);
 }
 
-// Bootstrap the Pith run function using JS run.
+// Bootstrap the Pith run function and std lib using JS Mini-Pith boot function.
 tab = 4;
-run(`
+boot(`
 run =
 def (lines)
     const nl = '\\n'
@@ -251,10 +254,7 @@ def (lines)
     lines = '(async function () {' + nl + lines.join(nl) + (nl + '}').repeat(ind) + nl + '})()'
     console.log(lines)
     eval(lines)
-`);
 
-// This uses the actual Pith run function.
-run(`
 range =
 def * (start, stop, step = 1)
     if stop = undefined
@@ -270,14 +270,14 @@ def (it, cond, fn)
 
 gen =
 def * (it, cond, fn)
-    for n of it
+    for n in it
         if cond = undefined || cond(n)
             yield fn ? fn(n) : n
 
 sum =
 def (it)
     var total = 0
-    for n of it
+    for n in it
         total += n
     return total
 
@@ -288,21 +288,9 @@ async def (url, init)
 `);
 tab = 2;
 
-document.querySelectorAll('script[type="text/pith"]').forEach(s => run(s.innerText));
-
 const get = fetch;
 
-// range is redefined in Pith ^^^
-function* range(start, stop) {
-    if (stop == undefined) {
-        stop = start;
-        start = 0;
-    }
-    while (start < stop) {
-        yield start;
-        start++;
-    }
-}
+document.querySelectorAll('script[type="text/pith"]').forEach(s => run(s.innerText));
 </script>
 </body>
 </html>

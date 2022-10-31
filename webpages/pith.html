@@ -162,11 +162,12 @@ function save() {
 
 function load() {
     programs = JSON.parse(localStorage.pithPrograms);
-    for (const [progname, value] of Object.entries(programs)) {
-        if (value) addOption(progname, value);
+    const sorted = Object.entries(programs).sort();
+    for (const [name, value] of sorted) {
+        if (value) addOption(name, value);
     }
-    editor.value = Object.values(programs)[0];
-    progname = Object.keys(programs)[0];
+    progname = sorted[0][0];
+    editor.value = sorted[0][1];
 }
 
 function addOption(name, value) {

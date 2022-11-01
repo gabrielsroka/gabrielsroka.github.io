@@ -140,6 +140,10 @@ function print(...args) {
     debug.print(args.join(' '));
 }
 
+function o2j(o, i = 2) {
+    return JSON.stringify(o, null, i);
+}
+
 function button(html, onclick) {
     return `<button onclick=${onclick}>${html}</button>`;
 }

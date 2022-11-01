@@ -79,9 +79,13 @@ runProgram.onclick = function () {
 };
 
 newProgram.onclick = function () {
-    const n = prompt('Program name');
-    if (!n) return;
-    progname = n;
+    const name = prompt('Program name');
+    if (!name) return;
+    if (programs[name]) {
+        alert(name + ' already exists');
+        return;
+    }
+    progname = name;
     addOption(progname, '');
     prognames.selectedIndex = prognames.options.length - 1;
     editor.value = '';

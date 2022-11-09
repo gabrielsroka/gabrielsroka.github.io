@@ -16,45 +16,54 @@ for await (user of getObjects(url)) {\n
   <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>`;
  div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
  run.onclick = function () {
-  debug.value = '';
-  eval('(async function () {' + editor.value + '})()');
+   debug.value = '';
+   eval('(async function () {' + editor.value + '})()');
  };
  function log(...s) {
-  debug.value += s.join(' ') + '\n';
+   debug.value += s.join(' ') + '\n';
  }
  const headers = {
-  'Accept': 'application/json',
-  'Content-Type': 'application/json',
-  'X-Okta-XsrfToken': document.getElementById('_xsrfToken').innerText
+   'Accept': 'application/json',
+   'Content-Type': 'application/json',
+   'X-Okta-XsrfToken': _xsrfToken.innerText
  };
  async function* getPages(url) {
-  while (url) {
-   const r = await fetch(url, {method: 'get', headers});
-   const page = await r.json();
-   yield page;
-   url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
-  }
+   while (url) {
+     const r = await get(url);
+     const page = await r.json();
+     yield page;
+     url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+   }
  }
  async function* getObjects(url) {
-  for await (const objects of getPages(url)) {
-   for (const o of objects) {
-    yield o;
+   for await (const objects of getPages(url)) {
+     for (const o of objects) {
+       yield o;
+     }
    }
-  }
  }
  async function get(url) {
-  const r = await fetch(url, {method: 'get', headers});
-  return await r.json();
+   return fetch(url, {method: 'get', headers});
+ }
+ async function getJson(url) {
+   const r = await get(url);
+   return r.json();
  }
  async function post(url, body) {
-  const r = await fetch(url, {method: 'post', headers, body: JSON.stringify(body)});
-  return await r.json();
+   return fetch(url, {method: 'post', headers, body: JSON.stringify(body)});
+ }
+ async function postJson(url, body) {
+   const r = await post(url, body);
+   return r.json();
  }
  async function put(url, body) {
-  const r = await fetch(url, {method: 'put', headers, body: JSON.stringify(body)});
-  return await r.json();
+   return fetch(url, {method: 'put', headers, body: JSON.stringify(body)});
+ }
+ async function putJson(url, body) {
+   const r = await put(url, body);
+   return r.json();
  }
  async function remove(url) {
-  return await fetch(url, {method: 'delete', headers});
+   return fetch(url, {method: 'delete', headers});
  }
-})()
+})();

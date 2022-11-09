@@ -29,3 +29,9 @@ a {
         width: auto;
     }
 }
+@media (prefers-color-scheme: dark) {
+    *, a {
+        background-color: #121212;
+        color: #ddd;
+    }
+}

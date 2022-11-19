@@ -19,6 +19,12 @@ for await (user of getObjects(url)) {\n
    debug.value = '';
    eval('(async function () {' + editor.value + '})()');
  };
+ editor.onkeydown = function (event) {
+   const ENTER = 13;
+   if (event.ctrlKey && event.keyCode == ENTER) {
+     run.onclick();
+   }
+ };
  function log(...s) {
    debug.value += s.join(' ') + '\n';
  }

@@ -50,9 +50,9 @@ const allParts = await Promise.all(poll.parts.map(async id => {
 const parts = allParts.filter(i => !i.deleted);
 parts.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
 parts.push({text: 'Total', score: total, attr: 'class=total'});
-app.innerHTML = '<table id=table></table>';
+app.innerHTML = '<table><tbody id=tbody></table>';
 for (const p of parts) {
-    table.innerHTML += `<tr ${p.attr || ''}><td>${p.text}<td class=num>${p.score}<td class=num>${Math.round(p.score / total * 100)}%`;
+    tbody.innerHTML += `<tr ${p.attr || ''}><td>${p.text}<td class=num>${p.score}<td class=num>${Math.round(p.score / total * 100)}%`;
 }
 </script>
 </body>

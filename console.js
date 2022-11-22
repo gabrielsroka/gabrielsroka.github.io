@@ -27,6 +27,7 @@ for await (user of getObjects(url)) {\n
  };
  function log(...s) {
    debug.value += s.join(' ') + '\n';
+   debug.scrollTo(0, debug.scrollHeight);
  }
  const headers = {
    'Accept': 'application/json',

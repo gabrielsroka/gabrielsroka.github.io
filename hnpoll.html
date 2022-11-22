@@ -12,7 +12,7 @@ body {
     text-align: right;
     padding-left: 10px;
 }
-.total {
+tfoot {
     font-weight: bold;
 }
 @media (prefers-color-scheme: dark) {
@@ -40,19 +40,16 @@ const r = await fetch(`${base}/${id}.json`);
 const poll = await r.json();
 hdr.innerHTML = poll.title.link('https://news.ycombinator.com/item?id=' + id);
 var total = 0;
-const allParts = await Promise.all(poll.parts.map(async id => {
+const parts = await Promise.all(poll.parts.map(async id => {
     const r = await fetch(`${base}/${id}.json`);
     const part = await r.json();
     part.score--; // all parts start with a score of 1, so subtract 1 to see actual score.
     if (!part.deleted) total += part.score;
     return part;
 }));
-const parts = allParts.filter(i => !i.deleted);
-parts.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
-parts.push({text: 'Total', score: total, attr: 'class=total'});
-app.innerHTML = '<table><tbody id=tbody></table>';
-for (const p of parts) {
-    tbody.innerHTML += `<tr ${p.attr || ''}><td>${p.text}<td class=num>${p.score}<td class=num>${Math.round(p.score / total * 100)}%`;
+app.innerHTML = `<table><tbody id=tbody><tfoot><tr><td>Total<td class=num>${total}<td class=num>100%</table>`;
+for (const p of parts.filter(p => !p.deleted).sort((a, b) => b.score - a.score || a.text.localeCompare(b.text))) {
+    tbody.innerHTML += `<tr><td>${p.text}<td class=num>${p.score}<td class=num>${Math.round(p.score / total * 100)}%`;
 }
 </script>
 </body>

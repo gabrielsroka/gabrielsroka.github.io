@@ -35,24 +35,25 @@ body {
 <script type=module>
 // see https://github.com/HackerNews/API and https://nate.org/hacker-news-location-poll
 const base = 'https://hacker-news.firebaseio.com/v0/item';
-const id = new URLSearchParams(location.search).get('id') || '31159585';
+const id = new URLSearchParams(location.search).get('id') || '33707669';
 const r = await fetch(`${base}/${id}.json`);
 const poll = await r.json();
 hdr.innerHTML = poll.title.link('https://news.ycombinator.com/item?id=' + id);
 var total = 0;
-const allOpts = await Promise.all(poll.parts.map(async p => {
-    const r = await fetch(`${base}/${p}.json`);
+const allParts = await Promise.all(poll.parts.map(async id => {
+    const r = await fetch(`${base}/${id}.json`);
     const part = await r.json();
     part.score--; // all parts start with a score of 1, so subtract 1 to see actual score.
     if (!part.deleted) total += part.score;
     return part;
 }));
-const opts = allOpts.filter(i => !i.deleted);
-opts.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
-opts.push({text: 'Total', score: total, total: true});
-app.innerHTML = '<table>' + 
-    opts.map(e => `<tr ${e.total ? 'class=total' : ''}><td>${e.text}<td class=num>${e.score}<td class=num>${Math.round(e.score / total * 100)}%`).join('') + 
-    '</table>';
+const parts = allParts.filter(i => !i.deleted);
+parts.sort((a, b) => b.score - a.score || a.text.localeCompare(b.text));
+parts.push({text: 'Total', score: total, attr: 'class=total'});
+app.innerHTML = '<table id=table></table>';
+for (const p of parts) {
+    table.innerHTML += `<tr ${p.attr || ''}><td>${p.text}<td class=num>${p.score}<td class=num>${Math.round(p.score / total * 100)}%`;
+}
 </script>
 </body>
 </html>

@@ -1,18 +1,19 @@
 aBool: <input id=aBool type=checkbox><br>
 <button id=saveUser type=submit>Save</button>
 <script>
-onload = async () => {
-    // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-    const baseUrl = 'https://gsroka-neto.oktapreview.com';
+// For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+const baseUrl = 'https://gsroka-neto.oktapreview.com';
 
-    const init = {
-        credentials: 'include',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-        }
-    };
-    
+const init = {
+    credentials: 'include',
+    headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+    }
+};
+
+onload = async () => {
+
     const response = await fetch(baseUrl + '/api/v1/users/me', init);
     const user = await response.json();
     aBool.checked = user.profile.aBool == true;

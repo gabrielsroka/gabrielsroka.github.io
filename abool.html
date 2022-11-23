@@ -28,6 +28,7 @@ saveUser.onclick = async (event) => {
     init.body = JSON.stringify(body);
     init.method = 'post';
     const response = await fetch(baseUrl + '/api/v1/users/me', init);
-    alert('saved ?');
+    const user = await response.json();
+    alert('aBool = ' + user.profile.aBool);
 };
 </script>

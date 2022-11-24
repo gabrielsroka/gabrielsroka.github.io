@@ -25,6 +25,10 @@ saveUser.onclick = async () => {
     opts.method = 'POST'; // partial update (as opposed to PUT). see docs for more info.
     const response = await fetch(baseUrl + '/api/v1/users/me', opts);
     const updUser = await response.json();
-    alert('aBool = ' + updUser.profile.aBool);
+    if (response.ok) {
+        alert('aBool = ' + updUser.profile.aBool);
+    } else {
+        alert('error = ' + updUser.errorSummary);
+    }
 };
 </script>

@@ -9,12 +9,13 @@ onload = () => request('get');
 saveUser.onclick = () => request('post', {profile: {aBool: aBool.checked}});
 
 async function request(method, body) {
-    const opts = {credentials: 'include', method}; // enable CORS
-    if (body) {
-        opts.body = JSON.stringify(body);
-        opts.headers = {'content-type': 'application/json'};
-    }
-    const response = await fetch(url, opts);
+    result.innerHTML = 'Just a moment...';
+    const response = await fetch(url, {
+        method,
+        body: JSON.stringify(body),
+        headers: {'content-type': 'application/json'},
+        credentials: 'include' // enable CORS
+    });
     if (response.ok) {
         const user = await response.json();
         aBool.checked = user.profile.aBool;

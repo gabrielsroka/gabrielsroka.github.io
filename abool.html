@@ -23,7 +23,7 @@ saveUser.onclick = async (event) => {
     event.preventDefault();
     user.profile.aBool = aBool.checked;
     opts.body = JSON.stringify(user);
-    opts.method = 'post'; // partial update (as opposed to PUT). see docs for more info.
+    opts.method = 'POST'; // partial update (as opposed to PUT). see docs for more info.
     const response = await fetch(baseUrl + '/api/v1/users/me', opts);
     const updUser = await response.json();
     alert('aBool = ' + updUser.profile.aBool);

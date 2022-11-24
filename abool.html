@@ -16,7 +16,11 @@ const opts = {
 onload = async () => {
     const response = await fetch(baseUrl + '/api/v1/users/me', opts);
     user = await response.json();
-    aBool.checked = user.profile.aBool;
+    if (response.ok) {
+        aBool.checked = user.profile.aBool;
+    } else {
+        alert('error = ' + user.errorSummary);
+    }
 };
 
 saveUser.onclick = async () => {

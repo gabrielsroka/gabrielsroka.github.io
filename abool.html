@@ -15,7 +15,7 @@ const init = {
 onload = async () => {
     const response = await fetch(baseUrl + '/api/v1/users/me', init);
     const user = await response.json();
-    aBool.checked = user.profile.aBool == true;
+    aBool.checked = user.profile.aBool;
 };
 
 saveUser.onclick = async (event) => {

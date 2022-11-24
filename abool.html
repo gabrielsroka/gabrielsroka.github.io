@@ -6,17 +6,17 @@ aBool: <input id=aBool type=checkbox><br><br>
 const url = 'https://gsroka-neto.oktapreview.com/api/v1/users/me';
 
 onload = () => user('get');
-saveUser.onclick = () => user('post', {profile: {aBool: aBool.checked}});
+saveUser.onclick = () => user('post');
 
-async function user(method, body) {
+async function user(method) {
     result.innerHTML = method + 'ing...';
     const response = await fetch(url, {
         method,
-        body: JSON.stringify(body),
+        body: method == 'post' ? JSON.stringify({profile: {aBool: aBool.checked}}) : undefined,
         headers: {'content-type': 'application/json'},
-        credentials: 'include' // enable CORS
+        credentials: 'include' // for CORS
     });
-    body = await response.json();
+    const body = await response.json();
     if (response.ok) {
         aBool.checked = body.profile.aBool;
         result.innerHTML = 'aBool = ' + body.profile.aBool;

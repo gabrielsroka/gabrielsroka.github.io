@@ -5,7 +5,7 @@ aBool: <input id=aBool type=checkbox><br><br>
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
 const url = 'https://gsroka-neto.oktapreview.com/api/v1/users/me';
 
-onload = () => user('get');
+window.onload = () => user('get');
 saveUser.onclick = () => user('post');
 
 async function user(method) {

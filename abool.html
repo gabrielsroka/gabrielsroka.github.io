@@ -16,13 +16,12 @@ async function user(method, body) {
         headers: {'content-type': 'application/json'},
         credentials: 'include' // enable CORS
     });
+    body = await response.json();
     if (response.ok) {
-        const user = await response.json();
-        aBool.checked = user.profile.aBool;
-        result.innerHTML = 'aBool = ' + user.profile.aBool;
+        aBool.checked = body.profile.aBool;
+        result.innerHTML = 'aBool = ' + body.profile.aBool;
     } else {
-        const error = await response.json();
-        result.innerHTML = 'error = ' + error.errorSummary;
+        result.innerHTML = 'error = ' + body.errorSummary;
     }
 }
 </script>

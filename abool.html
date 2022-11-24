@@ -1,19 +1,18 @@
 aBool: <input id=aBool type=checkbox><br>
-<button id=saveUser disabled=true>Save</button>
+<button id=saveUser>Save</button>
 <script>
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-const baseUrl = 'https://gsroka-neto.oktapreview.com';
-
-const opts = {credentials: 'include'};
+const url = 'https://gsroka-neto.oktapreview.com/api/v1/users/me';
+const opts = {credentials: 'include'}; // enable CORS
 
 onload = async () => {
-    const response = await fetch(baseUrl + '/api/v1/users/me', opts);
-    const user = await response.json();
+    const response = await fetch(url, opts);
     if (response.ok) {
+        const user = await response.json();
         aBool.checked = user.profile.aBool;
-        saveUser.disabled = false;
     } else {
-        alert('error = ' + user.errorSummary);
+        const error = await response.json();
+        alert('error = ' + error.errorSummary);
     }
 };
 
@@ -21,12 +20,13 @@ saveUser.onclick = async () => {
     opts.body = JSON.stringify({profile: {aBool: aBool.checked}});
     opts.method = 'post'; // partial update (as opposed to 'put'). see docs for more info.
     opts.headers = {'content-type': 'application/json'};
-    const response = await fetch(baseUrl + '/api/v1/users/me', opts);
-    const user = await response.json();
+    const response = await fetch(url, opts);
     if (response.ok) {
+        const user = await response.json();
         alert('aBool = ' + user.profile.aBool);
     } else {
-        alert('error = ' + user.errorSummary);
+        const error = await response.json();
+        alert('error = ' + error.errorSummary);
     }
 };
 </script>

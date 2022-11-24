@@ -1,5 +1,6 @@
 aBool: <input id=aBool type=checkbox><br>
 <button id=saveUser>Save</button>
+<div id=result></div>
 <script>
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
 const url = 'https://gsroka-neto.oktapreview.com/api/v1/users/me';
@@ -10,23 +11,17 @@ onload = async () => {
     if (response.ok) {
         const user = await response.json();
         aBool.checked = user.profile.aBool;
+        result.innerHTML = 'aBool = ' + user.profile.aBool;
     } else {
         const error = await response.json();
-        alert('error = ' + error.errorSummary);
+        result.innerHTML = 'error = ' + error.errorSummary;
     }
 };
 
-saveUser.onclick = async () => {
+saveUser.onclick = () => {
     opts.body = JSON.stringify({profile: {aBool: aBool.checked}});
     opts.method = 'post'; // partial update (as opposed to 'put'). see docs for more info.
     opts.headers = {'content-type': 'application/json'};
-    const response = await fetch(url, opts);
-    if (response.ok) {
-        const user = await response.json();
-        alert('aBool = ' + user.profile.aBool);
-    } else {
-        const error = await response.json();
-        alert('error = ' + error.errorSummary);
-    }
+    onload();
 };
 </script>

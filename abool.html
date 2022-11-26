@@ -5,21 +5,21 @@ aBool: <input id=aBool type=checkbox><br><br>
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
 const url = 'https://gsroka-neto.oktapreview.com/api/v1/users/me';
 
-window.onload = () => user('get');
-saveUser.onclick = () => user('post');
+window.onload = async () => aBool.checked = await user('get');
+saveUser.onclick = () => user('post', {profile: {aBool: aBool.checked}});
 
-async function user(method) {
+async function user(method, body) {
     result.innerHTML = method + 'ing...';
     const response = await fetch(url, {
         method,
-        body: method == 'post' ? JSON.stringify({profile: {aBool: aBool.checked}}) : undefined,
-        headers: {'content-type': 'application/json'},
-        credentials: 'include' // for CORS
+        credentials: 'include', // for CORS
+        body: JSON.stringify(body),
+        headers: {'content-type': 'application/json'}
     });
-    const body = await response.json();
+    body = await response.json();
     if (response.ok) {
-        aBool.checked = body.profile.aBool;
         result.innerHTML = 'aBool = ' + body.profile.aBool;
+        return body.profile.aBool;
     } else {
         result.innerHTML = 'error = ' + body.errorSummary;
     }

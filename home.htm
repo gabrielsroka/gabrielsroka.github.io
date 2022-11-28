@@ -88,15 +88,18 @@ ul {
 <div id=apps></div>
 </main>
 <script>
+// For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
+const baseUrl = 'https://gsroka-neto.oktapreview.com';
+const latlong = '33.7737,-118.1365'; // or use getPosition below...
+const rssKey = 'bktpucfcehpay70oarqhspsrzyt9wbjebfvhqkwb'; // you need your own...
+
 onload = () => {
     burger.onclick = () => menu.classList.toggle('hide');
 
     notificationMenu.onclick = () => notifications.classList.toggle('hide');
     getNotifications();
 
-    // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
-    const baseUrl = 'https://gsroka-neto.oktapreview.com';
-    refresh.onclick = async () => showLinks(await getLinks(baseUrl));
+    refresh.onclick = async () => showLinks(await getLinks());
     if (localStorage.links) {
         showLinks(JSON.parse(localStorage.links));
     } else {
@@ -106,7 +109,7 @@ onload = () => {
     getWeather();
 };
 
-async function getLinks(baseUrl) {
+async function getLinks() {
     /* Fetch appLinks whose labels are in the following format:
            label[, url, icon]
        eg: "NY Times, nytimes.com", or just "NY Times"
@@ -155,7 +158,6 @@ async function getWeather() {
 }
 
 async function getForecast() {
-    const latlong = '33.7737,-118.1365';
     // const {coords} = await getPosition();
     // const latlong = coords.latitude + ',' + coords.longitude;
 
@@ -180,7 +182,7 @@ async function getForecast() {
 // }
 
 async function getNotifications() {
-    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS&api_key=bktpucfcehpay70oarqhspsrzyt9wbjebfvhqkwb&count=1');
+    const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://feeds.feedburner.com/OktaTrustRSS&api_key=${rssKey}&count=1`);
     const feed = await response.json();
     const item = feed.items[0];
     notificationLink.href = item.link;

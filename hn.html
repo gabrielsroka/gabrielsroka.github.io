@@ -110,13 +110,19 @@ async function getItems() {
         loading.innerHTML = '';
         const hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
         if (item.url) {
-            var site = new URL(item.url).hostname.replace(/^www\./, '');
-            var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${site}`, site)})`;
+            const url = new URL(item.url);
+            var site = url.hostname.replace(/^www\./, '');
             var web = ' | ' + anc(`https://www.google.com/search?q=${encodeURIComponent(item.title)}+site:${site}`, 'web');
-            if (site.includes('twitter.com')) web += ' | ' + anc(item.url.replace('twitter.com', 'nitter.net'), 'nitter')
+            if (site.includes('twitter.com')) {
+                var lsite = site + '/' + url.pathname.split('/')[1];
+                web += ' | ' + anc(item.url.replace('twitter.com', 'nitter.net'), 'nitter');
+            } else {
+                lsite = site;
+            }
+            var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${site}`, lsite)})`;
         } else {
-            ln1 = anc(hnItemUrl, item.title);
             web = '';
+            ln1 = anc(hnItemUrl, item.title);
         }
         var ago = new Date() / 1000 - item.time; // in seconds, 60 s == 1 min, 3600 s = 1 hr, etc.
         if (ago < 3600) {

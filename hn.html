@@ -119,7 +119,7 @@ async function getItems() {
             } else {
                 lsite = site;
             }
-            var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${site}`, lsite)})`;
+            var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${lsite}`, lsite)})`;
         } else {
             web = '';
             ln1 = anc(hnItemUrl, item.title);

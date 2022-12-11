@@ -6,7 +6,8 @@ url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.
 (function () {
  const div = document.body.appendChild(document.createElement('div'));
  div.innerHTML = `<button id=run>Run</button>
-  <button onclick=document.body.removeChild(this.parentNode)>Close</button><br>
+  <button onclick=document.body.removeChild(this.parentNode)>Close</button>
+  <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js target=_blank>src</a><br>
   <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 f = 'filter=profile.lastName eq "Doe"'\n
 url = '/api/v1/users?limit=2&' + f\n

@@ -15,7 +15,8 @@ url = '/api/v1/users?limit=2&' + f\n
 for await (user of getObjects(url)) {\n
   log(user.id, user.profile.login)\n
 }</textarea><br>
-  <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>`;
+  <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>
+  <div id=results></div>`;
  div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
  run.onclick = function () {
    if (!preserveLog.checked) debug.value = '';
@@ -74,5 +75,8 @@ for await (user of getObjects(url)) {\n
  }
  async function remove(url) {
    return fetch(url, {method: 'delete', headers});
+ }
+ function link(url, text) {
+  return `<a href="${url}" target=_blank>${text}</a>`;
  }
 })();

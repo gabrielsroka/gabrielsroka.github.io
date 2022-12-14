@@ -37,16 +37,16 @@ for await (user of getObjects(url)) {\n
    'Content-Type': 'application/json',
    'X-Okta-XsrfToken': _xsrfToken.innerText
  };
- async function* getPages(url) {
+ async function* getPages(url, params = '') {
    while (url) {
-     const r = await get(url);
+     const r = await get(url + params);
      const page = await r.json();
      yield page;
      url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
    }
  }
- async function* getObjects(url) {
-   for await (const objects of getPages(url)) {
+ async function* getObjects(url, params) {
+   for await (const objects of getPages(url, params)) {
      for (const o of objects) {
        yield o;
      }

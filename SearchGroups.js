@@ -3,7 +3,7 @@ javascript:
 Bookmark name: /Search Groups#
 
 Setup:
-1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.
+1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
 2. Drag all this to the bookmark toolbar to create a Bookmarklet.
 
 Or, copy/paste this code to the browser Console, or, if using Chrome, to a Snippet:

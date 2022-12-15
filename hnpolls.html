@@ -34,9 +34,11 @@ const polls = await r.json();
 if (polls.message) {
     app.innerHTML = polls.message;
 } else {
-    app.innerHTML = '<table><tr><th>Title<th>Created At<th>Author<th>Points<th>Num Comments' + 
-        polls.hits.map(p => `<tr><td><a href=hnpoll.html?id=${p.objectID} target=_blank>${p.title}</a><td>${p.created_at.replace(/(T|\.000Z)/g, ' ')}<td>${p.author}<td align=right>${p.points}<td align=right>${p.num_comments}`).join('') +
-        '</table>' + `<br><a href=?page=${+page + 1}>Next ></a>`;
+    app.innerHTML = `<table><thead><tr><th>Title<th>Created At<th>Author<th>Points<th>Num Comments<tbody id=tbody></table><br><a href=?page=${+page + 1}>Next ></a>`;
+    for (const p of polls.hits) {
+        tbody.innerHTML += `<tr><td><a href=hnpoll.html?id=${p.objectID} target=_blank>${p.title}</a><td>${p.created_at.replace(/(T|\.000Z)/g, ' ')}` +
+            `<td>${p.author}<td align=right>${p.points}<td align=right>${p.num_comments}`;
+    }
 }
 </script>
 </body>

@@ -50,6 +50,7 @@ onload = async () => {
         const response = await fetch(baseUrl + '/api/v1/users/me', init);
         if (!response.ok) {
             app.innerHTML = `You are not signed in. Go to <a href='${baseUrl}' target=_blank>Okta</a>, sign in, then come back here and refresh the page.`;
+            result.innerHTML = '';
             return;
         }
         const user = await response.json();

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<meta name='viewport' content='initial-scale=1.0, minimum-scale=0.25'>
 <title>Hacker News</title>
 <style>
 body {
@@ -46,7 +46,7 @@ a:visited {
 </style>
 </head>
 <body>
-<header><a href="https://news.ycombinator.com" target="_blank" rel="noopener">Hacker News</a><span id=user>user</span></header>
+<header><a href='https://news.ycombinator.com' target='_blank' rel='noopener'>Hacker News</a><span id=user>user</span></header>
 <main>
 <div id=loading></div>
 <div id=contents></div>
@@ -54,11 +54,11 @@ a:visited {
 <nav>
 <a id=more>More</a>
 <br><br>
-<a href="hn.html">Default</a> | <a href="hn.html?small">Small</a>
+<a href='hn.html'>Default</a> | <a href='hn.html?small'>Small</a>
 </nav>
 <br><br>
 <footer>
-<span id=itemsSeen></span>
+<span id=itemsSeen></span> | <a href='https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/hn.html' target='_blank'>src</a>
 <br><br><br><br>
 </footer>
 <script>
@@ -68,9 +68,9 @@ var seen = {};
 var fetchCounter = 0;
 
 const pageLen = 6;
-const baseUrl = "https://hacker-news.firebaseio.com/v0"; // see https://github.com/HackerNews/API
+const baseUrl = 'https://hacker-news.firebaseio.com/v0'; // see https://github.com/HackerNews/API
 const alBaseUrl = 'https://hn.algolia.com'; // see https://hn.algolia.com/api
-const hnBaseUrl = "https://news.ycombinator.com";
+const hnBaseUrl = 'https://news.ycombinator.com';
 
 if (localStorage.user) {
     setUser();
@@ -84,7 +84,7 @@ if (localStorage.user) {
     };
 }
 function setUser() {
-    user.innerHTML = anc(`${hnBaseUrl}/user?id=${localStorage.user}`, localStorage.user) + ' | <a id=submissions>submissions</a>';
+    user.innerHTML = anc(`${hnBaseUrl}/threads?id=${localStorage.user}`, localStorage.user) + ' | <a id=submissions>submissions</a>';
     submissions.onclick = async () => {
         const r = await fetch(`${alBaseUrl}/api/v1/search_by_date?tags=story,author_${localStorage.user}`);
         const u = await r.json();
@@ -95,11 +95,11 @@ function setUser() {
     };
 }
 more.onclick = getItems;
-if (!localStorage.seen) localStorage.seen = "{}";
+if (!localStorage.seen) localStorage.seen = '{}';
 fetchItems();
 
 async function fetchItems() {
-    const response = await fetch(baseUrl + "/topstories.json");
+    const response = await fetch(baseUrl + '/topstories.json');
     ids = await response.json();
     getItems();
 }
@@ -107,33 +107,40 @@ async function fetchItems() {
 // TODO: Items might render out of order. Do we care?
 async function getItems() {
     function showItem(item) { // other item props: kids
-        loading.innerHTML = "";
+        loading.innerHTML = '';
         const hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
         if (item.url) {
-            var site = new URL(item.url).hostname.replace(/^www\./, "");
-            var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${site}`, site)})`;
+            const url = new URL(item.url);
+            var site = url.hostname.replace(/^www\./, '');
             var web = ' | ' + anc(`https://www.google.com/search?q=${encodeURIComponent(item.title)}+site:${site}`, 'web');
+            if (site.includes('twitter.com')) {
+                var lsite = site + '/' + url.pathname.split('/')[1];
+                web += ' | ' + anc(item.url.replace('twitter.com', 'nitter.net'), 'nitter');
+            } else {
+                lsite = site;
+            }
+            var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${lsite}`, lsite)})`;
         } else {
-            ln1 = anc(hnItemUrl, item.title);
             web = '';
+            ln1 = anc(hnItemUrl, item.title);
         }
         var ago = new Date() / 1000 - item.time; // in seconds, 60 s == 1 min, 3600 s = 1 hr, etc.
         if (ago < 3600) {
-            ago = plu(Math.round(ago / 60), "minute");
+            ago = plu(Math.round(ago / 60), 'minute');
         } else if (ago < 3600 * 24) {
-            ago = plu(Math.round(ago / 3600), "hour");
+            ago = plu(Math.round(ago / 3600), 'hour');
         } else {
-            ago = plu(Math.round(ago / 3600 / 24), "day");
+            ago = plu(Math.round(ago / 3600 / 24), 'day');
         }
-        ago = anc(hnItemUrl, ago + " ago");
-        if (item.type == "job") {
-            var pts = "";
-            var by = "";
+        ago = anc(hnItemUrl, ago + ' ago');
+        if (item.type == 'job') {
+            var pts = '';
+            var by = '';
             var ln2 = ago;
         } else {
-            pts = plu(item.score, "point");
-            by = "by " + anc(`${hnBaseUrl}/user?id=${item.by}`, item.by);
-            ln2 = ago + " | " + anc(hnItemUrl, item.descendants == 0 ? "discuss" : plu(item.descendants, "comment")) + web;
+            pts = plu(item.score, 'point');
+            by = 'by ' + anc(`${hnBaseUrl}/user?id=${item.by}`, item.by);
+            ln2 = ago + ' | ' + anc(hnItemUrl, item.descendants == 0 ? 'discuss' : plu(item.descendants, 'comment')) + web;
         }
         if (small) {
             contents.innerHTML += `<div class=item>${ln1}<br>${ln2}</div>`;
@@ -141,11 +148,11 @@ async function getItems() {
             ol.innerHTML += `<li class=item value=${n++}>${ln1}<br>${pts} ${by} ${ln2}</li>`;
         }
     }
-    const small = location.search.match("small");
+    const small = location.search.match('small');
     if (small) {
-        contents.innerHTML = "<br>";
+        contents.innerHTML = '<br>';
     } else {
-        contents.innerHTML = "<ol id=ol></ol>";
+        contents.innerHTML = '<ol id=ol></ol>';
     }
     const now = new Date().getTime();
     const newSeen = JSON.parse(localStorage.seen);
@@ -157,26 +164,26 @@ async function getItems() {
         if (now - newSeen[id] > sevenDays) delete newSeen[id];
     }
     localStorage.seen = JSON.stringify(newSeen);
-    itemsSeen.innerHTML = Object.keys(newSeen).length + " seen";
+    itemsSeen.innerHTML = Object.keys(newSeen).length + ' seen';
     seen = {};
     ids = ids.filter(id => !newSeen[id]);
     if (ids.length == 0) {
         if (fetchCounter == 0) {
             fetchCounter = 1;
-            loading.innerHTML = "<br>Refreshing..."
+            loading.innerHTML = '<br>Refreshing...'
             fetchItems();
         } else {
-            loading.innerHTML = "<br>No more";
+            loading.innerHTML = '<br>No more';
             more.style.display = 'none';
         }
     } else {
-        loading.innerHTML = "<br>Loading...";
+        loading.innerHTML = '<br>Loading...';
         await Promise.all(ids.slice(0, pageLen).map(async id => {
             seen[id] = now;
             if (!newSeen[id]) {
                 const r = await fetch(`${baseUrl}/item/${id}.json`);
                 const item = await r.json();
-                if (item) showItem(item); // sometimes item === null
+                if (item && !item.deleted && !item.dead) showItem(item); // sometimes item === null
             }
         }));
         for (var i = 0; i < pageLen - ids.length; i++) {
@@ -186,10 +193,10 @@ async function getItems() {
     }
 }
 function plu(n, s) {
-    return n + " " + (n == 1 ? s : s + "s");
+    return n + ' ' + (n == 1 ? s : s + 's');
 }
 function anc(href, text) {
-    return `<a href="${href}" target="_blank" rel="noopener">${text}</a>`;
+    return `<a href="${href}" target='_blank' rel='noopener'>${text}</a>`;
 }
 </script>
 </body>

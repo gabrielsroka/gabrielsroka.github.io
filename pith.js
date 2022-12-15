@@ -32,12 +32,19 @@ function run(lines) {
                 .replace('if ', 'if (')
                 .replace(' = ', ' == ');
             line += ')';
-        } else if (tLine.startsWith('print ') || tLine.startsWith('?')) {
-            line = line.replace(/(print|\?) ?/, 'print(') + ')';
-        } else if (tLine.startsWith('tab = ')) {
-            eval(line);
         } else if (tLine.startsWith('#')) {
             line = line.replace('#', '//');
+        } else if (tLine.startsWith('print ') || tLine.startsWith('?')) {
+            line = line.replace(/(print|\?) ?/, 'print(') + ')';
+        } else if (tLine.startsWith('>')) {
+            line = line.replace('>', 'results.innerHTML +=') + ` + '<br>'`;
+        } else if (tLine.startsWith('|')) {
+            line = line.replace('|', 'table.tHead.innerHTML += `<tr><th>` + ');
+        } else if (tLine.startsWith('+')) {
+            line = line.replace('+', 'table.tBodies[0].innerHTML += `<tr><td>` + ');
+        } else if (tLine.startsWith('tab = ')) {
+            eval(line);
+            line = '// ' + line;
         }
         var newInd = line.match(/^( *)/)[1].length / tab;
         for (var t = newInd; t < ind; t++) {

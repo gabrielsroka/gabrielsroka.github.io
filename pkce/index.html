@@ -91,7 +91,7 @@ async function getUsers() {
     };
     const r = await fetch(`${baseUrl}/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15`, options);
     const users = await r.json();
-    const rows = users.map(u => `<tr><td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}<td><a onclick="makeAdmin('${u.id}', '${u.profile.firstName} ${u.profile.lastName}')"">Grant Admin</a>`).join('');
+    const rows = users.map(u => `<tr><td>${u.profile.login}<td>${u.profile.firstName}<td>${u.profile.lastName}<td>${u.profile.email}<td><a onclick="makeAdmin('${u.id}', '${u.profile.firstName} ${u.profile.lastName}')">Grant Admin</a>`).join('');
     results.innerHTML = 'Welcome ' + access_token.sub + '<h1>Users</h1><table><tr><th>Username<th>First<th>Last<th>Email<th>Action' + rows + '</table>';
 }
 

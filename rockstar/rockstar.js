@@ -976,7 +976,7 @@
                 if (url.match(/\${.*}/) && location.pathname.match("/admin/(app|group|user)/")) {
                     var parts = location.pathname.split('/');
                     var id = location.pathname.match("/group/") ? parts[3] : parts[5];
-                    url = url.replace(/\${.*}/, id);
+                    url = url.replace(/\${[^}]+}/g, id);
                 }
                 requestJSON({url, method: method.value, data: data.value}).then((objects, status, jqXHR) => {
                     $(results).html("<br>");

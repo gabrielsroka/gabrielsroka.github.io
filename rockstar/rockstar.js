@@ -12,7 +12,11 @@
 
     var mainPopup;
     $ = window.$ || window.jQueryCourage;
-    const headers = {'X-Okta-User-Agent-Extended': 'rockstar'};
+    const headers = {
+        'X-Okta-User-Agent-Extended': 'rockstar-experimental',
+        'x-xsrf-token': 'JustAskSpoke!'
+    };
+    var isRockstarIGAFeature;
 
     if (location.href == "https://gabrielsroka.github.io/rockstar/") {
         alert("To install rockstar, open your bookmark toolbar, then drag and drop it. To use it, login to Okta or Okta Admin, then click rockstar. See the Usage instructions on this page.");
@@ -56,9 +60,14 @@
         mainPopup = createPopup("rockstar", true);
         quickUpdate();
         userHome();
+    }
+      else if (location.pathname.match("/next")) { // IGA pages
+        mainPopup = createPopup("rockstar", true);
+        isRockstarIGAFeature = true;
+        apiExplorer();
+    }
     //} else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/reference/api/")) {
     //    tryAPI();
-    }
 
     function quickUpdate() {
         $(`<a href='https://www.youtube.com/watch?v=mNTThKVjztc&list=PLZ4_Rj_Aw2Ym-NkC8SFB6wuSfBiBto_6C' target='_blank' rel='noopener'>rockstar overview (youtube)</a><br><br>`).appendTo(mainPopup);
@@ -956,10 +965,15 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "urls";
-            const paths = 'apps,apps/${appId},apps/${appId}/groups,apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,' + 
-                'groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type},' + 
-                'meta/schemas/apps/${instanceId}/default,meta/schemas/user/default,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,' + 
-                'users,users/me,users/${userId},users/${userId}/appLinks,users/${userId}/factors,users/${userId}/lifecycle/reset_factors,users/${userId}/groups,users/${userId}/roles,zones';
+            if (isRockstarIGAFeature == true) {
+                var paths = '/api/v1/configlists,/api/v1/request_types'
+            }
+            else {
+                var paths = 'apps,apps/${appId},apps/${appId}/groups,apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,' + 
+                    'groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type},' + 
+                    'meta/schemas/apps/${instanceId}/default,meta/schemas/user/default,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,' + 
+                    'users,users/me,users/${userId},users/${userId}/appLinks,users/${userId}/factors,users/${userId}/groups,users/${userId}/roles,zones';
+            }
             datalist.innerHTML = paths.split(',').map(path => `<option>/api/v1/${path}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));
             send.type = "submit";

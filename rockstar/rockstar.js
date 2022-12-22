@@ -963,9 +963,8 @@
             selector = '[data-qa-id="ci-manage-load-more"]';
         } 
 
-        createDiv('<button id="IGALoadAll" type="button">Load all!</button><br><div class=results></div>', mainPopup, function (){});
-        const IGALoadAllBtn = document.querySelector("[id='IGALoadAll']");
-        IGALoadAllBtn.addEventListener('click', async() => {
+        createDiv('<button id="igaLoadAll" type="button">Load all!</button><br><div class=results></div>', mainPopup, function (){});
+        igaLoadAll.onclick = async () => {
             while (true) {
                 const loadMoreBtn = document.querySelector(selector);
                 if (loadMoreBtn) {
@@ -973,11 +972,11 @@
                    await sleep();
                 } else {
                     console.log('done');
-                    IGALoadAllBtn.remove();
+                    igaLoadAll.remove();
                     break;
                 }
             }
-        });
+        };
         
     }
 

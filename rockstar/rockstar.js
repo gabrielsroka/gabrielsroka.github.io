@@ -954,7 +954,7 @@
         }
     }
 
-    async function loadAllIGARequestsResouceLists() {
+    function loadAllIGARequestsResouceLists() {
 
         path = location.pathname;
         if (path.match("next/request-types/drafts")) {

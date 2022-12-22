@@ -964,7 +964,7 @@
         } 
         createDiv("Load all IGA Requests / Resouce Lists", mainPopup, function () {
             
-            var popup = createPopup("API Explorer");
+            var popup = createPopup("Load all IGA Requests");
             var loadAllIGARequestsResouceListsButton = $('<button type="button">Load all!</button><br><div class=results></div>').appendTo(popup);
             loadAllIGARequestsResouceListsButton.click(async event => {
                 console.log(selector);

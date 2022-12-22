@@ -954,7 +954,7 @@
         }
     }
 
-    function loadAllIGARequestsResouceLists() {
+    async function loadAllIGARequestsResouceLists() {
 
         path = location.pathname;
         if (path.match("next/request-types/drafts")) {
@@ -962,10 +962,19 @@
         } else if (path.match("next/settings/configuration/cmdb/OKTA")) {
             selector = '[data-qa-id="ci-manage-load-more"]';
         } 
-        createDiv('<button id="IGALoadAll" type="button">Load all!</button><br><div class=results></div>', mainPopup, function () {
-        const IGALoadAllBtn = document.querySelector("[id='IGALoadAll']");
 
-       IGALoadAllBtn.addEventListener("click",loadAll(selector))
+        createDiv('<button id="IGALoadAll" type="button">Load all!</button><br><div class=results></div>', mainPopup, function (){});
+        
+        document.querySelector("[id='IGALoadAll']").addEventListener('click', async() => {
+            while (true) {
+                const loadMoreBtn = document.querySelector(selector);
+                if (loadMoreBtn) {
+                    loadMoreBtn.click();
+                   await sleep();
+                } else {
+                    break;
+                }
+            }
         });
         
     }
@@ -974,17 +983,6 @@
         return new Promise(r => setTimeout(r, 1000));
     }
     
-    async function loadAll(selector){
-        while (true) {
-            const loadMoreBtn = document.querySelector(selector);
-            if (loadMoreBtn) {
-                loadMoreBtn.click();
-               await sleep();
-            } else {
-                break;
-            }
-        }
-    }
 
     // API functions
     function apiExplorer() {

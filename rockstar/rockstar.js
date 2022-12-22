@@ -964,14 +964,16 @@
         } 
 
         createDiv('<button id="IGALoadAll" type="button">Load all!</button><br><div class=results></div>', mainPopup, function (){});
-        
-        document.querySelector("[id='IGALoadAll']").addEventListener('click', async() => {
+        const IGALoadAllBtn = document.querySelector("[id='IGALoadAll']");
+        IGALoadAllBtn.addEventListener('click', async() => {
             while (true) {
                 const loadMoreBtn = document.querySelector(selector);
                 if (loadMoreBtn) {
                     loadMoreBtn.click();
                    await sleep();
                 } else {
+                    console.log('done');
+                    IGALoadAllBtn.remove();
                     break;
                 }
             }

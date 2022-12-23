@@ -53,31 +53,29 @@ Bookmark: Click the bookmark, or
         downloadFile(types[filetype].header, favorites.map(types[filetype].totype), types[filetype].filename, filetype);
         results.innerHTML = 'Finished exporting.';
     };
-    search.onclick = async function () {
+    search.onclick = async () => {
         const re = new RegExp(query.value, 'i');
         await getFavorites();
         const found = favorites.filter(f => f.title.match(re) || f.link.match(re)).map(types.html.totype);
-        if (found.length == 0) {
-            results.innerHTML = 'not found';
-        } else {
-            results.innerHTML = found.join('');
-        }
+        results.innerHTML = found.join('') || 'not found';
     };
     async function getFavorites() {
         if (favorites.length > 0) return;
         var url = `/favorites?id=${id}`;
         var page = 1;
-        do {
+        while (url) {
             results.innerHTML = `Fetching page ${page++} ...<br><br>`;
             const response = await fetch(url);
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
-            doc.querySelectorAll('a.titlelink').forEach(a => favorites.push({title: a.innerText, link: a.href}));
+            doc.querySelectorAll('span.titleline a').forEach(a => favorites.push({title: a.innerText, link: a.href}));
             const more = doc.querySelector('a.morelink');
             url = more?.href;
-            await sleep(850);
-        } while (url);
+            if (more) {
+                await sleep(850);
+            }
+        }
     }
 
     function createPopup(title) {

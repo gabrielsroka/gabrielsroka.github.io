@@ -42,22 +42,24 @@ Bookmark: Click the bookmark, or
         }
     };
     const favorites = [];
-    popup.innerHTML = 
-        '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
-        '<button id=exportToHtml data-filetype=html>Export to HTML</button><br><br>' +
-        '<input id=query> <button id=search>Search</button><br><br>' + 
+    const form = popup.appendChild(document.createElement('form'));
+    form.innerHTML = 
+        '<input id=query> <button type=submit>Search</button> ' + 
+        'Export to <button id=exportToCsv data-filetype=csv>CSV</button> ' + 
+        '<button id=exportToHtml data-filetype=html>HTML</button><br><br>' +
         '<div id=results></div>';
+    form.onsubmit = async function (event) {
+        event.preventDefault();
+        const re = new RegExp(query.value, 'i');
+        await getFavorites();
+        const found = favorites.filter(f => f.title.match(re) || f.link.match(re)).map(types.html.totype);
+        results.innerHTML = found.join('') || 'not found';
+    };
     exportToCsv.onclick = exportToHtml.onclick = async function () {
         const filetype = this.dataset.filetype;
         await getFavorites();
         downloadFile(types[filetype].header, favorites.map(types[filetype].totype), types[filetype].filename, filetype);
         results.innerHTML = 'Finished exporting.';
-    };
-    search.onclick = async () => {
-        const re = new RegExp(query.value, 'i');
-        await getFavorites();
-        const found = favorites.filter(f => f.title.match(re) || f.link.match(re)).map(types.html.totype);
-        results.innerHTML = found.join('') || 'not found';
     };
     async function getFavorites() {
         if (favorites.length > 0) return;
@@ -81,12 +83,7 @@ Bookmark: Click the bookmark, or
     function createPopup(title) {
         const div = document.body.appendChild(document.createElement("div"));
         div.innerHTML = title + " <a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer; padding: 4px'>X</a><br><br>";
-        div.style.position = "absolute";
-        div.style.zIndex = "1000";
-        div.style.left = "4px";
-        div.style.top = "4px";
-        div.style.backgroundColor = "white";
-        div.style.border = '1px solid #ddd';
+        div.style.cssText = 'position: absolute; padding: 8px; top: 4px; color: black; background-color: white; z-index: 1001; border: 1px solid #ddd;';
         return div.appendChild(document.createElement("div"));
     }
     function toCSV(...fields) {

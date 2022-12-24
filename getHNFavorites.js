@@ -48,6 +48,7 @@ Bookmark: Click the bookmark, or
         'Export to <button id=exportToCsv data-filetype=csv>CSV</button> ' + 
         '<button id=exportToHtml data-filetype=html>HTML</button><br><br>' +
         '<div id=results></div>';
+    query.focus();
     form.onsubmit = async function (event) {
         event.preventDefault();
         const re = new RegExp(query.value, 'i');
@@ -70,7 +71,7 @@ Bookmark: Click the bookmark, or
             const response = await fetch(url);
             const html = await response.text();
             const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
+            const doc = parser.parseFromString(html, 'text/html');
             doc.querySelectorAll('span.titleline a').forEach(a => favorites.push({title: a.innerText, link: a.href}));
             const more = doc.querySelector('a.morelink');
             url = more?.href;
@@ -81,18 +82,18 @@ Bookmark: Click the bookmark, or
     }
 
     function createPopup(title) {
-        const div = document.body.appendChild(document.createElement("div"));
+        const div = document.body.appendChild(document.createElement('div'));
         div.innerHTML = title + " <a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer; padding: 4px'>X</a><br><br>";
         div.style.cssText = 'position: absolute; padding: 8px; top: 4px; color: black; background-color: white; z-index: 1001; border: 1px solid #ddd;';
-        return div.appendChild(document.createElement("div"));
+        return div.appendChild(document.createElement('div'));
     }
     function toCSV(...fields) {
         return fields.map(field => `"${field == undefined ? "" : field.toString().replace(/"/g, '""')}"`).join(',');
     }
     function downloadFile(header, lines, filename, filetype) {
         const a = document.body.appendChild(document.createElement('a'));
-        a.href = URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/' + filetype}));
-        const date = (new Date()).toISOString().replace(/[T:]/g, "-").slice(0, 19);
+        a.href = URL.createObjectURL(new Blob([header + '\n' + lines.join('\n')], {type: 'text/' + filetype}));
+        const date = (new Date()).toISOString().replace(/[T:]/g, '-').slice(0, 19);
         a.download = `${filename}-${date}.${filetype}`;
         a.click();
     }

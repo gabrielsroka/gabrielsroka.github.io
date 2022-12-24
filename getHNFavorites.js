@@ -31,22 +31,22 @@ Bookmark: Click the bookmark, or
     const id = location.search.split('=')[1];
     const types = {
         csv: {
-            header: 'Title,URL',
+            header: 'Name,URL',
             filename: id + "'s HN favorites",
-            totype: f => toCSV(f.title, f.link)
+            totype: f => toCSV(f.name, f.url)
         },
         html: {
             header: '<title>' + id + "'s HN favorites</title><style>body {font-family: sans-serif;}</style><h1>" + id + "'s HN favorites</h1>",
             filename: id + "'s-HN-favorites",
-            totype: f => `<p>` + link(f.link, f.title)
+            totype: f => '<p>' + link(f.url, f.name)
         }
     };
     const favorites = [];
     const form = popup.appendChild(document.createElement('form'));
     form.innerHTML = 
         '<input id=query> <button type=submit>Search</button> ' + 
-        'Export to <button id=exportToCsv data-filetype=csv>CSV</button> ' + 
-        '<button id=exportToHtml data-filetype=html>HTML</button><br><br>' +
+        'Export to <button id=exportToCSV data-filetype=csv>CSV</button> ' + 
+        '<button id=exportToHTML data-filetype=html>HTML</button><br><br>' +
         '<div id=results></div>';
     query.focus();
     form.onsubmit = async function (event) {
@@ -54,11 +54,11 @@ Bookmark: Click the bookmark, or
         const re = new RegExp(query.value, 'i');
         await getFavorites();
         const found = favorites
-            .filter(f => f.title.match(re) || f.link.match(re))
-            .map(f => '<tr><td>' + types.html.totype(f) + '<td>' + link(f.link, f.link));
+            .filter(f => f.name.match(re) || f.url.match(re))
+            .map(f => '<tr><td>' + link(f.url, f.name) + '<td>' + link(f.url, f.url));
         results.innerHTML = found.length ? '<table>' + found.join('') + '</table>' : 'not found';
     };
-    exportToCsv.onclick = exportToHtml.onclick = async function () {
+    exportToCSV.onclick = exportToHTML.onclick = async function () {
         const filetype = this.dataset.filetype;
         await getFavorites();
         downloadFile(types[filetype].header, favorites.map(types[filetype].totype), types[filetype].filename, filetype);
@@ -74,7 +74,7 @@ Bookmark: Click the bookmark, or
             const html = await response.text();
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            doc.querySelectorAll('span.titleline a').forEach(a => favorites.push({title: a.innerText, link: a.href}));
+            doc.querySelectorAll('span.titleline a').forEach(a => favorites.push({name: a.innerText, url: a.href}));
             const more = doc.querySelector('a.morelink');
             url = more?.href;
             if (more) {

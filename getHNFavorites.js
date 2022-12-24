@@ -33,12 +33,12 @@ Bookmark: Click the bookmark, or
         csv: {
             header: 'Title,URL',
             filename: id + "'s HN favorites",
-            totype: a => toCSV(a.title, a.link)
+            totype: f => toCSV(f.title, f.link)
         },
         html: {
             header: '<title>' + id + "'s HN favorites</title><style>body {font-family: sans-serif;}</style><h1>" + id + "'s HN favorites</h1>",
             filename: id + "'s-HN-favorites",
-            totype: a => `<p><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>`
+            totype: f => `<p>` + link(f.link, f.title)
         }
     };
     const favorites = [];
@@ -53,8 +53,10 @@ Bookmark: Click the bookmark, or
         event.preventDefault();
         const re = new RegExp(query.value, 'i');
         await getFavorites();
-        const found = favorites.filter(f => f.title.match(re) || f.link.match(re)).map(types.html.totype);
-        results.innerHTML = found.join('') || 'not found';
+        const found = favorites
+            .filter(f => f.title.match(re) || f.link.match(re))
+            .map(f => '<tr><td>' + types.html.totype(f) + '<td>' + link(f.link, f.link));
+        results.innerHTML = found.length ? '<table>' + found.join('') + '</table>' : 'not found';
     };
     exportToCsv.onclick = exportToHtml.onclick = async function () {
         const filetype = this.dataset.filetype;
@@ -64,7 +66,7 @@ Bookmark: Click the bookmark, or
     };
     async function getFavorites() {
         if (favorites.length > 0) return;
-        var url = `/favorites?id=${id}`;
+        var url = `favorites?id=${id}`;
         var page = 1;
         while (url) {
             results.innerHTML = `Fetching page ${page++} ...<br><br>`;
@@ -93,11 +95,14 @@ Bookmark: Click the bookmark, or
     function downloadFile(header, lines, filename, filetype) {
         const a = document.body.appendChild(document.createElement('a'));
         a.href = URL.createObjectURL(new Blob([header + '\n' + lines.join('\n')], {type: 'text/' + filetype}));
-        const date = (new Date()).toISOString().replace(/[T:]/g, '-').slice(0, 19);
+        const date = new Date().toISOString().replace(/[T:]/g, '-').slice(0, 19);
         a.download = `${filename}-${date}.${filetype}`;
         a.click();
     }
     function sleep(time) {
         return new Promise(resolve => setTimeout(resolve, time));
+    }
+    function link(url, text) {
+        return `<a href="${url}" target=_blank>${text}</a>`;
     }
 })();

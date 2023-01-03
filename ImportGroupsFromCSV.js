@@ -1,5 +1,7 @@
 JavaScript:
 /* 
+bookmarklet name: /ImportGroupsCSV#
+
 Import Groups from CSV
 
 Setup:

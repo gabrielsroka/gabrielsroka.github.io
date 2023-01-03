@@ -1,10 +1,12 @@
 javascript:
 /*
 Bookmarklet name: /console#
-url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
 
 Setup:
-Drag and drop this to your bookmark bar.
+Select all this code, then drag and drop or copy/paste it to your bookmark bar.
+
+url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+
 */
 (function () {
  const div = document.body.appendChild(document.createElement('div'));

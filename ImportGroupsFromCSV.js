@@ -1,7 +1,9 @@
+JavaScript:
 /* 
 Import Groups from CSV
 
 Setup:
+Drag and drop all of this to your bookmark toolbar, or:
 Create a Chrome Snippet for JavaScript:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
@@ -37,7 +39,7 @@ Group 1,The first group
         const lines = file.split(lineSeparator);
         const fields = lines.shift().split(fieldSeparator);
         const headers = {};
-        fields.forEach((val, i) => headers[val] = i); // Map header name to number.
+        fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
         lines.forEach(line => {
             if (line == '') return;

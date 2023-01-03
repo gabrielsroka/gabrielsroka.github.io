@@ -2,6 +2,9 @@ javascript:
 /*
 Bookmarklet name: /console#
 url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+
+Setup:
+Drag and drop this to your bookmark bar.
 */
 (function () {
  const div = document.body.appendChild(document.createElement('div'));

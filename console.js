@@ -25,7 +25,7 @@ for await (user of getObjects(url)) {\n
  div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
  run.onclick = function () {
    if (!preserveLog.checked) debug.value = '';
-   eval('(async function () {' + editor.value + '})()');
+   eval('(async function () {' + editor.value + '\n})()');
  };
  editor.onkeydown = function (event) {
    const ENTER = 13;

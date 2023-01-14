@@ -34,7 +34,8 @@ if (typeof users == 'undefined') {
 rows = users
   .filter(u => u.profile.email.match(regex)) 
   .sort((u1, u2) => u1.profile.firstName.localeCompare(u2.profile.firstName))
-  .map(u => '<tr><td>' + link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName) + '<td>' + u.profile.login + '<td>' + u.profile.email)
+  .map(u => '<tr><td>' + link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName) + 
+    '<td>' + u.profile.login + '<td>' + u.profile.email)
   .join('')
 results.innerHTML = rows.length ? '<table><tr><th>Name<th>Username<th>Email' + rows + '</table>' : 'not found'
 ```

@@ -6,11 +6,15 @@
 body {
     font-family: sans-serif;
 }
+pre {
+    background-color: #eee;
+    padding: 8px;
+}
 </style>
 </head>
 <body>
 <h1>console</h1>
-<p>This tool will allow you to run short JS snippets using a library (see source for more info).</p>
+<p>This tool will allow you to run short JS snippets using a library (see Functions below and source for more info).</p>
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
@@ -22,113 +26,13 @@ body {
 <li>In your Okta org, click the "console" button from your bookmarks toolbar.
 <li>Type in code, click Run.
 </ol>
-<div>Examples
-<pre>
-// Search groups with regex using https://gabrielsroka.github.io/console
-
-// Set this:
-regex = /germ/i  // 'i' is case-Insensitive
-
-if (typeof groups == 'undefined') {
-  results.innerHTML = 'Loading...'
-  groups = []
-  for await (g of getObjects('/api/v1/groups')) groups.push(g)
-}
-rows = groups
-  .filter(g => g.profile.name.match(regex)) 
-  .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
-  .map(g => '<tr><td>' + link('/admin/group/' + g.id, g.profile.name) + '<td>' + g.profile.description)
-  .join('')
-results.innerHTML = rows.length ?  '<table><tr><th>Name<th>Description' + rows + '</table>': 'not found'
-</pre>
-
-<pre>
-// Search users with regex using https://gabrielsroka.github.io/console
-
-// Set these:
-regex = /@gsroka.local/i   // 'i' is case-Insensitive
-url = '/api/v1/users?filter=status eq "ACTIVE"'
-
-if (typeof users == 'undefined') {
-  results.innerHTML = 'Loading...'
-  users = []
-  for await (u of getObjects(url)) users.push(u)
-}
-rows = users
-  .filter(u => u.profile.email.match(regex)) 
-  .sort((u1, u2) => u1.profile.firstName.localeCompare(u2.profile.firstName))
-  .map(u => '<tr><td>' + link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName) + 
-    '<td>' + u.profile.login + '<td>' + u.profile.email)
-  .join('')
-results.innerHTML = rows.length ? '<table><tr><th>Name<th>Username<th>Email' + rows + '</table>' : 'not found'
-</pre>
-
-<pre>
-// Eval group rule expression using https://gabrielsroka.github.io/console
-
-// Set these:
-value = "user.login != 'gabrielsroka@gmail.com'"
-logins = ['me', 'gabrielsroka', 'jane.doe@gsroka.local']
-
-// Cache users
-if (typeof users == 'undefined' || (typeof saveLogins != 'undefined' && JSON.stringify(saveLogins) != JSON.stringify(logins))) {
-  saveLogins = [...logins]
-  users = await Promise.all(logins.map(async login => getJson('/api/v1/users/' + login)))
-  for (u of users) {
-    if (u.errorSummary) {
-      log(u.errorSummary)
-      return
-    }
-  }
-}
-
-exps = users.map(user => ({value, targets: {user: user.id}, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}))
-es = await postJson('/api/v1/internal/expression/eval', exps)
-for (u in users) {
-  log(users[u].profile.login, es[u].error?.errorCauses.map(c => c.errorSummary).join('\n') || es[u].result)
-}
-</pre>
-
-<pre>
-// Create and activate group rule using https://gabrielsroka.github.io/console
-
-// Set these:
-name = 'a rule'
-value = `user.login == 'aa'`
-group = 'aa finance'
-// groupIds = ['00gp7pntp8SLlzD1L0h7']
-
-groups = await getJson(`/api/v1/groups?search=profile.name eq "${group}"`)
-groupIds = groups.map(g => g.id)
-body = {
-  name,
-  type: 'group_rule',
-  conditions: {
-    expression: {
-      value,
-      type: 'urn:okta:expression:1.0'
-    }
-  },
-  actions: {
-    assignUserToGroups: {groupIds}
-  }
-}
-rule = await postJson('/api/v1/groups/rules', body)
-if (rule.id) {
-  post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
-  log('created ' + name)
-} else {
-  log(rule.errorSummary + '\n' + rule.errorCauses.map(c => c.errorSummary).join('\n'))
-}
-</pre>
-</div>
 <script id=code>
 (function () {
  const div = document.body.appendChild(document.createElement('div'));
  div.innerHTML = `<button id=run>Run</button>
   <button onclick=document.body.removeChild(this.parentNode)>Close</button>
   <label><input id=preserveLog type=checkbox> Preserve Log</label>
-  <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js target=_blank>src</a><br>
+  <a href=https://gabrielsroka.github.io/console target=_blank>src</a><br>
   <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 f = 'filter=profile.lastName eq "Doe"'\n
 url = '/api/v1/users?limit=2&' + f\n
@@ -214,5 +118,123 @@ for await (user of getObjects(url)) {\n
 <script>
 bm.href = 'javascript:' + code.innerText + '();';
 </script>
+<br>
+<b>Functions</b>
+<ul>
+<li>log()
+<li>getPages()
+<li>getObjects()
+<li>get()
+<li>getJson()
+<li>post()
+<li>postJson()
+<li>put()
+<li>putJson()
+<li>remove() [not delete]
+<li>link()
+<li>toCSV()
+<li>downloadCSV()
+</ul>
+<br>
+<div><b>Examples</b>
+<pre>
+// Search groups with regex using https://gabrielsroka.github.io/console
+
+// Set this:
+regex = /germ/i  // 'i' is case-Insensitive
+
+if (typeof groups == 'undefined') {
+  results.innerHTML = 'Loading...'
+  groups = []
+  for await (g of getObjects('/api/v1/groups')) groups.push(g)
+}
+rows = groups
+  .filter(g => g.profile.name.match(regex)) 
+  .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
+  .map(g => '&lt;tr>&lt;td>' + link('/admin/group/' + g.id, g.profile.name) + '&lt;td>' + g.profile.description)
+  .join('')
+results.innerHTML = rows.length ?  '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + rows + '&lt;/table>': 'not found'
+</pre>
+<br>
+<pre>
+// Search users with regex using https://gabrielsroka.github.io/console
+
+// Set these:
+regex = /@gsroka.local/i   // 'i' is case-Insensitive
+url = '/api/v1/users?filter=status eq "ACTIVE"'
+
+if (typeof users == 'undefined') {
+  results.innerHTML = 'Loading...'
+  users = []
+  for await (u of getObjects(url)) users.push(u)
+}
+rows = users
+  .filter(u => u.profile.email.match(regex)) 
+  .sort((u1, u2) => u1.profile.firstName.localeCompare(u2.profile.firstName))
+  .map(u => '&lt;tr>&lt;td>' + link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName) + 
+    '&lt;td>' + u.profile.login + '&lt;td>' + u.profile.email)
+  .join('')
+results.innerHTML = rows.length ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Username&lt;th>Email' + rows + '&lt;/table>' : 'not found'
+</pre>
+<br>
+<pre>
+// Eval group rule expression using https://gabrielsroka.github.io/console
+
+// Set these:
+value = "user.login != 'gabrielsroka@gmail.com'"
+logins = ['me', 'gabrielsroka', 'jane.doe@gsroka.local']
+
+// Cache users
+if (typeof users == 'undefined' || (typeof saveLogins != 'undefined' && JSON.stringify(saveLogins) != JSON.stringify(logins))) {
+  saveLogins = [...logins]
+  users = await Promise.all(logins.map(async login => getJson('/api/v1/users/' + login)))
+  for (u of users) {
+    if (u.errorSummary) {
+      log(u.errorSummary)
+      return
+    }
+  }
+}
+
+exps = users.map(user => ({value, targets: {user: user.id}, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}))
+es = await postJson('/api/v1/internal/expression/eval', exps)
+for (u in users) {
+  log(users[u].profile.login, es[u].error?.errorCauses.map(c => c.errorSummary).join('\n') || es[u].result)
+}
+</pre>
+<br>
+<pre>
+// Create and activate group rule using https://gabrielsroka.github.io/console
+
+// Set these:
+name = 'a rule'
+value = `user.login == 'aa'`
+group = 'aa finance'
+// groupIds = ['00gp7pntp8SLlzD1L0h7']
+
+groups = await getJson(`/api/v1/groups?search=profile.name eq "${group}"`)
+groupIds = groups.map(g => g.id)
+body = {
+  name,
+  type: 'group_rule',
+  conditions: {
+    expression: {
+      value,
+      type: 'urn:okta:expression:1.0'
+    }
+  },
+  actions: {
+    assignUserToGroups: {groupIds}
+  }
+}
+rule = await postJson('/api/v1/groups/rules', body)
+if (rule.id) {
+  post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
+  log('created ' + name)
+} else {
+  log(rule.errorSummary + '\n' + rule.errorCauses.map(c => c.errorSummary).join('\n'))
+}
+</pre>
+</div>
 </body>
 </html>

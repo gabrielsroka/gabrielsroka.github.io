@@ -25,7 +25,7 @@ pre {
 <b>Usage</b>
 <ol>
 <li>In your Okta org, click the "console" button from your bookmarks toolbar.
-<li>Type in code, click Run.
+<li>Type in code, press Ctrl+Enter or click Run.
 </ol>
 <script id=code>
 (function () {
@@ -253,56 +253,81 @@ for await (user of getObjects(url)) {
 // Export users and their factors using https://gabrielsroka.github.io/console
 
 // in series, slow:
- for await (user of getObjects('/api/v1/users')) {
-   factors = await getJson(`/api/v1/users/${user.id}/factors`)
-   waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
-   log(user.id, user.profile.login, waFactors.join('; '))
- }
+for await (user of getObjects('/api/v1/users')) {
+  factors = await getJson(`/api/v1/users/${user.id}/factors`)
+  waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
+  log(user.id, user.profile.login, waFactors.join('; '))
+}
 
 // in parallel, 10-20 times faster than in series [0]:
- limit = 15 // try 15, 35, or 75 for the limit, depending on the org. see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
- url = '/api/v1/users?limit=' + limit
- for await (user of getObjects(url)) {
-   getFactors(user)
- }
- 
- async function getFactors(user) {
-   factors = await getJson(`/api/v1/users/${user.id}/factors`)
-   waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
-   log(user.id, user.profile.login, waFactors.join('; '))
- }
+limit = 15 // try 15, 35, or 75 for the limit, depending on the org. see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
+url = '/api/v1/users?limit=' + limit
+for await (user of getObjects(url)) {
+  getFactors(user)
+}
+
+async function getFactors(user) {
+  factors = await getJson(`/api/v1/users/${user.id}/factors`)
+  waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
+  log(user.id, user.profile.login, waFactors.join('; '))
+}
 
 // export to CSV in parallel [0]:
- limit = 15 // Try 15, 35, or 75 for the limit, depending on the org. see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
- 
- url = '/api/v1/users?limit=' + limit
- log('id,login,factors')
- promises = []
- for await (user of getObjects(url)) {
-   promises.push(getFactors(user))
- }
- await Promise.all(promises) // Wait until all calls are finished before downloading CSV.
- downloadCSV(debug.value, 'factors')
- 
- async function getFactors(user) {
-   factors = await getJson(`/api/v1/users/${user.id}/factors`)
-   waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
-   log(toCSV(user.id, user.profile.login, waFactors.join('; ')))
- }
+limit = 15 // Try 15, 35, or 75 for the limit, depending on the org. see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
 
-// [0] parallel code works up until about 500 users, then u hit rate limits and have to sleep. i have the code written... but let's leave it for another day :slightly_smiling_face: . series code shouldn't hit rate limits cuz it's soooo slow
+url = '/api/v1/users?limit=' + limit
+log('id,login,factors')
+promises = []
+for await (user of getObjects(url)) {
+  promises.push(getFactors(user))
+}
+await Promise.all(promises) // Wait until all calls are finished before downloading CSV.
+downloadCSV(debug.value, 'factors')
+
+async function getFactors(user) {
+  factors = await getJson(`/api/v1/users/${user.id}/factors`)
+  waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
+  log(toCSV(user.id, user.profile.login, waFactors.join('; ')))
+}
+
+// [0] parallel code works up until about 500 users, then u hit rate limits and have to sleep. i have the code written... but let's leave it for another day :)
+// series code shouldn't hit rate limits cuz it's soooo slow.
 </pre>
 <br>
 <pre>
-// if u need the actual user info
+// List unmanaged devices and user info using https://gabrielsroka.github.io/console
 
- url = '/api/v1/devices?search=managementStatus eq "UNMAN"'
- params = '&expand=user' // due to a bug in the API, this must be added each time.
- for await (device of getObjects(url, params)) {
-   for (user of device._embedded.users) {
-     log(device.id, user.managementStatus) // add more attrs...
-   }
- }
+url = '/api/v1/devices?search=managementStatus eq "UNMAN"'
+params = '&expand=user' // due to a bug in the API, this must be added each time.
+for await (device of getObjects(url, params)) {
+  for (user of device._embedded.users) {
+    log(device.id, user.managementStatus) // add more attrs...
+  }
+}
+</pre>
+<br>
+<pre>
+// Copy users from one group to another using https://gabrielsroka.github.io/console
+
+srcGroupId = '00g...'
+dstGroupId = '00g...'
+url = '/api/v1/groups/' + srcGroupId + '/users'
+for await (user of getObjects(url)) {
+  log('adding user', user.id)
+  put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
+}
+log('done')
+</pre>
+<br>
+<pre>
+// Remove users from a group using https://gabrielsroka.github.io/console
+
+groupId = location.pathname.split('/').pop()
+url = `/api/v1/groups/${groupId}/users/`
+for await (user of getObjects(url)) {
+  remove(url + user.id)
+  log(user.profile.login)
+}
 </pre>
 </div>
 </body>

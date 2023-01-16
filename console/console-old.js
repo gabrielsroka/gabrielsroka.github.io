@@ -5,7 +5,7 @@ Bookmarklet name: /console#
 Setup:
 Select all this code, then drag and drop or copy/paste it to your bookmark bar.
 
-url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+url: https://gabrielsroka.github.io/console
 
 */
 (function () {

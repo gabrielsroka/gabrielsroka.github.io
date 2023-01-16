@@ -324,6 +324,7 @@ log('done')
 <pre>
 // Remove users from a group using https://gabrielsroka.github.io/console
 
+// Get groupId from browser's address bar.
 groupId = location.pathname.split('/').pop()
 url = `/api/v1/groups/${groupId}/users/`
 for await (user of getObjects(url)) {

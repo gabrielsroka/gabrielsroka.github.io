@@ -1,7 +1,7 @@
-See https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+See https://gabrielsroka.github.io/console
 
 ```js
-// Search groups with regex using https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+// Search groups with regex using https://gabrielsroka.github.io/console
 
 // Set this:
 regex = /germ/i  // 'i' is case-Insensitive
@@ -20,7 +20,7 @@ results.innerHTML = rows.length ?  '<table><tr><th>Name<th>Description' + rows +
 ```
 
 ```js
-// Search users with regex using https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+// Search users with regex using https://gabrielsroka.github.io/console
 
 // Set these:
 regex = /@gsroka.local/i   // 'i' is case-Insensitive
@@ -41,7 +41,7 @@ results.innerHTML = rows.length ? '<table><tr><th>Name<th>Username<th>Email' + r
 ```
 
 ```js
-// Eval group rule expression using https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+// Eval group rule expression using https://gabrielsroka.github.io/console
 
 // Set these:
 value = "user.login != 'gabrielsroka@gmail.com'"
@@ -67,7 +67,7 @@ for (u in users) {
 ```
 
 ```js
-// Create and activate group rule using https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+// Create and activate group rule using https://gabrielsroka.github.io/console
 
 // Set these:
 name = 'a rule'

@@ -250,7 +250,7 @@ for await (user of getObjects(url)) {
 </pre>
 <br>
 <pre>
-// Export users and their factors using https://gabrielsroka.github.io/console
+// Export users and their factors 3 different ways using https://gabrielsroka.github.io/console
 
 // in series, slow:
 for await (user of getObjects('/api/v1/users')) {
@@ -309,8 +309,10 @@ for await (device of getObjects(url, params)) {
 <pre>
 // Copy users from one group to another using https://gabrielsroka.github.io/console
 
+// Set these:
 srcGroupId = '00g...'
 dstGroupId = '00g...'
+
 url = '/api/v1/groups/' + srcGroupId + '/users'
 for await (user of getObjects(url)) {
   log('adding user', user.id)

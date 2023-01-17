@@ -31,13 +31,13 @@ pre {
 <script id=code>
 (function () {
  const div = document.body.appendChild(document.createElement('div'));
- div.innerHTML = `<button id=run>Run</button>
+ div.innerHTML = `<button id=run title='Ctrl+Enter'>Run</button>
   <button onclick=document.body.removeChild(this.parentNode)>Close</button>
   <label><input id=preserveLog type=checkbox> Preserve Log</label>
   <a href=https://gabrielsroka.github.io/console target=_blank>src</a><br>
   <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 f = 'filter=profile.lastName eq "Doe"'\n
-url = '/api/v1/users?limit=2&' + f\n
+url = '/api/v1/users?' + f\n
 for await (user of getObjects(url)) {\n
   log(user.id, user.profile.login)\n
 }</textarea><br>

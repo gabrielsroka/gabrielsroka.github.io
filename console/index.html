@@ -145,9 +145,9 @@ bm.href = 'javascript:' + code.innerText + '();';
 url = '/api/v1/users?filter=status eq "PROVISIONED"'
 for await (user of getObjects(url)) {
   log(user.id, user.profile.login, user.profile.email)
-  url = `/api/v1/users/${user.id}/lifecycle/reactivate?sendEmail=true`
+  url = '/api/v1/users/' + user.id + '/lifecycle/reactivate?sendEmail=true'
   post(url)
-  // await post(url) // Can `await` this to slow it down for rate limits.
+  // await post(url) // use `await` to slow down for rate limits.
 }
 </pre>
 <br>
@@ -163,7 +163,6 @@ for await (user of getObjects(url)) {
   log('adding user', user.id)
   put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
 }
-log('done')
 </pre>
 <br>
 <pre>
@@ -171,7 +170,7 @@ log('done')
 
 // Get groupId from browser's address bar.
 groupId = location.pathname.split('/').pop()
-url = `/api/v1/groups/${groupId}/users/`
+url = '/api/v1/groups/' + groupId + '/users/'
 for await (user of getObjects(url)) {
   remove(url + user.id)
   log(user.profile.login)
@@ -194,7 +193,7 @@ rows = groups
   .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
   .map(g => '&lt;tr>&lt;td>' + link('/admin/group/' + g.id, g.profile.name) + '&lt;td>' + g.profile.description)
   .join('')
-results.innerHTML = rows.length ?  '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + rows + '&lt;/table>': 'not found'
+results.innerHTML = rows.length ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + rows + '&lt;/table>': 'not found'
 </pre>
 <br>
 <pre>
@@ -226,7 +225,8 @@ value = "user.login != 'gabrielsroka@gmail.com'"
 logins = ['me', 'gabrielsroka', 'jane.doe@gsroka.local']
 
 // Cache users
-if (typeof users == 'undefined' || (typeof saveLogins != 'undefined' && JSON.stringify(saveLogins) != JSON.stringify(logins))) {
+if (typeof users == 'undefined' ||
+    (typeof saveLogins != 'undefined' && JSON.stringify(saveLogins) != JSON.stringify(logins))) {
   saveLogins = [...logins]
   users = await Promise.all(logins.map(async login => getJson('/api/v1/users/' + login)))
   for (u of users) {

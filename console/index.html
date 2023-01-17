@@ -61,7 +61,7 @@ for await (user of getObjects(url)) {\n
  const headers = {
    'Accept': 'application/json',
    'Content-Type': 'application/json',
-   'X-Okta-XsrfToken': _xsrfToken.innerText
+   'X-Okta-XsrfToken': document.querySelector('#_xsrfToken')?.innerText
  };
  async function* getPages(url, params = '') {
    while (url) {
@@ -109,11 +109,12 @@ for await (user of getObjects(url)) {\n
    return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
  }
  function downloadCSV(lines, filename) {
-   var a = $('<a>').appendTo(div);
-   a.attr('href', URL.createObjectURL(new Blob([lines], {type: 'text/csv'})));
-   var date = (new Date()).toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
-   a.attr('download', `${filename} ${date}.csv`);
-   a[0].click();
+   const a = document.body.appendChild(document.createElement('a'));
+   a.href = URL.createObjectURL(new Blob([lines], {type: 'text/csv'}));
+   const date = new Date().toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
+   a.download = `${filename} ${date}.csv`;
+   a.click();
+   document.body.removeChild(a);
  }
 })
 </script>

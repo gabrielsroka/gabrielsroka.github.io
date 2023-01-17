@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <title>console</title>
 <style>
 body {
@@ -139,6 +140,45 @@ bm.href = 'javascript:' + code.innerText + '();';
 <br>
 <div><b>Examples</b>
 <pre>
+// Send activation email to pending users using https://gabrielsroka.github.io/console
+
+url = '/api/v1/users?filter=status eq "PROVISIONED"'
+for await (user of getObjects(url)) {
+  log(user.id, user.profile.login, user.profile.email)
+  url = `/api/v1/users/${user.id}/lifecycle/reactivate?sendEmail=true`
+  post(url)
+  // await post(url) // Can `await` this to slow it down for rate limits.
+}
+</pre>
+<br>
+<pre>
+// Copy users from one group to another using https://gabrielsroka.github.io/console
+
+// Set these:
+srcGroupId = '00g...'
+dstGroupId = '00g...'
+
+url = '/api/v1/groups/' + srcGroupId + '/users'
+for await (user of getObjects(url)) {
+  log('adding user', user.id)
+  put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
+}
+log('done')
+</pre>
+<br>
+<pre>
+// Remove users from a group using https://gabrielsroka.github.io/console
+
+// Get groupId from browser's address bar.
+groupId = location.pathname.split('/').pop()
+url = `/api/v1/groups/${groupId}/users/`
+for await (user of getObjects(url)) {
+  remove(url + user.id)
+  log(user.profile.login)
+}
+</pre>
+<br>
+<pre>
 // Search groups with regex using https://gabrielsroka.github.io/console
 
 // Set this:
@@ -238,18 +278,6 @@ if (rule.id) {
 </pre>
 <br>
 <pre>
-// Send activation email to pending users using https://gabrielsroka.github.io/console
-
-url = '/api/v1/users?filter=status eq "PROVISIONED"'
-for await (user of getObjects(url)) {
-  log(user.id, user.profile.login, user.profile.email)
-  url = `/api/v1/users/${user.id}/lifecycle/reactivate?sendEmail=true`
-  post(url)
-  // await post(url) // Can `await` this to slow it down for rate limits.
-}
-</pre>
-<br>
-<pre>
 // Export users and their factors 3 different ways using https://gabrielsroka.github.io/console
 
 // in series, slow:
@@ -260,7 +288,8 @@ for await (user of getObjects('/api/v1/users')) {
 }
 
 // in parallel, 10-20 times faster than in series [0]:
-limit = 15 // try 15, 35, or 75 for the limit, depending on the org. see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
+limit = 15 // try 15, 35, or 75 for the limit, depending on the org.
+// see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
 url = '/api/v1/users?limit=' + limit
 for await (user of getObjects(url)) {
   getFactors(user)
@@ -273,7 +302,8 @@ async function getFactors(user) {
 }
 
 // export to CSV in parallel [0]:
-limit = 15 // Try 15, 35, or 75 for the limit, depending on the org. see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
+limit = 15 // Try 15, 35, or 75 for the limit, depending on the org.
+// see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
 
 url = '/api/v1/users?limit=' + limit
 log('id,login,factors')
@@ -290,7 +320,8 @@ async function getFactors(user) {
   log(toCSV(user.id, user.profile.login, waFactors.join('; ')))
 }
 
-// [0] parallel code works up until about 500 users, then u hit rate limits and have to sleep. i have the code written... but let's leave it for another day :)
+// [0] parallel code works up until about 500 users, then u hit rate limits and have to sleep.
+// i have the code written... but let's leave it for another day :)
 // series code shouldn't hit rate limits cuz it's soooo slow.
 </pre>
 <br>
@@ -303,33 +334,6 @@ for await (device of getObjects(url, params)) {
   for (user of device._embedded.users) {
     log(device.id, user.managementStatus) // add more attrs...
   }
-}
-</pre>
-<br>
-<pre>
-// Copy users from one group to another using https://gabrielsroka.github.io/console
-
-// Set these:
-srcGroupId = '00g...'
-dstGroupId = '00g...'
-
-url = '/api/v1/groups/' + srcGroupId + '/users'
-for await (user of getObjects(url)) {
-  log('adding user', user.id)
-  put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
-}
-log('done')
-</pre>
-<br>
-<pre>
-// Remove users from a group using https://gabrielsroka.github.io/console
-
-// Get groupId from browser's address bar.
-groupId = location.pathname.split('/').pop()
-url = `/api/v1/groups/${groupId}/users/`
-for await (user of getObjects(url)) {
-  remove(url + user.id)
-  log(user.profile.login)
 }
 </pre>
 </div>

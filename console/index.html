@@ -343,6 +343,66 @@ for await (device of getObjects(url, params)) {
   }
 }
 </pre>
+<br>
+<pre>
+// Clone Group Rule using https://gabrielsroka.github.io/console
+
+// Set these:
+groupRuleName = 'a update account' // not case-sensitive
+showGroupIdsAndQuit = true // true or false - set to true the first time, then false
+groupIds = [
+  '00goz2pusnPu0lRCB0h7', // Update Account
+  //'00gp7pntp8SLlzD1L0h7', // aa Finance
+]
+deleteOldRule = false // true or false
+
+log('Searching rule(s)...')
+baseUrl = '/api/v1/groups/rules/'
+url = baseUrl + '?expand=groupIdToGroupNameMap&search=' + groupRuleName
+count = 0
+for await (rule of getObjects(url)) {
+  log(rule.id, rule.name, '-', rule.conditions.expression.value)
+  log('groupIds = [')
+  for ([id, name] of Object.entries(rule._embedded.groupIdToGroupNameMap)) {
+    log(' ', `'${id}', //`, name)
+  }
+  log(']')
+  count++
+}
+
+if (count != 1) {
+  log('Error: found', count, 'rules')
+  return
+}
+
+if (showGroupIdsAndQuit) {
+  log('Copy the groupIds to the code, update it, set showGroupIdsAndQuit = false, then Run again.')
+  log('Done.')
+  return
+}
+
+// Deactivate and rename/delete old rule.
+url = baseUrl + rule.id
+await post(url + '/lifecycle/deactivate')
+if (deleteOldRule) {
+  await remove(url)
+  log('Delete old rule.')
+} else {
+  ruleName = rule.name
+  rule.name += ' - old'
+  await put(url, rule)
+  log('Rename old rule to:', rule.name)
+  rule.name = ruleName
+}
+
+// Create new rule and activate it.
+rule.actions.assignUserToGroups.groupIds = groupIds
+newRule = await postJson(baseUrl, rule)
+await post(baseUrl + newRule.id + '/lifecycle/activate')
+log()
+log('New rule:')
+log(newRule.id, newRule.name)
+</pre>
 </div>
 </body>
 </html>

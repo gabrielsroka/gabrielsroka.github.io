@@ -199,12 +199,12 @@ if (typeof groups == 'undefined') {
   groups = []
   for await (g of getObjects('/api/v1/groups')) groups.push(g)
 }
-rows = groups
+found = groups
   .filter(g => g.profile.name.match(regex)) 
   .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
   .map(g => '&lt;tr>&lt;td>' + link('/admin/group/' + g.id, g.profile.name) + '&lt;td>' + g.profile.description)
   .join('')
-results.innerHTML = rows ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + rows + '&lt;/table>': 'not found'
+results.innerHTML = found ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + found + '&lt;/table>': 'not found'
 </pre>
 <br>
 <pre>
@@ -219,13 +219,13 @@ if (typeof users == 'undefined') {
   users = []
   for await (u of getObjects(url)) users.push(u)
 }
-rows = users
+found = users
   .filter(u => u.profile.email.match(regex)) 
   .sort((u1, u2) => u1.profile.firstName.localeCompare(u2.profile.firstName))
   .map(u => '&lt;tr>&lt;td>' + link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName) + 
     '&lt;td>' + u.profile.login + '&lt;td>' + u.profile.email)
   .join('')
-results.innerHTML = rows ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Username&lt;th>Email' + rows + '&lt;/table>' : 'not found'
+results.innerHTML = found ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Username&lt;th>Email' + found + '&lt;/table>' : 'not found'
 </pre>
 <br>
 <pre>

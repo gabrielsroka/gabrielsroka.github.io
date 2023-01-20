@@ -192,7 +192,7 @@ for await (user of getObjects(url)) {
 // Search groups with regex using https://gabrielsroka.github.io/console
 
 // Set this:
-regex = /germ/i  // 'i' is case-Insensitive
+regex = /germ/i  // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
 
 if (typeof groups == 'undefined') {
   results.innerHTML = 'Loading...'
@@ -204,14 +204,14 @@ rows = groups
   .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
   .map(g => '&lt;tr>&lt;td>' + link('/admin/group/' + g.id, g.profile.name) + '&lt;td>' + g.profile.description)
   .join('')
-results.innerHTML = rows.length ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + rows + '&lt;/table>': 'not found'
+results.innerHTML = rows ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + rows + '&lt;/table>': 'not found'
 </pre>
 <br>
 <pre>
 // Search users with regex using https://gabrielsroka.github.io/console
 
 // Set these:
-regex = /@gsroka.local/i   // 'i' is case-Insensitive
+regex = /@gsroka.local/i   // // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
 url = '/api/v1/users?filter=status eq "ACTIVE"'
 
 if (typeof users == 'undefined') {
@@ -225,7 +225,7 @@ rows = users
   .map(u => '&lt;tr>&lt;td>' + link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName) + 
     '&lt;td>' + u.profile.login + '&lt;td>' + u.profile.email)
   .join('')
-results.innerHTML = rows.length ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Username&lt;th>Email' + rows + '&lt;/table>' : 'not found'
+results.innerHTML = rows ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Username&lt;th>Email' + rows + '&lt;/table>' : 'not found'
 </pre>
 <br>
 <pre>

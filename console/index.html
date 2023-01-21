@@ -150,7 +150,19 @@ bm.href = 'javascript:' + code.innerText + '();';
 </ul>
 <br>
 <div><b>Examples</b>
-<pre>
+<ul>
+<li><a href=#sendActivationEmail>Send activation email to pending users</a>
+<li><a href=#copyUsers>Copy users from one group to another</a>
+<li><a href=#removeUsers>Remove users from a group</a>
+<li><a href=#searchGroups>Search groups with regex</a>
+<li><a href=#searchUsers>Search users with regex</a>
+<li><a href=#evalGroupRule>Eval group rule expression</a>
+<li><a href=#createGroupRule>Create and activate group rule</a>
+<li><a href=#exportUsersAndFactors>Export users and their factors 3 different ways</a>
+<li><a href=#listDevices>List unmanaged devices and user info</a>
+<li><a href=#cloneGroupRule>Clone Group Rule</a>
+</ul>
+<pre id=sendActivationEmail>
 // Send activation email to pending users using https://gabrielsroka.github.io/console
 
 url = '/api/v1/users?filter=status eq "PROVISIONED"'
@@ -162,7 +174,7 @@ for await (user of getObjects(url)) {
 }
 </pre>
 <br>
-<pre>
+<pre id=copyUsers>
 // Copy users from one group to another using https://gabrielsroka.github.io/console
 
 // Set these:
@@ -176,7 +188,7 @@ for await (user of getObjects(url)) {
 }
 </pre>
 <br>
-<pre>
+<pre id=removeUsers>
 // Remove users from a group using https://gabrielsroka.github.io/console
 
 // Get groupId from browser's address bar.
@@ -188,7 +200,7 @@ for await (user of getObjects(url)) {
 }
 </pre>
 <br>
-<pre>
+<pre id=searchGroups>
 // Search groups with regex using https://gabrielsroka.github.io/console
 
 // Set this:
@@ -207,7 +219,7 @@ found = groups
 results.innerHTML = found ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + found + '&lt;/table>': 'not found'
 </pre>
 <br>
-<pre>
+<pre id=searchUsers>
 // Search users with regex using https://gabrielsroka.github.io/console
 
 // Set these:
@@ -228,7 +240,7 @@ found = users
 results.innerHTML = found ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Username&lt;th>Email' + found + '&lt;/table>' : 'not found'
 </pre>
 <br>
-<pre>
+<pre id=evalGroupRule>
 // Eval group rule expression using https://gabrielsroka.github.io/console
 
 // Set these:
@@ -255,7 +267,7 @@ for (u in users) {
 }
 </pre>
 <br>
-<pre>
+<pre id=createGroupRule>
 // Create and activate group rule using https://gabrielsroka.github.io/console
 
 // Set these:
@@ -288,7 +300,7 @@ if (rule.id) {
 }
 </pre>
 <br>
-<pre>
+<pre id=exportUsersAndFactors>
 // Export users and their factors 3 different ways using https://gabrielsroka.github.io/console
 
 // in series, slow:
@@ -336,7 +348,7 @@ async function getFactors(user) {
 // series code shouldn't hit rate limits cuz it's soooo slow.
 </pre>
 <br>
-<pre>
+<pre id=listDevices>
 // List unmanaged devices and user info using https://gabrielsroka.github.io/console
 
 url = '/api/v1/devices?search=managementStatus eq "UNMAN"'
@@ -348,7 +360,7 @@ for await (device of getObjects(url, params)) {
 }
 </pre>
 <br>
-<pre>
+<pre id=cloneGroupRule>
 // Clone Group Rule using https://gabrielsroka.github.io/console
 
 // Set these:

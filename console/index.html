@@ -367,10 +367,10 @@ for await (device of getObjects(url, params)) {
 groupRuleName = '...' // not case-sensitive
 showGroupIdsAndQuit = true // true or false - set to true the first time, then false
 groupIds = [
-  '...', // Group 1
-  '...', // Group 2
+  '...', // A api group
 ]
-deleteOldRule = false // true or false
+deleteOldRule = false // true or false - false will rename old rule
+activateNewRule = true // true or false
 
 log('Searching rule(s)...')
 baseUrl = '/api/v1/groups/rules/'
@@ -402,19 +402,24 @@ url = baseUrl + rule.id
 await post(url + '/lifecycle/deactivate')
 if (deleteOldRule) {
   await remove(url)
-  log('Delete old rule.')
+  log('Deleted old rule.')
 } else {
   ruleName = rule.name
   rule.name += ' - old'
-  await put(url, rule)
-  log('Rename old rule to:', rule.name)
+  r = await put(url, rule)
+  if (!r.ok) {
+     e = await r.json()
+     log('Error.', e.errorCauses.map(e => e.errorSummary))
+     return
+  }
+  log('Renamed old rule to:', rule.name)
   rule.name = ruleName
 }
 
 // Create new rule and activate it.
 rule.actions.assignUserToGroups.groupIds = groupIds
 newRule = await postJson(baseUrl, rule)
-await post(baseUrl + newRule.id + '/lifecycle/activate')
+if (activateNewRule) await post(baseUrl + newRule.id + '/lifecycle/activate')
 log()
 log('New rule:')
 log(newRule.id, newRule.name)

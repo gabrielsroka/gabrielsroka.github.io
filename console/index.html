@@ -444,9 +444,9 @@ for (user of users) {
     mgr = users.find(m => m.profile.email == user.profile.manager)
     if (mgr) {
       await put('/api/v1/groups/' + groupId + '/users/' + mgr.id)
-      log('added to group:', user.profile.manager)
+      log('Added to group:', user.profile.manager)
     } else {
-      log('mgr not found:', user.profile.manager, ', on:', user.profile.login)
+      log('Mgr not found:', user.profile.manager, ', on:', user.profile.login)
     }
   }
 }

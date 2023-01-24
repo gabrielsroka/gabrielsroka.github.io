@@ -439,11 +439,13 @@ for await (user of getObjects(url)) {
   users.push(user)
 }
 
+added = []
 for (user of users) {
-  if (user.profile.manager) {
-    mgr = users.find(m => m.profile.email == user.profile.manager)
+  if (user.profile.manager && !added.find(m => m == user.profile.manager)) {
+    mgr = users.find(m => m.profile.login == user.profile.manager)
     if (mgr) {
       await put('/api/v1/groups/' + groupId + '/users/' + mgr.id)
+      added.push(user.profile.manager)
       log('Added to group:', user.profile.manager)
     } else {
       log('Mgr not found:', user.profile.manager, ', on:', user.profile.login)

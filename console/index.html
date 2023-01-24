@@ -37,6 +37,7 @@ pre {
 <ol>
 <li>In your Okta org, click the "console" button from your bookmarks toolbar.
 <li>Type in code, press Ctrl+Enter or click Run.
+<li>For debugging, it's helpful to open the browser's DevTools and look at the Network tab.
 </ol>
 <script id=code>
 (function () {
@@ -160,7 +161,8 @@ bm.href = 'javascript:' + code.innerText + '();';
 <li><a href=#createGroupRule>Create and activate group rule</a>
 <li><a href=#exportUsersAndFactors>Export users and their factors 3 different ways</a>
 <li><a href=#listDevices>List unmanaged devices and user info</a>
-<li><a href=#cloneGroupRule>Clone Group Rule</a>
+<li><a href=#cloneGroupRule>Clone group rule</a>
+<li><a href=#addManagersToGroup>Add managers to group</a>
 </ul>
 <pre id=sendActivationEmail>
 // Send activation email to pending users using https://gabrielsroka.github.io/console
@@ -361,7 +363,7 @@ for await (device of getObjects(url, params)) {
 </pre>
 <br>
 <pre id=cloneGroupRule>
-// Clone Group Rule using https://gabrielsroka.github.io/console
+// Clone group rule using https://gabrielsroka.github.io/console
 
 // Set these:
 groupRuleName = '...' // not case-sensitive
@@ -423,6 +425,32 @@ if (activateNewRule) await post(baseUrl + newRule.id + '/lifecycle/activate')
 log()
 log('New rule:')
 log(newRule.id, newRule.name)
+</pre>
+<br>
+<pre id=addManagersToGroup>
+// Add managers to a group using https://gabrielsroka.github.io/console
+
+// Set this:
+groupId = '...'
+
+url = '/api/v1/users' // maybe this should use: ?filter=status eq "ACTIVE"
+users = []
+for await (user of getObjects(url)) {
+  users.push(user)
+}
+
+for (user of users) {
+  if (user.profile.manager) {
+    mgr = users.find(m => m.profile.email == user.profile.manager)
+    if (mgr) {
+      await put('/api/v1/groups/' + groupId + '/users/' + mgr.id)
+      log('added to group:', user.profile.manager)
+    } else {
+      log('mgr not found:', user.profile.manager, ', on:', user.profile.login)
+    }
+  }
+}
+log('Done.')
 </pre>
 </div>
 </body>

@@ -998,7 +998,7 @@
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "urls";
             if (isRockstarIGAFeature == true) {
-                var paths = 'configlists,request_types'
+                var paths = 'configlists,request_types,jobs'
             }
             else {
                 var paths = 'apps,apps/${appId},apps/${appId}/groups,apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,' + 

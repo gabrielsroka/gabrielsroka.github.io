@@ -1,0 +1,460 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<title>console</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+pre {
+    background-color: #eee;
+    padding: 8px;
+}
+@media (prefers-color-scheme: dark) {
+    *, a {
+        background-color: #121212;
+        color: #ddd;
+    }
+    pre {
+        background-color: #333;
+        color: #ddd;
+    }
+}
+</style>
+</head>
+<body>
+<h1>console</h1>
+<p>This tool will allow you to run short JS snippets using a library (see Functions below and 
+    <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/index.html>source</a> for more info).</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>console v1</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>In your Okta org, click the "console" button from your bookmarks toolbar.
+<li>Type in code, press Ctrl+Enter or click Run.
+<li>For debugging, it's helpful to open the browser's DevTools and look at the Network tab.
+</ol>
+<script id=code>
+(function () {
+ const div = document.body.appendChild(document.createElement('div'));
+ div.innerHTML = `<button id=run title='Ctrl+Enter'>Run</button>
+  <button onclick=document.body.removeChild(this.parentNode)>Close</button>
+  <label><input id=preserveLog type=checkbox> Preserve Log</label>
+  <a href=https://gabrielsroka.github.io/console target=_blank>src</a><br>
+  <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
+f = 'filter=profile.lastName eq "Doe"'\n
+url = '/api/v1/users?' + f\n
+for await (user of getObjects(url)) {\n
+  log(user.id, user.profile.login)\n
+}</textarea><br>
+  <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>
+  <div id=results></div>`;
+ div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
+ run.onclick = function () {
+   if (!preserveLog.checked) debug.value = '';
+   eval('(async function () {' + editor.value + '\n})()');
+ };
+ editor.onkeydown = function (event) {
+   const ENTER = 13;
+   if (event.ctrlKey && event.keyCode == ENTER) {
+     run.onclick();
+   }
+ };
+ function log(...s) {
+   debug.value += s.join(' ') + '\n';
+   debug.scrollTo(0, debug.scrollHeight);
+ }
+ const headers = {
+   'Accept': 'application/json',
+   'Content-Type': 'application/json',
+   'X-Okta-XsrfToken': document.querySelector('#_xsrfToken')?.innerText
+ };
+ async function* getPages(url, params = '') {
+   while (url) {
+     const r = await get(url + params);
+     const page = await r.json();
+     yield page;
+     url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+   }
+ }
+ async function* getObjects(url, params) {
+   for await (const objects of getPages(url, params)) {
+     for (const o of objects) {
+       yield o;
+     }
+   }
+ }
+ async function get(url) {
+   return fetch(url, {method: 'get', headers});
+ }
+ async function getJson(url) {
+   const r = await get(url);
+   return r.json();
+ }
+ async function post(url, body) {
+   return fetch(url, {method: 'post', headers, body: JSON.stringify(body)});
+ }
+ async function postJson(url, body) {
+   const r = await post(url, body);
+   return r.json();
+ }
+ async function put(url, body) {
+   return fetch(url, {method: 'put', headers, body: JSON.stringify(body)});
+ }
+ async function putJson(url, body) {
+   const r = await put(url, body);
+   return r.json();
+ }
+ async function remove(url) {
+   return fetch(url, {method: 'delete', headers});
+ }
+ function link(url, text) {
+   return `<a href="${url}" target=_blank>${text}</a>`;
+ }
+ function toCSV(...fields) {
+   return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
+ }
+ function downloadCSV(lines, filename) {
+   const a = document.body.appendChild(document.createElement('a'));
+   a.href = URL.createObjectURL(new Blob([lines], {type: 'text/csv'}));
+   const date = new Date().toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
+   a.download = `${filename} ${date}.csv`;
+   a.click();
+   document.body.removeChild(a);
+ }
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+<br>
+<b>Functions</b>
+<ul>
+<li>log()
+<li>getPages()
+<li>getObjects()
+<li>get()
+<li>getJson()
+<li>post()
+<li>postJson()
+<li>put()
+<li>putJson()
+<li>remove() [not delete]
+<li>link()
+<li>toCSV()
+<li>downloadCSV()
+</ul>
+<br>
+<div><b>Examples</b>
+<ul>
+<li><a href=#sendActivationEmail>Send activation email to pending users</a>
+<li><a href=#copyUsers>Copy users from one group to another</a>
+<li><a href=#removeUsers>Remove users from a group</a>
+<li><a href=#searchGroups>Search groups with regex</a>
+<li><a href=#searchUsers>Search users with regex</a>
+<li><a href=#evalGroupRule>Eval group rule expression</a>
+<li><a href=#createGroupRule>Create and activate group rule</a>
+<li><a href=#exportUsersAndFactors>Export users and their factors 3 different ways</a>
+<li><a href=#listDevices>List unmanaged devices and user info</a>
+<li><a href=#cloneGroupRule>Clone group rule</a>
+<li><a href=#addManagersToGroup>Add managers to group</a>
+</ul>
+<pre id=sendActivationEmail>
+// Send activation email to pending users using https://gabrielsroka.github.io/console
+
+url = '/api/v1/users?filter=status eq "PROVISIONED"'
+for await (user of getObjects(url)) {
+  log(user.id, user.profile.login, user.profile.email)
+  url = '/api/v1/users/' + user.id + '/lifecycle/reactivate?sendEmail=true'
+  post(url)
+  // await post(url) // use `await` to slow down for rate limits.
+}
+</pre>
+<br>
+<pre id=copyUsers>
+// Copy users from one group to another using https://gabrielsroka.github.io/console
+
+// Set these:
+srcGroupId = '00g...'
+dstGroupId = '00g...'
+
+url = '/api/v1/groups/' + srcGroupId + '/users'
+for await (user of getObjects(url)) {
+  log('adding user', user.id)
+  put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
+}
+</pre>
+<br>
+<pre id=removeUsers>
+// Remove users from a group using https://gabrielsroka.github.io/console
+
+// Get groupId from browser's address bar.
+groupId = location.pathname.split('/').pop()
+url = '/api/v1/groups/' + groupId + '/users/'
+for await (user of getObjects(url)) {
+  remove(url + user.id)
+  log(user.profile.login)
+}
+</pre>
+<br>
+<pre id=searchGroups>
+// Search groups with regex using https://gabrielsroka.github.io/console
+
+// Set this:
+regex = /germ/i  // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
+
+if (typeof groups == 'undefined') {
+  results.innerHTML = 'Loading...'
+  groups = []
+  for await (g of getObjects('/api/v1/groups')) groups.push(g)
+}
+found = groups
+  .filter(g => g.profile.name.match(regex)) 
+  .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
+  .map(g => '&lt;tr>&lt;td>' + link('/admin/group/' + g.id, g.profile.name) + '&lt;td>' + g.profile.description)
+  .join('')
+results.innerHTML = found ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + found + '&lt;/table>': 'not found'
+</pre>
+<br>
+<pre id=searchUsers>
+// Search users with regex using https://gabrielsroka.github.io/console
+
+// Set these:
+regex = /@gsroka.local/i   // // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
+url = '/api/v1/users?filter=status eq "ACTIVE"'
+
+if (typeof users == 'undefined') {
+  results.innerHTML = 'Loading...'
+  users = []
+  for await (u of getObjects(url)) users.push(u)
+}
+found = users
+  .filter(u => u.profile.email.match(regex)) 
+  .sort((u1, u2) => u1.profile.firstName.localeCompare(u2.profile.firstName))
+  .map(u => '&lt;tr>&lt;td>' + link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName) + 
+    '&lt;td>' + u.profile.login + '&lt;td>' + u.profile.email)
+  .join('')
+results.innerHTML = found ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Username&lt;th>Email' + found + '&lt;/table>' : 'not found'
+</pre>
+<br>
+<pre id=evalGroupRule>
+// Eval group rule expression using https://gabrielsroka.github.io/console
+
+// Set these:
+value = "user.login != 'gabrielsroka@gmail.com'"
+logins = ['me', 'gabrielsroka', 'jane.doe@gsroka.local']
+
+// Cache users
+if (typeof users == 'undefined' ||
+    (typeof saveLogins != 'undefined' && JSON.stringify(saveLogins) != JSON.stringify(logins))) {
+  saveLogins = [...logins]
+  users = await Promise.all(logins.map(async login => getJson('/api/v1/users/' + login)))
+  for (u of users) {
+    if (u.errorSummary) {
+      log(u.errorSummary)
+      return
+    }
+  }
+}
+
+exps = users.map(user => ({value, targets: {user: user.id}, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}))
+es = await postJson('/api/v1/internal/expression/eval', exps)
+for (u in users) {
+  log(users[u].profile.login, es[u].error?.errorCauses.map(c => c.errorSummary).join('\n') || es[u].result)
+}
+</pre>
+<br>
+<pre id=createGroupRule>
+// Create and activate group rule using https://gabrielsroka.github.io/console
+
+// Set these:
+name = 'a rule'
+value = `user.login == 'aa'`
+group = 'aa finance'
+// groupIds = ['00gp7pntp8SLlzD1L0h7']
+
+groups = await getJson(`/api/v1/groups?search=profile.name eq "${group}"`)
+groupIds = groups.map(g => g.id)
+body = {
+  name,
+  type: 'group_rule',
+  conditions: {
+    expression: {
+      value,
+      type: 'urn:okta:expression:1.0'
+    }
+  },
+  actions: {
+    assignUserToGroups: {groupIds}
+  }
+}
+rule = await postJson('/api/v1/groups/rules', body)
+if (rule.id) {
+  post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
+  log('created ' + name)
+} else {
+  log(rule.errorSummary + '\n' + rule.errorCauses.map(c => c.errorSummary).join('\n'))
+}
+</pre>
+<br>
+<pre id=exportUsersAndFactors>
+// Export users and their factors 3 different ways using https://gabrielsroka.github.io/console
+
+// in series, slow:
+for await (user of getObjects('/api/v1/users')) {
+  factors = await getJson(`/api/v1/users/${user.id}/factors`)
+  waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
+  log(user.id, user.profile.login, waFactors.join('; '))
+}
+
+// in parallel, 10-20 times faster than in series [0]:
+limit = 15 // try 15, 35, or 75 for the limit, depending on the org.
+// see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
+url = '/api/v1/users?limit=' + limit
+for await (user of getObjects(url)) {
+  getFactors(user)
+}
+
+async function getFactors(user) {
+  factors = await getJson(`/api/v1/users/${user.id}/factors`)
+  waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
+  log(user.id, user.profile.login, waFactors.join('; '))
+}
+
+// export to CSV in parallel [0]:
+limit = 15 // Try 15, 35, or 75 for the limit, depending on the org.
+// see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
+
+url = '/api/v1/users?limit=' + limit
+log('id,login,factors')
+promises = []
+for await (user of getObjects(url)) {
+  promises.push(getFactors(user))
+}
+await Promise.all(promises) // Wait until all calls are finished before downloading CSV.
+downloadCSV(debug.value, 'factors')
+
+async function getFactors(user) {
+  factors = await getJson(`/api/v1/users/${user.id}/factors`)
+  waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
+  log(toCSV(user.id, user.profile.login, waFactors.join('; ')))
+}
+
+// [0] parallel code works up until about 500 users, then u hit rate limits and have to sleep.
+// i have the code written... but let's leave it for another day :)
+// series code shouldn't hit rate limits cuz it's soooo slow.
+</pre>
+<br>
+<pre id=listDevices>
+// List unmanaged devices and user info using https://gabrielsroka.github.io/console
+
+url = '/api/v1/devices?search=managementStatus eq "UNMAN"'
+params = '&expand=user' // due to a bug in the API, this must be added each time.
+for await (device of getObjects(url, params)) {
+  for (user of device._embedded.users) {
+    log(device.id, user.managementStatus) // add more attrs...
+  }
+}
+</pre>
+<br>
+<pre id=cloneGroupRule>
+// Clone group rule using https://gabrielsroka.github.io/console
+
+// Set these:
+groupRuleName = '...' // not case-sensitive
+showGroupIdsAndQuit = true // true or false - set to true the first time, then false
+groupIds = [
+  '...', // A api group
+]
+deleteOldRule = false // true or false - false will rename old rule
+activateNewRule = true // true or false
+
+log('Searching rule(s)...')
+baseUrl = '/api/v1/groups/rules/'
+url = baseUrl + '?expand=groupIdToGroupNameMap&search=' + groupRuleName
+count = 0
+for await (rule of getObjects(url)) {
+  log(rule.id, rule.name, '-', rule.conditions.expression.value)
+  log('groupIds = [')
+  for ([id, name] of Object.entries(rule._embedded.groupIdToGroupNameMap)) {
+    log(' ', `'${id}', //`, name)
+  }
+  log(']')
+  count++
+}
+
+if (count != 1) {
+  log('Error: found', count, 'rules')
+  return
+}
+
+if (showGroupIdsAndQuit) {
+  log('Copy the groupIds to the code, update it, set showGroupIdsAndQuit = false, then Run again.')
+  log('Done.')
+  return
+}
+
+// Deactivate and rename/delete old rule.
+url = baseUrl + rule.id
+await post(url + '/lifecycle/deactivate')
+if (deleteOldRule) {
+  await remove(url)
+  log('Deleted old rule.')
+} else {
+  ruleName = rule.name
+  rule.name += ' - old'
+  r = await put(url, rule)
+  if (!r.ok) {
+     e = await r.json()
+     log('Error.', e.errorCauses.map(e => e.errorSummary))
+     return
+  }
+  log('Renamed old rule to:', rule.name)
+  rule.name = ruleName
+}
+
+// Create new rule and activate it.
+rule.actions.assignUserToGroups.groupIds = groupIds
+newRule = await postJson(baseUrl, rule)
+if (activateNewRule) await post(baseUrl + newRule.id + '/lifecycle/activate')
+log()
+log('New rule:')
+log(newRule.id, newRule.name)
+</pre>
+<br>
+<pre id=addManagersToGroup>
+// Add managers to a group using https://gabrielsroka.github.io/console
+
+// Set this:
+groupId = '...'
+
+url = '/api/v1/users' // maybe this should use: ?filter=status eq "ACTIVE"
+users = []
+for await (user of getObjects(url)) {
+  users.push(user)
+}
+
+added = []
+for (user of users) {
+  if (user.profile.manager && !added.find(m => m == user.profile.manager)) {
+    mgr = users.find(m => m.profile.login == user.profile.manager)
+    if (mgr) {
+      await put('/api/v1/groups/' + groupId + '/users/' + mgr.id)
+      added.push(user.profile.manager)
+      log('Added to group:', user.profile.manager)
+    } else {
+      log('Mgr not found:', user.profile.manager, ', on:', user.profile.login)
+    }
+  }
+}
+log('Done.')
+</pre>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+</body>
+</html>

@@ -1,7 +1,11 @@
+javascript:
 /* 
+bookmarklet name: /ImportGroupsCSV#
+
 Import Groups from CSV
 
 Setup:
+Drag and drop all of this to your bookmark toolbar. Or:
 Create a Chrome Snippet for JavaScript:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
@@ -11,7 +15,7 @@ Create a Chrome Snippet for JavaScript:
 
 Usage:
 1. Sign in to Okta Admin Console.
-2. Run the code. Click the Run button on the bottom right or press Ctrl+Enter (Windows).
+2. If using the bookmark, click it. Or, if using a snippet, click the Run button on the bottom right or press Ctrl+Enter (Windows).
 3. Look for the popup window in the upper-left corner of your browser.
 
 Sample CSV (header row is required, description is optional):
@@ -20,7 +24,7 @@ Group 1,The first group
 */
 
 (function () {
-    const popup = createPopup("Import Groups from CSV");
+    const popup = createPopup('Import Groups from CSV');
     const groups = [];
     $('<input type="file">')
     .appendTo(popup)
@@ -32,12 +36,12 @@ Group 1,The first group
 
     function parseFile(file) {
         const lineSeparator = /\r\n|\r|\n/;
-        const fieldSeparator = ",";
+        const fieldSeparator = ',';
 
         const lines = file.split(lineSeparator);
         const fields = lines.shift().split(fieldSeparator);
         const headers = {};
-        fields.forEach((val, i) => headers[val] = i); // Map header name to number.
+        fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
         lines.forEach(line => {
             if (line == '') return;
@@ -54,18 +58,18 @@ Group 1,The first group
     }
 
     function newGroup(i) {
-        popup.html("Importing " + groups[i].profile.name + " (" + (i + 1) + " of " + groups.length + ")");
+        popup.html('Importing ' + groups[i].profile.name + ' (' + (i + 1) + ' of ' + groups.length + ')');
         $.post({
             url: '/api/v1/groups',
             data: JSON.stringify(groups[i]),
-            contentType: "application/json"
+            contentType: 'application/json'
         }).then(function (group, status, jqXHR) {
             if (++i < groups.length) {
-                const remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
+                const remaining = jqXHR.getResponseHeader('X-Rate-Limit-Remaining');
                 if (remaining && remaining <= 10) {
-                    popup.html("Sleeping...");
+                    popup.html('Sleeping...');
                     const intervalID = setInterval(() => {
-                        if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader("X-Rate-Limit-Reset")) {
+                        if ((new Date()).getTime() / 1000 > jqXHR.getResponseHeader('X-Rate-Limit-Reset')) {
                             clearInterval(intervalID);
                             newGroup(i);
                         }
@@ -74,9 +78,9 @@ Group 1,The first group
                     newGroup(i);
                 }
             } else {
-                popup.html("Imported " + groups.length + " groups. Done.");
+                popup.html('Imported ' + groups.length + ' groups. Done.');
             }
-        }).fail(jqXHR => popup.html("Error on line " + (i + 1) + ": " + jqXHR.responseJSON.errorCauses[0].errorSummary));
+        }).fail(jqXHR => popup.html('Error on line ' + (i + 1) + ': ' + jqXHR.responseJSON.errorCauses[0].errorSummary));
     }
 
     function createPopup(title) {
@@ -84,6 +88,6 @@ Group 1,The first group
                 `background-color: white; border: 1px solid #ddd;'>` +
             `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
             `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
-        return $("<div></div>").appendTo(popup);
+        return $('<div></div>').appendTo(popup);
     }
 })();

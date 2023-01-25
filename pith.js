@@ -39,9 +39,9 @@ function run(lines) {
         } else if (tLine.startsWith('>')) {
             line = line.replace('>', 'results.innerHTML +=') + ` + '<br>'`;
         } else if (tLine.startsWith('|')) {
-            line = line.replace('|', 'table.tHead.innerHTML += `<tr><th>` + ');
+            line = line.replace('|', 'table.tHead.innerHTML += `<tr><th>').replaceAll('|', '<th>') + '`';
         } else if (tLine.startsWith('+')) {
-            line = line.replace('+', 'table.tBodies[0].innerHTML += `<tr><td>` + ');
+            line = line.replace('+', 'table.tBodies[0].innerHTML += `<tr><td>` + ').replaceAll('|', '+ `<td>` +').replaceAll('^', '+ `<td align=center>` +');
         } else if (tLine.startsWith('tab = ')) {
             eval(line);
             line = '// ' + line;

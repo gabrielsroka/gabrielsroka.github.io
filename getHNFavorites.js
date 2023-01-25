@@ -31,77 +31,78 @@ Bookmark: Click the bookmark, or
     const id = location.search.split('=')[1];
     const types = {
         csv: {
-            header: 'Title,URL',
+            header: 'Name,URL',
             filename: id + "'s HN favorites",
-            totype: a => toCSV(a.title, a.link)
+            totype: f => toCSV(f.name, f.url)
         },
         html: {
             header: '<title>' + id + "'s HN favorites</title><style>body {font-family: sans-serif;}</style><h1>" + id + "'s HN favorites</h1>",
             filename: id + "'s-HN-favorites",
-            totype: a => `<p><a href="${a.link}" target="_blank" rel="noopener">${a.title}</a>`
+            totype: f => '<p>' + link(f.url, f.name)
         }
     };
     const favorites = [];
-    popup.innerHTML = 
-        '<button id=exportToCsv data-filetype=csv>Export to CSV</button><br><br>' + 
-        '<button id=exportToHtml data-filetype=html>Export to HTML</button><br><br>' +
-        '<input id=query> <button id=search>Search</button><br><br>' + 
+    const form = popup.appendChild(document.createElement('form'));
+    form.innerHTML = 
+        '<input id=query> <button type=submit>Search</button> ' + 
+        'Export to <button id=exportToCSV data-filetype=csv>CSV</button> ' + 
+        '<button id=exportToHTML data-filetype=html>HTML</button><br><br>' +
         '<div id=results></div>';
-    exportToCsv.onclick = exportToHtml.onclick = async function () {
+    query.focus();
+    form.onsubmit = async function (event) {
+        event.preventDefault();
+        const re = new RegExp(query.value, 'i');
+        await getFavorites();
+        const found = favorites
+            .filter(f => f.name.match(re) || f.url.match(re))
+            .map(f => '<tr><td>' + link(f.url, f.name) + '<td>' + link(f.url, f.url));
+        results.innerHTML = found.length ? '<table>' + found.join('') + '</table>' : 'not found';
+    };
+    exportToCSV.onclick = exportToHTML.onclick = async function () {
         const filetype = this.dataset.filetype;
         await getFavorites();
         downloadFile(types[filetype].header, favorites.map(types[filetype].totype), types[filetype].filename, filetype);
         results.innerHTML = 'Finished exporting.';
     };
-    search.onclick = async function () {
-        const re = new RegExp(query.value, 'i');
-        await getFavorites();
-        const found = favorites.filter(f => f.title.match(re) || f.link.match(re)).map(types.html.totype);
-        if (found.length == 0) {
-            results.innerHTML = 'not found';
-        } else {
-            results.innerHTML = found.join('');
-        }
-    };
     async function getFavorites() {
         if (favorites.length > 0) return;
-        var url = `/favorites?id=${id}`;
+        var url = `favorites?id=${id}`;
         var page = 1;
-        do {
+        while (url) {
             results.innerHTML = `Fetching page ${page++} ...<br><br>`;
             const response = await fetch(url);
             const html = await response.text();
             const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
-            doc.querySelectorAll('a.titlelink').forEach(a => favorites.push({title: a.innerText, link: a.href}));
+            const doc = parser.parseFromString(html, 'text/html');
+            doc.querySelectorAll('span.titleline a').forEach(a => favorites.push({name: a.innerText, url: a.href}));
             const more = doc.querySelector('a.morelink');
             url = more?.href;
-            await sleep(850);
-        } while (url);
+            if (more) {
+                await sleep(850);
+            }
+        }
     }
 
     function createPopup(title) {
-        const div = document.body.appendChild(document.createElement("div"));
+        const div = document.body.appendChild(document.createElement('div'));
         div.innerHTML = title + " <a onclick='document.body.removeChild(this.parentNode)' style='cursor: pointer; padding: 4px'>X</a><br><br>";
-        div.style.position = "absolute";
-        div.style.zIndex = "1000";
-        div.style.left = "4px";
-        div.style.top = "4px";
-        div.style.backgroundColor = "white";
-        div.style.border = '1px solid #ddd';
-        return div.appendChild(document.createElement("div"));
+        div.style.cssText = 'position: absolute; padding: 8px; top: 4px; color: black; background-color: white; z-index: 1001; border: 1px solid #ddd;';
+        return div.appendChild(document.createElement('div'));
     }
     function toCSV(...fields) {
         return fields.map(field => `"${field == undefined ? "" : field.toString().replace(/"/g, '""')}"`).join(',');
     }
     function downloadFile(header, lines, filename, filetype) {
         const a = document.body.appendChild(document.createElement('a'));
-        a.href = URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/' + filetype}));
-        const date = (new Date()).toISOString().replace(/[T:]/g, "-").slice(0, 19);
+        a.href = URL.createObjectURL(new Blob([header + '\n' + lines.join('\n')], {type: 'text/' + filetype}));
+        const date = new Date().toISOString().replace(/[T:]/g, '-').slice(0, 19);
         a.download = `${filename}-${date}.${filetype}`;
         a.click();
     }
     function sleep(time) {
         return new Promise(resolve => setTimeout(resolve, time));
+    }
+    function link(url, text) {
+        return `<a href="${url}" target=_blank>${text}</a>`;
     }
 })();

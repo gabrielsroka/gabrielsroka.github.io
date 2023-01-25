@@ -1,7 +1,12 @@
 javascript:
 /*
 Bookmarklet name: /console#
-url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console.js
+
+Setup:
+Select all this code, then drag and drop or copy/paste it to your bookmark bar.
+
+url: https://gabrielsroka.github.io/console
+
 */
 (function () {
  const div = document.body.appendChild(document.createElement('div'));
@@ -20,7 +25,7 @@ for await (user of getObjects(url)) {\n
  div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
  run.onclick = function () {
    if (!preserveLog.checked) debug.value = '';
-   eval('(async function () {' + editor.value + '})()');
+   eval('(async function () {' + editor.value + '\n})()');
  };
  editor.onkeydown = function (event) {
    const ENTER = 13;
@@ -77,6 +82,16 @@ for await (user of getObjects(url)) {\n
    return fetch(url, {method: 'delete', headers});
  }
  function link(url, text) {
-  return `<a href="${url}" target=_blank>${text}</a>`;
+   return `<a href="${url}" target=_blank>${text}</a>`;
+ }
+ function toCSV(...fields) {
+   return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
+ }
+ function downloadCSV(lines, filename) {
+   var a = $('<a>').appendTo(div);
+   a.attr('href', URL.createObjectURL(new Blob([lines], {type: 'text/csv'})));
+   var date = (new Date()).toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
+   a.attr('download', `${filename} ${date}.csv`);
+   a[0].click();
  }
 })();

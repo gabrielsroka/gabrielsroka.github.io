@@ -186,8 +186,7 @@ url = '/api/v1/users?filter=status eq "PROVISIONED"'
 for await (user of getObjects(url)) {
   log(user.id, user.profile.login, user.profile.email)
   url = '/api/v1/users/' + user.id + '/lifecycle/reactivate?sendEmail=true'
-  post(url)
-  // await post(url) // use `await` to slow down for rate limits.
+  await post(url)
 }
 </pre>
 <br>
@@ -201,7 +200,7 @@ dstGroupId = '00g...'
 url = '/api/v1/groups/' + srcGroupId + '/users'
 for await (user of getObjects(url)) {
   log('adding user', user.id)
-  put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
+  await put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
 }
 </pre>
 <br>
@@ -212,7 +211,7 @@ for await (user of getObjects(url)) {
 groupId = location.pathname.split('/').pop()
 url = '/api/v1/groups/' + groupId + '/users/'
 for await (user of getObjects(url)) {
-  remove(url + user.id)
+  await remove(url + user.id)
   log(user.profile.login)
 }
 </pre>
@@ -310,7 +309,7 @@ body = {
 }
 rule = await postJson('/api/v1/groups/rules', body)
 if (rule.id) {
-  post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
+  await post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
   log('created ' + name)
 } else {
   log(rule.errorSummary + '\n' + rule.errorCauses.map(c => c.errorSummary).join('\n'))
@@ -327,7 +326,7 @@ for await (user of getObjects('/api/v1/users')) {
   log(user.id, user.profile.login, waFactors.join('; '))
 }
 
-// in parallel, 10-20 times faster than in series [0]:
+// in parallel, 10-20 times faster than in series:
 limit = 15 // try 15, 35, or 75 for the limit, depending on the org.
 // see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
 url = '/api/v1/users?limit=' + limit
@@ -341,7 +340,7 @@ async function getFactors(user) {
   log(user.id, user.profile.login, waFactors.join('; '))
 }
 
-// export to CSV in parallel [0]:
+// export to CSV in parallel:
 limit = 15 // Try 15, 35, or 75 for the limit, depending on the org.
 // see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
 
@@ -359,10 +358,6 @@ async function getFactors(user) {
   waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
   log(toCSV(user.id, user.profile.login, waFactors.join('; ')))
 }
-
-// [0] parallel code works up until about 500 users, then u hit rate limits and have to sleep.
-// i have the code written... but let's leave it for another day :)
-// series code shouldn't hit rate limits cuz it's soooo slow.
 </pre>
 <br>
 <pre id=listDevices>
@@ -384,7 +379,8 @@ for await (device of getObjects(url, params)) {
 groupRuleName = '...' // not case-sensitive
 showGroupIdsAndQuit = true // true or false - set to true the first time, then false
 groupIds = [
-  '...', // A api group
+  '...',
+  '...'
 ]
 deleteOldRule = false // true or false - false will rename old rule
 activateNewRule = true // true or false

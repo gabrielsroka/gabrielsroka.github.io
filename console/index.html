@@ -64,9 +64,11 @@ for await (user of getObjects(url)) {\n
   };
   cancelBtn.onclick = () => cancel = true;
   editor.onkeydown = function (event) {
-    const ENTER = 13;
+    const ENTER = 13, ESC = 27;
     if (event.ctrlKey && event.keyCode == ENTER) {
       run.onclick();
+    } else if (event.keyCode == ESC) {
+      cancelBtn.onclick();
     }
   };
   function log(...s) {

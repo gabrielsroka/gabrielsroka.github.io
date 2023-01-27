@@ -129,10 +129,13 @@ for await (user of getObjects(url)) {\n
         const reset = r.headers.get('X-Rate-Limit-Reset') * 1000;
         const now = new Date();
         const delay = Math.max(reset - now.getTime() + clockSkew, 1000);
-        await new Promise(r => setTimeout(r, delay));
+        await sleep(delay);
       }
     } while (r.status == TOO_MANY_REQUESTS);
     return r;
+  }
+  async function sleep(delay) {
+    return new Promise(r => setTimeout(r, delay));
   }
   function link(url, text) {
     return `<a href="${url}" target=_blank>${text}</a>`;

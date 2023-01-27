@@ -44,7 +44,7 @@ pre {
   var cancel = false;
   const div = document.body.appendChild(document.createElement('div'));
   div.innerHTML = `<button id=run title='Ctrl+Enter'>Run</button>
-   <button id=cancelBtn>Cancel</button>
+   <button id=cancelBtn title=Esc>Cancel</button>
    <button onclick=document.body.removeChild(this.parentNode)>Close</button>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
    <a href=https://gabrielsroka.github.io/console target=_blank>src v3</a><br>

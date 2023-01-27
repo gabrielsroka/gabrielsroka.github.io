@@ -160,15 +160,17 @@ bm.href = 'javascript:' + code.innerText + '();';
 <b>Functions</b>
 <ul>
 <li>log()
-<li>getPages()
-<li>getObjects()
-<li>get()
-<li>getJson()
-<li>post()
-<li>postJson()
-<li>put()
-<li>putJson()
-<li>remove() [not delete]
+<li>await getPages() - for await (objects of getPages(url))
+<li>await getObjects() - for await (object of getObjects(url))
+<li>await get()
+<li>await getJson()
+<li>await post()
+<li>await postJson()
+<li>await put()
+<li>await putJson()
+<li>await remove() - not delete()
+<li>await fetchLimit()
+<li>await sleep() - delay in ms
 <li>link()
 <li>toCSV()
 <li>downloadCSV()

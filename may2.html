@@ -2,7 +2,15 @@
 <title>console</title>
 <button id=run title='Ctrl+Enter'>Run</button>
 <button id=cancelBtn title=Esc>Cancel</button><br>
-<textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>may2()</textarea><br>
+<textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>may2()
+async function may2() {
+  while (true) {
+    c.fillText('😘', Math.random() * 400, Math.random() * 400)
+    await sleep(100)
+    if (cancel) return
+  }
+}
+</textarea><br>
 <canvas id=canvas width=400 height=400></canvas>
 <script>
 const c = canvas.getContext('2d')
@@ -21,14 +29,7 @@ editor.onkeydown = function (event) {
         cancelBtn.onclick();
     }
 };
-async function sleep(delay) {
+async function sleep(delay = 0) {
     return new Promise(r => setTimeout(r, delay));
-}
-async function may2() {
-  while (true) {
-    c.fillText('😘', Math.random() * 400, Math.random() * 400);
-    await sleep(100);
-    if (cancel) return;
-  }
 }
 </script>

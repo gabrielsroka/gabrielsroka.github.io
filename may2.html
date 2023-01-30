@@ -6,7 +6,9 @@
 
 async function may2() {
   while (true) {
-    c.fillText('😘', Math.random() * 400, Math.random() * 400)
+    x = Math.random() * 400
+    y = Math.random() * 400
+    c.fillText('😘', x, y)
     await sleep(100)
     if (cancel) return
   }

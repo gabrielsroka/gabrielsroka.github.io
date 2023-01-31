@@ -35,7 +35,8 @@ pre {
 <br>
 <b>Usage</b>
 <ol>
-<li>In your ASA tenant, click the "ASA" button from your bookmarks toolbar.
+<li>In your ASA tenant, select a project or click Projects to export all projects.
+<li>Click the "ASA" button from your bookmarks toolbar.
 <li>For debugging, it's helpful to open the browser's DevTools and look at the Network tab.
 </ol>
 <script id=code>
@@ -44,25 +45,33 @@ pre {
     
     const path = paths[3];
     if (path == 'project') {
-        /* Set these headers to select which attributes are exported to CSV.
-        see https://developer.okta.com/docs/reference/advanced-server-access-api */
-        exportObjects('user_name,type,status,admin,windows_server_user_name,server_user_name,unix_uid,unix_gid,id', 
-            '/server_users', 'server_users');
-        exportObjects('team_name,id,project_name,hostname,alt_names,bastion,canonical_name,access_address,os,os_type,services,registered_at,last_seen,' +
-            'sftd_version,cloud_provider,ssh_host_keys,broker_host_certs,instance_details,state,managed,deleted_at,ad_guid,ad_dn,instance_id,source', '/servers', 'servers');
-        exportObjects('id,group,project,name,group_id,server_access,server_admin,create_server_group,removed_at,deleted_at,unix_gid,server_group_name,profile_attributes', 
-            '/groups', 'groups');
+        const projectName = paths[4];
+        exportProject(projectName);
+    } else if (path == 'projects') {
+        for await (const project of getObjects('/projects')) {
+            exportProject(project.name);
+        }
     } else {
         alert('Select a project first, then re-run this.');
         return;
     }
-    async function exportObjects(header, path, filename) {
+    function exportProject(projectName) {
+        /* Set these headers to select which attributes are exported to CSV.
+        see https://developer.okta.com/docs/reference/advanced-server-access-api */
+        exportObjects('user_name,type,status,admin,windows_server_user_name,server_user_name,unix_uid,unix_gid,id', 
+            projectName, '/server_users', 'server_users');
+        exportObjects('team_name,id,project_name,hostname,alt_names,bastion,canonical_name,access_address,os,os_type,services,registered_at,last_seen,' +
+            'sftd_version,cloud_provider,ssh_host_keys,broker_host_certs,instance_details,state,managed,deleted_at,ad_guid,ad_dn,instance_id,source',
+            projectName, '/servers', 'servers');
+        exportObjects('id,group,project,name,group_id,server_access,server_admin,create_server_group,removed_at,deleted_at,unix_gid,server_group_name,profile_attributes', 
+            projectName, '/groups', 'groups');
+    }
+    async function exportObjects(header, projectName, path, filename) {
         const objects = [];
-        const project = paths[4];
-        for await (const object of getObjects('/projects/' + project + path)) {
+        for await (const object of getObjects('/projects/' + projectName + path)) {
             objects.push(toCSV(...header.split(',').map(h => object[h])));
         }
-        downloadCSV(header, objects, project + ' ' + filename);
+        downloadCSV(header, objects, projectName + ' ' + filename);
     }
 
 

@@ -58,7 +58,6 @@ pre {
         for await (const object of getObjects('/projects/' + project + path)) {
             objects.push(toCSV(...header.split(',').map(h => object[h])));
         }
-        // console.table(objects);
         downloadCSV(header, objects, project + ' ' + filename);
     }
 

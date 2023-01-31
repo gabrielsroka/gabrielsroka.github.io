@@ -56,15 +56,15 @@ pre {
     }
     /* Set these headers to select which attributes are exported to CSV.
     see https://developer.okta.com/docs/reference/advanced-server-access-api */
-    exportProjects('project_name,user_name,type,status,admin,windows_server_user_name,server_user_name,unix_uid,unix_gid,id', 
-        '/server_users', 'server_users');
-    exportProjects('project_name,team_name,id,hostname,alt_names,bastion,canonical_name,access_address,os,os_type,services,registered_at,last_seen,' +
-        'sftd_version,cloud_provider,ssh_host_keys,broker_host_certs,instance_details,state,managed,deleted_at,ad_guid,ad_dn,instance_id,source',
-        '/servers', 'servers');
-    exportProjects('project_name,id,group,name,group_id,server_access,server_admin,create_server_group,removed_at,deleted_at,unix_gid,server_group_name,profile_attributes', 
-        '/groups', 'groups');
+    exportProjects('server users', '/server_users',
+        'project_name,user_name,type,status,admin,windows_server_user_name,server_user_name,unix_uid,unix_gid,id');
+    exportProjects('servers', '/servers',
+        'project_name,team_name,id,hostname,alt_names,bastion,canonical_name,access_address,os,os_type,services,registered_at,last_seen,' +
+        'sftd_version,cloud_provider,ssh_host_keys,broker_host_certs,instance_details,state,managed,deleted_at,ad_guid,ad_dn,instance_id,source');
+    exportProjects('groups', '/groups',
+        'project_name,id,group,name,group_id,server_access,server_admin,create_server_group,removed_at,deleted_at,unix_gid,server_group_name,profile_attributes');
 
-    async function exportProjects(header, path, filename) {
+    async function exportProjects(filename, path, header) {
         const objects = [];
         for (const projectName of projectNames) {
             for await (const object of getObjects('/projects/' + projectName + path)) {

@@ -46,32 +46,37 @@ pre {
     const path = paths[3];
     if (path == 'project') {
         const projectName = paths[4];
-        exportProject(projectName);
+        exportProjects([projectName]);
     } else if (path == 'projects') {
+        const projects = [];
         for await (const project of getObjects('/projects')) {
-            exportProject(project.name);
+            projects.push(project.name);
         }
+        exportProjects(projects);
     } else {
-        alert('Select a project first, then re-run this.');
+        alert('Select a project or click Projects first, then re-run this.');
         return;
     }
-    function exportProject(projectName) {
+    function exportProjects(projects) {
         /* Set these headers to select which attributes are exported to CSV.
         see https://developer.okta.com/docs/reference/advanced-server-access-api */
-        exportObjects('user_name,type,status,admin,windows_server_user_name,server_user_name,unix_uid,unix_gid,id', 
-            projectName, '/server_users', 'server_users');
-        exportObjects('team_name,id,project_name,hostname,alt_names,bastion,canonical_name,access_address,os,os_type,services,registered_at,last_seen,' +
+        exportCSV('project_name,user_name,type,status,admin,windows_server_user_name,server_user_name,unix_uid,unix_gid,id', 
+            projects, '/server_users', 'server_users');
+        exportCSV('project_name,team_name,id,hostname,alt_names,bastion,canonical_name,access_address,os,os_type,services,registered_at,last_seen,' +
             'sftd_version,cloud_provider,ssh_host_keys,broker_host_certs,instance_details,state,managed,deleted_at,ad_guid,ad_dn,instance_id,source',
-            projectName, '/servers', 'servers');
-        exportObjects('id,group,project,name,group_id,server_access,server_admin,create_server_group,removed_at,deleted_at,unix_gid,server_group_name,profile_attributes', 
-            projectName, '/groups', 'groups');
+            projects, '/servers', 'servers');
+        exportCSV('project_name,id,group,name,group_id,server_access,server_admin,create_server_group,removed_at,deleted_at,unix_gid,server_group_name,profile_attributes', 
+            projects, '/groups', 'groups');
     }
-    async function exportObjects(header, projectName, path, filename) {
+    async function exportCSV(header, projects, path, filename) {
         const objects = [];
-        for await (const object of getObjects('/projects/' + projectName + path)) {
-            objects.push(toCSV(...header.split(',').map(h => object[h])));
+        for (const project of projects) {
+            for await (const object of getObjects('/projects/' + project + path)) {
+                object.project_name = project;
+                objects.push(toCSV(...header.split(',').map(h => object[h])));
+            }
         }
-        downloadCSV(header, objects, projectName + ' ' + filename);
+        downloadCSV(header, objects, (projects.length == 1 ? projects[0] + '' : 'all projects') + ' ' + filename);
     }
 
 

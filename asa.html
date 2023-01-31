@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
-<title>ASA</title>
+<title>Export ASA</title>
 <style>
 body {
     font-family: sans-serif;
@@ -24,8 +24,8 @@ pre {
 </style>
 </head>
 <body>
-<h1>ASA</h1>
-<p>Export ASA object. See 
+<h1>Export ASA</h1>
+<p>Export ASA objects. See 
     <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/asa.html>source</a>.</p>
 <b>Setup</b>
 <ol>
@@ -58,8 +58,8 @@ pre {
         for await (const object of getObjects('/projects/' + project + path)) {
             objects.push(toCSV(...header.split(',').map(h => object[h])));
         }
-        console.table(objects);
-        // downloadCSV(header, objects, project + ' ' + filename);
+        // console.table(objects);
+        downloadCSV(header, objects, project + ' ' + filename);
     }
 
 

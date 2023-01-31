@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<title>ASA</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+pre {
+    background-color: #eee;
+    padding: 8px;
+}
+@media (prefers-color-scheme: dark) {
+    *, a {
+        background-color: #121212;
+        color: #ddd;
+    }
+    pre {
+        background-color: #333;
+        color: #ddd;
+    }
+}
+</style>
+</head>
+<body>
+<h1>ASA</h1>
+<p>Export ASA object. See 
+    <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/asa.html>source</a>.</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>ASA v1</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>In your ASA tenant, click the "ASA" button from your bookmarks toolbar.
+<li>For debugging, it's helpful to open the browser's DevTools and look at the Network tab.
+</ol>
+<script id=code>
+(async function () {
+    const {paths, team, headers} = init(); /* Call this first! */
+    
+    const path = paths[3];
+    if (path == 'project') {
+        /* Set these headers to select which attributes are exported to CSV: */
+        exportObjects('user_name,type,status,admin,windows_server_user_name,server_user_name,unix_uid,unix_gid,id', '/server_users', 'server_users');
+        exportObjects('team_name,id,project_name,hostname,alt_names,bastion,canonical_name,access_address,os,os_type,services,registered_at,last_seen,' +
+            'sftd_version,cloud_provider,ssh_host_keys,broker_host_certs,instance_details,state,managed,deleted_at,ad_guid,ad_dn,instance_id,source', '/servers', 'servers');
+    } else {
+        alert('Select a project first, then re-run this.');
+        return;
+    }
+    async function exportObjects(header, path, filename) {
+        const objects = [];
+        const project = paths[4];
+        for await (const object of getObjects('/projects/' + project + path)) {
+            objects.push(toCSV(...header.split(',').map(h => object[h])));
+        }
+        console.table(objects);
+        // downloadCSV(header, objects, project + ' ' + filename);
+    }
+
+
+  /* helper code */
+  function init() {
+      const paths = location.pathname.split('/');
+      const team = paths[2];
+      const cookies = Object.fromEntries(document.cookie.split('; ').map(c => c.split('=')).map(([key, val]) => [key, JSON.parse(decodeURIComponent(val))]));
+      const token = cookies['SFT_logged-in_store_' + team].token;
+      const headers = {authorization: 'Bearer ' + token};
+      return {paths, team, headers};
+  }
+  async function* getObjects(url) {
+    for await (const objects of getPages('/v1/teams/' + team + url)) {
+      for (const o of objects) {
+        yield o;
+      }
+    }
+  }
+  async function* getPages(url) {
+    while (url) {
+      const r = await get(url);
+      const page = await r.json();
+      yield page.list;
+      url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+    }
+  }
+  async function get(url) {
+    return fetch(url, {method: 'get', headers});
+  }
+  function toCSV(...fields) {
+    return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
+  }
+    function downloadCSV(header, lines, filename) {
+        const a = document.body.appendChild(document.createElement('a'));
+        a.href = URL.createObjectURL(new Blob([header + '\n' + lines.join('\n')], {type: 'text/csv'}));
+        const date = new Date().toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
+        a.download = `${filename} ${date}.csv`;
+        a.click();
+        document.body.removeChild(a);
+    }
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</div>
+</body>
+</html>

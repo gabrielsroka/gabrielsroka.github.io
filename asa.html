@@ -42,7 +42,7 @@ pre {
 <script id=code>
 (async function () {
     const {team, path, projectName, headers} = init(); /* Call this first! */
-    
+
     const projectNames = [];
     if (path == 'project') {
         projectNames.push(projectName);
@@ -50,6 +50,36 @@ pre {
         for await (const project of getObjects('/projects')) {
             projectNames.push(project.name);
         }
+    } else if (path == 'events') {
+        async function* getAudits() {
+            for await (const page of getPages('/v1/teams/' + team + '/auditsV2')) {
+Object.values(page.related_objects).forEach(ro => ros[ro.type] = true);
+Object.keys(page.related_objects).forEach(k => lens[k.length] = true);
+                for (const o of page.list) {
+                    if (o.details.actor) o.__actor = page.related_objects[o.details.actor];
+                    if (o.details.project_id) o.__project = page.related_objects[o.details.project_id]; /* save both project_id and project_name to __project */
+                    if (o.details.project_name) o.__project = page.related_objects[o.details.project_name];
+                    if (o.details.server_id) o.__server = page.related_objects[o.details.server_id];
+                    if (o.details.client) o.__client = page.related_objects[o.details.client];
+                    if (o.details.target_user) o.__target_user = page.related_objects[o.details.target_user];
+Object.entries(o.details).forEach(([k, v]) => {if (v?.length == 44) ds[k] = true});
+                    yield o;
+                }
+            }
+        }
+        console.clear();
+        const ros = {};
+        const ds = {};
+        const lens = {};
+        const audits = [];
+        for await (const audit of getAudits()) {
+            audits.push(audit);
+        }
+        console.table(audits);
+        console.table(ros);
+        console.table(ds);
+        console.table(lens);
+        return;
     } else {
         alert('Select a project or click Projects first, then re-run this.');
         return;
@@ -85,8 +115,8 @@ pre {
         return {team, path, projectName, headers};
     }
     async function* getObjects(url) {
-        for await (const objects of getPages('/v1/teams/' + team + url)) {
-            for (const o of objects) {
+        for await (const page of getPages('/v1/teams/' + team + url)) {
+            for (const o of page.list) {
                 yield o;
             }
         }
@@ -95,7 +125,7 @@ pre {
         while (url) {
             const r = await get(url);
             const page = await r.json();
-            yield page.list;
+            yield page;
             url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
         }
     }

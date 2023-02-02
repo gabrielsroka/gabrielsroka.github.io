@@ -25,7 +25,7 @@ pre {
 </head>
 <body>
 <h1>Export ASA</h1>
-<p>Export ASA objects. See 
+<p>Export ASA objects (eg, project servers/server-users/groups; audits are a work in progress). See 
     <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/asa.html>source</a>.</p>
 <b>Setup</b>
 <ol>
@@ -35,7 +35,8 @@ pre {
 <br>
 <b>Usage</b>
 <ol>
-<li>In your ASA tenant, select a project or click Projects to export all projects.
+<li>In your ASA tenant, select a project or click Projects to export all projects. 
+    Or click Audits and find the results in the DevTools console (export to CSV is a work in progress).
 <li>Click the "ASA" button from your bookmarks toolbar.
 <li>For debugging, it's helpful to open the browser's DevTools and look at the Network tab.
 </ol>
@@ -57,8 +58,7 @@ Object.values(page.related_objects).forEach(ro => ros[ro.type] = true);
 Object.keys(page.related_objects).forEach(k => lens[k.length] = true);
                 for (const o of page.list) {
                     if (o.details.actor) o.__actor = page.related_objects[o.details.actor];
-                    if (o.details.project_id) o.__project = page.related_objects[o.details.project_id]; /* save both project_id and project_name to __project */
-                    if (o.details.project_name) o.__project = page.related_objects[o.details.project_name];
+                    if (o.details.project_id || o.details.project_name) o.__project = page.related_objects[o.details.project_id || o.details.project_name];
                     if (o.details.server_id) o.__server = page.related_objects[o.details.server_id];
                     if (o.details.client) o.__client = page.related_objects[o.details.client];
                     if (o.details.target_user) o.__target_user = page.related_objects[o.details.target_user];

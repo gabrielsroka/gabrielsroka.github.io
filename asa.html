@@ -90,7 +90,9 @@ Object.entries(o.details).forEach(([k, v]) => {if (v?.length == 44) ds[k] = true
         'project_name,user_name,type,status,admin,windows_server_user_name,server_user_name,unix_uid,unix_gid,id');
     exportProjects('servers', '/servers',
         'project_name,team_name,id,hostname,alt_names,bastion,canonical_name,access_address,os,os_type,services,registered_at,last_seen,' +
-        'sftd_version,cloud_provider,ssh_host_keys,broker_host_certs,instance_details,state,managed,deleted_at,ad_guid,ad_dn,instance_id,source');
+        'sftd_version,cloud_provider,ssh_host_keys,broker_host_certs,' +
+        'instance_details,instance_details.instance_id,instance_details.account_id,instance_details.availability_zone,instance_details.networks,instance_details.public_ip_v4,instance_details.instance_type' +
+        'state,managed,deleted_at,ad_guid,ad_dn,instance_id,source');
     exportProjects('groups', '/groups',
         'project_name,id,group,name,group_id,server_access,server_admin,create_server_group,removed_at,deleted_at,unix_gid,server_group_name,profile_attributes');
 
@@ -99,7 +101,7 @@ Object.entries(o.details).forEach(([k, v]) => {if (v?.length == 44) ds[k] = true
         for (const projectName of projectNames) {
             for await (const object of getObjects('/projects/' + projectName + path)) {
                 object.project_name = projectName;
-                objects.push(toCSV(...header.split(',').map(h => object[h])));
+                objects.push(toCSV(...header.split(',').map(h => dot(object, h))));
             }
         }
         downloadCSV(header, objects, (projectNames.length == 1 ? projectNames[0] + '' : 'all projects') + ' ' + filename);
@@ -151,6 +153,14 @@ Object.entries(o.details).forEach(([k, v]) => {if (v?.length == 44) ds[k] = true
         a.download = `${filename} ${date}.csv`;
         a.click();
         document.body.removeChild(a);
+    }
+    function dot(o, dots) {
+        var ps = dots.split(".");
+        for (var p in ps) {
+            o = o[ps[p]];
+            if (o == null) break;
+        }
+        return o;
     }
 })
 </script>

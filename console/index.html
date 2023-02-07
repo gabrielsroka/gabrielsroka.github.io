@@ -125,7 +125,10 @@ for await (user of getObjects(url)) {\n
     do {
       var r = await fetch(url, init);
       const remaining = r.headers.get('X-Rate-Limit-Remaining');
-      if (r.status == TOO_MANY_REQUESTS || remaining <= 5) {
+      const limit = r.headers.get('X-Rate-Limit-Limit');
+      if (limit == 0) {
+        await sleep(1000);
+      } else if (r.status == TOO_MANY_REQUESTS || remaining <= 5) {
         const reset = r.headers.get('X-Rate-Limit-Reset') * 1000;
         const now = new Date();
         const delay = Math.max(reset - now.getTime() + clockSkew, 1000);

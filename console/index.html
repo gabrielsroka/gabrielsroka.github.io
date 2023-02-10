@@ -201,6 +201,7 @@ for await (user of getObjects(url)) {
   log(user.id, user.profile.login, user.profile.email)
   url = '/api/v1/users/' + user.id + '/lifecycle/reactivate?sendEmail=true'
   await post(url)
+  if (cancel) break
 }
 </pre>
 <br>

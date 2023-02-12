@@ -109,6 +109,7 @@ async function getItems() {
     function showItem(item) { // other item props: kids
         loading.innerHTML = '';
         const hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
+        item.title = item.title.replace(/</g, '&lt;');
         if (item.url) {
             const url = new URL(item.url);
             var site = url.hostname.replace(/^www\./, '');

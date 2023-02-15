@@ -121,7 +121,6 @@ for await (user of getObjects(url)) {\n
   }
   async function fetchLimit(url, init) {
     const TOO_MANY_REQUESTS = 429;
-    const clockSkew = 2000;
     do {
       var r = await fetch(url, init);
       const remaining = r.headers.get('X-Rate-Limit-Remaining');
@@ -130,8 +129,8 @@ for await (user of getObjects(url)) {\n
         await sleep(1000);
       } else if (r.status == TOO_MANY_REQUESTS || remaining <= 5) {
         const reset = r.headers.get('X-Rate-Limit-Reset') * 1000;
-        const now = new Date();
-        const delay = Math.max(reset - now.getTime() + clockSkew, 1000);
+        const now = new Date(r.headers.get('date')).getTime();
+        const delay = Math.max(reset - now, 1000);
         await sleep(delay);
       }
     } while (r.status == TOO_MANY_REQUESTS);

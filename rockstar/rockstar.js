@@ -980,15 +980,40 @@
                 }
                 requestJSON({url, method: method.value, data: data.value}).then((objects, status, jqXHR) => {
                     $(results).html("<br>");
-                    var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
+                    var linkHeader = jqXHR.getResponseHeader("Link");
+                    var remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
+                    var limit = jqXHR.getResponseHeader("X-Rate-Limit-Limit");
+                    var reset = new Date(jqXHR.getResponseHeader("X-Rate-Limit-Reset") * 1000);
+                    var headersTable =
+                    `
+                        <br>Headers<br><table class="rs_headerTable">
+                        <tr><td>Rate Limit<td> ${limit} 
+                        <tr><td>Rate Limit Remaining<td> ${remaining} 
+                        <tr><td>Rate Limit Reset<td> ${reset} 
+                    `
                     if (linkHeader) {
-                        $(results).html("<br>Headers<br><table><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") + "</table><br>");
+                        
+                        $(results).html(
+                            headersTable + 
+                            '<tr><td>Link<td>' + 
+                            linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") + 
+                            '</table><br>'
+                        );
+
                         var links = getLinks(linkHeader);
                         if (links.next) {
                             var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
                             nextUrl = nextUrl.pathname + nextUrl.search;
-                        }
+                        };
                     }
+                        else if (linkHeader == null) {
+                            $(results).html(
+                                headersTable +
+                                '</table><br>'
+                            );
+                        }
+                    
+
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                     if (objects) {
                         const pathname = url.split('?')[0];

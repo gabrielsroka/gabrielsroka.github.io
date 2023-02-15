@@ -12,6 +12,7 @@ td {
 <body>
 <h1>OAuth for Okta</h1>
 <div id=version></div>
+<br>
 <div id=app>Loading...</div>
 <script>
 onload = async function () {
@@ -21,7 +22,6 @@ onload = async function () {
     // Parse OpenAPI spec for paths.
     const r = await fetch('https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.json');
     const spec = await r.json();
-    version.innerHTML = `OpenAPI v. ${spec.info.version}`.link('https://github.com/okta/okta-management-openapi-spec');
 
     for (const [path, methods] of Object.entries(spec.paths)) {
         for (const method of Object.keys(methods)) {
@@ -29,12 +29,14 @@ onload = async function () {
             hash[method + path.replace(/\{(.*?)\}/g, '{}')] = true;
         }
     }
+    version.innerHTML = `OpenAPI v. ${spec.info.version}`.link('https://github.com/okta/okta-management-openapi-spec') + ' ' + paths.length + ' paths.';
 
     // Search docs for additional paths.
     var url = 'https://api.github.com/search/code?q=repo:okta/okta-developer-docs+ApiOperation+extension:md';
     while (url) {
         const r = await fetch(url);
         const page = await r.json();
+        if (!page.items.length) version.innerHTML += '<br>Unable to search https://github.com/okta/okta-developer-docs';
         await Promise.all(page.items.filter(i => !i.path.match('/asa/')).map(async item => {
             const r = await fetch('https://raw.githubusercontent.com/okta/okta-developer-docs/master/' + item.path);
             const lines = (await r.text()).split('\n');
@@ -50,7 +52,7 @@ onload = async function () {
                 }
             });
         }));
-        url = getLinks(r.headers.get('link')).next;
+        url = r.headers.get('link')?.match('<(.*)>; rel="next"')?.[1];
     }
 
     const base = 'https://gsroka-neto.oktapreview.com';
@@ -76,16 +78,6 @@ onload = async function () {
         return `<tr><td>${method}<td>${path}<td>${scope}`;
     }));
     app.innerHTML = '<table><tr><th>Method<th>Path<th>Scope' + rows.join('') + '</table>';
-
-    function getLinks(linkHeader) {
-        const headers = linkHeader.split(', ');
-        const links = {};
-        for (var i = 0; i < headers.length; i++) {
-            const [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
-            links[name] = url;
-        }
-        return links;
-    }
 };
 </script>
 </body>

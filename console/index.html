@@ -30,7 +30,7 @@ pre {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>console v1</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>console v4</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -41,92 +41,118 @@ pre {
 </ol>
 <script id=code>
 (function () {
- const div = document.body.appendChild(document.createElement('div'));
- div.innerHTML = `<button id=run title='Ctrl+Enter'>Run</button>
-  <button onclick=document.body.removeChild(this.parentNode)>Close</button>
-  <label><input id=preserveLog type=checkbox> Preserve Log</label>
-  <a href=https://gabrielsroka.github.io/console target=_blank>src</a><br>
-  <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
+  var cancel = false;
+  const div = document.body.appendChild(document.createElement('div'));
+  div.innerHTML = `<button id=run title='Ctrl+Enter'>Run</button>
+   <button id=cancelBtn title=Esc>Cancel</button>
+   <button onclick=document.body.removeChild(this.parentNode)>Close</button>
+   <label><input id=preserveLog type=checkbox> Preserve Log</label>
+   <a href=https://gabrielsroka.github.io/console target=_blank>src v4</a><br>
+   <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 f = 'filter=profile.lastName eq "Doe"'\n
 url = '/api/v1/users?' + f\n
 for await (user of getObjects(url)) {\n
   log(user.id, user.profile.login)\n
 }</textarea><br>
-  <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>
-  <div id=results></div>`;
- div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
- run.onclick = function () {
-   if (!preserveLog.checked) debug.value = '';
-   eval('(async function () {' + editor.value + '\n})()');
- };
- editor.onkeydown = function (event) {
-   const ENTER = 13;
-   if (event.ctrlKey && event.keyCode == ENTER) {
-     run.onclick();
-   }
- };
- function log(...s) {
-   debug.value += s.join(' ') + '\n';
-   debug.scrollTo(0, debug.scrollHeight);
- }
- const headers = {
-   'Accept': 'application/json',
-   'Content-Type': 'application/json',
-   'X-Okta-XsrfToken': document.querySelector('#_xsrfToken')?.innerText
- };
- async function* getPages(url, params = '') {
-   while (url) {
-     const r = await get(url + params);
-     const page = await r.json();
-     yield page;
-     url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
-   }
- }
- async function* getObjects(url, params) {
-   for await (const objects of getPages(url, params)) {
-     for (const o of objects) {
-       yield o;
-     }
-   }
- }
- async function get(url) {
-   return fetch(url, {method: 'get', headers});
- }
- async function getJson(url) {
-   const r = await get(url);
-   return r.json();
- }
- async function post(url, body) {
-   return fetch(url, {method: 'post', headers, body: JSON.stringify(body)});
- }
- async function postJson(url, body) {
-   const r = await post(url, body);
-   return r.json();
- }
- async function put(url, body) {
-   return fetch(url, {method: 'put', headers, body: JSON.stringify(body)});
- }
- async function putJson(url, body) {
-   const r = await put(url, body);
-   return r.json();
- }
- async function remove(url) {
-   return fetch(url, {method: 'delete', headers});
- }
- function link(url, text) {
-   return `<a href="${url}" target=_blank>${text}</a>`;
- }
- function toCSV(...fields) {
-   return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
- }
- function downloadCSV(lines, filename) {
-   const a = document.body.appendChild(document.createElement('a'));
-   a.href = URL.createObjectURL(new Blob([lines], {type: 'text/csv'}));
-   const date = new Date().toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
-   a.download = `${filename} ${date}.csv`;
-   a.click();
-   document.body.removeChild(a);
- }
+   <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>
+   <div id=results></div>`;
+  div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
+  run.onclick = function () {
+    if (!preserveLog.checked) debug.value = '';
+    cancel = false;
+    eval('(async function () {' + editor.value + '\n})()');
+  };
+  cancelBtn.onclick = () => cancel = true;
+  editor.onkeydown = function (event) {
+    const ENTER = 13, ESC = 27;
+    if (event.ctrlKey && event.keyCode == ENTER) {
+      run.onclick();
+    } else if (event.keyCode == ESC) {
+      cancelBtn.onclick();
+    }
+  };
+  function log(...s) {
+    debug.value += s.join(' ') + '\n';
+    debug.scrollTo(0, debug.scrollHeight);
+  }
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'X-Okta-XsrfToken': document.querySelector('#_xsrfToken')?.innerText
+  };
+  async function* getPages(url, params = '') {
+    while (url) {
+      const r = await get(url + params);
+      const page = await r.json();
+      yield page;
+      url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+    }
+  }
+  async function* getObjects(url, params) {
+    for await (const objects of getPages(url, params)) {
+      for (const o of objects) {
+        yield o;
+      }
+    }
+  }
+  async function get(url) {
+    return fetchLimit(url, {method: 'get', headers});
+  }
+  async function getJson(url) {
+    const r = await get(url);
+    return r.json();
+  }
+  async function post(url, body) {
+    return fetchLimit(url, {method: 'post', headers, body: JSON.stringify(body)});
+  }
+  async function postJson(url, body) {
+    const r = await post(url, body);
+    return r.json();
+  }
+  async function put(url, body) {
+    return fetchLimit(url, {method: 'put', headers, body: JSON.stringify(body)});
+  }
+  async function putJson(url, body) {
+    const r = await put(url, body);
+    return r.json();
+  }
+  async function remove(url) {
+    return fetchLimit(url, {method: 'delete', headers});
+  }
+  async function fetchLimit(url, init) {
+    const TOO_MANY_REQUESTS = 429;
+    do {
+      var r = await fetch(url, init);
+      const remaining = r.headers.get('X-Rate-Limit-Remaining');
+      const limit = r.headers.get('X-Rate-Limit-Limit');
+      if (limit == 0) {
+        await sleep(1000);
+      } else if (r.status == TOO_MANY_REQUESTS || remaining <= 5) {
+        const reset = r.headers.get('X-Rate-Limit-Reset') * 1000;
+        const now = new Date(r.headers.get('date')).getTime();
+        const delay = Math.max(reset - now, 1000);
+        await sleep(delay);
+      }
+    } while (r.status == TOO_MANY_REQUESTS);
+    return r;
+  }
+  async function sleep(delay) {
+    return new Promise(r => setTimeout(r, delay));
+  }
+  function link(url, text) {
+    return `<a href="${url}" target=_blank>${text}</a>`;
+  }
+  function toCSV(...fields) {
+    return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
+  }
+  function downloadCSV(lines, filename) {
+    const a = document.body.appendChild(document.createElement('a'));
+    a.href = URL.createObjectURL(new Blob([lines], {type: 'text/csv'}));
+    const date = new Date().toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
+    a.download = `${filename} ${date}.csv`;
+    a.click();
+    document.body.removeChild(a);
+  }
 })
 </script>
 <script>
@@ -136,15 +162,17 @@ bm.href = 'javascript:' + code.innerText + '();';
 <b>Functions</b>
 <ul>
 <li>log()
-<li>getPages()
-<li>getObjects()
-<li>get()
-<li>getJson()
-<li>post()
-<li>postJson()
-<li>put()
-<li>putJson()
-<li>remove() [not delete]
+<li>await getPages() - for await (objects of getPages(url))
+<li>await getObjects() - for await (object of getObjects(url))
+<li>await get()
+<li>await getJson()
+<li>await post()
+<li>await postJson()
+<li>await put()
+<li>await putJson()
+<li>await remove() - not delete()
+<li>await fetchLimit()
+<li>await sleep() - delay in ms
 <li>link()
 <li>toCSV()
 <li>downloadCSV()
@@ -171,8 +199,8 @@ url = '/api/v1/users?filter=status eq "PROVISIONED"'
 for await (user of getObjects(url)) {
   log(user.id, user.profile.login, user.profile.email)
   url = '/api/v1/users/' + user.id + '/lifecycle/reactivate?sendEmail=true'
-  post(url)
-  // await post(url) // use `await` to slow down for rate limits.
+  await post(url)
+  if (cancel) break
 }
 </pre>
 <br>
@@ -186,7 +214,7 @@ dstGroupId = '00g...'
 url = '/api/v1/groups/' + srcGroupId + '/users'
 for await (user of getObjects(url)) {
   log('adding user', user.id)
-  put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
+  await put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
 }
 </pre>
 <br>
@@ -197,7 +225,7 @@ for await (user of getObjects(url)) {
 groupId = location.pathname.split('/').pop()
 url = '/api/v1/groups/' + groupId + '/users/'
 for await (user of getObjects(url)) {
-  remove(url + user.id)
+  await remove(url + user.id)
   log(user.profile.login)
 }
 </pre>
@@ -295,7 +323,7 @@ body = {
 }
 rule = await postJson('/api/v1/groups/rules', body)
 if (rule.id) {
-  post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
+  await post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
   log('created ' + name)
 } else {
   log(rule.errorSummary + '\n' + rule.errorCauses.map(c => c.errorSummary).join('\n'))
@@ -312,7 +340,7 @@ for await (user of getObjects('/api/v1/users')) {
   log(user.id, user.profile.login, waFactors.join('; '))
 }
 
-// in parallel, 10-20 times faster than in series [0]:
+// in parallel, 10-20 times faster than in series:
 limit = 15 // try 15, 35, or 75 for the limit, depending on the org.
 // see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
 url = '/api/v1/users?limit=' + limit
@@ -326,7 +354,7 @@ async function getFactors(user) {
   log(user.id, user.profile.login, waFactors.join('; '))
 }
 
-// export to CSV in parallel [0]:
+// export to CSV in parallel:
 limit = 15 // Try 15, 35, or 75 for the limit, depending on the org.
 // see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
 
@@ -344,10 +372,6 @@ async function getFactors(user) {
   waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
   log(toCSV(user.id, user.profile.login, waFactors.join('; ')))
 }
-
-// [0] parallel code works up until about 500 users, then u hit rate limits and have to sleep.
-// i have the code written... but let's leave it for another day :)
-// series code shouldn't hit rate limits cuz it's soooo slow.
 </pre>
 <br>
 <pre id=listDevices>
@@ -369,7 +393,8 @@ for await (device of getObjects(url, params)) {
 groupRuleName = '...' // not case-sensitive
 showGroupIdsAndQuit = true // true or false - set to true the first time, then false
 groupIds = [
-  '...', // A api group
+  '...',
+  '...'
 ]
 deleteOldRule = false // true or false - false will rename old rule
 activateNewRule = true // true or false

@@ -587,10 +587,9 @@
             exportPopup = createPopup("Export " + o);
             exportPopup.append("<br>Columns to export");
             var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 500px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
-            
             function addCheckbox(value, text) {
                 const checked = exportColumns.includes(value) ? "checked" : "";
-                checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' ${checked}>${e(text)}</label><br>`);
+                checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' class='userProfileAttributeCheckboxes' ${checked}>${e(text)}</label><br>`);
             }
             const user = {
                 id: "User Id",
@@ -652,7 +651,10 @@
                 // TODO: since user can't see /schemas, let them know they can only use base attrs.
                 for (const p in profile) addCheckbox("profile." + p, profile[p]);
             });
-
+            exportPopup.append('<label><input type=checkbox value="selectAll" id="selectAll"</label>Toggle All');
+            $("#selectAll").click(function () {
+               $("input.userProfileAttributeCheckboxes").not(this).prop('checked', this.checked);
+            });
             if (filter) {
                 var exportArgs = localStorage.rockstarExportUserArgs || "";
                 exportPopup.append(
@@ -1024,15 +1026,40 @@
                 }
                 requestJSON({url, method: method.value, data: data.value}).then((objects, status, jqXHR) => {
                     $(results).html("<br>");
-                    var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
+                    var linkHeader = jqXHR.getResponseHeader("Link");
+                    var remaining = jqXHR.getResponseHeader("X-Rate-Limit-Remaining");
+                    var limit = jqXHR.getResponseHeader("X-Rate-Limit-Limit");
+                    var reset = new Date(jqXHR.getResponseHeader("X-Rate-Limit-Reset") * 1000);
+                    var headersTable =
+                    `
+                        <br>Headers<br><table class="rs_headerTable">
+                        <tr><td>Rate Limit<td> ${limit} 
+                        <tr><td>Rate Limit Remaining<td> ${remaining} 
+                        <tr><td>Rate Limit Reset<td> ${reset} 
+                    `
                     if (linkHeader) {
-                        $(results).html("<br>Headers<br><table><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") + "</table><br>");
+                        
+                        $(results).html(
+                            headersTable + 
+                            '<tr><td>Link<td>' + 
+                            linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") + 
+                            '</table><br>'
+                        );
+
                         var links = getLinks(linkHeader);
                         if (links.next) {
                             var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
                             nextUrl = nextUrl.pathname + nextUrl.search;
-                        }
+                        };
                     }
+                        else if (linkHeader == null) {
+                            $(results).html(
+                                headersTable +
+                                '</table><br>'
+                            );
+                        }
+                    
+
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");
                     if (objects) {
                         const pathname = url.split('?')[0];

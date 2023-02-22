@@ -257,9 +257,8 @@ found = groups
   .filter(g => g.profile.name.match(regex)) 
   .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
   .map(g => ({Name: link('/admin/group/' + g.id, g.profile.name), Description: g.profile.description || ''}))
-results.innerHTML = ''
+results.innerHTML = found.length + ' found'
 table(found)
-results.innerHTML += found.length + ' found'
 </pre>
 <br>
 <pre id=searchUsers>
@@ -278,9 +277,8 @@ found = users
   .filter(u => u.profile.email.match(regex)) 
   .sort((u1, u2) => u1.profile.firstName.localeCompare(u2.profile.firstName))
   .map(u => ({Name: link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName), Username: u.profile.login, Email: u.profile.email}))
-results.innerHTML = ''
+results.innerHTML = found.length + ' found'
 table(found)
-results.innerHTML += found.length + ' found'
 </pre>
 <br>
 <pre id=evalGroupRule>

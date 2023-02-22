@@ -59,7 +59,10 @@ for await (user of getObjects(url)) {\n
    <div id=results></div>`;
   div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
   run.onclick = function () {
-    if (!preserveLog.checked) debug.value = '';
+    if (!preserveLog.checked) {
+      debug.value = '';
+      results.innerHTML = '';
+    }
     cancel = false;
     eval('(async function () {' + editor.value + '\n})()');
   };
@@ -79,8 +82,9 @@ for await (user of getObjects(url)) {\n
   function table(rows) {
     if (rows.length == 0) return;
     const pre = (p, ds) => ds.map(d => p + d).join('');
-    rows = pre('<tr>', [pre('<th>', Object.keys(rows[0])), ...rows.map(row => pre('<td>', Object.values(row)))]);
-    results.innerHTML += '<table>' + rows + '</table>';
+    const hdr = pre('<tr>', pre('<th>', Object.keys(rows[0])));
+    rows = pre('<tr>', rows.map(row => pre('<td>', Object.values(row))));
+    results.innerHTML += '<table>' + hdr + rows + '</table>';
   }
   const headers = {
     'Accept': 'application/json',

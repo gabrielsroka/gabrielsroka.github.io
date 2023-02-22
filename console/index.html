@@ -256,16 +256,17 @@ if (typeof groups == 'undefined') {
 found = groups
   .filter(g => g.profile.name.match(regex)) 
   .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
-  .map(g => '&lt;tr>&lt;td>' + link('/admin/group/' + g.id, g.profile.name) + '&lt;td>' + g.profile.description)
-  .join('')
-results.innerHTML = found ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Description' + found + '&lt;/table>': 'not found'
+  .map(g => ({Name: link('/admin/group/' + g.id, g.profile.name), Description: g.profile.description}))
+results.innerHTML = ''
+table(found)
+results.innerHTML += found.length + ' found'
 </pre>
 <br>
 <pre id=searchUsers>
 // Search users with regex using https://gabrielsroka.github.io/console
 
 // Set these:
-regex = /@gsroka.local/i   // // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
+regex = /@gsroka.local/i   // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
 url = '/api/v1/users?filter=status eq "ACTIVE"'
 
 if (typeof users == 'undefined') {
@@ -276,10 +277,10 @@ if (typeof users == 'undefined') {
 found = users
   .filter(u => u.profile.email.match(regex)) 
   .sort((u1, u2) => u1.profile.firstName.localeCompare(u2.profile.firstName))
-  .map(u => '&lt;tr>&lt;td>' + link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName) + 
-    '&lt;td>' + u.profile.login + '&lt;td>' + u.profile.email)
-  .join('')
-results.innerHTML = found ? '&lt;table>&lt;tr>&lt;th>Name&lt;th>Username&lt;th>Email' + found + '&lt;/table>' : 'not found'
+  .map(u => ({Name: link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName), Username: u.profile.login, Email: u.profile.email}))
+results.innerHTML = ''
+table(found)
+results.innerHTML += found.length + ' found'
 </pre>
 <br>
 <pre id=evalGroupRule>

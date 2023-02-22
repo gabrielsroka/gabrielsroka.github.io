@@ -84,7 +84,7 @@ for await (user of getObjects(url)) {\n
     const pre = (p, ds) => ds.map(d => p + d).join('');
     const hdr = '<tr>' + pre('<th>', Object.keys(rows[0]));
     rows = pre('<tr>', rows.map(row => pre('<td>', Object.values(row))));
-    results.innerHTML += '<table>' + hdr + rows + '</table>';
+    results.innerHTML += '<table class="data-list-table">' + hdr + rows + '</table>';
   }
   const headers = {
     'Accept': 'application/json',

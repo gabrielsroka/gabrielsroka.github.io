@@ -256,7 +256,7 @@ if (typeof groups == 'undefined') {
 found = groups
   .filter(g => g.profile.name.match(regex)) 
   .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
-  .map(g => ({Name: link('/admin/group/' + g.id, g.profile.name), Description: g.profile.description}))
+  .map(g => ({Name: link('/admin/group/' + g.id, g.profile.name), Description: g.profile.description || ''}))
 results.innerHTML = ''
 table(found)
 results.innerHTML += found.length + ' found'

@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
-<title>console</title>
+<title>nrgok console</title>
 <style>
 body {
     font-family: sans-serif;
@@ -97,10 +97,11 @@ for await (cred of getObjects(url)) {\n
     'ngrok-version': 2
   };
   async function* getPages(url, params = '') {
+    const o = url.split('/').pop();
     while (url) {
       const r = await get(url + params);
       const page = await r.json();
-      yield page;
+      yield page[o];
       url = page.next_page_uri;
     }
   }

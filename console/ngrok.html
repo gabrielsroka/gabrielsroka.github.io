@@ -24,7 +24,7 @@ pre {
 </style>
 </head>
 <body>
-<h1>console</h1>
+<h1>ngrok console</h1>
 <p>This tool will allow you to run short JS snippets using a library (see Functions below and 
     <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/ngrok.html>source</a> for more info).</p>
 <b>Setup</b>
@@ -96,8 +96,8 @@ for await (cred of getObjects(url)) {\n
     'Content-Type': 'application/json',
     'ngrok-version': 2
   };
-  async function* getPages(url, params = '') {
-    const o = url.split('/').pop();
+  async function* getPages(url, key) {
+    const o = key || url.split('/').pop();
     while (url) {
       const r = await get(url + params);
       const page = await r.json();
@@ -105,8 +105,8 @@ for await (cred of getObjects(url)) {\n
       url = page.next_page_uri;
     }
   }
-  async function* getObjects(url, params) {
-    for await (const objects of getPages(url, params)) {
+  async function* getObjects(url, key) {
+    for await (const objects of getPages(url, key)) {
       for (const o of objects) {
         yield o;
       }
@@ -179,9 +179,9 @@ bm.href = 'javascript:' + code.innerText + '();';
 <br>
 <div><b>Examples</b>
 <ul>
-<li><a href=#hello>Send activation email to pending users</a>
+<li><a href=#getCredentials>Get credentials</a>
 </ul>
-<pre id=hello>
+<pre id=getCredentials>
 // ngrok using https://gabrielsroka.github.io/console/ngrok.html
 
 // Set this:

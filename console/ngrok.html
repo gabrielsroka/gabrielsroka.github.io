@@ -99,7 +99,7 @@ for await (cred of getObjects(url)) {\n
   async function* getPages(url, key) {
     const o = key || url.split('/').pop();
     while (url) {
-      const r = await get(url + params);
+      const r = await get(url);
       const page = await r.json();
       yield page[o];
       url = page.next_page_uri;

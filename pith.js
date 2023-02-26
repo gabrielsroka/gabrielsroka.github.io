@@ -29,8 +29,7 @@ function run(lines) {
         } else if (tLine.startsWith('if ') || tLine.startsWith('else if ') || tLine.startsWith('elif ')) {
             line = line
                 .replace('elif', 'else if')
-                .replace('if ', 'if (')
-                .replace(' = ', ' == ');
+                .replace('if ', 'if (');
             line += ')';
         } else if (tLine.startsWith('#')) {
             line = line.replace('#', '//');

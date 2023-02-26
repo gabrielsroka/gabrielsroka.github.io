@@ -134,6 +134,13 @@ for await (cred of getObjects(url)) {\n
     const r = await put(url, body);
     return r.json();
   }
+  async function patch(url, body) {
+    return fetchLimit(url, {method: 'patch', headers, body: JSON.stringify(body)});
+  }
+  async function patchJson(url, body) {
+    const r = await patch(url, body);
+    return r.json();
+  }
   async function remove(url) {
     return fetchLimit(url, {method: 'delete', headers});
   }

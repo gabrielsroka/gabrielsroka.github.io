@@ -55,7 +55,7 @@ pre {
 apiKey = '...' // from https://dashboard.ngrok.com/api\n
 \n
 headers.authorization = 'Bearer ' + apiKey\n
-url = 'https://api.ngrok.com/credentials'\n
+url = '/credentials'\n
 for await (cred of getObjects(url)) {\n
   log(cred.id)\n
   if (cancel) break\n
@@ -145,6 +145,7 @@ for await (cred of getObjects(url)) {\n
     return fetchLimit(url, {method: 'delete', headers});
   }
   async function fetchLimit(url, init) {
+    if (!url.startsWith('https://api.ngrok.com')) url = 'https://api.ngrok.com' + url;
     return fetch(url, init);
   }
   function link(url, text) {
@@ -196,7 +197,7 @@ bm.href = 'javascript:' + code.innerText + '();';
 apiKey = '...' // from https://dashboard.ngrok.com/api
 
 headers.authorization = 'Bearer ' + apiKey
-url = 'https://api.ngrok.com/credentials'
+url = '/credentials'
 for await (cred of getObjects(url)) {
   log(cred.id)
   if (cancel) break

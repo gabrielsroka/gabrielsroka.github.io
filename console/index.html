@@ -107,6 +107,17 @@ for await (user of getObjects(url)) {\n
       }
     }
   }
+  async function* getResourceSets() {
+    const baseUrl = '/api/v1/iam/resource-sets';
+    var url = baseUrl;
+    while (url) {
+      const page = await getJson(url);
+      for (const rs of page['resource-sets']) {
+        yield rs;
+      }
+      url = page._links && baseUrl + new URL(page._links.next.href).search;
+    }
+  }
   async function get(url) {
     return fetchLimit(url, {method: 'get', headers});
   }

@@ -107,12 +107,11 @@ for await (user of getObjects(url)) {\n
       }
     }
   }
-  async function* getResourceSets() {
-    const baseUrl = '/api/v1/iam/resource-sets';
+  async function* getResourceSets(baseUrl, key) {
     var url = baseUrl;
     while (url) {
       const page = await getJson(url);
-      for (const rs of page['resource-sets']) {
+      for (const rs of page[key]) {
         yield rs;
       }
       url = page._links && baseUrl + new URL(page._links.next.href).search;

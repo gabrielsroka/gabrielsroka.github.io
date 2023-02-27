@@ -107,7 +107,7 @@ for await (user of getObjects(url)) {\n
       }
     }
   }
-  async function* getResourceSets(baseUrl, key) {
+  async function* getNextLink(baseUrl, key) {
     var url = baseUrl;
     while (url) {
       const page = await getJson(url);

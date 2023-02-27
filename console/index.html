@@ -111,10 +111,10 @@ for await (user of getObjects(url)) {\n
     var url = baseUrl;
     while (url) {
       const page = await getJson(url);
-      for (const rs of page[key]) {
-        yield rs;
+      for (const o of page[key]) {
+        yield o;
       }
-      url = page._links && baseUrl + new URL(page._links.next.href).search;
+      url = page._links?.next && baseUrl + new URL(page._links.next.href).search;
     }
   }
   async function get(url) {

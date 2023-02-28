@@ -107,7 +107,7 @@ for await (user of getObjects(url)) {\n
       }
     }
   }
-  async function* getNextLink(url, key) {
+  async function* getIamObjects(url, key) {
     while (url) {
       const page = await getJson(url);
       for (const o of page[key]) {
@@ -117,28 +117,35 @@ for await (user of getObjects(url)) {\n
     }
   }
   async function get(url) {
-    return fetchLimit(url, {method: 'get', headers});
+    return fetchLimit(url, {method: 'GET', headers});
   }
   async function getJson(url) {
     const r = await get(url);
     return r.json();
   }
   async function post(url, body) {
-    return fetchLimit(url, {method: 'post', headers, body: JSON.stringify(body)});
+    return fetchLimit(url, {method: 'POST', headers, body: JSON.stringify(body)});
   }
   async function postJson(url, body) {
     const r = await post(url, body);
     return r.json();
   }
   async function put(url, body) {
-    return fetchLimit(url, {method: 'put', headers, body: JSON.stringify(body)});
+    return fetchLimit(url, {method: 'PUT', headers, body: JSON.stringify(body)});
   }
   async function putJson(url, body) {
     const r = await put(url, body);
     return r.json();
   }
+  async function patch(url, body) {
+    return fetchLimit(url, {method: 'PATCH', headers, body: JSON.stringify(body)});
+  }
+  async function patchJson(url, body) {
+    const r = await patch(url, body);
+    return r.json();
+  }
   async function remove(url) {
-    return fetchLimit(url, {method: 'delete', headers});
+    return fetchLimit(url, {method: 'DELETE', headers});
   }
   async function fetchLimit(url, init) {
     const TOO_MANY_REQUESTS = 429;

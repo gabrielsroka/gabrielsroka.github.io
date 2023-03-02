@@ -191,14 +191,17 @@ bm.href = 'javascript:' + code.innerText + '();';
 <ul>
 <li>log()
 <li>table()
-<li>await getPages() - for await (objects of getPages(url))
-<li>await getObjects() - for await (object of getObjects(url))
+<li>for await (objects of getPages(url))
+<li>for await (object of getObjects(url)) - pagination for everything except the Roles API
+<li>for await (object of getIamObjects(url)) - for the <a href=https://developer.okta.com/docs/reference/api/roles>Roles API</a>
 <li>await get()
 <li>await getJson()
 <li>await post()
 <li>await postJson()
 <li>await put()
 <li>await putJson()
+<li>await patch()
+<li>await patchJson()
 <li>await remove() - not delete()
 <li>await fetchLimit()
 <li>await sleep() - delay in ms

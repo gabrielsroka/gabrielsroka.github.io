@@ -27,13 +27,9 @@ body {
 <script id=code>
 (async function () {
     /* See https://developer.zendesk.com/api-reference/ticketing/ticket-management/search/ */
-    var url = '/api/v2/search.json?query=role:agent'; /* &per_page=1, page=2 */
     const results = [];
-    while (url) {
-        const r = await fetch(url);
-        const data = await r.json();
-        data.results.forEach(r => results.push(toCSV(r.id, r.email, r.name, r.role, r.active)));
-        url = data.next_page;
+    for await (const data of getPages('/api/v2/search.json?query=role:agent')) { /* &per_page=1, page=2 */
+        data.forEach(r => results.push(toCSV(r.id, r.email, r.name, r.role, r.active)));
     }
 
     downloadCSV('id,email,name,role,active', results, 'Zendesk Agents');
@@ -46,6 +42,14 @@ body {
         'ticket_restriction', 'time_zone', 'two_factor_auth_enabled', 'updated_at', 'url', 'user_fields', 'verified'
     */
 
+    async function* getPages(url) {
+        while (url) {
+            const response = await fetch(url);
+            const page = await response.json();
+            yield page.results;
+            url = page.next_page;
+        }
+    }
     function downloadCSV(header, lines, filename) {
         const a = document.body.appendChild(document.createElement("a"));
         a.href = URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/csv'}));

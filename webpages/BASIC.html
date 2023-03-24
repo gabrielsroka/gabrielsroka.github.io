@@ -35,11 +35,12 @@ var progname;
 
 if (localStorage.basicPrograms) {
     programs = JSON.parse(localStorage.basicPrograms);
-    for (var [progname, value] of Object.entries(programs)) {
-        if (value) addOption(progname, value);
+    const sorted = Object.entries(programs).sort();
+    for (const [name, value] of sorted) {
+        if (value) addOption(name, value);
     }
-    editor.value = Object.values(programs)[0];
-    progname = Object.keys(programs)[0];
+    progname = sorted[0][0];
+    editor.value = sorted[0][1];
 } else {
     programs = {};
     editor.value = `rem basic is awesome !!!

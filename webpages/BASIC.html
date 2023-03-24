@@ -75,7 +75,7 @@ run.onclick = function () {
             v = tLine[4];
             line = line
                 .replace("for", "for (var")
-                .replace(" to", "; " + v + " <=");
+                .replace(" to", "; " + v + (line.match('step -') ? ' >=' : " <="));
             if (line.match('step')) {
                 line = line.replace('step', '; ' + v + ' +=') + ') {';
             } else {
@@ -94,7 +94,11 @@ run.onclick = function () {
         } else if (tLine.startsWith("end if")) {
             line = line.replace('end if', '}');
         } else if (tLine.startsWith("print ")) {
-            line = line.replace("print ", "print(") + ")";
+            if (tLine.endsWith(';')) {
+                line = line.replace("print ", "print(").replace(';', '') + ")";
+            } else {
+                line = line.replace("print ", "println(") + ")";
+            }
         } else if (tLine.startsWith('then ')) { // .then for Promises.
             line = line.replace('then ', '.then(') + ' => {';
         } else if (tLine.startsWith('end then')) {
@@ -134,8 +138,8 @@ editor.onkeydown = function (event) {
     }
 };
 
-debug.log = debug.print = function (s) {
-    debug.value += (s ? s.toString() : s) + "\r\n";
+debug.log = debug.print = function (s, nl = true) {
+    debug.value += (s ? s.toString() : s) + (nl ? "\r\n" : '');
     debug.scrollTo(0, debug.scrollHeight);
 };
     
@@ -145,6 +149,10 @@ debug.clear = function () {
 };
 
 function print(...args) {
+    debug.print(args.join(" "), false);
+}
+
+function println(...args) {
     debug.print(args.join(" "));
 }
 
@@ -164,6 +172,15 @@ function addOption(name, value) {
     option.text = name;
     option.value = value;
     prognames.add(option);
+}
+
+// standard library
+function len(s$) {
+  return s$.length
+}
+
+function mid$(s$, i, ln) {
+  return s$.slice(i - 1, i + ln - 1)
 }
 </script>
 </body>

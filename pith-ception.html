@@ -194,7 +194,7 @@ function boot(lines) {
         } else if (tLine.startsWith('def ') || tLine.startsWith('async def ')) {
             line = line.replace('def', 'function');
         } else if (tLine.startsWith('if ') || tLine.startsWith('else if ')) {
-            line = line.replace('if ', 'if (').replace(' = ', ' == ') + ')';
+            line = line.replace('if ', 'if (') + ')';
         }
         var newInd = line.match(/^( *)/)[1].length / tab;
         for (var t = newInd; t < ind; t++) {
@@ -230,7 +230,7 @@ def (lines)
             if !line.endsWith(')')
                 line += '()'
         else if tLine.startsWith('if ') || tLine.startsWith('else if ') || tLine.startsWith('elif ')
-            line = line.replace('elif', 'else if').replace('if ', 'if (').replace(' = ', ' == ') + ')'
+            line = line.replace('elif', 'else if').replace('if ', 'if (') + ')'
         else if tLine.startsWith('#')
             line = line.replace('#', '//')
         else if tLine.startsWith('print ') || tLine.startsWith('?')
@@ -257,7 +257,7 @@ def (lines)
 
 range =
 def * (start, stop, step = 1)
-    if stop = undefined
+    if stop == undefined
         stop = start
         start = 0
     while start < stop
@@ -271,7 +271,7 @@ def (it, cond, fn)
 gen =
 def * (it, cond, fn)
     for n in it
-        if cond = undefined || cond(n)
+        if cond == undefined || cond(n)
             yield fn ? fn(n) : n
 
 sum =

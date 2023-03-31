@@ -415,9 +415,8 @@ async function getFactors(user) {
 <pre id=listDevices>
 // List unmanaged devices and user info using https://gabrielsroka.github.io/console
 
-url = '/api/v1/devices?search=managementStatus eq "UNMAN"'
-params = '&expand=user' // due to a bug in the API, this must be added each time.
-for await (device of getObjects(url, params)) {
+url = '/api/v1/devices?search=managementStatus eq "UNMAN"&expand=user'
+for await (device of getObjects(url)) {
   for (user of device._embedded.users) {
     log(device.id, user.managementStatus) // add more attrs...
   }

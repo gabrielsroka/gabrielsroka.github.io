@@ -30,7 +30,7 @@ pre {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>console v6</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>console v7</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -47,7 +47,7 @@ pre {
    <button id=cancelBtn title=Esc>Cancel</button>
    <button id=closeBtn>Close</button>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
-   <a href=https://gabrielsroka.github.io/console target=_blank>src v6</a><br>
+   <a href=https://gabrielsroka.github.io/console target=_blank>src v7</a><br>
    <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 f = 'filter=profile.lastName eq "Doe"'\n
 url = '/api/v1/users?' + f\n
@@ -81,6 +81,9 @@ for await (user of getObjects(url)) {\n
     debug.scrollTo(0, debug.scrollHeight);
   }
   function table(rows) {
+    if (!Array.isArray(rows)) {
+      rows = Object.entries(rows).map(([name, value]) => ({name, value}));
+    }
     if (rows.length == 0) return;
     const pre = (p, ds) => ds.map(d => p + d).join('');
     const hdr = '<tr>' + pre('<th>', Object.keys(rows[0]));

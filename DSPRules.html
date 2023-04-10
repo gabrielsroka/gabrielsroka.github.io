@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+<head>
+<title>DSP Rules</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>DSP Rules</h1>
+<p>Import/export/delete rules.</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>DSP Rules v0.1</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>...
+</ol>
+<script id=code>
+(async function () {
+    
+    /* TODO: activate when create?
+             DomainGPO
+    */
+    
+    const headers = {
+        'Accept': 'application/json; charset=utf-8',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    };
+    const token = document.querySelector('input[name=__RequestVerificationToken]').value;
+    const tabId = document.querySelector('#tabId').value;
+
+    const popup = createPopup('DSP Rules');
+    const form = $('<form>' +
+        '<label>Import Rule CSV<br><input type=file class=importRules></label><br><br>' +
+        '<input type=button class=exportRules value="Export Rules"><br><br>' +
+        '<input type=button class=deleteRules value="Delete Rules"' + 
+        '</form>').appendTo(popup);
+
+    form.find('input.importRules').change(function () {
+        const reader = new FileReader();
+        reader.onload = async () => {
+            const rules = parseFile(reader.result);
+            for (const rule of rules) {
+                rule.Recipients = rule.Recipients.split(',');
+                await createRule(rule);
+                await activateRule(rule);
+            }
+            alert('Done.');
+        };
+        if (this.files.length > 0) reader.readAsText(this.files[0]);
+    });
+
+    form.find('input.exportRules').click(async () => {
+        const rules = await getRules();
+        const csv = [];
+        for (const rule of rules) {
+            csv.push(toCSV(rule.Name, rule.Severity, rule.Recipients, JSON.stringify(rule.Filter), rule.IsAlertRecipients, rule.ObjectsToggle, 
+                rule.CriteriaToggle, rule.IsAutoUndo, rule.ObjectSearch, rule.IsOU, rule.IsSecurityEvent, rule.DistinguishedName));
+        }
+        const header = 'Name,Severity,Recipients,Filter,IsAlertRecipients,ObjectsToggle,' +
+            'CriteriaToggle,IsAutoUndo,ObjectSearch,IsOU,IsSecurityEvent,DistinguishedName';
+        downloadCSV(popup, header, csv, 'rules');
+    });
+
+    form.find('input.deleteRules').click(async () => {
+        if (!confirm('Are you sure you want delete all rules?')) return;
+        const rules = await getRules();
+        for (const rule of rules) {
+            await deleteRule(rule);
+        }
+        alert('Done.');
+    });
+        
+    /* Util functions */
+    async function createRule(rule) {
+        rule.RuleID = 'temp';
+        rule.__RequestVerificationToken = token;
+        rule.tabId = tabId;
+        const RuleID = await saveRule(rule);
+        rule.RuleID = RuleID;
+    }
+
+    async function activateRule(rule) {
+        rule.IsEnabled = true;
+        const result = await saveRule(rule);
+    }
+
+    async function saveRule(rule) {
+        const body = new URLSearchParams(rule);
+        rule.Recipients.forEach(r => body.append('Recipients[]', r));
+        body.delete('Recipients');
+
+        const res = await fetch('/DSP/Notifications/SaveRule', {
+            headers,
+            body,
+            method: 'POST'
+        });
+        const result = await res.json();
+        await getRules();
+        return result;
+    }
+    
+    async function getRules() {
+        const res = await fetch(`/DSP/Notifications/GetRules?tabId=${tabId}`, {
+            headers,
+            method: 'GET'
+        });
+        const rules = await res.json();
+        return rules;
+    }
+
+    async function deleteRule(rule) {
+        const res = await fetch(`/DSP/Notifications/DeleteRule?__RequestVerificationToken=${token}&tabId=${tabId}`, {
+            headers,
+            body: `ruleID=${encodeURIComponent(rule.RuleID)}`,
+            method: 'DELETE'
+        });
+        await res.json();
+        await getRules();
+    }
+
+    function createPopup(title) {
+        const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; ` +
+                `overflow: auto; background-color: white; border: 1px solid #ddd;'>` +
+            `${title}<div style='display: block; float: right;'><a href='https://semperis.com' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
+            `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
+        return $('<div></div>').appendTo(popup);
+    }
+    
+    function parseFile(file) {
+        const lineSeparator = /\r\n|\r|\n/;
+        const fieldSeparator = ',';
+        const enc = '"';
+    
+        const lines = file.split(lineSeparator);
+        if (lines[lines.length - 1] == '') lines.pop();
+        const headers = lines.shift().split(fieldSeparator);
+    
+        return lines.map(line => {
+            const values = [];
+            for (var p = 0; p < line.length; p = q + r + 1) {
+                if (line[p] == enc) {
+                    p++;
+                    var r = 1;
+                    var q = line.indexOf(enc, p);
+                    while (line[q + 1] == enc) q = line.indexOf(enc, q + 2);
+                } else {
+                    r = 0;
+                    q = line.indexOf(fieldSeparator, p);
+                    if (q == -1) q = line.length;
+                }
+                values.push(line.slice(p, q).replace(/""/g, '"'));
+            }
+            return Object.fromEntries(headers.map((k, i) => [k, values[i]]));
+        });
+    }
+    function toCSV(...fields) {
+        return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
+    }
+    function downloadCSV(popup, header, lines, filename) {
+        var a = $('<a>').appendTo(popup);
+        a.attr('href', URL.createObjectURL(new Blob([header + '\n' + lines.join('\n')], {type: 'text/csv'})));
+        var date = (new Date()).toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
+        a.attr('download', `${filename} ${date}.csv`);
+        a[0].click();
+    }
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</body>
+</html>

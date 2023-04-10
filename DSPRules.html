@@ -62,11 +62,11 @@ body {
     form.find('input.exportRules').click(async () => {
         const rules = await getRules();
         const csv = [];
-        for (const rule of rules) {
-            csv.push(toCSV(rule.Name, rule.Severity, rule.Recipients, JSON.stringify(rule.Filter), 
-                rule.IsAutoUndo, rule.ObjectSearch, rule.IsOU, rule.IsSecurityEvent, rule.DistinguishedName, rule.IsEnabled));
-        }
         const header = 'Name,Severity,Recipients,Filter,IsAutoUndo,ObjectSearch,IsOU,IsSecurityEvent,DistinguishedName,IsEnabled';
+        for (const rule of rules) {
+            rule.Filter = JSON.stringify(rule.Filter);
+            csv.push(toCSV(header.split(',').map(h => rule[h])));
+        }
         downloadCSV(popup, header, csv, 'rules');
     });
 
@@ -84,13 +84,12 @@ body {
         rule.RuleID = 'temp';
         rule.__RequestVerificationToken = token;
         rule.tabId = tabId;
-        const RuleID = await saveRule(rule);
-        rule.RuleID = RuleID;
+        rule.RuleID = await saveRule(rule);
     }
 
     async function activateRule(rule) {
         rule.IsEnabled = true;
-        const result = await saveRule(rule);
+        await saveRule(rule);
     }
 
     async function saveRule(rule) {
@@ -103,9 +102,9 @@ body {
             body,
             method: 'POST'
         });
-        const result = await res.json();
+        const RuleID = await res.json();
         await getRules();
-        return result;
+        return RuleID;
     }
     
     async function getRules() {
@@ -113,8 +112,7 @@ body {
             headers,
             method: 'GET'
         });
-        const rules = await res.json();
-        return rules;
+        return await res.json();
     }
 
     async function deleteRule(rule) {
@@ -162,7 +160,7 @@ body {
             return Object.fromEntries(headers.map((k, i) => [k, values[i]]));
         });
     }
-    function toCSV(...fields) {
+    function toCSV(fields) {
         return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
     }
     function downloadCSV(popup, header, lines, filename) {

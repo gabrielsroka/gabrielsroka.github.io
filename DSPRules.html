@@ -26,8 +26,7 @@ body {
 <script id=code>
 (async function () {
     
-    /* TODO: activate when create?
-             DomainGPO
+    /* TODO: DomainGPO
     */
     
     const headers = {
@@ -52,7 +51,6 @@ body {
                 rule.Recipients = rule.Recipients.split(',');
                 rule.IsAlertRecipients = rule.ObjectsToggle = rule.CriteriaToggle = true;
                 await createRule(rule);
-                await activateRule(rule);
             }
             alert('Done.');
         };
@@ -82,8 +80,6 @@ body {
     /* Util functions */
     async function createRule(rule) {
         rule.RuleID = 'temp';
-        rule.__RequestVerificationToken = token;
-        rule.tabId = tabId;
         rule.RuleID = await saveRule(rule);
     }
 
@@ -93,6 +89,8 @@ body {
     }
 
     async function saveRule(rule) {
+        rule.__RequestVerificationToken = token;
+        rule.tabId = tabId;
         const body = new URLSearchParams(rule);
         rule.Recipients.forEach(r => body.append('Recipients[]', r));
         body.delete('Recipients');

@@ -14,7 +14,7 @@ body {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>DSP Rules v1</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>DSP Rules v2</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -50,6 +50,7 @@ body {
             const rules = parseFile(reader.result);
             for (const rule of rules) {
                 rule.Recipients = rule.Recipients.split(',');
+                rule.IsAlertRecipients = rule.ObjectsToggle = rule.CriteriaToggle = true;
                 await createRule(rule);
                 await activateRule(rule);
             }
@@ -62,11 +63,10 @@ body {
         const rules = await getRules();
         const csv = [];
         for (const rule of rules) {
-            csv.push(toCSV(rule.Name, rule.Severity, rule.Recipients, JSON.stringify(rule.Filter), rule.IsAlertRecipients, rule.ObjectsToggle, 
-                rule.CriteriaToggle, rule.IsAutoUndo, rule.ObjectSearch, rule.IsOU, rule.IsSecurityEvent, rule.DistinguishedName));
+            csv.push(toCSV(rule.Name, rule.Severity, rule.Recipients, JSON.stringify(rule.Filter), 
+                rule.IsAutoUndo, rule.ObjectSearch, rule.IsOU, rule.IsSecurityEvent, rule.DistinguishedName, rule.IsEnabled));
         }
-        const header = 'Name,Severity,Recipients,Filter,IsAlertRecipients,ObjectsToggle,' +
-            'CriteriaToggle,IsAutoUndo,ObjectSearch,IsOU,IsSecurityEvent,DistinguishedName';
+        const header = 'Name,Severity,Recipients,Filter,IsAutoUndo,ObjectSearch,IsOU,IsSecurityEvent,DistinguishedName,IsEnabled';
         downloadCSV(popup, header, csv, 'rules');
     });
 

@@ -135,14 +135,14 @@ body {
         const lineSeparator = /\r\n|\r|\n/;
         const fieldSeparator = ',';
         const enc = '"';
-    
+
         const lines = file.split(lineSeparator);
         if (lines[lines.length - 1] == '') lines.pop();
         const headers = lines.shift().split(fieldSeparator);
-    
+
         return lines.map(line => {
-            const values = [];
-            for (var p = 0; p < line.length; p = q + r + 1) {
+            const o = {};
+            for (var p = 0, i = 0; p < line.length; p = q + r + 1, i++) {
                 if (line[p] == enc) {
                     p++;
                     var r = 1;
@@ -153,9 +153,9 @@ body {
                     q = line.indexOf(fieldSeparator, p);
                     if (q == -1) q = line.length;
                 }
-                values.push(line.slice(p, q).replace(/""/g, '"'));
+                o[headers[i]] = line.slice(p, q).replace(/""/g, '"');
             }
-            return Object.fromEntries(headers.map((k, i) => [k, values[i]]));
+            return o;
         });
     }
     function toCSV(fields) {

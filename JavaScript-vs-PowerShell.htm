@@ -1,6 +1,16 @@
+<!doctype html>
 <html>
 <head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <title>JavaScript vs. PowerShell vs. Python</title>
+<style>
+@media (prefers-color-scheme: dark) {
+    *, a {
+        background-color: #121212;
+        color: #ddd;
+    }
+}
+</style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/powershell.min.js"></script>
@@ -91,7 +101,6 @@ template = f'a = {a}'
 
 </code></pre>
 </td>
-    
 
 <tr>
 <td>
@@ -118,13 +127,13 @@ $arr.length # or $arr.count
 </td>
 <td>
 <pre><code class=python>
-arr = [1, 2]
-arr = []
-arr.append(3)
-b = arr[0]
+lst = [1, 2]
+lst = []
+lst.append(3)
+b = lst[0]
 
-arr[0:3] # end is not included
-len(arr)
+lst[0:3] # end is not included
+len(lst)
 </code></pre>
 </td>
     
@@ -157,9 +166,9 @@ $user = @{firstName = 'Gabriel'; lastName = 'Sroka'}
 </td>
 <td>
 <pre><code class=python>
-a_dict = {'name1': 'value', 'n2': 2}
-a_dict = {}
-a_dict['n3'] = 3
+dct = {'name1': 'value', 'n2': 2}
+dct = {}
+dct['n3'] = 3
 
 long_dict = {
     'name1': 'value',
@@ -240,7 +249,7 @@ if (a == b) {
 while (b) { }
 do { } while ( );
 for (i = 0; i < MAX; i++) { }
-for (item of collection) // ES6 [?]
+for (item of items)
 </code></pre>
 </td>
 <td>
@@ -255,10 +264,10 @@ if ($a -eq $b) {
     #
 }
 
-while (b) { }
-do { } while (b)
+while ($b) { }
+do { } while ($b)
 for ($i = 0; $i -lt $MAX; $i++) { }
-foreach ($item in $collection)
+foreach ($item in $items) { }
 </code></pre>
 </td>
 <td>
@@ -276,26 +285,7 @@ else:
 while b: #
 # no do/while loop, use while/break
 for i in range(MAX): # ...
-for item in collection: # ...
-</code></pre>
-</td>
-    
-
-
-<tr>
-<td>
-<pre><code class="javascript">
-
-</code></pre>
-</td>
-<td>
-<pre><code class="powershell">
-
-</code></pre>
-</td>
-<td>
-<pre><code class=python>
-
+for item in items: # ...
 </code></pre>
 </td>
     

@@ -1,4 +1,3 @@
-<!doctype html>
 <html>
 <head>
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
@@ -68,7 +67,7 @@ let b = 3;
     
 stringDouble = "double quotes";
 stringSingle = 'single quotes';
-template = `a = ${a}`; // ES6 [?]
+template = `a = ${a}`;
 
 escaped = "\"";
 </code></pre>
@@ -105,6 +104,7 @@ template = f'a = {a}'
 <tr>
 <td>
 <pre><code class="javascript">
+// an array
 arr = [1, 2];
 arr = [];
 arr.push(3);
@@ -116,6 +116,7 @@ arr.length;
 </td>
 <td>
 <pre><code class="powershell">
+# an array
 $arr = 1, 2
 $arr = @()
 $arr += 3
@@ -127,6 +128,7 @@ $arr.length # or $arr.count
 </td>
 <td>
 <pre><code class=python>
+# a list
 lst = [1, 2]
 lst = []
 lst.append(3)
@@ -140,11 +142,12 @@ len(lst)
 <tr>
 <td>
 <pre><code class="javascript">
-hash = {name1: "value", n2: 2};
-hash = {};
-hash.n3 = 3;
+// an object
+obj = {name1: "value", n2: 2};
+obj = {};
+obj.n3 = 3;
 
-longhash = {
+longObj = {
     name1: "value",
     n2: 2
 };
@@ -153,6 +156,7 @@ user = {firstName: 'Gabriel', lastName: 'Sroka'};
 </td>
 <td>
 <pre><code class="powershell">
+# a hastable
 $hash = @{name1 = "value"; n2 = 2}
 $hash = @{}
 $hash.n3 = 3
@@ -166,6 +170,7 @@ $user = @{firstName = 'Gabriel'; lastName = 'Sroka'}
 </td>
 <td>
 <pre><code class=python>
+# a dictionary
 dct = {'name1': 'value', 'n2': 2}
 dct = {}
 dct['n3'] = 3
@@ -217,25 +222,8 @@ v = add(a1, a2)
 <td>
 <pre><code class="javascript">
 if (a == b) /* ... */ // Braces are optional but recommended.
-if (a < b)
-</code></pre>
-</td>
-<td>
-<pre><code class="powershell">
-if ($a -eq $b) { <# ... #> } # Braces are required.
-if ($a -lt $b) { <# ... #> }
-</code></pre>
-</td>
-<td>
-<pre><code class=python>
-if a == b: # ...
-if a < b: # ...
-</code></pre>
-</td>
-    
-<tr>
-<td>
-<pre><code class="javascript">
+if (a < b) // ...
+
 b = true;
  
 if (a == b) {
@@ -247,13 +235,18 @@ if (a == b) {
 }
  
 while (b) { }
-do { } while ( );
+do { } while (b); // note the trailing semicolon
 for (i = 0; i < MAX; i++) { }
-for (item of items)
+for (item of items) {
+    console.log(item);
+}
 </code></pre>
 </td>
 <td>
 <pre><code class="powershell">
+if ($a -eq $b) { <# ... #> } # Braces are required.
+if ($a -lt $b) { <# ... #> }
+
 $b = $true
  
 if ($a -eq $b) {
@@ -267,11 +260,16 @@ if ($a -eq $b) {
 while ($b) { }
 do { } while ($b)
 for ($i = 0; $i -lt $MAX; $i++) { }
-foreach ($item in $items) { }
+foreach ($item in $items) {
+    Write-Host $item
+}
 </code></pre>
 </td>
 <td>
 <pre><code class=python>
+if a == b: # ...
+if a < b: # ...
+
 b = True
 
 if a == b:
@@ -285,10 +283,11 @@ else:
 while b: #
 # no do/while loop, use while/break
 for i in range(MAX): # ...
-for item in items: # ...
+for item in items:
+    print(item)
 </code></pre>
 </td>
-    
+   
 </table>
 </body>
 </html>

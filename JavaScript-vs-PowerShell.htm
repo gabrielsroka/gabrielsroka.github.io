@@ -156,7 +156,7 @@ user = {firstName: 'Gabriel', lastName: 'Sroka'};
 </td>
 <td>
 <pre><code class="powershell">
-# a hastable
+# a hashtable
 $hash = @{name1 = "value"; n2 = 2}
 $hash = @{}
 $hash.n3 = 3
@@ -190,7 +190,6 @@ user = {'first_name': 'Gabriel', 'last_name': 'Sroka'}
 function add(a1, a2) {
     return a1 + a2;
 }
-
  
 v = add(a1, a2);
 </code></pre>
@@ -199,8 +198,7 @@ v = add(a1, a2);
 <pre><code class="powershell">
 # function name is Verb-Noun. Must be declared before it's called.
 function Add-Numbers($a1, $a2) {
-    $a1 + $a2
-    # return is optional.
+    $a1 + $a2 # return is optional.
 }
  
 $v = Add-Numbers $a1 $a2
@@ -211,7 +209,6 @@ $v = Add-Numbers $a1 $a2
 # function must be declared before it's called.
 def add(a1, a2):
     return a1 + a2
-
 
 
 v = add(a1, a2)
@@ -285,6 +282,7 @@ while b: #
 for i in range(MAX): # ...
 for item in items:
     print(item)
+
 </code></pre>
 </td>
    

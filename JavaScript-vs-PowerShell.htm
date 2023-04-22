@@ -49,8 +49,8 @@ PowerShell is not case-sensitive.
 <td>
 <pre><code class=python>
 # This is a single line comment.
-""" This is a 
-comment block.
+"""This is a 
+docstring, not a comment.
 
 Python is case-sensitive.
 """
@@ -95,7 +95,7 @@ b = 3
 
 string_double = "double quotes"
 string_single = 'single quotes'
-template = f'a = {a}'
+f_string = f'a = {a}'
 
 
 </code></pre>
@@ -233,8 +233,8 @@ if (a == b) {
  
 while (b) { }
 do { } while (b); // note the trailing semicolon
-for (i = 0; i < MAX; i++) { }
-for (item of items) {
+for (var i = 0; i < MAX; i++) { }
+for (const item of items) {
     console.log(item);
 }
 </code></pre>

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <meta name="author" content="Gabriel Sroka">
-<meta name="copyright" content="Copyright 2007-2022 Gabriel Sroka">
+<meta name="copyright" content="Copyright 2007-2023 Gabriel Sroka">
 <meta name="keywords" content="bookmarklets, bookmarklet editor, javascript editor">
 <meta name="description" content="bookmarklets and javascript editor">
 <link rel="stylesheet" type="text/css" href="syntax.css">
@@ -231,13 +231,6 @@ popular web browsers. Right-click on any of these Bookmarklets, and Add to Favor
 <pre id="codeLCW" class="code">
 (function () {
  function makeDraggableBox(title, body) {
-  function x(event) {
-   return event ? event.pageX : window.event.clientX;
-  }
-  
-  function y(event) {
-   return event ? event.pageY : window.event.clientY;
-  }
   
   var box = makeBox("&lt;div id=dragHeader>&nbsp;" + title + " - drag me--press esc to close&lt;/div>", body);
   box.dragging = false;
@@ -253,11 +246,11 @@ popular web browsers. Right-click on any of these Bookmarklets, and Add to Favor
   box.dragStop = function () {
    this.dragging = false;
   };
-  document.getElementById("dragHeader").onmousedown = function (event) {box.dragStart(x(event), y(event));};
+  document.getElementById("dragHeader").onmousedown = function (event) {box.dragStart(event.pageX, event.pageY);};
   document.getElementById("dragHeader").onmouseup = function (event) {box.dragStop();};
   document.onmousemove = function (event) {
    if (box.dragging) {
-    box.drag(x(event), y(event));
+    box.drag(event.pageX, event.pageY);
    }
   };
   return box;
@@ -267,7 +260,7 @@ popular web browsers. Right-click on any of these Bookmarklets, and Add to Favor
   function cleanUp() {
    try {
     document.body.removeChild(box);
-    window.onkeypress = null;
+    document.onkeydown = null;
     document.onmousemove = null;
    } catch (err) {
     
@@ -283,9 +276,8 @@ popular web browsers. Right-click on any of these Bookmarklets, and Add to Favor
   box.style.zIndex = 1000;
   box.style.color = "white";
   box.style.backgroundColor = "grey";
-  document.onkeypress = function (event) {
-   var keyEsc = 27;
-   event = event || window.event;
+  document.onkeydown = function (event) {
+   const keyEsc = 27;
    if (event.keyCode == keyEsc) cleanUp();
   };
   return box;

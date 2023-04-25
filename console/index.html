@@ -222,8 +222,8 @@ bm.href = 'javascript:' + code.innerText + '();';
 <div><b>Examples</b>
 <ul>
 <li><a href=#sendActivationEmail>Send activation email to pending users</a>
-<li><a href=#copyUsers>Copy users from one group to another</a>
-<li><a href=#removeUsers>Remove users from a group</a>
+<li><a href=#copyGroupMembers>Copy members from one group to another</a>
+<li><a href=#removeGroupMembers>Remove group members</a>
 <li><a href=#searchGroups>Search groups with regex</a>
 <li><a href=#searchUsers>Search users with regex</a>
 <li><a href=#evalGroupRule>Eval group rule expression</a>
@@ -245,8 +245,8 @@ for await (user of getObjects(url)) {
 }
 </pre>
 <br>
-<pre id=copyUsers>
-// Copy users from one group to another using https://gabrielsroka.github.io/console
+<pre id=copyGroupMembers>
+// Copy members from one group to another using https://gabrielsroka.github.io/console
 
 // Set these:
 srcGroupId = '00g...'
@@ -254,20 +254,20 @@ dstGroupId = '00g...'
 
 url = '/api/v1/groups/' + srcGroupId + '/users'
 for await (user of getObjects(url)) {
-  log('adding user', user.id)
+  log('adding member', user.id)
   await put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
 }
 </pre>
 <br>
-<pre id=removeUsers>
-// Remove users from a group using https://gabrielsroka.github.io/console
+<pre id=removeGroupMembers>
+// Remove group members using https://gabrielsroka.github.io/console
 
 // Get groupId from browser's address bar.
 groupId = location.pathname.split('/').pop()
 url = '/api/v1/groups/' + groupId + '/users/'
 for await (user of getObjects(url)) {
   await remove(url + user.id)
-  log(user.profile.login)
+  log('removing group member', user.profile.login)
 }
 </pre>
 <br>
@@ -371,7 +371,7 @@ body = {
 rule = await postJson('/api/v1/groups/rules', body)
 if (rule.id) {
   await post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
-  log('created ' + name)
+  log('created', name)
 } else {
   log(rule.errorSummary + '\n' + rule.errorCauses.map(c => c.errorSummary).join('\n'))
 }

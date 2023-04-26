@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title>DSP Rules</title>
+<title>xyz Rules</title>
 <style>
 body {
     font-family: sans-serif;
@@ -9,12 +9,12 @@ body {
 </style>
 </head>
 <body>
-<h1>DSP Rules</h1>
+<h1>xyz Rules</h1>
 <p>Import/export/delete rules.</p>
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>DSP Rules v2</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>xyz Rules v2</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -22,7 +22,7 @@ body {
 <li>...
 </ol>
 <br>
-<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/DSPRules.html>source</a>
+<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/xyzRules.html>source</a>
 <script id=code>
 (async function () {
     
@@ -36,7 +36,7 @@ body {
     const token = document.querySelector('input[name=__RequestVerificationToken]').value;
     const tabId = document.querySelector('#tabId').value;
 
-    const popup = createPopup('DSP Rules');
+    const popup = createPopup('xyz Rules');
     const form = $('<form>' +
         '<label>Import Rule CSV<br><input type=file class=importRules></label><br><br>' +
         '<input type=button class=exportRules value="Export Rules"><br><br>' +
@@ -95,7 +95,7 @@ body {
         rule.Recipients.forEach(r => body.append('Recipients[]', r));
         body.delete('Recipients');
 
-        const res = await fetch('/DSP/Notifications/SaveRule', {
+        const res = await fetch('/xyz/Notifications/SaveRule', {
             headers,
             body,
             method: 'POST'
@@ -106,7 +106,7 @@ body {
     }
     
     async function getRules() {
-        const res = await fetch(`/DSP/Notifications/GetRules?tabId=${tabId}`, {
+        const res = await fetch(`/xyz/Notifications/GetRules?tabId=${tabId}`, {
             headers,
             method: 'GET'
         });
@@ -114,7 +114,7 @@ body {
     }
 
     async function deleteRule(rule) {
-        const res = await fetch(`/DSP/Notifications/DeleteRule?__RequestVerificationToken=${token}&tabId=${tabId}`, {
+        const res = await fetch(`/xyz/Notifications/DeleteRule?__RequestVerificationToken=${token}&tabId=${tabId}`, {
             headers,
             body: `ruleID=${encodeURIComponent(rule.RuleID)}`,
             method: 'DELETE'
@@ -126,7 +126,7 @@ body {
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; ` +
                 `overflow: auto; background-color: white; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/DSPRules.html' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
+            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/xyzRules.html' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
             `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
         return $('<div></div>').appendTo(popup);
     }

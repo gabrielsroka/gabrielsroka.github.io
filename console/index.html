@@ -30,7 +30,7 @@ pre {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>console v7</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>console v8</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -48,7 +48,7 @@ pre {
    <button id=cancelBtn title=Esc ${style}>Cancel</button>
    <button id=closeBtn ${style}>Close</button>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
-   <a href=https://gabrielsroka.github.io/console target=_blank>src v7</a><br>
+   <a href=https://gabrielsroka.github.io/console target=_blank>src v8</a><br>
    <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 // List users using https://gabrielsroka.github.io/console\n
 \n
@@ -190,6 +190,12 @@ for await (user of getObjects(url)) {\n
     a.click();
     document.body.removeChild(a);
   }
+  function csv(rows) {
+    if (rows.length == 0) return;
+    const hdr = Object.keys(rows[0]).join(',') + '\n';
+    rows = rows.map(row => toCSV(...Object.values(row))).join('\n');
+    return hdr + rows;
+  }
 })
 </script>
 <script>
@@ -217,6 +223,7 @@ bm.href = 'javascript:' + code.innerText + '();';
 <li>link()
 <li>toCSV()
 <li>downloadCSV()
+<li>csv()
 </ul>
 <br>
 <div><b>Examples</b>

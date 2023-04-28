@@ -576,6 +576,7 @@
         function exportUsers(o, url, filter) {
             exportPopup = createPopup("Export " + o);
             exportPopup.append("<br>Columns to export");
+            var errorBox = $('<div style="background-color: #ffb;"></div>').appendTo(exportPopup);
             var checkboxDiv = $("<div style='overflow-y: scroll; height: 152px; width: 500px; border: 1px solid #ccc;'></div>").appendTo(exportPopup);
             
             function addCheckbox(value, text) {
@@ -639,8 +640,8 @@
                     managerId: "Manager Id",
                     manager: "Manager"
                 };
-                // TODO: since user can't see /schemas, let them know they can only use base attrs.
                 for (const p in profile) addCheckbox("profile." + p, profile[p]);
+                errorBox.html('Unable to fetch custom attributes. Use an account with more privileges.<br>Only base attributes shown below.');
             });
 
             if (filter) {

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "rockstar",
-  "version": "0.23",
+  "version": "0.25",
   "description": "rockstar adds a bunch of great features to Okta, like exporting to a CSV.",
   "omnibox": {
     "keyword": "rs"
@@ -23,7 +23,8 @@
       "matches": [
         "https://*.okta.com/*",
         "https://*.okta-emea.com/*",
-        "https://*.oktapreview.com/*"
+        "https://*.oktapreview.com/*",
+        "https://*.okta-gov.com/*"
       ],
       "js": ["jquery-1.12.4.min.PATCHED.js", "rockstar.js"],
       "css": ["rockstar.css"]

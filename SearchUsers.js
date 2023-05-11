@@ -21,8 +21,8 @@ Usage:
 (async function () {
     const r = await fetch('/api/v1/meta/schemas/user/default');
     const schema = await r.json();
-    const props = Object.keys(schema.definitions.base.properties).concat(Object.keys(schema.definitions.custom.properties)).sort();
-        
+    const props = {...schema.definitions.base.properties, ...schema.definitions.custom.properties};
+
     const popup = createPopup('Search users');
     const statuses = {
         '': 'All',
@@ -35,7 +35,7 @@ Usage:
         SUSPENDED: 'Suspended',
         DEPROVISIONED: 'Deactivated'
     };
-    const form = $('<form><select id=attr>' + props.map(n => `<option>${n}`).join('') + '</select> ' +
+    const form = $('<form><select id=attr>' + Object.keys(props).sort().map(n => `<option>${n}`).join('') + '</select> ' +
        'Contains <input class=search style="width: 250px" placeholder="Search"> ' + 
        'Status <select id=searchStatus>' + Object.entries(statuses).map(([n, v]) => `<option value='${n}'>${v}`).join('') + '</select> ' +
        '<button type=submit>Search</button></form><br>' + 
@@ -53,15 +53,18 @@ Usage:
                 users = users.concat(page);
                 popup.find('div.results').html('Loading... ' + users.length + ' users.');
             }
-            users.sort((u1, u2) => (u1.profile[attr.value] ?? '').localeCompare(u2.profile[attr.value]));
         }
+        users.sort((u1, u2) => 
+            ['number', 'integer'].includes(props[attr.value].type) ?
+            (u1.profile[attr.value] === undefined ? -1 : u2.profile[attr.value] === undefined ? 1 : u1.profile[attr.value] - u2.profile[attr.value]) : 
+            (u1.profile[attr.value] ?? '').localeCompare(u2.profile[attr.value]));
         const re = new RegExp(form.find('input.search').val(), 'i');
         const found = users
             .filter(user => re.test(user.profile[attr.value]))
-            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.login}<td>${user.profile.email}<td>${statuses[user.status]}`);
+            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.login}<td>${user.profile.email}<td>${statuses[user.status]}<td>${user.profile[attr.value]}`);
         popup.find('div.results')
             .html(found.length + ` user${found.length == 1 ? '' : 's'} found` + 
-                (found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status' + found.join('') + '</table>' : ''));
+                (found.length ? `<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status<th>${attr.value}` + found.join('') + '</table>' : ''));
     });
 
     async function* getPages(url) {
@@ -72,7 +75,6 @@ Usage:
             url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
         }
     }
-
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; ` +
                 `overflow: auto; background-color: white; border: 1px solid #ddd;'>` +

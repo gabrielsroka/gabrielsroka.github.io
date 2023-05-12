@@ -60,9 +60,10 @@ Usage:
             (u1.profile[attr.value] === undefined ? -1 : u2.profile[attr.value] === undefined ? 1 : u1.profile[attr.value] - u2.profile[attr.value]) : 
             (u1.profile[attr.value] ?? '').localeCompare(u2.profile[attr.value]));
         const re = new RegExp(form.find('input.search').val(), 'i');
+        const pre = (p, ...ds) => p + ds.join(p);
         const found = users
             .filter(user => re.test(user.profile[attr.value]))
-            .map(user => `<tr><td>${(user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id)}<td>${user.profile.login}<td>${user.profile.email}<td>${statuses[user.status]}<td>${user.profile[attr.value]}`);
+            .map(user => '<tr>' + pre('<td>', (user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id), user.profile.login, user.profile.email, statuses[user.status], user.profile[attr.value]));
         popup.find('div.results')
             .html(found.length + ` user${found.length == 1 ? '' : 's'} found` + 
                 (found.length ? `<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status<th>${attr.value}` + found.join('') + '</table>' : ''));

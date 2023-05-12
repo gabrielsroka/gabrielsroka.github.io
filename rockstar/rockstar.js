@@ -702,9 +702,9 @@
                 var object = objects[i];
                 var line = template(object);
                 if (line.then) {
-                    line.then(ln => lines.push(ln));
+                    line.then(ln => lines.push(ln + "\n"));
                 } else {
-                    lines.push(line);
+                    lines.push(line + "\n");
                     totalBytes += line.length + 1;
                 }
             }
@@ -1244,8 +1244,9 @@
     }
     function downloadCSV(popup, html, header, lines, filename) {
         popup.html(html + "Done.");
+        lines.unshift(header + "\n");
         var a = $("<a>").appendTo(popup);
-        a.attr("href", URL.createObjectURL(new Blob([header + "\n" + lines.join("\n")], {type: 'text/csv'})));
+        a.attr("href", URL.createObjectURL(new Blob(lines, {type: 'text/csv'})));
         var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").slice(0, 19);
         a.attr("download", `${filename} ${date}.csv`);
         a[0].click();

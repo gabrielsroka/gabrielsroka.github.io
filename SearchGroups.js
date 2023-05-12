@@ -1,6 +1,7 @@
 javascript:
 /*
 Bookmark name: /Search Groups#
+URL: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/SearchGroups.js
 
 Setup:
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
@@ -44,7 +45,7 @@ Usage:
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; ` +
                 `overflow: auto; background-color: white; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/APIExplorer/' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
+            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/SearchGroups.js' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
             `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
         return $('<div></div>').appendTo(popup);
     }

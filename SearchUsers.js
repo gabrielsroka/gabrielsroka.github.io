@@ -1,6 +1,7 @@
 javascript:
 /*
 Bookmark name: /Search Users#
+URL: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/SearchUsers.js
 
 Setup:
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.

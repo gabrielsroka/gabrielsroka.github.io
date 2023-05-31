@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+<meta name=viewport content='initial-scale=1.0, minimum-scale=0.25'>
 <title>Clone App Rules (new)</title>
 <style>
 body {
@@ -39,6 +40,8 @@ body {
 <li>It will generate a "cloned rules" CSV for your records, or if you need to rollback. Please store this somewhere safe, eg, on a shared drive.
 <li>If necessary, rollback using the "Rollback Rules" button to import the "cloned rules" CSV.
 </ol>
+<br>
+<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/CloneAppRules.html>Source code</a>
 <script id=code>
 (function () {
     const headers = {'x-okta-user-agent-extended': 'clone-tool/16'};
@@ -210,12 +213,11 @@ body {
                         const sortBy = `<!--${app.label}-->`;
                         chks.push(`${sortBy}<label><input type=checkbox value='${pId}' checked>${app.label}</label>`);
                         csv.push(toCSV(pId, app.label));
-/* if (csv.length == 6) break; */ /* DEBUG CODE */
                         form.find('div.status').html(`Loading app ${csv.length}...`);
                     }
                 }
             }
-            url = getNextUrl(response.headers.get('link'));
+            url = response.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
         }
         form.find('input.exportAppsCSV').click(() => downloadCSV(popup, 'id,name', csv, 'apps'));
         const results = chks.length > 0 ? chks.sort().join('<br>') : 'Not found';
@@ -262,14 +264,6 @@ body {
     }
     function deleteJSON(url) {
         return $.ajax({url, headers, method: "DELETE"});
-    }
-    function getNextUrl(linkHeader) {
-        const nextLink = linkHeader.split(', ').find(ln => ln.match('rel="next"'));
-        if (nextLink) {
-            const url = nextLink.match(/<(.*)>/)[1];
-            const nextUrl = new URL(url); /* links.next is an absolute URL; we need a relative URL. */
-            return nextUrl.pathname + nextUrl.search;
-        }
     }
 })
 </script>

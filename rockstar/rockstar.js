@@ -979,13 +979,22 @@
                 }
                 requestJSON({url, method: method.value, data: data.value}).then((objects, status, jqXHR) => {
                     $(results).html("<br>");
-                    var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
+                    const linkHeader = jqXHR.getResponseHeader('Link');
+                    const remaining = jqXHR.getResponseHeader('X-Rate-Limit-Remaining');
+                    const limit = jqXHR.getResponseHeader('X-Rate-Limit-Limit');
+                    const reset = new Date(jqXHR.getResponseHeader('X-Rate-Limit-Reset') * 1000);
                     if (linkHeader) {
-                        $(results).html("<br>Headers<br><table><tr><td>Link<td>" + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>") + "</table><br>");
+                        link = '<tr><td>Link<td>' + linkHeader.replace(/</g, "&lt;").replace(/, /g, "<br>");
                         var links = getLinks(linkHeader);
                         if (links.next) {
                             var nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
                             nextUrl = nextUrl.pathname + nextUrl.search;
+                        }
+                        if ((remaining || remaining === 0) && (limit || limit === 0) && reset) {
+                            $(results).html('<br>Headers<br><table class="rs_headerTable">' + link + `<tr><td>Rate Limit<td> ${limit} <tr><td>Rate Limit Remaining<td> ${remaining} <tr><td>Rate Limit Reset<td> ${reset}` + '</table><br>');
+                        }
+                        else {
+                            $(results).html('<br>Headers<br><table class="rs_headerTable">' + link + '</table><br>');
                         }
                     }
                     $(results).append("Status: " + jqXHR.status + " " + jqXHR.statusText + "<br>");

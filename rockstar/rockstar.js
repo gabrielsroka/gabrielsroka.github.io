@@ -607,7 +607,7 @@
             
             function addCheckbox(value, text) {
                 const checked = exportColumns.includes(value) ? "checked" : "";
-                checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' ${checked}>${e(text)}</label><br>`);
+                checkboxDiv.html(checkboxDiv.html() + `<label><input type=checkbox value='${e(value)}' class='userProfileAttributeCheckboxes' ${checked}>${e(text)}</label><br>`);
             }
             const user = {
                 id: "User Id",
@@ -669,7 +669,16 @@
                 for (const p in profile) addCheckbox("profile." + p, profile[p]);
                 errorBox.html('Unable to fetch custom attributes. Use an account with more privileges.<br>Only base attributes shown below.');
             });
-
+            selectAllAttributesButton = exportPopup.append(`<br><input type='button' button class='link-button' id='selectAllAttributes' value='Toggle All'>`);
+            $('#selectAllAttributes').on("click", function () {
+                if ($(this).val() == 'Toggle All' || $(this).val() == 'Check All') {
+                    $('.userProfileAttributeCheckboxes').prop('checked', true);
+                    $(this).val('Uncheck All');
+                } else {
+                    $('.userProfileAttributeCheckboxes').prop('checked', false);
+                    $(this).val('Check All');
+                }
+            });
             if (filter) {
                 var exportArgs = localStorage.rockstarExportUserArgs || "";
                 exportPopup.append(

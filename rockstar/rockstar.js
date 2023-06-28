@@ -454,7 +454,31 @@
                     var doc = parser.parseFromString(html, "text/html");
                     const rows = [...doc.getElementsByTagName("tr")];
                     const policies = rows.map(r => r.innerText.replace(/ +\n+/g, '')).join('\n');
-                    return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, policies);
+                    var headers = doc.getElementsByTagName('thead')[0].getElementsByTagName('th');
+                    const tBodyRows = [...doc.getElementsByTagName('tbody')[0].getElementsByTagName('tr')];
+                    var policyRules = ""
+                    for (let i = 0; i < tBodyRows.length; i++)
+                    {
+                        if (i % 2 === 0) { // even rows have the priority, rule name, and status
+                            policyRules += "Priority=" + tBodyRows[i].getElementsByClassName('priority-number')[0].innerText.replace('\n', '');
+                            policyRules += ";Name=" +  tBodyRows[i].getElementsByClassName('l-txt')[0].innerText.replace('\n', '');
+                            policyRules += ";Status=" + tBodyRows[i].getElementsByClassName('valign-middle')[1].innerText.replace('\n', '').replace(/\s\s+/g,'');
+                            policyRules += " " + tBodyRows[i].getElementsByClassName('valign-middle')[2].innerText.replace('\n', '').replace(/\s\s+/g, '');
+                        } else {
+                            var conditions = [...tBodyRows[i].getElementsByClassName('policy-rule-summary-conditions')[0].getElementsByTagName('li')];
+                            var actions = [...tBodyRows[i].getElementsByClassName('policy-rule-summary-actions')[0].getElementsByTagName('li')];
+                            policyRules += ";Conditions=";
+                            for (let j =0; j < conditions.length; j++) {
+                                policyRules += '*' + conditions[j].innerText.replace(/\s\s+/g, '').replace(/\n/g, '').trim();
+                            }
+                            policyRules += ";Actions=";
+                            for (let k = 0; k < actions.length; k++) {
+                                policyRules += '*' + actions[k].innerText.replace(/\s\s+/g, '').replace(/\n/g, '').trim();
+                            }
+                            policyRules += "|";
+                        }
+                    }
+                    return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, policyRules);
                 });
             });
             createDiv("Export Apps (custom)", mainPopup, function () {

@@ -239,6 +239,7 @@ bm.href = 'javascript:' + code.innerText + '();';
 <li><a href=#listDevices>List unmanaged devices and user info</a>
 <li><a href=#cloneGroupRule>Clone group rule</a>
 <li><a href=#addManagersToGroup>Add managers to group</a>
+<li><a href=#exportAppsToCSV>Export apps to CSV</a>
 </ul>
 <pre id=sendActivationEmail>
 // Send activation email to pending users using https://gabrielsroka.github.io/console
@@ -531,6 +532,20 @@ for (user of users) {
   }
 }
 log('Done.')
+</pre>
+<br>
+<pre id=exportAppsToCSV>
+// Export apps to CSV using https://gabrielsroka.github.io/console
+
+url = '/api/v1/apps'
+apps = []
+for await (app of getObjects(url)) {
+  log(app.id, app.label, app.name, app.accessibility.selfService)
+  apps.push({id: app.id, label: app.label, name: app.name, selfService: app.accessibility.selfService})
+  if (cancel) break
+}
+table(apps)
+downloadCSV(csv(apps), 'apps')
 </pre>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>

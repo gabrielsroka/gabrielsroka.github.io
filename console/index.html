@@ -539,9 +539,10 @@ log('Done.')
 
 url = '/api/v1/apps'
 apps = []
+results.innerHTML = 'Loading...'
 for await (app of getObjects(url)) {
-  log(app.id, app.label, app.name, app.accessibility.selfService)
-  apps.push({id: app.id, label: app.label, name: app.name, selfService: app.accessibility.selfService})
+  apps.push({id: app.id, label: app.label, name: app.name, selfService: app.accessibility.selfService}) // add more columns here
+  results.innerHTML = apps.length + ' apps'
   if (cancel) break
 }
 table(apps)

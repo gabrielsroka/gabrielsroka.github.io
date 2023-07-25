@@ -1,3 +1,4 @@
+javascript:
 /*
 Sample CSV. Header row is required and case-sensitive:
 login,firstName,lastName,email,groupIds

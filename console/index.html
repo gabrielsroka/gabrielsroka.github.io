@@ -240,6 +240,7 @@ bm.href = 'javascript:' + code.innerText + '();';
 <li><a href=#cloneGroupRule>Clone group rule</a>
 <li><a href=#addManagersToGroup>Add managers to group</a>
 <li><a href=#exportAppsToCSV>Export apps to CSV</a>
+<li><a href=#exportAppsAndGroupsToCSV>Export apps and groups to CSV</a>
 </ul>
 <pre id=sendActivationEmail>
 // Send activation email to pending users using https://gabrielsroka.github.io/console
@@ -541,12 +542,39 @@ url = '/api/v1/apps'
 apps = []
 results.innerHTML = 'Loading...'
 for await (app of getObjects(url)) {
-  apps.push({id: app.id, label: app.label, name: app.name, selfService: app.accessibility.selfService}) // add more columns here
+  apps.push({id: app.id, label: app.label, name: app.name, selfService: app.accessibility.selfService}) // Add more attributes here
   results.innerHTML = apps.length + ' apps'
   if (cancel) break
 }
 table(apps)
 downloadCSV(csv(apps), 'apps')
+</pre>
+<br>
+<pre id=exportAppsAndGroupsToCSV>
+// Export apps and groups using https://gabrielsroka.github.io/console
+
+appGroups = []
+for await (app of getObjects('/api/v1/apps')) {
+    count = 0
+    log('Fetching', app.label)
+    for await (appGroup of getObjects(`/api/v1/apps/${app.id}/groups?limit=20`, '&expand=group')) {
+        addGroup(appGroup._embedded.group.profile.name)
+        count++
+        if (cancel) break
+    }
+    if (count == 0) addGroup('(no groups)')
+    if (cancel) break
+}
+log('Done')
+table(appGroups)
+downloadCSV(csv(appGroups), 'apps and groups')
+function addGroup(appGroupName) {
+    appGroups.push({  // Add more attributes here
+        appId: app.id,
+        appLabel: app.label,
+        appGroupName
+    })
+}
 </pre>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>

@@ -245,6 +245,7 @@ bm.href = 'javascript:' + code.innerText + '();';
 <li>toCSV()
 <li>downloadCSV()
 <li>csv()
+<li>report()
 </ul>
 <br>
 <div id=examples><b>Examples</b>
@@ -262,6 +263,7 @@ bm.href = 'javascript:' + code.innerText + '();';
 <li><a href=#addManagersToGroup>Add managers to group</a>
 <li><a href=#exportAppsToCSV>Export apps to CSV</a>
 <li><a href=#exportAppsAndGroupsToCSV>Export apps and groups to CSV</a>
+<li><a href=#exportGroupsAndCountsToCSV>Export groups and counts to CSV</a>
 </ul>
 <pre id=sendActivationEmail>
 // Send activation email to pending users using https://gabrielsroka.github.io/console
@@ -596,6 +598,16 @@ function addGroup(appGroupName) {
         appGroupName
     })
 }
+</pre>
+<pre id=exportGroupsAndCountsToCSV>
+// Export groups and counts to CSV using https://gabrielsroka.github.io/console
+
+// Set this:
+limit = 1000 // The default is 10000, but that's sometimes too large and causes errors.
+
+url = '/api/v1/groups?expand=stats&limit=' + limit
+cols = 'id,profile.name,_embedded.stats.usersCount,_embedded.stats.appsCount,_embedded.stats.groupPushMappingsCount'
+report(url, cols, 'groups')
 </pre>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>

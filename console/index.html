@@ -21,6 +21,9 @@ pre {
         color: #ddd;
     }
 }
+td {
+    padding: 2px 10px;
+}
 </style>
 </head>
 <body>
@@ -101,7 +104,7 @@ for await (user of getObjects(url)) {\n
   };
   const xsrf = document.querySelector('#_xsrfToken')?.innerText;
   if (xsrf) headers['X-Okta-XsrfToken'] = xsrf;
-  async function* getPages(url, params = '') {
+  async function* getPages(url, params = '') /* <code>for await (objects of getPages(url, params))</code> */ {
     while (url) {
       const r = await get(url + params);
       const page = await r.json();
@@ -109,14 +112,14 @@ for await (user of getObjects(url)) {\n
       url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
     }
   }
-  async function* getObjects(url, params) {
+  async function* getObjects(url, params) /* <code>for await (object of getObjects(url, params))</code> - pagination for everything except the Roles API */ {
     for await (const objects of getPages(url, params)) {
       for (const o of objects) {
         yield o;
       }
     }
   }
-  async function* getIamObjects(url, key) {
+  async function* getIamObjects(url, key) /* <code>for await (object of getIamObjects(url, key)</code> - for the <a href=https://developer.okta.com/docs/reference/api/roles>Roles API</a> */ {
     while (url) {
       const page = await getJson(url);
       for (const o of page[key]) {
@@ -153,7 +156,7 @@ for await (user of getObjects(url)) {\n
     const r = await patch(url, body);
     return r.json();
   }
-  async function remove(url) {
+  async function remove(url) /* not <code>delete()</code> */ {
     return fetchLimit(url, {method: 'DELETE', headers});
   }
   async function fetchLimit(url, init) {
@@ -173,7 +176,7 @@ for await (user of getObjects(url)) {\n
     } while (r.status == TOO_MANY_REQUESTS);
     return r;
   }
-  async function sleep(delay) {
+  async function sleep(delay) /* delay in ms */ {
     return new Promise(r => setTimeout(r, delay));
   }
   function link(url, text) {
@@ -219,34 +222,18 @@ for await (user of getObjects(url)) {\n
   }
 })
 </script>
-<script>
-bm.href = 'javascript:' + code.innerText + '();';
-</script>
 <br>
 <div id=functions><b>Functions</b></div>
-<ul>
-<li>log()
-<li>table()
-<li>for await (objects of getPages(url))
-<li>for await (object of getObjects(url)) - pagination for everything except the Roles API
-<li>for await (object of getIamObjects(url, key)) - for the <a href=https://developer.okta.com/docs/reference/api/roles>Roles API</a>
-<li>await get()
-<li>await getJson()
-<li>await post()
-<li>await postJson()
-<li>await put()
-<li>await putJson()
-<li>await patch()
-<li>await patchJson()
-<li>await remove() - not delete()
-<li>await fetchLimit()
-<li>await sleep() - delay in ms
-<li>link()
-<li>toCSV()
-<li>downloadCSV()
-<li>csv()
-<li>report()
-</ul>
+<div id=functionTable></div>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+functionTable.innerHTML = '<table>' + 
+    code.innerText.split('\n')
+    .map(ln => ln.match(/^ *((async )?function.*) \{/)?.[1])
+    .filter(ln => ln != undefined)
+    .map(f => '<tr><td><code>' + f.replace(' /* ', '<td>').replace(' */', ''))
+    .join('\n') + '</table>';
+</script>
 <br>
 <div id=examples><b>Examples</b>
 <ul>

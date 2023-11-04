@@ -1,0 +1,688 @@
+indent
+    increase_indentation linebreak
+
+outdent
+    decrease_indentation linebreak
+
+linebreak
+    trailing_comment linefeeds comments indentation
+
+linefeeds
+    linefeed linefeeds
+    linefeed
+
+linefeed
+    '000A'
+
+trailing_comment
+    ""
+    comment
+
+comments
+    ""
+    comment linefeeds comments
+
+comment
+    spaces '#' comchars
+
+spaces
+    ""
+    space spaces
+
+space
+    ' '
+
+comchars
+    ""
+    comchar comchars
+
+comchar
+    '0020' . '10FFFF'
+
+name
+    upper upper name_upper question
+    upper lower name_lower question
+    upper '_' name_part question
+    lower lower name_lower question
+    lower '_' name_part question
+
+name_part
+    upper name_upper
+    lower name_lower
+
+name_upper
+    upper name_upper
+    name_lower
+
+name_lower
+    ""
+    '_' name_part
+    lower name_lower
+
+upper
+    'A' . 'Z'
+
+lower
+    'a' . 'z'
+
+question
+    ""
+    '?'
+
+literal
+    array_literal
+    function_literal
+    logical_literal
+    null_literal
+    number_literal
+    pattern_literal
+    record_literal
+    text_literal
+
+array_literal
+    '[' array_filling ']'
+
+array_filling
+    ""
+    indent open_elements outdent
+    elements
+
+elements
+    spreadable_expression more_elements
+
+more_elements
+    ""
+    ',' space elements
+
+open_elements
+    spreadable_expression more_open_elements
+
+more_open_elements
+    ""
+    ',' space open_elements
+    linebreak open_elements
+
+logical_literal
+    "false"
+    "true"
+
+null_literal
+    "null"
+
+number_literal
+    '-' negative_number_literal
+    unsigned_number_literal
+    '0' zero
+
+zero
+    ""
+    frac optional_exp
+
+unsigned_number_literal
+    int optional_frac optional_exp
+
+negative_number_literal
+    '0' frac optional_exp
+    int optional_frac optional_exp
+
+int
+    one_nine more_digits
+
+one_nine
+    '1' . '9'
+
+digit
+    '0' . '9'
+
+digits
+    digit more_digits
+
+more_digits
+    ""
+    '_' digits
+    digits
+
+optional_frac
+    ""
+    frac
+
+frac
+    '.' digits
+
+optional_exp
+    ""
+    'e' optional_minus digits
+
+optional_minus
+    ""
+    '-'
+
+record_literal
+    '{' record_filling '}'
+
+record_filling
+    ""
+    fields
+    indent open_fields outdent
+
+fields
+    field more_fields
+
+more_fields
+    ""
+    ',' space fields
+
+open_fields
+    field more_open_fields
+
+more_open_fields
+    ""
+    linebreak open_fields
+
+field
+    text_literal ':' space expression
+    field_name ':' space expression
+    name
+
+field_name
+    upper field_finish
+    lower field_finish
+    '_' field_finish
+    '$' field_finish
+
+field_finish
+    ""
+    upper field_finish
+    lower field_finish
+    digit field_finish
+    '_' field_finish
+    '$' field_finish
+    '?'
+
+text_literal
+    quote
+    chevron
+
+quote
+    '"' more_quotechar '"'
+
+quotechar
+    '\' escape
+    '0020' . '10ffff' - '"' - '\'
+
+more_quotechar
+    ""
+    quotechar more_quotechar
+
+escape
+    'b'
+    'd'
+    'g'
+    'n'
+    'q'
+    'r'
+    't'
+    "u{" hex more_hex '}'
+
+hex
+    '0' . '9'
+    'A' . 'F'
+
+more_hex
+    ""
+    hex more_hex
+
+chevron
+    '«' more_chevronchar '»'
+
+chevronchar
+    '0009' tab
+    '000A' linefeed
+    '000D' carriage return
+    '0020' . '10FFFF' - '«' - '»'
+
+more_chevronchar
+    ""
+    chevron more_chevronchar
+    chevronchar more_chevronchar
+
+expression
+    paren_expression suffix
+    literal suffix
+    name suffix
+    '@' suffix
+
+open_expression
+    paren_expression open_suffix
+    literal open_suffix
+    name open_suffix
+    '@' suffix
+
+paren_expression
+    '(' paren_filler ')'
+
+paren_filler
+    indent open_expression ternary outdent
+    expression
+
+ternary
+    ""
+    then_else
+
+then_else
+    linebreak "then " expression linebreak "else " expression
+
+suffix
+    ""
+    selection suffix
+    subscript suffix
+    invocation suffix
+    space infix_operator space expression
+
+open_suffix
+    ""
+    selection open_suffix
+    subscript open_suffix
+    invocation open_suffix
+    separation infix_operator space open_expression
+
+separation
+    space
+    line_break
+
+selection
+    '.' field_name
+
+subscript
+    '[' subscript_filler ']'
+
+subscript_filler
+    ""
+    indent open_expression outdent
+    expression
+
+invocation
+    '(' argument_list ')'
+
+argument_list
+    ""
+    spreadable_expression closed_arguments
+    indent expression opener outdent
+
+spreadable_expression
+    expression spreadable
+
+spreadable
+    ""
+    "..."
+
+closed_arguments
+    ""
+    ',' space expression spreadable closed_arguments
+
+opener
+    then_else
+    spreadable open_arguments
+
+open_arguments
+    ""
+    linebreak expression spreadable open_arguments
+
+infix_operator
+    '/' optional_backslash
+    '\' optional_slash
+    '|'
+    '='
+    '≠'
+    '<'
+    '≤'
+    '>'
+    '≥'
+    '*'
+    '/'
+    '÷'
+    '\'
+    '+'
+    '-'
+    '~'
+    '≈'
+
+optional_backslash
+    ""
+    '\'
+
+optional_slash
+    ""
+    '/'
+
+outer_statement
+    call_statement
+    def_statement
+    if_statement
+    loop_statement
+    return_statement
+    send_statement
+    set_statement
+    var_statement
+
+inner_statement
+    break_statement
+    call_statement
+    fail_statement
+    if_statement
+    loop_statement
+    return_statement
+    send_statement
+    set_statement
+
+inner_statements
+    inner_statement more_inner_statements
+
+more_inner_statements
+    ""
+    linebreak inner_statements
+
+break_statement
+    "break" loop_label
+
+call_statement
+    "call" space callee
+
+callee
+    '@' selection invocation
+    name activate
+
+activate
+    selection activate
+    subscript activate
+    invocation more_activate
+
+more_activate
+    ""
+    activate
+
+def_statement
+     "def" space name ':' space expression
+
+fail_statement
+    "fail"
+
+if_statement
+    "if" space expression consequence else_clause
+
+consequence
+    indent inner_statements decrease_indentation
+
+else_clause
+    ""
+    linebreak "else" else_consequence
+
+else_consequence
+    space if_statement
+    consequence
+
+loop_statement
+    "loop" loop_label consequence
+
+loop_label
+    ""
+    space name
+
+return_statement
+    "return" space expression
+
+send_statement
+    "send" space expression ':' space expression callback
+
+callback
+    ""
+    ':' space expression
+
+set_statement
+    "set" space set_value ':' space expression optional_appendix
+
+set_value
+    name optional_set_value_suffix
+
+optional_set_value_suffix
+    ""
+    set_value_suffix
+
+set_value_suffix
+    appendix
+    '.' name optional_set_value_suffix
+    '[' expression ']' optional_set_value_suffix
+    invocation set_value_suffix
+
+optional_appendix
+    ""
+    appendix
+
+appendix
+    "[]"
+
+var_statement
+    "var" space name var_initialization
+
+var_initialization
+    ""
+    ':' space expression
+
+function_literal
+    'ƒ' function_definition
+
+function_definition
+    space function_name parameter_list space body
+    functino
+
+function_name
+    ""
+    name
+
+parameter_list
+    '(' parameter_list_filler ')'
+
+parameter_list_filler
+    indent open_parameter outdent 
+    closed_parameter_list
+
+open_parameter
+    name open_parameter_ensue
+
+open_parameter_ensue
+    "..."
+    space '|' space expression more_open_parameters
+    more_open_parameters
+
+more_open_parameters
+    ""
+    linebreak open_parameter
+
+closed_parameter_list
+    ""
+    closed_parameter
+
+closed_parameter
+    name closed_parameter_ensue
+
+closed_parameter_ensue
+    "..."
+    space '|' space expression more_closed_parameters
+    more_closed_parameters
+
+more_closed_parameters
+    ""
+    ',' space closed_parameter
+
+body
+    paren_expression
+    '{' indent outer_statements precondition postcondition failure outdent '}'
+
+outer_statements
+    outer_statement more_outer_statements
+
+more_outer_statements
+    ""
+    linebreak outer_statements
+
+precondition
+    ""
+    outdent "precondition" indent requirement
+
+postcondition
+    ""
+    outdent "postcondition" indent requirement
+
+requirement
+    expression more_requirements
+
+more_requirements
+    ""
+    linebreak requirement
+
+failure
+    ""
+    outdent "failure" indent outer_statements
+
+functino
+    "[]"
+    infix_operator
+
+pattern_literal
+    '¶' pattern_usage pattern_group
+
+pattern_usage
+    indent open_pattern_usage outdent
+    space closed_pattern_usage
+
+open_pattern_usage
+    expression more_open_pattern_usage
+
+more_open_pattern_usage
+    ""
+    linebreak open_pattern_usage
+
+closed_pattern_usage
+    ""
+    closed_pattern_use space
+
+closed_pattern_use
+    expression more_closed_pattern_use
+
+more_closed_pattern_use
+    ""
+    ',' space closed_pattern_use
+
+pattern_text
+    text_literal
+    '!' space text_literal
+
+pattern_class
+    '{' pattern_set '}'
+
+pattern_set
+    ""
+    field_name more_pattern_set
+    pattern_text_range more_pattern_set
+    '¬' more_pattern_set
+
+more_pattern_set
+    ""
+    space pattern_set
+
+pattern_text_range
+    text space '-' space pattern_text_range
+    text
+
+pattern_group
+    '(' pattern_group_filling ')'
+
+pattern_group_filling
+    indent open_pattern_group outdent
+    closed_pattern_group
+
+open_pattern_group
+    pattern_sequence more_open_pattern_group
+
+more_open_pattern_group
+    ""
+    linebreak even_more_open_pattern_group
+
+even_more_open_pattern_group
+    open_pattern_group
+    '/' space pattern_item
+
+closed_pattern_group
+    pattern_sequence more_closed_pattern_group
+
+more_closed_pattern_group
+    ""
+    ',' space closed_pattern_group
+    space '/' space pattern_item
+
+pattern_sequence
+    pattern_item space pattern_sequence
+    pattern_item
+
+pattern_item
+    pattern_depot pattern_quantifier pattern_element
+    pattern_quantifier pattern_depot pattern_element
+
+pattern_element
+    pattern_group
+    pattern_class
+    pattern_text
+    field_name
+
+pattern_quantifier
+    ""
+    '-' space
+    number_literal '-' number_literal space
+    number_literal '-' space
+    number_literal space
+
+pattern_depot
+    ""
+    text_literal ':' space
+    field_name ':' space
+
+format
+    format_separation format_style format_places
+
+format_separation
+    ""
+    digit
+
+format_style
+    'b'
+    'e'
+    'h'
+    'i'
+    'j'
+    'n'
+    'l'
+    'o'
+    's'
+    't'
+    'u'
+    'v'
+
+format_places
+    digit digit
+    digit
+
+misty
+    "misty" space misty_type space name space '{' indent use outer_statements outdent '}'
+
+misty_type
+    "actor"
+    "module"
+
+use
+    ""
+    "use" space name locator linebreak use
+
+locator
+    ""
+    ": " text
+    ": " name

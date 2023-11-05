@@ -11,8 +11,8 @@
 <p>A function is a parameterized expression or a sequence of statements. Functions are first-class
   values. Functions can be stored in variables, records, and arrays; functions
   can be passed as parameters to other functions;  functions can be returned
-  as the results of functions. Functions can not be sent in messages to other actors. Function objects are immutable values. A function introduces
-  a new scope: variables defined in a functions are not visible outside
+  as the results of functions. Functions cannot be sent in messages to other actors. Function objects are immutable values. A function introduces
+  a new scope: variables defined in functions are not visible outside
   of the function, but will be visible to inner functions.</p>
 <h2>Making Functions</h2>
 <p>Function objects are made with the <code>&#402;</code><small>florin</small> operator which takes a parameter list and a body and produces a function object. </p>
@@ -81,7 +81,7 @@ more_closed_parameters
 <p>A parameter list is a list of zero or more names, separated
   by commas or stacked vertically. When the function is invoked, the argument values will be
   assigned to these names and made available to the body. The
-  body can not modify the parameters. Parameters behave as <code>def</code>, not <code>var</code>. The number of
+  body cannot modify the parameters. Parameters behave as <code>def</code>, not <code>var</code>. The number of
   names in the parameter list determines the function's arity.  If the function is invoked with too many arguments, it fails. The function's <code>failure</code> handler will not get an opportunity to
   handle the fail because the fail happens before the function
   gets called.</p>
@@ -251,7 +251,7 @@ functino
     infix_operator
 </p>
 <p>The <a href="operators.html">operators</a> can be used as functions by prefixing the operators with the <code>&#402;</code><small>florin</small> operator. These functions are called <strong>functinos</strong>.</p>
-<p>So <code>ƒ+</code> is the binary add function that can be passed to <a href="#reduce">the <code>reduce</code> function</a> to make sums. </p>
+<p>So <code>ƒ+</code> is the binary add function that can be passed to <a href="primordial.html#reduce">the <code>reduce</code> function</a> to make sums. </p>
 <p>Examples: </p>
 <pre>
 ƒ/\(3, 4)   # null  and
@@ -275,8 +275,8 @@ functino
 </pre>
 <p>Three of the functinos are short circuiting in their operator form, but not in their functino form: <code>ƒ/\</code><small>and</small>&nbsp;&nbsp; <code>ƒ\/</code><small>or</small>&nbsp;&nbsp; <code>ƒ|</code><small>default</small>.</p>
 <h4>ƒ=<small>equal</small></h4>
-<p>The  equal functino can take two or three arguments. The first two arguments are vaules to be compared.
-    If all of the parameters are numbers, an optional <var>tolerance</var> argument may be include which must be a non-negative number.
+<p>The  equal functino can take two or three arguments. The first two arguments are values to be compared.
+    If all of the parameters are numbers, an optional <var>tolerance</var> argument may be included which must be a non-negative number.
     The result is <code>true</code> if the absolute value of the difference between the
     two numbers is less than or equal to the <var>tolerance</var>.</p>
 <p>If the arguments are texts, and if the tolerance is <code>true</code>, then the comparison is case-insensitive.</p>
@@ -291,7 +291,7 @@ def second: "VORPAL"
 set exactly: ƒ=(first, second)         # exactly is false
 set sloppy: ƒ=(first, second, true)    # sloppy is true</pre>
 <h4 id="ƒ≠">ƒ≠<small>not equal</small></h4>
-<p>The not equal functino can take two or three arguments. The first two arguments are vaules to be compared. The optional third argument is a tolerance. When comparing numbers, the tolerance is a number that indicates the allowable difference. When comparing texts, the tolerance is a logical that if <code>true</code> ignores case.</p>
+<p>The not equal functino can take two or three arguments. The first two arguments are values to be compared. The optional third argument is a tolerance. When comparing numbers, the tolerance is a number that indicates the allowable difference. When comparing texts, the tolerance is a logical that if <code>true</code> ignores case.</p>
 <h4><span id="ƒ[]">ƒ[]</span><small>get</small></h4>
 <p>The get functino  takes two arguments. The first argument is an array, record, or text. The second argument is an element number or key. It returns an element, a property, or a character or empty text, or <code>null</code>.</p>
 </body></html>

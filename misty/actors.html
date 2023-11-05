@@ -73,7 +73,7 @@ my_actor = your_actor         # false (probably)</pre>
 <p>The <code>receiver</code> method is given a callback function that will receive the actor's messages. The callback function will receive a single argument, the message object. The callback function will not be given reply messages,
 </p>
 <h3>System Messages</h3>
-<p>The Misty System uses its own messaging system to transmit system messages. A system message type has <code>℠</code> as its first character. Reserved  <code>℠</code> messages can not be sent by the <code>send</code> statement. </p>
+<p>The Misty System uses its own messaging system to transmit system messages. A system message type has <code>℠</code> as its first character. Reserved  <code>℠</code> messages cannot be sent by the <code>send</code> statement. </p>
 <h4>℠begin</h4>
 <p>The <code>begin</code> message is the first message sent to an actor when it is created. It will contain the actor object of the master. </p>
 <h4>℠end</h4>
@@ -142,7 +142,7 @@ my_actor = your_actor         # false (probably)</pre>
 <h3 id="portal"><code>portal</code> method</h3>
 <h4>@.portal(<var>function</var>, <var>port</var>)
 </h4>
-<p>A portal  is a special actor that that performs introduction services. It listens on a specified <var>port</var> for  contacts by external actors that need to acquire an actor object. The function will receive the record containing the request. The record can have a reply sent through it. A portal can respond by beginning a new actor, or finding an existing actor, or by forwarding the contact message to another actor. This is how distributed Misty networks are bootstrapped.</p>
+<p>A portal  is a special actor that performs introduction services. It listens on a specified <var>port</var> for  contacts by external actors that need to acquire an actor object. The function will receive the record containing the request. The record can have a reply sent through it. A portal can respond by beginning a new actor, or finding an existing actor, or by forwarding the contact message to another actor. This is how distributed Misty networks are bootstrapped.</p>
 <h3 id="kill"><code>kill</code> method</h3>
 <h4>@.kill(<var>actor</var>)
 </h4>

@@ -20,7 +20,7 @@
 <p><var>number</var> is a non-negative integer, the intended length of the new array.</p>
 <p> If <var>initial_value</var> is a function, then the function is called for each element to produce initialization values. If the function has an arity of 1 or more, it will be passed the element number.</p>
 <h4>array(<var>array</var>, <var>function</var>)</h4>
-<p>Map. Call the <var>function</var> with each element of a the <var>array</var>, collecting the return values in a new array. The function is passed each original element. If the arity is 2 or more, it will also be passed the element number.</p>
+<p>Map. Call the <var>function</var> with each element of the <var>array</var>, collecting the return values in a new array. The function is passed each original element. If the arity is 2 or more, it will also be passed the element number.</p>
 <h4>array(<var>array</var>, <var>another_array</var>)</h4>
 <p>Concat. Produce a new array that concatenates the <var>array</var> and <var>another_array</var>.</p>
 <h4>array(<var>array</var>, <var>from</var>, <var>to</var>)</h4>
@@ -581,8 +581,8 @@ set result: ceiling(-12.3775)        # result is -13</pre>
 def integers: filter(data, integer?)    # integers is [0, 2, 4]</pre>
 <h4 id="floor">floor(<var>number</var>, <var>place</var>)</h4>
 <p>If <var>place</var> is <code>0</code> or <code>null</code>, the <var>number</var> is rounded down to the greatest integer that is less than or equal to
-    the <var>number</var>. If <var>place</var> is a small positive integer, then the <var>number</var> is rounded down to that many decimal place. For positive
-    numbers, this is like discarding decimal place.</p>
+    the <var>number</var>. If <var>place</var> is a small positive integer, then the <var>number</var> is rounded down to that many decimal places. For positive
+    numbers, this is like discarding decimal places.</p>
 <p>Examples:</p>
 <pre>set result: floor(12.3775)         # result is 12
 set result: floor(12.3775, -2)     # result is 12.37
@@ -613,7 +613,7 @@ texts or a record of texts. The optional <var>begin</var> and <var>end</var> are
     the <var>transformer</var>. If the <var>transformer</var> does not produce
     a function, or if the function does not return a text, then no replacement
     occurs. If <var>transformer</var><code>[</code>right text<code>](</code><var>collection</var><code>[</code>left
-text<code>])</code> produces a text, then the substituation will be
+text<code>])</code> produces a text, then the substitution will be
     made.</p>
 <p>If the substitution is not made, and if <var>collection</var><code>[</code>left
 text<code>]</code> is a number, then the right text is used as a format
@@ -705,7 +705,7 @@ max(null, 1)          # null</pre>
     two arguments and returns a value. The <var>function</var> will be called
     for each element of the <var>array</var>, passing the result of the previous
     iteration to the next iteration. </p>
-<p>The <var>inital</var> value is optional. If present, the <var>function</var> will be called for every element of the array. </p>
+<p>The <var>initial</var> value is optional. If present, the <var>function</var> will be called for every element of the array. </p>
 <p>If <var>initial</var> is <code>null</code>:</p>
 <ul>
     <li>If <code>length(</code><var>array</var><code>)</code> is <code>0</code>, then it returns <code>null</code>. </li>
@@ -745,7 +745,7 @@ def product: reduce(data, &fnof;*)    # product is 362880</pre>
 def result: reverse(data)    # the result is [&quot;Sam&quot;, &quot;am&quot;, &quot;I&quot;]</pre>
 <h4 id="round"><code>round(</code><var>number<var><code>,</code></var>place</var><code>)</code></h4>
 <p>If <var>place</var> is <code>0</code> or <code>null</code>, the <var>number</var> is rounded to the nearest integer. If <var>place</var> is a small integer,
-    then the <var>number</var> is rounded to that many decimal place. </p>
+    then the <var>number</var> is rounded to that many decimal places. </p>
 <p>Examples:</p>
 <pre>set result: round(12.3775)         # result is 12
 set result: round(12.3775, -2)     # result is 12.38
@@ -755,7 +755,7 @@ set result: round(-12.3775, -2)    # result is -12.38</pre>
 <p>Search the <var>text</var> for the <var>target</var>. If the <var>target</var> is found, return the character position of the left-most part of the match. If the search fails, return <code>null</code>.</p>
 <p><var>text</var>: the source text.    </p>
 <p><var>target</var>: a text or pattern that should be found in the source.    </p>
-<p><var>from</var>: The starting position for the seach. The default is <code>0</code>, the beginning of the text. If from is negative, it is added to <code>length(</code><var>text</var><code>)</code>.</p>
+<p><var>from</var>: The starting position for the search. The default is <code>0</code>, the beginning of the text. If from is negative, it is added to <code>length(</code><var>text</var><code>)</code>.</p>
 <h4 id="sort">sort(<var>array</var>, <var>select</var>)</h4>
 <p>The <code>sort</code> function produces a new array in which the values
     are sorted. Sort keys must be either all numbers or all texts. Any other type
@@ -825,7 +825,7 @@ set stooges: sort(stooges, [50, 60, 20, 40, 10, 30])
     # ]</pre>
 <h4 id=stone>stone(<var>value</var>)</h4>
 <p>Turn an object to stone. Make the <var>value</var> immutable. It returns the immutable object.</p>
-<p>The <code>stone</code> function makes an <var>value</var> (such as a blob, array, or record) immutable. If a <var>value</var> contains other objects, then they will also be turned to stone. Objects that are already stone are not changed. It returns the <var>value</var>.</p>
+<p>The <code>stone</code> function makes a <var>value</var> (such as a blob, array, or record) immutable. If a <var>value</var> contains other objects, then they will also be turned to stone. Objects that are already stone are not changed. It returns the <var>value</var>.</p>
 <h4 id="trim">trim(<var>text</var>, <var>reject</var>)</h4>
 <p>The <code>trim</code> function removes selected characters from the ends of a <var>text</var>. The default is to remove control characters and spaces. </p>
 <pre>set result: &quot;  Hello   there   &quot;.trim()    # result is &quot;Hello   there&quot;</pre>
@@ -833,7 +833,7 @@ set stooges: sort(stooges, [50, 60, 20, 40, 10, 30])
 <p>The <var>number</var> will be truncated toward zero. If the <var>number</var> is positive, the result is the same as <var></var><code>floor(</code><var>place</var><code>)</code>.
     If the <var>number</var> is negative, the result is the same as <var></var><code>ceiling(</code><var>place</var><code>)</code>. </p>
 <p>If <var>place</var> is a small integer, then the <var>number</var> is rounded
-    down to that many decimal place. This is like discarding decimal places.</p>
+    down to that many decimal places. This is like discarding decimal places.</p>
 <p>Examples:</p>
 <pre>set result: trunc(12.3775, 0)     # result is 12
 set result: trunc(12.3775, 2)     # result is 12.37

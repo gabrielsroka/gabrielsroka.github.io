@@ -78,15 +78,15 @@ def_statement
 <p>The <code>def</code> statement defines a read-only variable within
     the current function. The variable is read-only, but the value it contains
     may be mutable. Names that are defined with the <code>def</code> statement
-    can not be changed with the <code>set</code> statement. If the value is mutable,
-  then the value's members or elements may be changed with <code>set</code> statement. (<code>def</code> applies to variables. <a href="primordial.html#stone"><code>stone</code></a> applies to values.)  The <code>def</code> statement can not appear in an <code>if</code> or <code>loop</code>.</p>
+    cannot be changed with the <code>set</code> statement. If the value is mutable,
+  then the value's members or elements may be changed with <code>set</code> statement. (<code>def</code> applies to variables. <a href="primordial.html#stone"><code>stone</code></a> applies to values.)  The <code>def</code> statement cannot appear in an <code>if</code> or <code>loop</code>.</p>
 <p>Example:</p>
 <pre>def pi: 3.1415926535897932
 def stack: []
 set stack[]: pi      # Push pi onto the stack.
                      # stack is [3.1415926535897932]
                      # stack has been modified
-set stack: []        # failure: stack can not be replaced.
+set stack: []        # failure: stack cannot be replaced.
 </pre>
 <h3 id="fail">The <code>fail</code> statement</h3>
 <p class="rule">
@@ -98,7 +98,7 @@ fail_statement
 <p>The <code>fail</code> statement causes control to go to the <code>failure</code>
   part of the function or the enclosing module. If control was already in the <code>failure</code>
   part, or if there is no <code>failure</code> part, then control goes
-  to the most recent function in the calling chain that has an <code>failure</code>
+  to the most recent function in the calling chain that has a <code>failure</code>
   part. See <a href='functions.html'>Functions</a>.</p>
 <h3 id="if">The <code>if</code> statement</h3>
 <p class="rule">
@@ -142,7 +142,7 @@ else if list[at].op = &quot;opx&quot;
     set list[at].yz: list[at].yz + 1
 set at: at + 1</pre>
 <p>The <code>if</code> statement creates forks in the control flow of a
-  function. An <code>if</code> statement can not contain <code>var</code>
+  function. An <code>if</code> statement cannot contain <code>var</code>
   and <code>def</code> statements. </p>
 <h3 id="loop">The <code>loop</code> statement</h3>
 <p class="rule">
@@ -233,10 +233,10 @@ appendix
 <ul>
     <li>replace the value of a variable that was
         created by <a href="#var">the <code>var</code> statement</a>.</li>
-    <li>replace an element of an non-stone array.</li>
-    <li>replace a field of an non-stone record.</li>
-    <li>create a new field in an non-stone  record.</li>
-    <li>delete a field from an non-stone record by assigning <code>null</code>.</li>
+    <li>replace an element of a non-stone array.</li>
+    <li>replace a field of a non-stone record.</li>
+    <li>create a new field in a non-stone  record.</li>
+    <li>delete a field from a non-stone record by assigning <code>null</code>.</li>
     <li>append (or push) an element to the end of a non-stone array.</li>
     <li>remove (or pop) an element from the end of a non-stone array.</li>
 </ul>
@@ -252,7 +252,7 @@ var_initialization
 </p>
 <p>The <code>var</code> statement creates a variable in the current function scope.
 If the variable is not explicitly initialized, then it is given the <code>null</code> value.
-The value of a variable can be replaced by <a href="#set">the <code>set</code> statement</a>. The <code>var</code> statement can not appear in an <code>if</code> or <code>loop</code>.</p>
+The value of a variable can be replaced by <a href="#set">the <code>set</code> statement</a>. The <code>var</code> statement cannot appear in an <code>if</code> or <code>loop</code>.</p>
 <p>Example:</p>
 <pre>var first_name
 var last_name

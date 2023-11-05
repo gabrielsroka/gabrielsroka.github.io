@@ -19,7 +19,7 @@ literal
     record_literal
     text_literal
 </p>
-<p>A literal value can be <a href="#array">an array literal</a>, <a href="#boolean">a logical literal</a>, <a href="function.html">a function literal</a>, <a href="#null">a null literal</a>, <a href="#number">a number literal</a>, <a href="pattern.html">a pattern literal</a>, <a href="#record">a record literal</a>, or <a href="#text">a text literal</a>.</p>
+<p>A literal value can be <a href="#array">an array literal</a>, <a href="functions.html">a function literal</a>, <a href="#logical">a logical literal</a>, <a href="#null">a null literal</a>, <a href="#number">a number literal</a>, <a href="patterns.html">a pattern literal</a>, <a href="#record">a record literal</a>, or <a href="#text">a text literal</a>.</p>
 <h2 id="array">Array</h2>
 <p>An array is an ordered collection of values. The values
     stored in an array can be of any type or mixture of types. Arrays are one dimensional.
@@ -112,7 +112,7 @@ length(empty)      # 0
 set my_stooge: stooges[0]    # my_stooge is &quot;Curly&quot;
 set stooges[0]: &quot;Shemp&quot;      # stooges is [&quot;Shemp&quot;, &quot;Larry&quot;, &quot;Moe&quot;]
 </pre>
-<p>The dot notation can not be used with arrays except to invoke the built-in
+<p>The dot notation cannot be used with arrays except to invoke the built-in
   <var>array</var> methods.</p>
 <p>New elements can be appended to an array by assigning to the appendix. The appendix is written as empty brackets that signify the next potential element in the array. Reading from the appendix (which is only allowed in <a href="statements.html#set">the <code>set</code> statement</a>) removes the last element from an array.</p>
 <p>Example:</p>
@@ -144,7 +144,7 @@ null_literal
 <h2 id="number">Number</h2>
 <p>Misty has a single number type: <a href="https://www.crockford.com/dec64.html">DEC64</a>. Numbers can be as enormous as <code>3.6028797018963967e143</code> or as miniscule as <code>1.0e-127</code>.</p>
 <p>Numbers are immutable.</p>
-<p>The <code>null</code> value is used to represent number values that can not
+<p>The <code>null</code> value is used to represent number values that cannot
     be represented. This includes numbers that are <code>3.6028797018963968e143</code> or more,
     the result of division of non-zero by zero, type errors, and format errors.
     Any arithmetic operation in which one of the operands is not a number
@@ -332,7 +332,7 @@ def color: {
 </ul>
 <p>An invalid key type yields <code>null</code> on reading, and a failure on writing.</p>
 <p>Keys in a record are unique. Writing a duplicate key first erases the original.</p>
-<p>A key can not be a number, although a number converted to a text is allowed.</p>
+<p>A key cannot be a number, although a number converted to a text is allowed.</p>
 <p>Stone record keys can only be made with a set statement. Record literals do not permit stone record keys.</p>
 <h3>Fields</h3>
 <p>The fields of a record can be accessed with either the dot notation or the
@@ -480,7 +480,7 @@ more_hex
 <pre>
 &quot;This is \
 an error.&quot;        # must begin and end on the same line</pre>
-<p>A text can not contain a literal control character, but control characters
+<p>A text cannot contain a literal control character, but control characters
     can be embedded in texts with escape sequences.</p>
 <pre>&quot;This is not\nan error.&quot;
 
@@ -492,9 +492,9 @@ chevron
 </p>
 <p class="rule">
 chevronchar
-    <code>'0009'</code><small>tab</small>
-    <code>'000A'</code><small>linefeed</small>
-    <code>'000D'</code><small>carriage return</small>
+    <code>'0009'</code> <small>tab</small>
+    <code>'000A'</code> <small>linefeed</small>
+    <code>'000D'</code> <small>carriage return</small>
     <code>'0020' . '10FFFF' - '&laquo;' - '&raquo;'</code>
 </p>
 <p class="rule">
@@ -525,7 +525,7 @@ With treacherous crowns&raquo;, and then exited.&raquo;</pre>
 <h3>Subscripting</h3>
 <p>Subscripting can be used to access the individual characters of a text.
     Subscripts are integers that are greater than or equal to zero and less
-    than the length of the text. Texts are immutable, so subscripts can not
+    than the length of the text. Texts are immutable, so subscripts cannot
     be used to change a character within a text.</p>
 <pre>var my_text: &quot;cat&quot;
 length(my_text)       # 3

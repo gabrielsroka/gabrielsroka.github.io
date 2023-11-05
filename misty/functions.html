@@ -15,10 +15,10 @@
   a new scope: variables defined in functions are not visible outside
   of the function, but will be visible to inner functions.</p>
 <h2>Making Functions</h2>
-<p>Function objects are made with the <code>&#402;</code><small>florin</small> operator which takes a parameter list and a body and produces a function object. </p>
+<p>Function objects are made with the <code>&fnof;</code><small>florin</small> operator which takes a parameter list and a body and produces a function object. </p>
 <p class="rule">
 function_literal
-    <code>'&#402;'</code> function_definition
+    <code>'&fnof;'</code> function_definition
 </p>
 <p class="rule">
 function_definition
@@ -166,7 +166,7 @@ failure
 <h3><code>failure</code> Handler</h3>
 <p>A function can have an optional failure handler.</p>
 <pre>
-&#402; (<var>parameter_list</var>) {
+&fnof; (<var>parameter_list</var>) {
     <var>statements</var>
 failure
     <var>statements</var>
@@ -197,7 +197,7 @@ failure
   will be performed. This converts the call into a jump, which can have
   a big improvement in the performance of recursive functions.</p>
 <pre>
-def factorial: &#402; factorial(integer, step | 1) (
+def factorial: &fnof; factorial(integer, step | 1) (
     integer &gt; 1
     then factorial(integer - 1, step * integer)
     else step
@@ -222,12 +222,12 @@ factorial(5)   # the result is 120</pre>
   will be given to the caller. </p>
 <p>Example:</p>
 <pre>def my_record: {
-    a: &#402; (value) (
+    a: &fnof; (value) (
         "a-" ~ value
     )
 }
 
-def pseudorecord: <code>&#402;</code> (
+def pseudorecord: <code>&fnof;</code> (
     name
     arguments
 ) {
@@ -250,7 +250,7 @@ functino
     <code>"[]"</code>
     infix_operator
 </p>
-<p>The <a href="operators.html">operators</a> can be used as functions by prefixing the operators with the <code>&#402;</code><small>florin</small> operator. These functions are called <strong>functinos</strong>.</p>
+<p>The <a href="operators.html">operators</a> can be used as functions by prefixing the operators with the <code>&fnof;</code><small>florin</small> operator. These functions are called <strong>functinos</strong>.</p>
 <p>So <code>ƒ+</code> is the binary add function that can be passed to <a href="primordial.html#reduce">the <code>reduce</code> function</a> to make sums. </p>
 <p>Examples: </p>
 <pre>

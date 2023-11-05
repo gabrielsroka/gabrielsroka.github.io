@@ -80,13 +80,13 @@ linefeed
 <p>Misty uses the same convention with <code>(</code><small>left paren</small> and <code>)</code><small>right paren</small> in argument lists and expressions. In an open argument list, each argument goes on its own line and the commas between the arguments are eliminated.</p>
 <pre>my_button.on(
     "click"
-    &#402; (event) {
+    &fnof; (event) {
         call event.done()
         call take_action()
     }
 )</pre>
 <p>In complex expressions, parens can allow a line break.</p>
-<pre>def atan: &#402; (slope) (
+<pre>def atan: &fnof; (slope) (
     sine(
         slope / (math.sqrt(slope * slope) + 1)
     )

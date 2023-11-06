@@ -10,7 +10,7 @@ body {
 }
 
 code, pre {
-    font-family: Programma, mono;
+    font-family: Programma, mono, monospace;
     font-size: 100%;
     font-style: normal;
     font-weight: bold;
@@ -74,7 +74,7 @@ h3 {
 }
 
 h4 {
-    font-family: Programma, mono;
+    font-family: Programma, mono, monospace;
     font-size: 14pt;
     font-weight: bold;
     margin-bottom: 0.5em;

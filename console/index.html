@@ -200,10 +200,10 @@ for await (user of getObjects(url)) {\n
     return hdr + rows;
   }
   async function report(url, cols, filename) {
-    objs = [];
+    const objs = [];
     results.innerHTML = 'Loading...';
     cols = cols.split(',');
-    for await (obj of getObjects(url)) {
+    for await (const obj of getObjects(url)) {
       objs.push(Object.fromEntries(cols.map(c => [c, dot(obj, c)])));
       results.innerHTML = objs.length + ' ' + filename;
       if (cancel) break;

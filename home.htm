@@ -154,7 +154,7 @@ async function getWeather() {
         `${hi}° ↑ &nbsp; • &nbsp; ${lo}° ↓ (${forecast.upd})` +
         `<span style='float: right;'>${forecast.hourly.shortForecast}</span>` +
         `<div><span style='font-size: 64px;'>${forecast.hourly.temperature}°</span>` +
-        `<span style='float: right;'><img src='${forecast.hourly.icon}' style='margin-top: 4px;'></span></div></a>`;
+        `<span style='float: right;'><img src='${forecast.hourly.icon.replace(/,0/, '')}' style='margin-top: 4px;'></span></div></a>`;
 }
 
 async function getForecast() {

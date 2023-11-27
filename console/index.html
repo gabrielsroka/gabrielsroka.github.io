@@ -611,9 +611,9 @@ apps = (await getAll('/api/v1/apps', 'apps')).filter(app => app.signOnMode == 'S
 apps.forEach(app => app.attributes = app.settings.signOn?.attributeStatements?.filter(s => s.type == 'EXPRESSION').map(s => s.values) || [])
 tableApps = apps.sort((a1, a2) => a1.label.localeCompare(a2.label)).map(app => ({
   Name: link('/admin/app/' + app.name + '/instance/' + app.id, app.label),
-  Attributes: app.attributes.join('<br>')
+  Attributes: app.attributes.join('&lt;br>')
 }))
-results.innerHTML += '<br><button id=exportCSV>Export CSV</button>'
+results.innerHTML += '&lt;br>&lt;button id=exportCSV>Export CSV&lt;/button>'
 table(tableApps)
 apps = apps.map(app => ({id: app.id, name: app.name, label: app.label, attributes: app.attributes.join('\n')}))
 exportCSV.onclick = () => downloadCSV(csv(apps), 'apps')
@@ -655,7 +655,7 @@ function addUser(appUser) {
 url = '/api/v1/groups?filter=type eq "APP_GROUP"&expand=app'
 groups = (await getAll(url, 'groups'))
 .map(group => ({
-  'Group Name': '<img src=' + group._links.logo.find(l => l.name == 'medium').href + '> ' + link('/admin/group/' + group.id, group.profile.name),
+  'Group Name': '&lt;img src=' + group._links.logo.find(l => l.name == 'medium').href + '> ' + link('/admin/group/' + group.id, group.profile.name),
   Description: group.profile.description || 'No description',
   App: link('/admin/app/' + group._embedded.app.name + '/instance/' + group.source.id, group._embedded.app.label)
 }))

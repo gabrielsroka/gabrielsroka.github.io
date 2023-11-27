@@ -51,12 +51,12 @@ td {
    <button id=cancelBtn title=Esc ${style}>Cancel</button>
    <button id=closeBtn ${style}>Close</button>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
-   <a href=https://gabrielsroka.github.io/console target=_blank>src v9</a><br>
+   <a href=https://gabrielsroka.github.io/console target=_blank>src v10</a><br>
    <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 // List users using https://gabrielsroka.github.io/console\n
 \n
-f = 'filter=profile.lastName eq "Doe"'\n
-url = '/api/v1/users?' + f\n
+search = 'search=profile.lastName eq "Doe"'\n
+url = '/api/v1/users?' + search\n
 for await (user of getObjects(url)) {\n
   log(user.id, user.profile.login)\n
   if (cancel) break\n
@@ -199,18 +199,21 @@ for await (user of getObjects(url)) {\n
     rows = rows.map(row => toCSV(...Object.values(row))).join('\n');
     return hdr + rows;
   }
-  async function report(url, cols, filename) {
+  async function getAll(url, name) {
     const objs = [];
-    results.innerHTML = 'Loading...';
-    cols = cols.split(',');
     for await (const obj of getObjects(url)) {
-      objs.push(Object.fromEntries(cols.map(c => [c, dot(obj, c)])));
-      results.innerHTML = objs.length + ' ' + filename;
+      objs.push(obj);
+      results.innerHTML = objs.length + ' ' + name;
       if (cancel) break;
     }
+    return objs;
+  }
+  async function report(url, cols, name) {
+    cols = cols.split(',');
+    const objs = (await getAll(url, name)).map(obj => Object.fromEntries(cols.map(c => [c, dot(obj, c)])));
     results.innerHTML += '<br><button id=exportCSV>Export CSV</button>';
     table(objs);
-    exportCSV.onclick = () => downloadCSV(csv(objs), filename);
+    exportCSV.onclick = () => downloadCSV(csv(objs), name);
 
     function dot(o, dots) {
       for (const p of dots.split('.')) {

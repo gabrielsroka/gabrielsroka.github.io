@@ -254,6 +254,7 @@ functionTable.innerHTML = '<table>' +
 <li><a href=#exportAppsToCSV>Export apps to CSV</a>
 <li><a href=#exportAppsAndGroupsToCSV>Export apps and groups to CSV</a>
 <li><a href=#exportGroupsAndCountsToCSV>Export groups and counts to CSV</a>
+<li><a href=#misc>Misc</a>
 </ul>
 <pre id=sendActivationEmail>
 // Send activation email to pending users using https://gabrielsroka.github.io/console
@@ -589,6 +590,7 @@ function addGroup(appGroupName) {
     })
 }
 </pre>
+<br>
 <pre id=exportGroupsAndCountsToCSV>
 // Export groups and counts to CSV using https://gabrielsroka.github.io/console
 
@@ -598,6 +600,66 @@ limit = 1000 // The default is 10000, but that's sometimes too large and causes 
 url = '/api/v1/groups?expand=stats&limit=' + limit
 cols = 'id,profile.name,_embedded.stats.usersCount,_embedded.stats.appsCount,_embedded.stats.groupPushMappingsCount'
 report(url, cols, 'groups')
+</pre>
+<br>
+<pre id=misc>
+// Apps
+
+// List SAML 2.0 apps using https://gabrielsroka.github.io/console
+
+apps = (await getAll('/api/v1/apps', 'apps')).filter(app => app.signOnMode == 'SAML_2_0')
+apps.forEach(app => app.attributes = app.settings.signOn?.attributeStatements?.filter(s => s.type == 'EXPRESSION').map(s => s.values) || [])
+tableApps = apps.sort((a1, a2) => a1.label.localeCompare(a2.label)).map(app => ({
+  Name: link('/admin/app/' + app.name + '/instance/' + app.id, app.label),
+  Attributes: app.attributes.join('<br>')
+}))
+results.innerHTML += '<br><button id=exportCSV>Export CSV</button>'
+table(tableApps)
+apps = apps.map(app => ({id: app.id, name: app.name, label: app.label, attributes: app.attributes.join('\n')}))
+exportCSV.onclick = () => downloadCSV(csv(apps), 'apps')
+
+// ------
+
+// Export apps and appUsers using https://gabrielsroka.github.io/console
+
+appUsers = []
+for await (app of getObjects('/api/v1/apps?q=salesforce')) {
+    count = 0
+    log('Fetching', app.label)
+    for await (appUser of getObjects(`/api/v1/apps/${app.id}/users?limit=20`, '&expand=user')) {
+        addAppUser(appUser)
+        count++
+        if (cancel) break
+    }
+    if (count == 0) addUser('(no users)')
+    if (cancel) break
+}
+log('Done')
+table(appUsers)
+downloadCSV(csv(appUsers), 'apps and users')
+function addUser(appUser) {
+    appUsers.push({  // Add more attributes here
+        appId: app.id,
+        appLabel: app.label,
+        appUserName: appUser._embedded.user.profile.login,
+        license: appUser.profile.featureLicenses
+    })
+}
+
+// ------
+
+// Groups
+
+// List groups and their apps using https://gabrielsroka.github.io/console
+
+url = '/api/v1/groups?filter=type eq "APP_GROUP"&expand=app'
+groups = (await getAll(url, 'groups'))
+.map(group => ({
+  'Group Name': '<img src=' + group._links.logo.find(l => l.name == 'medium').href + '> ' + link('/admin/group/' + group.id, group.profile.name),
+  Description: group.profile.description || 'No description',
+  App: link('/admin/app/' + group._embedded.app.name + '/instance/' + group.source.id, group._embedded.app.label)
+}))
+table(groups)
 </pre>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>

@@ -32,6 +32,9 @@ chrome.runtime.onInstalled.addListener(function () {
                         pageUrl: { hostContains: 'okta-emea.com' },
                     }),
                     new chrome.declarativeContent.PageStateMatcher({
+                        pageUrl: { hostContains: 'okta-gov.com' },
+                    }),
+                    new chrome.declarativeContent.PageStateMatcher({
                         pageUrl: { hostContains: 'oktapreview.com' },
                     })
                 ],

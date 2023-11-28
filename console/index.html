@@ -55,8 +55,8 @@ td {
    <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 // List users using https://gabrielsroka.github.io/console\n
 \n
-search = 'search=profile.lastName eq "Doe"'\n
-url = '/api/v1/users?' + search\n
+filter = 'filter=profile.lastName eq "Doe"'\n
+url = '/api/v1/users?' + filter\n
 for await (user of getObjects(url)) {\n
   log(user.id, user.profile.login)\n
   if (cancel) break\n

@@ -61,7 +61,7 @@ int main() { // with help from ChatGPT 3.5
         printf("\n"); // getline
         fgets(in, sizeof(in), stdin); // nextchar
         int y = 0;
-        char mode = 'x'; // setmode, x=xam, b=block, s=store
+        char mode = 'x'; // setmode, x=xam, b=block, s=store, r=run
         while (in[y] != '\0') {
             char c = in[y]; // nextitem
             if (c < '.') y++; // blskip-ish
@@ -71,8 +71,10 @@ int main() { // with help from ChatGPT 3.5
             } else if (c == ':') {
                 mode = 's';
                 y++;
-            } else if (c == 'r') break; // run, not implemented
-            else {
+            } else if (c == 'r') { // run
+                mode = 'r';
+                y++;
+            } else {
                 int hx = 0;
                 int ysav = y;
                 while (in[y] != '\0') {
@@ -95,6 +97,10 @@ int main() { // with help from ChatGPT 3.5
                 if (mode == 'x') { // notstor
                     st = hx; // setadr
                     xam = hx;
+                }
+                if (mode == 'r') { // run
+                    void (*fn)(void) = (void(*)(void))(mem + hx);
+                    fn();
                 }
                 bool addr = true;
                 while (true) {

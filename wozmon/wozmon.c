@@ -3,14 +3,55 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define MEM_SIZE (64 * 1024)
+#if defined(_WINDOWS) || defined(_MSC_VER) || defined(__MinGW__)
+#ifndef _WINDOWS
+#define _WINDOWS
+#endif
+#include <windows.h>
+#else
+#include <sys/mman.h>
+#endif
+
+#ifndef PAGE_SIZE
+#define PAGE_SIZE 4096
+#endif
+
+#define MEM_SIZE         (64 * 1024)
+#define ALIGN(X,A)       (((X) + (A-1)) / (A) * (A))
+#define MEM_SIZE_ALIGNED ALIGN(MEM_SIZE, PAGE_SIZE)
+
+static unsigned char *mem = NULL;
 
 int main() { // with help from ChatGPT 3.5
-    unsigned char mem[MEM_SIZE] = {0};
     bool escape = true;
     char in[128];
     int st = 0;
     int xam = 0;
+
+#if defined(_WINDOWS)
+    mem = VirtualAlloc(
+        NULL,
+        MEM_SIZE_ALIGNED,
+        MEM_RESERVE|MEM_COMMIT,
+        PAGE_EXECUTE_READWRITE
+    );
+    if (!mem) {
+        fprintf(stderr, "VirtualAlloc failed, GLE=0x%x\n", GetLastError());
+        return 1;
+    }
+#else
+    mem = mmap(
+        NULL,
+        MEM_SIZE_ALIGNED,
+        PROT_READ|PROT_WRITE|PROT_EXEC,
+        MAP_ANON,
+        -1,
+        0);
+    if (mem == MAP_FAILED) {
+        perror("mmap failed");
+        return 1;
+    }
+#endif
 
     while (true) {
         if (escape) {

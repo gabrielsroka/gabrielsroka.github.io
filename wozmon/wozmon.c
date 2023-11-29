@@ -78,7 +78,8 @@ int main() { // with help from ChatGPT 3.5
                 while (in[y] != '\0') {
                     char c = in[y]; // nexthex
                     if (isdigit(c) || (c >= 'a' && c <= 'f')) {
-                        hx = hx * 16 + strtol(&c, NULL, 16); // dig
+                        char s[] = {c, 0};
+                        hx = hx * 16 + strtol(s, NULL, 16); // dig
                     } else break;
                     y++;
                 }

@@ -59,7 +59,8 @@ int main() { // with help from ChatGPT 3.5
             escape = false;
         }
         printf("\n"); // getline
-        fgets(in, sizeof(in), stdin); // nextchar
+        if (!fgets(in, sizeof(in), stdin))
+           break;
         int y = 0;
         char mode = 'x'; // setmode, x=xam, b=block, s=store, r=run
         while (in[y] != '\0') {

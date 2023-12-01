@@ -115,7 +115,11 @@ async function makeAdmin(userId, displayName) {
         method: 'put'
     };
     const r = await fetch(`${baseUrl}/api/v1/groups/${groupId}/users/${userId}`, options);
-    results.innerHTML += '<br>' + displayName + ' is now an Admin.';
+    if (r.ok) {
+        results.innerHTML += '<br>' + displayName + ' is now an Admin.';
+    } else {
+        results.innerHTML += '<br>Error: ' + r.headers.get('www-Authenticate');
+    }
 }
 
 async function updateMe() {

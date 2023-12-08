@@ -43,7 +43,7 @@ while True:
                         echo(f'\n{xam:04x}:')
                     echo(f' {mem[xam]:02x}') # prdata
                 mode = 'xam' # xamnext
-                if hx == xam:
+                if xam >= hx:
                     break
                 xam += 1
                 addr = xam % 8 == 0 # mod8chk

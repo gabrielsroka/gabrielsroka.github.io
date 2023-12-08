@@ -62,7 +62,7 @@ int main() { // with help from ChatGPT 3.5
                         printf(" %02x", mem[xam]); // prdata
                     }
                     mode = 'x'; // xamnext
-                    if (hx == xam) break;
+                    if (xam >= hx) break;
                     xam++;
                     addr = xam % 8 == 0; // mod8chk
                 }

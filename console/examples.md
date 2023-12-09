@@ -1,3 +1,5 @@
+# Example scripts for [API Console](https://gabrielsroka.github.io/console)
+
 - [Send activation email to pending users](#send-activation-email)
 - [Copy members from one group to another](#copy-group-members)
 - [Remove group members](#remove-group-members)
@@ -382,7 +384,7 @@ report(url, cols, 'groups')
 // List SAML 2.0 apps using https://gabrielsroka.github.io/console
 
 apps = (await getAll('/api/v1/apps', 'apps')).filter(app => app.signOnMode == 'SAML_2_0')
-apps.forEach(app => app.attributes = app.settings.signOn?.attributeStatements?.filter(s => s.type == 'EXPRESSION').map(s => s.values) || [])
+apps.forEach(a => a.attributes = a.settings.signOn?.attributeStatements?.filter(s => s.type == 'EXPRESSION').map(s => s.values) || [])
 tableApps = apps.sort((a1, a2) => a1.label.localeCompare(a2.label)).map(app => ({
   Name: link('/admin/app/' + app.name + '/instance/' + app.id, app.label),
   Attributes: app.attributes.join('<br>')

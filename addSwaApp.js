@@ -1,9 +1,12 @@
+javascript:
 /* 
+name: /Add SWA App#
+url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/addSwaApp.js
+
 Add a Custom SWA app and assign it to me.
 
 Setup:
 Drag this to the bookmark toolbar:
-javascript:(function(){document.body.appendChild(document.createElement("script")).src="https://gabrielsroka.github.io/addSwaApp.js";})();
 
 Usage:
 1. Login to Okta Admin.
@@ -12,7 +15,8 @@ Usage:
 
 (function () {
     var popup = createPopup("Add SWA App");
-    var form = $("<form><table><tr><td>Label<td><input class=label style='width: 300px'>" + 
+    var form = $("<form><table>" +
+        "<tr><td>Label<td><input class=label style='width: 300px'>" + 
         "<tr><td>Login URL<td><input class=loginUrl value='https://LOGIN.oktapreview.com' style='width: 300px'></table>" + 
         "<button type=submit>Add</button></form>").appendTo(popup);
     form.submit(async (event) => {
@@ -35,7 +39,7 @@ Usage:
             }
         };
         popup.html("Adding app...");
-        // https://developer.okta.com/docs/reference/api/apps/#add-custom-swa-application
+        /* https://developer.okta.com/docs/reference/api/apps/#add-custom-swa-application */
         app = await postJson({
             url: "/api/v1/apps",
             data: app
@@ -45,7 +49,7 @@ Usage:
             scope: "USER"
         };
         popup.html("Assigning user to app...");
-        // https://developer.okta.com/docs/reference/api/apps/#assign-user-to-application-for-sso
+        /* https://developer.okta.com/docs/reference/api/apps/#assign-user-to-application-for-sso */
         await postJson({
             url: "/api/v1/apps/" + app.id + "/users",
             data: appUser

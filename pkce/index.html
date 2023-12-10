@@ -44,7 +44,7 @@ const authorize_endpoint =  `${baseUrl}/oauth2/v1/authorize`;
 const token_endpoint = `${baseUrl}/oauth2/v1/token`;
 const scope = 'openid groups okta.users.read okta.groups.manage'; // space delimited. 'okta.users.manage.self', 'okta.groups.manage'... needed for update
 
-import * as okta from './okta.js';
+import * as okta from '/okta.js';
 
 // OAUTH REDIRECT HANDLING
 
@@ -58,7 +58,7 @@ if (q.has('error')) {
     results.innerHTML = q.get('error') + '<br>' + q.get('error_description') + `<br><br>Fix the error and <a href="${redirect_uri}">try again</a>`;
 } else if (q.has('code')) { // If the server returned an authorization code, exchange it for an access token.
     if (localStorage.state == q.get('state')) {
-        getUsers();
+        await getUsers();
         // updateMe();
     } else {
         results.innerHTML = 'Invalid state. <a href="/pkce">retry</a>';

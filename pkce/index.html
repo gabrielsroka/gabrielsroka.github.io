@@ -91,8 +91,9 @@ async function getUsers() {
     }
     const r = await okta.get('/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15');
     const users = await r.json();
-    const rows = users.map(u => `<tr><td>${u.profile.firstName} ${u.profile.lastName}<td>${u.profile.login}<td>${u.profile.email}<td><a onclick="makeAdmin('${u.id}', '${u.profile.firstName} ${u.profile.lastName}')">Grant Admin</a>`).join('');
+    const rows = users.map(u => `<tr><td>${u.profile.firstName} ${u.profile.lastName}<td>${u.profile.login}<td>${u.profile.email}<td><a class=makeAdmin userId=${u.id} name="${u.profile.firstName} ${u.profile.lastName}">Grant Admin</a>`).join('');
     results.innerHTML = 'Welcome ' + access_token.sub + '<h1>Users</h1><table><tr><th>Name<th>Username<th>Email<th>Action' + rows + '</table>';
+    document.querySelectorAll('a.makeAdmin').forEach(a => a.onclick = () => makeAdmin(a.userId, a.name));
 }
 
 async function getGroups() {
@@ -105,10 +106,10 @@ async function getGroups() {
     }
 }
 
-async function makeAdmin(userId, displayName) {
+async function makeAdmin(userId, name) {
     const r = await okta.put(`/api/v1/groups/${groupId}/users/${userId}`);
     if (r.ok) {
-        results.innerHTML += '<br>' + displayName + ' is now an Admin.';
+        results.innerHTML += '<br>' + name + ' is now an Admin.';
     } else {
         results.innerHTML += '<br>Error: ' + r.headers.get('www-Authenticate');
     }

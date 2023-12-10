@@ -6,6 +6,8 @@ let _options;
 export function init(url, options = {}) {
     baseUrl = url;
     _options = options;
+    _options.headers = _options.headers || {};
+    _options.headers['Content-Type'] = 'application/json';
 }
 
 export async function get(path) {
@@ -21,6 +23,5 @@ export async function put(path, body) {
 }
 
 async function fetchOkta(path, init) {
-    init.headers['Content-Type'] = 'application/json';
     return fetch(baseUrl + path, {..._options, ...init});
 }

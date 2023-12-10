@@ -43,7 +43,7 @@ const baseUrl = 'https://gsroka-neto.oktapreview.com';
 import * as okta from './okta.js';
 
 onload = async () => {
-    okta.init(baseUrl);
+    okta.init(baseUrl, {credentials: 'include'});
     const response = await okta.get('/api/v1/users/me');
     if (response.ok) {
         const user = await response.json();

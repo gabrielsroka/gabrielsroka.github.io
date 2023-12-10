@@ -71,6 +71,7 @@ if (q.has('error')) {
 
 async function getUsers() {
     tokens = await getTokens();
+    okta.init(baseUrl, {headers: {authorization: 'Bearer ' + tokens.access_token}});
     history.replaceState({}, null, '/pkce/index.html'); // Remove the auth code from the browser address bar.
     const id_token = JSON.parse(atob(tokens.id_token.split('.')[1]));
     console.log('id_token', id_token);
@@ -88,7 +89,6 @@ async function getUsers() {
         results.innerHTML = access_token.sub + ' is not authorized';        
         return;
     }
-    okta.init(baseUrl, {headers: {authorization: 'Bearer ' + tokens.access_token}});
     const r = await okta.get('/api/v1/users?search=status eq "ACTIVE"&sortBy=profile.lastName&limit=15');
     const users = await r.json();
     const rows = users.map(u => `<tr><td>${u.profile.firstName} ${u.profile.lastName}<td>${u.profile.login}<td>${u.profile.email}<td><a onclick="makeAdmin('${u.id}', '${u.profile.firstName} ${u.profile.lastName}')">Grant Admin</a>`).join('');

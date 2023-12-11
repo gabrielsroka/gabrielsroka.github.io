@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import requests
-from bs4 import BeautifulSoup
+import time
+from bs4 import BeautifulSoup # pip install beautifulsoup4
 
 username = input('username: ')
 
@@ -17,4 +18,4 @@ while path:
         print(a.text, a['href'])
     more = s.select_one('a.morelink')
     path = more['href'] if more else None
-    # TODO: add sleep(850) ms ?
+    if path: time.sleep(0.850)

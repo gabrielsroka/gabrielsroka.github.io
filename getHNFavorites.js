@@ -1,6 +1,7 @@
 javascript:
 /*
-bookmark name: /HN Favorites#
+name: /HN Favorites#
+url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/getHNFavorites.js
 
 Search HN Favorites and Export to CSV or HTML.
 It runs in your browser like a browser extension. It scrapes the HN HTML and navigates from page to page.
@@ -25,7 +26,7 @@ Bookmark: Click the bookmark, or
 (function () {
     const popup = createPopup('HN Favorites');
     if (location.host != 'news.ycombinator.com' || !(location.pathname == '/user' || location.pathname == '/favorites'))  {
-        popup.innerHTML = 'ERROR: Go to your user page and then try again.';
+        popup.innerHTML = 'ERROR: Go to your user or favorites page on HN and then try again.';
         return;
     }
     const id = location.search.split('=')[1];

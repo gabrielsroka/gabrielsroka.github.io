@@ -59,7 +59,8 @@ Bookmark: Click the bookmark, or
             .map(f => '<tr><td>' + link(f.url, f.name) + '<td>' + link(f.url, f.url));
         results.innerHTML = found.length ? '<table>' + found.join('') + '</table>' : 'not found';
     };
-    exportToCSV.onclick = exportToHTML.onclick = async function () {
+    exportToCSV.onclick = exportToHTML.onclick = async function (event) {
+        event.preventDefault();
         const filetype = this.dataset.filetype;
         await getFavorites();
         downloadFile(types[filetype].header, favorites.map(types[filetype].totype), types[filetype].filename, filetype);

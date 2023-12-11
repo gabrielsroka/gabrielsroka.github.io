@@ -13,7 +13,8 @@ path = f'favorites?id={username}'
 while path:
     r = session.get(base + path)
     s = BeautifulSoup(r.text, 'html.parser')
-    for a in s.select('a.storylink'):
+    for a in s.select('span.titleline a'):
         print(a.text, a['href'])
     more = s.select_one('a.morelink')
     path = more['href'] if more else None
+    # TODO: add sleep(850) ms ?

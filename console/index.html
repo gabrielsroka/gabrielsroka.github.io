@@ -33,7 +33,7 @@ td {
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>console v10</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>console v11</a> to the bookmarks toolbar.
 </ol>
 <br>
 <b>Usage</b>
@@ -51,7 +51,7 @@ td {
    <button id=cancelBtn title=Esc ${style}>Cancel</button>
    <button id=closeBtn ${style}>Close</button>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
-   <a href=https://gabrielsroka.github.io/console target=_blank>src v10</a><br>
+   <a href=https://gabrielsroka.github.io/console target=_blank>src v11</a><br>
    <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 // List users using https://gabrielsroka.github.io/console\n
 \n
@@ -208,13 +208,17 @@ for await (user of getObjects(url)) {\n
     }
     return objs;
   }
-  async function report(url, cols, name) {
+  async function report(url, cols, name, ui = true) {
     cols = cols.split(',');
     const objs = (await getAll(url, name)).map(obj => Object.fromEntries(cols.map(c => [c, dot(obj, c)])));
-    results.innerHTML += '<br><button id=exportCSV>Export CSV</button>';
-    table(objs);
-    exportCSV.onclick = () => downloadCSV(csv(objs), name);
-
+    if (ui) {
+      results.innerHTML += '<br><button id=exportCSV>Export CSV</button>';
+      table(objs);
+      exportCSV.onclick = () => downloadCSV(csv(objs), name);
+    } else {
+      downloadCSV(csv(objs), name);
+    }
+  
     function dot(o, dots) {
       for (const p of dots.split('.')) {
         o = o[p];

@@ -418,7 +418,8 @@ function addAppUser(appUser) {
         appId: app.id,
         appLabel: app.label,
         appUserName: appUser._embedded.user.profile.login,
-        license: appUser.profile.featureLicenses
+        license: appUser.profile.featureLicenses,
+        scope: appUser.scope
     })
 }
 ```

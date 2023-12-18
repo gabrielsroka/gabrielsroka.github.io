@@ -413,7 +413,7 @@ for await (app of getObjects('/api/v1/apps?q=salesforce')) {
 log('Done')
 table(appUsers)
 downloadCSV(csv(appUsers), 'apps and users')
-function addUser(appUser) {
+function addAppUser(appUser) {
     appUsers.push({  // Add more attributes here
         appId: app.id,
         appLabel: app.label,

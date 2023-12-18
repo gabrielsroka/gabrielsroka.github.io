@@ -399,27 +399,27 @@ exportCSV.onclick = () => downloadCSV(csv(apps), 'apps')
 // Export apps and appUsers using https://gabrielsroka.github.io/console
 
 appUsers = []
-for await (app of getObjects('/api/v1/apps?q=salesforce')) {
+for await (app of getObjects('/api/v1/apps')) {
     count = 0
     log('Fetching', app.label)
     for await (appUser of getObjects(`/api/v1/apps/${app.id}/users?limit=20`, '&expand=user')) {
-        addAppUser(appUser)
+        addAppUser(appUser._embedded.user.profile.login, appUser.profile.featureLicenses, appUser.scope)
         count++
         if (cancel) break
     }
-    if (count == 0) addUser('(no users)')
+    if (count == 0) addAppUser('(no users)')
     if (cancel) break
 }
 log('Done')
 table(appUsers)
 downloadCSV(csv(appUsers), 'apps and users')
-function addAppUser(appUser) {
+function addAppUser(appUserName, licenses, scope) {
     appUsers.push({  // Add more attributes here
         appId: app.id,
         appLabel: app.label,
-        appUserName: appUser._embedded.user.profile.login,
-        license: appUser.profile.featureLicenses,
-        scope: appUser.scope
+        appUserName,
+        licenses,
+        scope
     })
 }
 ```

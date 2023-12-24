@@ -31,6 +31,9 @@ function run(lines) {
                 .replace('elif', 'else if')
                 .replace('if ', 'if (');
             line += ')';
+        } else if (tLine.startsWith('catch ')) {
+            line = line.replace('catch ', 'catch (');
+            line += ')';
         } else if (tLine.startsWith('#')) {
             line = line.replace('#', '//');
         } else if (tLine.startsWith('print ') || tLine.startsWith('?')) {

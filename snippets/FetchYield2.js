@@ -45,7 +45,7 @@
     }
 
     function getLinks(linkHeader) {
-        const headers = linkHeader.split(", ");
+        const headers = linkHeader.split(', ');
         const links = {};
         headers.forEach(header => {
             const [, url, name] = header.match(/<(.*)>; rel="(.*)"/);
@@ -53,7 +53,7 @@
         });
         return links;
     }
-    function sleep(time) {
+    async function sleep(time) {
         return new Promise(resolve => setTimeout(resolve, time));
     }
 })();

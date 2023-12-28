@@ -101,7 +101,7 @@ Bookmark: Click the bookmark, or
         a.download = `${filename}-${date}.${filetype}`;
         a.click();
     }
-    function sleep(time) {
+    async function sleep(time) {
         return new Promise(resolve => setTimeout(resolve, time));
     }
     function link(url, text) {

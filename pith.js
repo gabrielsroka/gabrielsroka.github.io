@@ -92,3 +92,7 @@ function sum(it) {
     }
     return total;
 }
+
+async function sleep(delay) {
+    return new Promise(res => setTimeout(res, delay));
+}

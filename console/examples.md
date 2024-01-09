@@ -438,3 +438,92 @@ groups = (await getAll(url, 'groups'))
 }))
 table(groups)
 ```
+
+## Group Rules
+
+```js
+// Add and activate a Group Rule using https://gabrielsroka.github.io/console
+
+results.innerHTML = '<style>.rockstarTable td {padding: 8px;} .group {border: solid 1px gray; padding: 10px; margin: 4px; text-wrap: nowrap;} .removeGroup {margin: 8px 0;}</style>' +
+  '<table class=rockstarTable style="width: 100%;">' +
+  '<tr><td colspan=2><h2>Add Rule</h2>' +
+  '<tr><td>Name<td><input id=ruleName>' +
+  `<tr><td>Expression<td style='width: 100%' colspan=2><textarea id=expression style='width: 100%; height: 100px; font-family: monospace;'></textarea>` +
+    'Press Ctrl+Enter to Preview - ' + link('https://developer.okta.com/reference/okta_expression_language', 'Expression Language Reference') +
+  '<tr><td>Assign to<td><input id=groupName placeholder=Group><td style="width: 100%"><span id=groupInfo></span>' +
+  '<tr><td>Preview<td colspan=2><input id=userName placeholder=User> <span id=userInfo></span>' +
+  '<tr><td colspan=3><div id=infobox>&nbsp;</div>' +
+  '<tr><td colspan=2><button id=save class="button button-primary">Save and Activate</button>' +
+  '</table>'
+ruleName.focus()
+
+ENTER = 13
+user = {}
+groups = []
+expression.onkeydown = event => {
+  if (event.ctrlKey && event.keyCode == ENTER) evalExpression()
+}
+async function evalExpression() {
+  err = '<span style="color: white; background-color: red">&nbsp;! </span>&nbsp;'
+  if (!user?.id) {
+    infobox.innerHTML = err + 'Select a user to preview'
+    return
+  }
+  infobox.innerHTML = '&nbsp;'
+  body = [{targets: {user: user.id}, value: expression.value, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}]
+  exps = await postJson('/api/v1/internal/expression/eval', body)
+  if (exps[0].error) h = err + 'We found some errors.<br>' + exps[0].error.errorCauses.map(c => c.errorSummary).join('<br>')
+  else if (exps[0].result == 'TRUE') h = '<span style="color: white; background-color: green">&nbsp;✓ </span>&nbsp; User matches rule'
+  else h = err + 'User doesn\'t match rule'
+  infobox.innerHTML = h
+}
+timeout = 0
+userName.onkeyup = event => {
+  infobox.innerHTML = '&nbsp;'
+  if (event.keyCode == ENTER) {
+    evalExpression()
+    return
+  }
+  clearTimeout(timeout)
+  if (userName.value.length < 2) return
+  timeout = setTimeout(async () => {
+    users = await getJson('/api/v1/users?' + new URLSearchParams({limit: 1, q: userName.value}))
+    user = users[0]
+    if (!user) {
+      userInfo.innerHTML = 'No results found'
+      return
+    }
+    userInfo.innerHTML = link('/admin/user/profile/view/' + user.id, user.profile.firstName + ' ' + user.profile.lastName) + ', login: ' + user.profile.login + ', email: ' + user.profile.email
+  }, 400)
+}
+groupName.onkeyup = () => {
+  clearTimeout(timeout)
+  if (groupName.value.length < 2) return
+  timeout = setTimeout(async () => {
+    foundGroups = await getJson('/api/v1/groups?' + new URLSearchParams({limit: 1, filter: 'type eq "OKTA_GROUP"', q: groupName.value}))
+    group = foundGroups[0]
+    if (group) {
+      if (!groups.find(g => g.id == group.id)) groups.push(group)
+      msg = ''
+    } else msg = 'No results found. '
+    showGroups(msg)
+  }, 400)
+}
+function showGroups(msg = '') {
+  groupInfo.innerHTML = msg + groups.map(g => '<span class=group>' + link('/admin/group/' + g.id, g.profile.name) + ` &nbsp;<button class=removeGroup value=${g.id}>X</button></span>`).join(' ')
+  results.querySelectorAll('button.removeGroup').forEach(b => b.onclick = () => {
+    groups = groups.filter(g => g.id != b.value)
+    showGroups()
+  })
+}
+save.onclick = async () => {
+  body = {name: ruleName.value, conditions: {expression: {value: expression.value, type: 'urn:okta:expression:1.0'}}, actions: {assignUserToGroups: {groupIds: groups.map(g => g.id)}}, type: 'group_rule'}
+  rule = await postJson('/api/v1/groups/rules', body)
+  if (rule.id) {
+    await post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
+    infobox.innerHTML = 'Added ' + ruleName.value
+  } else {
+    infobox.innerHTML = 'Error: ' + rule.errorSummary + '<br>' + rule.errorCauses.map(c => c.errorSummary).join('<br>')
+  }
+}
+```

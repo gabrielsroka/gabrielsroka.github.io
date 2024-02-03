@@ -205,6 +205,7 @@ for await (user of getObjects(url)) {\n
   }
   async function getAll(url, name) {
     const objs = [];
+    results.innerHTML = 'Loading...';
     for await (const obj of getObjects(url)) {
       objs.push(obj);
       results.innerHTML = objs.length + ' ' + name;

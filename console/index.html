@@ -174,7 +174,6 @@ for await (user of getObjects(url)) {\n
         const reset = r.headers.get('X-Rate-Limit-Reset') * 1000;
         const now = new Date(r.headers.get('date')).getTime();
         const delay = Math.max(reset - now, 1000);
-        statusBar.innerHTML = 'Sleeping ' + delay + ' ms';
         await sleep(delay);
       }
     } while (r.status == TOO_MANY_REQUESTS);
@@ -182,6 +181,7 @@ for await (user of getObjects(url)) {\n
     return r;
   }
   async function sleep(delay) /* delay in ms */ {
+    statusBar.innerHTML = 'Sleeping ' + delay + ' ms';
     return new Promise(r => setTimeout(r, delay));
   }
   function link(url, text) {

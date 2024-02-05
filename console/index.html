@@ -164,6 +164,7 @@ for await (user of getObjects(url)) {\n
   async function fetchLimit(url, init) {
     const TOO_MANY_REQUESTS = 429;
     do {
+      statusBar.innerHTML = 'Loading...';
       var r = await fetch(url, init);
       const remaining = r.headers.get('X-Rate-Limit-Remaining');
       const limit = r.headers.get('X-Rate-Limit-Limit');
@@ -175,9 +176,9 @@ for await (user of getObjects(url)) {\n
         const delay = Math.max(reset - now, 1000);
         statusBar.innerHTML = 'Sleeping ' + delay + ' ms';
         await sleep(delay);
-        statusBar.innerHTML = '';
       }
     } while (r.status == TOO_MANY_REQUESTS);
+    statusBar.innerHTML = '';
     return r;
   }
   async function sleep(delay) /* delay in ms */ {

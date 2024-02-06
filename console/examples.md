@@ -427,8 +427,8 @@ function addAppUser(appUserName, licenses, scope) {
 ```js
 // Switch apps to a different policy using https://gabrielsroka.github.io/console
 
-policyOpts = (await getAll('/api/v1/policies?type=ACCESS_POLICY')).sort(key('name')).map(policy => `<option id=${policy.id}>${policy.name}</option>`).join('')
-appChks = (await getAll('/api/v1/apps')).sort(key('label')).map(app => `<label><input id=${app.id} title='${app.label}' type=checkbox checked>${app.label}</label><br>`).join('')
+policyOpts = (await getAll('/api/v1/policies?type=ACCESS_POLICY', 'policies')).sort(key('name')).map(policy => `<option id=${policy.id}>${policy.name}</option>`).join('')
+appChks = (await getAll('/api/v1/apps', 'apps')).sort(key('label')).map(app => `<label><input id=${app.id} title='${app.label}' type=checkbox checked>${app.label}</label><br>`).join('')
 results.innerHTML = 
   '<select id=toPolicy>' + policyOpts + '</select><br>' + 
   appChks + 

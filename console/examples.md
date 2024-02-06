@@ -424,6 +424,33 @@ function addAppUser(appUserName, licenses, scope) {
 }
 ```
 
+```js
+// Switch apps to a different policy using https://gabrielsroka.github.io/console
+
+policyOpts = (await getAll('/api/v1/policies?type=ACCESS_POLICY')).sort(key('name')).map(policy => `<option id=${policy.id}>${policy.name}</option>`).join('')
+appChks = (await getAll('/api/v1/apps')).sort(key('label')).map(app => `<label><input id=${app.id} title='${app.label}' type=checkbox checked>${app.label}</label><br>`).join('')
+results.innerHTML = 
+  '<select id=toPolicy>' + policyOpts + '</select><br>' + 
+  appChks + 
+  '<br><button id=switchPolicies class="button button-primary">Switch</button> ' + 
+  '<button id=checkAll class=button>Check All</button> <button id=uncheckAll class=button>Uncheck All</button>'
+
+switchPolicies.onclick = async () => {
+  policy = toPolicy.selectedOptions[0]
+  checkedApps = results.querySelectorAll('input[type=checkbox]:checked')
+  for (app of checkedApps) { // one at a time -- don't use forEach
+    log('Switching', app.id, app.title)
+    r = await put(`/api/v1/apps/${app.id}/policies/${policy.id}`)
+    b = await r.json()
+    if (!r.ok) log('Error:', b.errorCauses.map(e => e.errorSummary))
+    if (cancel) break
+  }
+  log('Done')
+}
+checkAll.onclick = () => results.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = true)
+uncheckAll.onclick = () => results.querySelectorAll('input[type=checkbox]').forEach(c => c.checked = false)
+```
+
 ## Groups
 
 ```js

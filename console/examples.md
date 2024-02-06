@@ -385,14 +385,14 @@ report(url, cols, 'groups')
 
 apps = (await getAll('/api/v1/apps', 'apps')).filter(app => app.signOnMode == 'SAML_2_0')
 apps.forEach(a => a.attributes = a.settings.signOn?.attributeStatements?.filter(s => s.type == 'EXPRESSION').map(s => s.values) || [])
-tableApps = apps.sort((a1, a2) => a1.label.localeCompare(a2.label)).map(app => ({
-  Name: link('/admin/app/' + app.name + '/instance/' + app.id, app.label),
+tableApps = apps.sort(key('label')).map(app => ({
+  Label: link('/admin/app/' + app.name + '/instance/' + app.id, app.label),
   Attributes: app.attributes.join('<br>')
 }))
 results.innerHTML += '<br><button id=exportCSV>Export CSV</button>'
 table(tableApps)
-apps = apps.map(app => ({id: app.id, name: app.name, label: app.label, attributes: app.attributes.join('\n')}))
-exportCSV.onclick = () => downloadCSV(csv(apps), 'apps')
+csvApps = csv(apps.map(app => ({id: app.id, name: app.name, label: app.label, attributes: app.attributes.join('\n')})))
+exportCSV.onclick = () => downloadCSV(csvApps, 'apps')
 ```
 
 ```js

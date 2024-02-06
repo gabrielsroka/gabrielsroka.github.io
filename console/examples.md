@@ -64,11 +64,8 @@ for await (user of getObjects(url)) {
 // Set this:
 regex = /germ/i  // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
 
-if (typeof groups == 'undefined') {
-  results.innerHTML = 'Loading...'
-  groups = []
-  for await (g of getObjects('/api/v1/groups')) groups.push(g)
-}
+url = '/api/v1/groups'
+if (typeof groups == 'undefined') groups = await getAll(url, 'groups')
 found = groups
   .filter(g => g.profile.name.match(regex)) 
   .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
@@ -88,11 +85,7 @@ table(found)
 regex = /@gsroka.local/i   // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
 url = '/api/v1/users?filter=status eq "ACTIVE"'
 
-if (typeof users == 'undefined') {
-  results.innerHTML = 'Loading...'
-  users = []
-  for await (u of getObjects(url)) users.push(u)
-}
+if (typeof users == 'undefined') users = await getAll(url, 'users')
 found = users
   .filter(u => u.profile.email.match(regex)) 
   .sort((u1, u2) => u1.profile.firstName.localeCompare(u2.profile.firstName))
@@ -299,10 +292,7 @@ log(newRule.id, newRule.name)
 groupId = '...'
 
 url = '/api/v1/users' // maybe this should use: ?filter=status eq "ACTIVE"
-users = []
-for await (user of getObjects(url)) {
-  users.push(user)
-}
+users = await getAll(url, 'users')
 
 added = []
 for (user of users) {
@@ -325,15 +315,8 @@ log('Done.')
 // Export apps to CSV using https://gabrielsroka.github.io/console
 
 url = '/api/v1/apps'
-apps = []
-results.innerHTML = 'Loading...'
-for await (app of getObjects(url)) {
-  apps.push({id: app.id, label: app.label, name: app.name, selfService: app.accessibility.selfService}) // Add more attributes here
-  results.innerHTML = apps.length + ' apps'
-  if (cancel) break
-}
-table(apps)
-downloadCSV(csv(apps), 'apps')
+cols = 'id,label,name,accessibility.selfService' // Add more attributes here
+await report(url, cols, 'apps')
 ```
 
 # Export Apps and Groups to CSV

@@ -1,0 +1,147 @@
+/*
+.popup {
+    position: absolute; 
+    z-index: 1000; 
+    left: 4px; 
+    top: 4px; 
+    background-color: white; 
+    padding: 8px; 
+    border: 1px solid #ddd;
+} 
+*/
+.title {
+    font-weight: bold;
+}
+.title:hover {
+    background-color: #e8e8e8;
+}
+.rs_closed {
+    display: none;
+}
+.rs_toggle {
+    right: 20px;
+}
+.hoverDiv {
+    cursor: pointer;
+    padding: 5px;
+}
+.hoverDiv:hover {
+    background-color: #f0f0f0;
+}
+
+#sousMenu {
+    top: 112px !important;
+    left: 221px;
+}
+
+#userListPopup{
+    top: 179px !important;
+    left: 221px;
+}
+
+
+/* Style de base pour l'élément li */
+.tooltip {
+    position: relative;
+    display: block;
+  }
+  
+  /* Style de l'infobulle */
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    background: dodgerblue;
+    color: white;
+    width: max-content;
+    position: absolute;
+    left: 106%;
+    bottom: -30px;
+    border-radius: 6px;
+    z-index: 1;
+    display: block;
+    text-align: left;
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  /* Affichage de l'infobulle au survol */
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+  
+  #userListPopup{
+    overflow: visible !important;
+  }
+
+  #parent_btn_restore{
+    display: flex;
+    flex-direction: row-reverse;
+  }
+/*absolète*/
+  #btn_restore {
+    background-color: cornflowerblue; /* Couleur de fond initiale */
+    color: white; /* Couleur de texte initiale */
+    padding: 5px 10px; /* Espacement interne */
+    border-radius: 16px;
+    border: none; /* Pas de bordure */
+    cursor: pointer; /* Curseur pointeur */
+    transition: transform 0.3s ease, background-color 0.3s ease; /* Transition douce pour le transform et le changement de couleur de fond */
+    outline: none; /* Supprime le contour lors du focus */
+  }
+  /*absolète*/
+  #btn_restore:hover {
+    transform: scale(1.1); /* Grossit le bouton de 10% */
+    background-color: dodgerblue; /* Change la couleur de fond au survol */
+  }
+  /*absolète*/
+  #btn_restore:focus {
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1); /* Ajoute un ombrage extérieur pour indiquer le focus */
+  }
+  #link-button{
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    margin: 0;
+    padding: 0.428571425em 0.85714285em;
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-duration: 100ms;
+    transition-timing-function: linear;
+    border-radius: 6px;
+    box-shadow: 0 0 0 0 #9daaf1;
+    font-family: "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.7142857;
+    background-color: #ffffff;
+    color: #4c64e1;
+    border: 1px solid #4c64e1;
+    box-shadow: 0 0 0 0 #9daaf1;
+    text-align: center;
+}
+
+#link-button:hover {
+  text-decoration: none;
+  background-color: #4c64e1;
+  color: #ffffff;
+}
+
+/*a verifier les marker*/
+  #maListe li::marker {
+     color: transparent;/*Change la couleur du marqueur */
+  }
+
+a#afficherPlus {
+  display: block;
+  text-align: right;
+  margin-bottom: 10px;
+  cursor: pointer; /* Curseur pointeur */
+  font-size: 12px;
+  transition: transform 0.3s ease, background-color 0.3s ease; /* Transition douce pour le transform et le changement de couleur de fond */
+}
+
+a#afficherPlus:hover {
+  transform: scale(1.1); /* Grossit le bouton de 10% */
+}
+
+#userSearch{
+  margin: 10px;
+}

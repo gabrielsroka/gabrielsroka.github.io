@@ -291,6 +291,31 @@
                 event.preventDefault();
             };
         });
+
+        createDiv('Show Linked Objects', mainPopup, async function () {
+            const loPopup = createPopup('Linked Objects');
+            const los = await getJson('/api/v1/meta/schemas/user/linkedObjects');
+            for (const lo of los) {
+                getLink(lo.primary);
+                getLink(lo.associated);
+            }
+            async function getLink(lo) {
+                const div = loPopup[0].appendChild(document.createElement('div'));
+                div.innerHTML = lo.title + '<br>Loading...<br><br>';
+                const userId = location.pathname.split('/').pop();
+                const links = await getJson(`/api/v1/users/${userId}/linkedObjects/${lo.name}`);
+            
+                const rows = await Promise.all(links.map(async link => {
+                    const user = await getJson(new URL(link._links.self.href).pathname);
+                    return `${user.profile.firstName} ${user.profile.lastName} (${user.profile.email})`.link(`/admin/user/profile/view/${user.id}`);
+                }));
+                div.innerHTML = lo.title + '<br>' + (rows.length ? rows.sort().join('<br>') : '(none)') + '<br><br>';
+            }
+            async function getJson(url) {
+                const r = await fetch(url);
+                return r.json();
+            }
+        });
     }
 
     function directoryGroups() {
@@ -957,7 +982,7 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "urls";
-            const paths = 'apps,apps/${appId},apps/${appId}/groups,apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,' + 
+            const paths = 'apps,apps/${appId},apps/${appId}/groups,apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,devices,eventHooks,features,' + 
                 'groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type},' + 
                 'meta/schemas/apps/${instanceId}/default,meta/schemas/user/default,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,' + 
                 'users,users/me,users/${userId},users/${userId}/appLinks,users/${userId}/factors,users/${userId}/groups,users/${userId}/roles,zones';

@@ -29,6 +29,8 @@
             directoryPerson();
         } else if (location.pathname == "/admin/groups") {
             directoryGroups();
+        } else if (location.pathname.match("/admin/group/")) {
+            directoryGroup();
         } else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
         } else if (location.pathname.match("/report/system_log_2")) {
@@ -339,6 +341,38 @@
         });
     }
     
+    function directoryGroup() {
+        var groupId = location.pathname.split("/")[3];
+        var group;
+        getJSON(`/api/v1/groups/${groupId}`).then(aGroup => {
+            group = aGroup;
+            $(".subheader").html(`${e(group.profile.name)}`);
+            document.title += ` - ${e(group.profile.name)} ${e(group.profile.description)}`;
+        });
+            function showGroup() {
+                function toString(o, i = '') {
+                    const strings = [];
+                    for (const p in o) {
+                        if (p == "_links") continue;
+                        var v = o[p];
+                        if (v === null) v = "null";
+                        else if (typeof v == "string") v = '"' + v.replace(/(["\\])/g, "\\$1") + '"'; // Escape " and \
+                        else if (Array.isArray(v)) v = v.length == 0 ? '[]' : "[\n" + toString(v, i + "    ") + i + "]";
+                        else if (typeof v == "object") v = $.isEmptyObject(v) ? '{}' : "{\n" + toString(v, i + "    ") + i + "}";
+                        if (!Array.isArray(o)) v = p + ": " + v;
+                        strings.push(i + v);
+                    }
+                    return strings.join("\n") + "\n";
+                }
+                const groupPopup = createPopup("Group");
+                // It'd make sense to add group logos in here, however, if it's not `OKTA_GROUP`, it's `APP_GROUP` -so, no distinction between AD, Slack, etc.
+                // const logo = group.type == "OKTA_GROUP" ? "okta" : group.type.toLowerCase();
+                groupPopup.html(`</span><br><pre>${e(toString(group))}</pre>`);
+            }
+            createDiv("Show Group", mainPopup, showGroup);
+            createPrefixA("<li class=option>", "<span class='icon person-16-gray'></span>Show Group", ".okta-dropdown-list", showGroup);
+   }
+
     function securityAdministrators() {
         createDiv("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
             const adminsPopup = createPopup("Administrators");

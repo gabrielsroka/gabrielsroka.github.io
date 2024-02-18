@@ -1165,7 +1165,7 @@
         createPrefixA("", html, parent, clickHandler);
     }
     function createPrefixA(prefix, html, parent, clickHandler) {
-        $(`${prefix}<a style='cursor: pointer'>${html}</a>`).appendTo(parent).click(clickHandler);
+        $(`${prefix}<a style='cursor: pointer' class='icon-16'>${html}</a>`).appendTo(parent).click(clickHandler);
     }
     function createDivA(html, parent, clickHandler) {
         $(`<div><a style='cursor: pointer' class='link-button'>${html}</a></div>`).appendTo(parent).click(clickHandler);

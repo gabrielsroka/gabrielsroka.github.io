@@ -1,30 +1,70 @@
-/*
-.popup {
-    position: absolute; 
-    z-index: 1000; 
-    left: 4px; 
-    top: 4px; 
-    background-color: white; 
-    padding: 8px; 
-    border: 1px solid #ddd;
-} 
-*/
 .title {
-    font-weight: bold;
+  font-weight: bold;
 }
+
 .title:hover {
-    background-color: #e8e8e8;
+  background-color: #e8e8e8;
 }
+
 .rs_closed {
-    display: none;
+  display: none;
 }
+
 .rs_toggle {
-    right: 20px;
+  right: 20px;
 }
+
 .hoverDiv {
-    cursor: pointer;
-    padding: 5px;
+  cursor: pointer;
+  padding: 5px;
 }
+
 .hoverDiv:hover {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
+}
+
+.tooltip {
+  position: relative;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  background: dodgerblue;
+  color: white;
+  width: max-content;
+  position: absolute;
+  left: 106%;
+  bottom: -30px;
+  border-radius: 6px;
+  z-index: 1;
+  display: block;
+  text-align: left;
+  padding: 10px;
+  font-size: 13px;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+#userListPopup {
+  overflow: visible !important;
+}
+
+#maListe li::marker {
+  color: transparent;
+}
+
+a#afficherPlus {
+  display: block;
+  text-align: right;
+  margin-bottom: 10px;
+  cursor: pointer;
+  /* Cursor pointeur */
+  font-size: 12px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+#userSearch {
+  margin: 10px;
 }

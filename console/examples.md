@@ -88,7 +88,7 @@ url = '/api/v1/users?filter=status eq "ACTIVE"'
 if (typeof users == 'undefined') users = await getAll(url, 'users')
 found = users
   .filter(u => u.profile.email.match(regex)) 
-  .sort((u1, u2) => u1.profile.firstName.localeCompare(u2.profile.firstName))
+  .sort((u1, u2) => (u1.profile.firstName + u1.profile.lastName).localeCompare(u2.profile.firstName + u2.profile.lastName))
   .map(u => ({
     Name: link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName),
     Username: u.profile.login,

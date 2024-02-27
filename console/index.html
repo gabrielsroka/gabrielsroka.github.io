@@ -45,6 +45,8 @@ td {
 <script id=code>
 (function () {
   var cancel = false;
+  const paths = location.pathname.split('/');
+  const id = paths.pop() || paths.pop();
   const div = document.body.appendChild(document.createElement('div'));
   const style = `style='display: inline-block;'`;
   div.innerHTML = `<button id=run title='Ctrl+Enter' ${style}>Run</button>

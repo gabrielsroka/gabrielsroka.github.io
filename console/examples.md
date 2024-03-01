@@ -48,12 +48,10 @@ for await (user of getObjects(url)) {
 ```js
 // Remove group members using https://gabrielsroka.github.io/console
 
-// Get groupId from browser's address bar.
-groupId = location.pathname.split('/').pop()
-url = '/api/v1/groups/' + groupId + '/users/'
+url = '/api/v1/groups/' + id + '/users/'
 for await (user of getObjects(url)) {
-  await remove(url + user.id)
   log('removing group member', user.profile.login)
+  await remove(url + user.id)
 }
 ```
 
@@ -410,8 +408,10 @@ function addAppUser(appUserName, licenses, scope) {
 ```js
 // Switch apps to a different policy using https://gabrielsroka.github.io/console
 
-policyOpts = (await getAll('/api/v1/policies?type=ACCESS_POLICY', 'policies')).sort(key('name')).map(policy => `<option id=${policy.id}>${policy.name}</option>`).join('')
-appChks = (await getAll('/api/v1/apps', 'apps')).sort(key('label')).map(app => `<label><input id=${app.id} title='${app.label}' type=checkbox checked>${app.label}</label><br>`).join('')
+policies = await getAll('/api/v1/policies?type=ACCESS_POLICY', 'policies')
+policyOpts = policies.sort(key('name')).map(policy => `<option id=${policy.id}>${policy.name}</option>`).join('')
+apps = await getAll('/api/v1/apps', 'apps')
+appChks = apps.sort(key('label')).map(app => `<label><input id=${app.id} title='${app.label}' type=checkbox checked>${app.label}</label><br>`).join('')
 results.innerHTML = 
   '<select id=toPolicy>' + policyOpts + '</select><br>' + 
   appChks + 

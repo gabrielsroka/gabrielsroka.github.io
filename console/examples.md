@@ -413,8 +413,8 @@ policyOpts = policies.sort(key('name')).map(policy => `<option id=${policy.id}>$
 apps = await getAll('/api/v1/apps', 'apps')
 appChks = apps.sort(key('label')).map(app => `<label><input id=${app.id} title='${app.label}' type=checkbox checked>${app.label}</label><br>`).join('')
 results.innerHTML = 
-  'From <select id=toPolicy>' + policyOpts + '</select><br>' + 
-  'To<br>' + appChks + 
+  'Policy <select id=toPolicy>' + policyOpts + '</select><br>' + 
+  'Apps<br>' + appChks + 
   '<br><button id=switchPolicies class="button button-primary">Switch</button> ' + 
   '<button id=checkAll class=button>Check All</button> <button id=uncheckAll class=button>Uncheck All</button>'
 

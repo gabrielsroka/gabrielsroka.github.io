@@ -455,7 +455,7 @@ table(groups)
 // Add and activate a Group Rule using https://gabrielsroka.github.io/console
 
 results.innerHTML = '<style>.rockstarTable td {padding: 8px;} .group {border: solid 1px gray; padding: 10px; margin: 4px; text-wrap: nowrap;} .removeGroup {margin: 8px 0;}</style>' +
-  '<table class=rockstarTable style="width: 100%;">' +
+  '<table class=rockstarTable style="width: 100%">' +
   '<tr><td colspan=2><h2>Add Rule</h2>' +
   '<tr><td>Name<td><input id=ruleName>' +
   `<tr><td>Expression<td style='width: 100%' colspan=2><textarea id=expression style='width: 100%; height: 100px; font-family: monospace;'></textarea>` +
@@ -481,10 +481,10 @@ async function evalExpression() {
   }
   infobox.innerHTML = '&nbsp;'
   body = [{targets: {user: user.id}, value: expression.value, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}]
-  exps = await postJson('/api/v1/internal/expression/eval', body)
-  if (exps[0].error) h = err + 'We found some errors.<br>' + exps[0].error.errorCauses.map(c => c.errorSummary).join('<br>')
-  else if (exps[0].result == 'TRUE') h = '<span style="color: white; background-color: green">&nbsp;✓ </span>&nbsp; User matches rule'
-  else h = err + 'User doesn\'t match rule'
+  exp = (await postJson('/api/v1/internal/expression/eval', body))[0]
+  if (exp.error) h = err + 'We found some errors.<br>' + exp.error.errorCauses.map(c => c.errorSummary).join('<br>')
+  else if (exp.result == 'TRUE') h = '<span style="color: white; background-color: green">&nbsp;✓ </span>&nbsp; User matches rule'
+  else h = err + "User doesn't match rule"
   infobox.innerHTML = h
 }
 timeout = 0
@@ -520,9 +520,9 @@ groupName.onkeyup = () => {
   }, 400)
 }
 function showGroups(msg = '') {
-  groupInfo.innerHTML = msg + groups.map(g => '<span class=group>' + link('/admin/group/' + g.id, g.profile.name) + ` &nbsp;<button class=removeGroup value=${g.id}>X</button></span>`).join(' ')
-  results.querySelectorAll('button.removeGroup').forEach(b => b.onclick = () => {
-    groups = groups.filter(g => g.id != b.value)
+  groupInfo.innerHTML = msg + groups.map(g => '<span class=group>' + link('/admin/group/' + g.id, g.profile.name) + ` &nbsp;<button id=${g.id}>X</button></span>`).join(' ')
+  groupInfo.querySelectorAll('button').forEach(btn => btn.onclick = () => {
+    groups = groups.filter(g => g.id != btn.id)
     showGroups()
   })
 }

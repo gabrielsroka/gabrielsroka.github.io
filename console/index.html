@@ -28,20 +28,23 @@ td {
 </head>
 <body>
 <h1>console</h1>
-<p>This tool will allow you to run short JavaScript snippets using a library (see <a href=#functions>functions</a> and <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/examples.md target=_blank>examples</a> and 
+<p>This tool will allow you to run short JavaScript snippets using a library (see <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/examples.md target=_blank>examples</a>, <a href=#functions>functions</a> and 
     <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/index.html>source</a> for more info).</p>
-<b>Setup</b>
+<h2>Setup</h2>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
 <li>Drag/drop this <a id=bm>console v12</a> to the bookmarks toolbar.
 </ol>
-<br>
-<b>Usage</b>
+<h2>Usage</h2>
 <ol>
 <li>In your Okta org, click the "console" button from your bookmarks toolbar.
 <li>Type in code, press Ctrl+Enter or click Run.
 <li>For debugging, it's helpful to open the browser's DevTools and look at the Network tab.
 </ol>
+<h2 id=examples>Examples</h2>
+<p>See <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/examples.md>https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/examples.md</a>
+<h2 id=functions>Functions</h2>
+<div id=functionTable></div>
 <script id=code>
 (function () {
   var cancel = false;
@@ -238,9 +241,6 @@ for await (user of getObjects(url)) {\n
   }
 })
 </script>
-<br>
-<div id=functions><b>Functions</b></div>
-<div id=functionTable></div>
 <script>
 bm.href = 'javascript:' + code.innerText + '();';
 functionTable.innerHTML = '<table>' + 
@@ -250,9 +250,5 @@ functionTable.innerHTML = '<table>' +
     .map(f => '<tr><td><code>' + f.replace(' /* ', '<td>').replace(' */', ''))
     .join('\n') + '</table>';
 </script>
-<br>
-<div id=examples><b>Examples</b>
-<p>See <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/examples.md>https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/examples.md</a>
-</div>
 </body>
 </html>

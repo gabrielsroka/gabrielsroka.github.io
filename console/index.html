@@ -210,7 +210,7 @@ for await (user of getObjects(url)) {\n
     return hdr + rows;
   }
   const key = k => (o1, o2) => o1[k].localeCompare(o2[k]);
-  async function getAll(url, name) {
+  async function getAll(url, name = '') {
     const objs = [];
     results.innerHTML = 'Loading...';
     for await (const obj of getObjects(url)) {

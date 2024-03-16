@@ -40,9 +40,7 @@ id,login,email
         const lines = file.split(lineSeparator);
         const fields = lines.shift().split(fieldSeparator);
         const headers = {};
-        for (let i = 0; i < fields.length; i++) {
-            headers[fields[i]] = i; /* Map header name to number. */
-        }
+        fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
 
         lines.forEach(line => {
             if (line == '') return;

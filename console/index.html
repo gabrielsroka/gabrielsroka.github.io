@@ -209,6 +209,20 @@ for await (user of getObjects(url)) {\n
     rows = rows.map(row => toCSV(...Object.values(row))).join('\n');
     return hdr + rows;
   }
+  async function readCSV() {
+    return new Promise(resolve => {
+      results.innerHTML += '<input id=fileInput type=file accept=.csv>';
+      fileInput.onchange = () => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const lines = reader.result.split(/\r\n|\r|\n/);
+          const headers = lines.shift().split(',');
+          resolve(lines.filter(line => line).map(line => Object.fromEntries(line.split(',').map((val, i) => [headers[i], val]))));
+        };
+        reader.readAsText(fileInput.files[0]);
+      };
+    });
+  }
   const key = k => (o1, o2) => o1[k].localeCompare(o2[k]);
   async function getAll(url, name = '') {
     const objs = [];

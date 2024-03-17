@@ -32,12 +32,10 @@ this is "parallel" and fast
 
         const lines = file.split(lineSeparator);
         const fields = lines.shift().split(fieldSeparator);
-        const fileHeaders = {};
-        fields.forEach((val, i) => fileHeaders[val] = i); // Map header name to number.
-
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i];
-            if (line == '') continue;
+        const fileHeaders = Object.fromEntries(fields.map((val, i) => [val, i])); // Map header name to number.
+        
+        lines.forEach((line, i) => {
+            if (line == '') return;
             const fields = line.split(fieldSeparator);
             const user = {
                 profile: {
@@ -55,7 +53,7 @@ this is "parallel" and fast
                     headers
                 });
             }, i * delay);
-        };
+        });
     }
 
     function createPopup(title) {

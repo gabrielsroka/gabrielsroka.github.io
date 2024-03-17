@@ -86,8 +86,7 @@ body {
         const lines = file.split(lineSeparator);
         if (lines[lines.length - 1] == '') lines.pop();
         const fields = lines.shift().split(fieldSeparator);
-        const headers = {};
-        fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
+        const headers = Object.fromEntries(fields.map((val, i) => [val, i])); /* Map header name to number. */
 
         const apps = lines.map(line => {
             const fields = line.replace(/"/g, '').split(fieldSeparator); /* TODO: improve support for "s */
@@ -163,8 +162,7 @@ body {
         const lines = file.split(lineSeparator);
         if (lines[lines.length - 1] == '') lines.pop();
         const fields = lines.shift().split(fieldSeparator);
-        const headers = {};
-        fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
+        const headers = Object.fromEntries(fields.map((val, i) => [val, i])); /* Map header name to number. */
 
         form.find('div.cloned').html('');
         form.find('div.error').html('');

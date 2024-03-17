@@ -39,8 +39,7 @@ addgroupJS@okta.com,add,group,addgroup@okta.com,"00gp70td8aRPYVumf0h7;00gp70td8a
 
         const lines = file.split(lineSeparator);
         const fields = lines.shift().split(fieldSeparator);
-        const headers = {};
-        fields.forEach((val, i) => headers[val] = i); /* Map header name to number. */
+        const headers = Object.fromEntries(fields.map((val, i) => [val, i])); /* Map header name to number. */
 
         lines.forEach(line => {
             if (line == '') return;

@@ -10,8 +10,8 @@ Setup:
 Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
-3. Give it a name, eg, "SearchGroups.js".
-4. Copy/paste the code from https://gabrielsroka.github.io/SearchGroups.js
+3. Give it a name, eg, "SearchGroups".
+4. Copy/paste this code.
 5. Save (Ctrl+S, Windows).
 
 Usage:
@@ -23,13 +23,9 @@ Usage:
 (async function () {
     const popup = createPopup('Search Group Names using a regex');
     const form = $('<form>Name <input class=name style="width: 250px"> <button type=submit>Search</button></form><br><div class=results>Loading...</div>').appendTo(popup);
-    let groups = [];
-    let url = '/api/v1/groups';
-    while (url) {
-        const r = await fetch(url);
-        const moreGroups = await r.json();
-        groups = groups.concat(moreGroups);
-        url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+    const groups = [];
+    for await (const group of getObjects('/api/v1/groups')) {
+        groups.push(group);
     }
     form.find('input.name').focus();
     form.submit(event => {
@@ -42,6 +38,14 @@ Usage:
         popup.find('div.results').html(found || 'Not found');
     }).submit();
 
+    async function* getObjects(url) {
+        while (url) {
+            const r = await fetch(url);
+            const objects = await r.json();
+            for (const o of objects) yield o;
+            url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+        }
+    }
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; ` +
                 `overflow: auto; background-color: white; border: 1px solid #ddd;'>` +

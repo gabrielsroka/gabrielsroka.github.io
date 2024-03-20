@@ -1,9 +1,24 @@
-/*
-Sample CSV. Header row is required and case-sensitive:
+javascript:
+/* 
+Bookmarklet name: /Import Users CSV#
+
+Setup:
+Drag/drop or copy/paste all of this to your bookmark toolbar. Or:
+Create a Chrome Snippet for JavaScript:
+1. Press F12 (Windows) to open DevTools.
+2. Go to Sources > Snippets, click New Snippet.
+3. Give it a name, eg, "Import Users from CSV".
+4. Copy/paste the code.
+5. Save (Ctrl+S, Windows).
+
+Usage:
+1. Sign in to Okta Admin Console.
+2. If using the bookmark, click it. Or, if using a snippet, click the Run button on the bottom right or press Ctrl+Enter (Windows).
+3. Look for the popup window in the upper-left corner of your browser.
+
+Example CSV. Header row is required and case-sensitive:
 login,firstName,lastName,email,groupIds
 addgroupJS@okta.com,add,group,addgroup@okta.com,"00gp70td8aRPYVumf0h7;00gp70td8aRPYVumf0h7"
-
-this is serial and slow.
 */
 
 (function () {
@@ -24,8 +39,7 @@ this is serial and slow.
 
         const lines = file.split(lineSeparator);
         const fields = lines.shift().split(fieldSeparator);
-        const headers = {};
-        fields.forEach((val, i) => headers[val] = i); // Map header name to number.
+        const headers = Object.fromEntries(fields.map((val, i) => [val, i])); /* Map header name to number. */
 
         lines.forEach(line => {
             if (line == '') return;

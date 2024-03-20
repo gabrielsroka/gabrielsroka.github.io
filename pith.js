@@ -31,6 +31,9 @@ function run(lines) {
                 .replace('elif', 'else if')
                 .replace('if ', 'if (');
             line += ')';
+        } else if (tLine.startsWith('catch ')) {
+            line = line.replace('catch ', 'catch (');
+            line += ')';
         } else if (tLine.startsWith('#')) {
             line = line.replace('#', '//');
         } else if (tLine.startsWith('print ') || tLine.startsWith('?')) {
@@ -88,4 +91,8 @@ function sum(it) {
         total += n;
     }
     return total;
+}
+
+async function sleep(delay) {
+    return new Promise(res => setTimeout(res, delay));
 }

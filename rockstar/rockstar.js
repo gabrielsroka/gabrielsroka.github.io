@@ -291,6 +291,31 @@
                 event.preventDefault();
             };
         });
+
+        createDiv('Show Linked Objects', mainPopup, async function () {
+            const loPopup = createPopup('Linked Objects');
+            const los = await getJson('/api/v1/meta/schemas/user/linkedObjects');
+            for (const lo of los) {
+                getLink(lo.primary);
+                getLink(lo.associated);
+            }
+            async function getLink(lo) {
+                const div = loPopup[0].appendChild(document.createElement('div'));
+                div.innerHTML = lo.title + '<br>Loading...<br><br>';
+                const userId = location.pathname.split('/').pop();
+                const links = await getJson(`/api/v1/users/${userId}/linkedObjects/${lo.name}`);
+            
+                const rows = await Promise.all(links.map(async link => {
+                    const user = await getJson(new URL(link._links.self.href).pathname);
+                    return `${user.profile.firstName} ${user.profile.lastName} (${user.profile.email})`.link(`/admin/user/profile/view/${user.id}`);
+                }));
+                div.innerHTML = lo.title + '<br>' + (rows.length ? rows.sort().join('<br>') : '(none)') + '<br><br>';
+            }
+            async function getJson(url) {
+                const r = await fetch(url);
+                return r.json();
+            }
+        });
     }
 
     function directoryGroups() {
@@ -711,14 +736,14 @@
                 var object = objects[i];
                 var line = template(object);
                 if (line.then) {
-                    line.then(ln => lines.push(ln + "\n"));
+                    line.then(ln => lines.push(ln + '\n'));
                 } else {
-                    lines.push(line + "\n");
+                    lines.push(line + '\n');
                     totalBytes += line.length + 1;
                 }
             }
             total += objects.length;
-            exportPopup.html(total + " " + objectType + "...<br>~" + totalBytes + ' bytes<br><br>');
+            exportPopup.html(total.toLocaleString() + " " + objectType + "...<br>~" + totalBytes.toLocaleString() + ' bytes<br><br>');
             createDivA("Cancel", exportPopup, () => cancel = true);
             if (cancel) {
                 exportPopup.parent().remove();
@@ -745,12 +770,12 @@
                 }
             } else {
                 if (total == lines.length) {
-                    downloadCSV(exportPopup, total + " " + objectType + " exported, ~" + (totalBytes + header.length) + ' bytes. ', header, lines, `Export ${objectType}`);
+                    downloadCSV(exportPopup, total.toLocaleString() + " " + objectType + " exported, ~" + (totalBytes + header.length).toLocaleString() + ' bytes. ', header, lines, `Export ${objectType}`);
                 } else {
                     exportPopup.html("Processing..."); // Wait for other fetches to finish.
                     var intervalID = setInterval(() => {
                         if (total == lines.length) {
-                            downloadCSV(exportPopup, total + " " + objectType + " exported, ~" + (totalBytes + header.length) + ' bytes. ', header, lines, `Export ${objectType}`);
+                            downloadCSV(exportPopup, total.toLocaleString() + " " + objectType + " exported, ~" + (totalBytes + header.length).toLocaleString() + ' bytes. ', header, lines, `Export ${objectType}`);
                             clearInterval(intervalID);
                         }
                     }, 300);
@@ -966,10 +991,10 @@
             url.focus();
             var datalist = form.appendChild(document.createElement("datalist"));
             datalist.id = "urls";
-            const paths = 'apps,apps/${appId},apps/${appId}/groups,apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,eventHooks,features,' + 
+            const paths = 'apps,apps/${appId},apps/${appId}/groups,apps/${appId}/users,apps?filter=user.id eq "${userId}",authorizationServers,devices,eventHooks,features,' + 
                 'groups,groups/${groupId},groups/${groupId}/roles,groups/${groupId}/users,groups/rules,idps,inlineHooks,logs,mappings,policies?type=${type},' + 
                 'meta/schemas/apps/${instanceId}/default,meta/schemas/user/default,meta/schemas/user/linkedObjects,meta/types/user,sessions/me,templates/sms,trustedOrigins,' + 
-                'users,users/me,users/${userId},users/${userId}/appLinks,users/${userId}/factors,users/${userId}/lifecycle/reset_factors,users/${userId}/groups,users/${userId}/roles,zones';
+                'users,users/me,users/${userId},users/${userId}/appLinks,users/${userId}/factors,users/${userId}/groups,users/${userId}/roles,zones';
             datalist.innerHTML = paths.split(',').map(path => `<option>/api/v1/${path}`).join("") + "<option>/oauth2/v1/clients";
             var send = form.appendChild(document.createElement("input"));
             send.type = "submit";
@@ -1149,7 +1174,7 @@
         createPrefixA("", html, parent, clickHandler);
     }
     function createPrefixA(prefix, html, parent, clickHandler) {
-        $(`${prefix}<a style='cursor: pointer'>${html}</a>`).appendTo(parent).click(clickHandler);
+        $(`${prefix}<a style='cursor: pointer' class='icon-16'>${html}</a>`).appendTo(parent).click(clickHandler);
     }
     function createDivA(html, parent, clickHandler) {
         $(`<div><a style='cursor: pointer' class='link-button'>${html}</a></div>`).appendTo(parent).click(clickHandler);
@@ -1158,7 +1183,7 @@
         $(`<div class=hoverDiv>${html}</div>`).appendTo(parent).click(clickHandler);
     }
     function getLinks(linkHeader) {
-        var headers = linkHeader.split(", ");
+        var headers = linkHeader.split(/, */);
         var links = {};
         for (var i = 0; i < headers.length; i++) {
             var [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
@@ -1253,8 +1278,8 @@
     }
     function downloadCSV(popup, html, header, lines, filename) {
         popup.html(html + "Done.");
-        lines.unshift(header + "\n");
         var a = $("<a>").appendTo(popup);
+        lines.unshift(header + '\n');
         a.attr("href", URL.createObjectURL(new Blob(lines, {type: 'text/csv'})));
         var date = (new Date()).toISOString().replace(/T/, " ").replace(/:/g, "-").slice(0, 19);
         a.attr("download", `${filename} ${date}.csv`);

@@ -10,7 +10,7 @@ Setup:
 Or, copy/paste this code to the browser console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
-3. Give it a name, eg, "SearchUsers.js".
+3. Give it a name, eg, "SearchUsers".
 4. Copy/paste this code.
 5. Save (Ctrl+S, Windows).
 
@@ -50,8 +50,8 @@ Usage:
             users = [];
             oldSearchStatus = searchStatus.value;
             popup.find('div.results').html('Loading...');
-            for await (const page of getPages('/api/v1/users' + (searchStatus.value ? `?search=status eq "${searchStatus.value}"` : ''))) {
-                users = users.concat(page);
+            for await (const user of getObjects('/api/v1/users' + (searchStatus.value ? `?search=status eq "${searchStatus.value}"` : ''))) {
+                users.push(user);
                 popup.find('div.results').html('Loading... ' + users.length + ' users.');
             }
         }
@@ -69,11 +69,11 @@ Usage:
                 (found.length ? `<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status<th>${attr.value}` + found.join('') + '</table>' : ''));
     });
 
-    async function* getPages(url) {
+    async function* getObjects(url) {
         while (url) {
             const r = await fetch(url);
-            const page = await r.json();
-            yield page;
+            const objects = await r.json();
+            for (const o of objects) yield o;
             url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
         }
     }

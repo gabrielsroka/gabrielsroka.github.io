@@ -1,25 +1,27 @@
-export async function* getPages(url, params = '') {
-    while (url) {
-        const r = await get(url + params);
-        const page = await r.json();
-        yield page;
-        url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
-    }
+// import * as okta from './okta.js';
+
+let baseUrl;
+let _options;
+
+export function init(url, options = {}) {
+    baseUrl = url;
+    _options = options;
+    _options.headers = _options.headers || {};
+    _options.headers['Content-Type'] = 'application/json';
 }
 
-export async function* getObjects(url, params) {
-    for await (const objects of getPages(url, params)) {
-        for (const o of objects) {
-            yield o;
-        }
-    }
+export async function get(path) {
+    return fetchOkta(path, {method: 'GET'});
 }
 
-export async function get(url) {
-    return fetch(url);
+export async function post(path, body) {
+    return fetchOkta(path, {method: 'POST', body: JSON.stringify(body)});
 }
 
-export async function getJson(url) {
-    const r = await get(url);
-    return r.json();
+export async function put(path, body) {
+    return fetchOkta(path, {method: 'PUT', body: JSON.stringify(body)});
+}
+
+async function fetchOkta(path, init) {
+    return fetch(baseUrl + path, {..._options, ...init});
 }

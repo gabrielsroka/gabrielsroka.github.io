@@ -65,10 +65,11 @@ ul {
 <span id=burger style='font-size: 24px;'>≡</span>
 <span id=notificationMenu style='float: right;'>🔔</span>
 <ul id=menu class=hide>
-<li><a href="/">Gabriel Sroka</a>
+<li><a href='/'>Gabriel Sroka</a>
 <li><a href='https://gsroka-neto.oktapreview.com'>Okta Home</a>
 <li><span id=refresh>Refresh</span>
-<li><a href='/login.htm?signout'>Sign out</a> 
+<li><a href='/login.htm?signout'>Sign out</a>
+<li><a href='https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/home.htm' target=_blank>src</a>
 </ul>
 </nav>
 <main>
@@ -90,7 +91,7 @@ ul {
 <script>
 // For this to work, enable CORS in Okta: Security > API > Trusted Origins > Add Origin > CORS.
 const baseUrl = 'https://gsroka-neto.oktapreview.com';
-const latlong = '33.7737,-118.1365'; // or use getPosition below...
+const latlong = '33.6705004,-117.9198422'; // or use getPosition below...
 const rssKey = 'bktpucfcehpay70oarqhspsrzyt9wbjebfvhqkwb'; // you need your own... they're free from https://rss2json.com and you can lock it to your domain
 
 onload = () => {
@@ -154,7 +155,7 @@ async function getWeather() {
         `${hi}° ↑ &nbsp; • &nbsp; ${lo}° ↓ (${forecast.upd})` +
         `<span style='float: right;'>${forecast.hourly.shortForecast}</span>` +
         `<div><span style='font-size: 64px;'>${forecast.hourly.temperature}°</span>` +
-        `<span style='float: right;'><img src='${forecast.hourly.icon}' style='margin-top: 4px;'></span></div></a>`;
+        `<span style='float: right;'><img src='${forecast.hourly.icon.replace(/,0/, '')}' style='margin-top: 4px;'></span></div></a>`;
 }
 
 async function getForecast() {

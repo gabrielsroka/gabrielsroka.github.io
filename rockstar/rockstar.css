@@ -28,3 +28,6 @@
 .hoverDiv:hover {
     background-color: #f0f0f0;
 }
+.rs_headerTable td {
+    padding: 8px;
+}

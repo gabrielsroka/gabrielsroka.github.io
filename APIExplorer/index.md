@@ -16,7 +16,7 @@ Or, copy this code to the browser Console, or, if using Chrome, to a Snippet:
 # Usage
 1. Navigate your browser to your Okta admin console.
 2. Press F12 (Windows) to open DevTools.
-3. Run the code. Click the bookmarklet, of if using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
+3. Run the code. Click the bookmarklet, or if using a Snippet, there's a Run button on the bottom right, or press Ctrl+Enter (Windows).
 4. Look for the popup window in the upper-left corner of your browser.
 
 Check out the [Source Code](https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/SearchGroups.js)
@@ -26,12 +26,12 @@ I've long been fascinated by the abillity to run arbitrary JavaScript against a 
 
 Now I write more complex scripts like this one. I can add HTML/CSS popups and power them with JavaScript.
 
-Browsers have gotten better at this, too. Chrome, for example, has a fairly complete set of [developer tools](https://developer.chrome.com/docs/devtools/) for writing and debugging JavaScript.
+Browsers have gotten better at this, too. Chrome, for example, has a fairly complete set of [DevTools](https://developer.chrome.com/docs/devtools/) for writing and debugging JavaScript.
 
 # How
 There are a few options for running your JavaScript on someone else's website:
 - the address bar using the `javascript:` scheme. For example, `javascript:alert('hi')` [1]. Note that some browsers remove the `javascript:` part if you paste it in, and some browsers or sites block these.
-- bookmarklets - like regular bookmarks, but they can run JavaScript [2]. These even work on mobile browsers, which usually don't have dev tools! You can host them on sites like GitHub so you can share them, update them, etc. For example, drag this to your bookmark toolbar, then click it: 
+- bookmarklets - like regular bookmarks, but they can run JavaScript [2]. These even work on mobile browsers, which usually don't have DevTools! You can host them on sites like GitHub so you can share them, update them, etc. For example, drag this to your bookmark toolbar, then click it: 
 ```js
 javascript:
 (function () {

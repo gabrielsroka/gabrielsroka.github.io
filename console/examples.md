@@ -516,15 +516,12 @@ groupName.onkeyup = () => {
       if (!groups.find(g => g.id == group.id)) groups.push(group)
       msg = ''
     } else msg = 'No results found. '
-    showGroups(msg)
+    groupInfo.innerHTML = msg + groups.map(g => '<span class=group>' + link('/admin/group/' + g.id, g.profile.name) + ` &nbsp;<button id=${g.id}>x</button></span>`).join(' ')
+    groupInfo.querySelectorAll('button').forEach(button => button.onclick = () => {
+      groups = groups.filter(g => g.id != button.id)
+      button.parentNode.remove()
+    })
   }, 400)
-}
-function showGroups(msg = '') {
-  groupInfo.innerHTML = msg + groups.map(g => '<span class=group>' + link('/admin/group/' + g.id, g.profile.name) + ` &nbsp;<button id=${g.id}>X</button></span>`).join(' ')
-  groupInfo.querySelectorAll('button').forEach(btn => btn.onclick = () => {
-    groups = groups.filter(g => g.id != btn.id)
-    showGroups()
-  })
 }
 save.onclick = async () => {
   body = {name: ruleName.value, conditions: {expression: {value: expression.value, type: 'urn:okta:expression:1.0'}}, actions: {assignUserToGroups: {groupIds: groups.map(g => g.id)}}, type: 'group_rule'}

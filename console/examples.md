@@ -487,41 +487,38 @@ async function evalExpression() {
   else h = err + "User doesn't match rule"
   infobox.innerHTML = h
 }
-timeout = 0
-userName.onkeyup = event => {
+userName.onkeyup = async event => {
   infobox.innerHTML = '&nbsp;'
   if (event.keyCode == ENTER) {
     evalExpression()
     return
   }
-  clearTimeout(timeout)
+  debounce()
   if (userName.value.length < 2) return
-  timeout = setTimeout(async () => {
-    users = await getJson('/api/v1/users?' + new URLSearchParams({limit: 1, q: userName.value}))
-    user = users[0]
-    if (!user) {
-      userInfo.innerHTML = 'No results found'
-      return
-    }
-    userInfo.innerHTML = link('/admin/user/profile/view/' + user.id, user.profile.firstName + ' ' + user.profile.lastName) + ', login: ' + user.profile.login + ', email: ' + user.profile.email
-  }, 400)
+  await sleep(400)
+  users = await getJson('/api/v1/users?' + new URLSearchParams({limit: 1, q: userName.value}))
+  user = users[0]
+  if (!user) {
+    userInfo.innerHTML = 'No results found'
+    return
+  }
+  userInfo.innerHTML = link('/admin/user/profile/view/' + user.id, user.profile.firstName + ' ' + user.profile.lastName) + ', login: ' + user.profile.login + ', email: ' + user.profile.email
 }
-groupName.onkeyup = () => {
-  clearTimeout(timeout)
+groupName.onkeyup = async () => {
+  debounce()
   if (groupName.value.length < 2) return
-  timeout = setTimeout(async () => {
-    foundGroups = await getJson('/api/v1/groups?' + new URLSearchParams({limit: 1, filter: 'type eq "OKTA_GROUP"', q: groupName.value}))
-    group = foundGroups[0]
-    if (group) {
-      if (!groups.find(g => g.id == group.id)) groups.push(group)
-      msg = ''
-    } else msg = 'No results found. '
-    groupInfo.innerHTML = msg + groups.map(g => '<span class=group>' + link('/admin/group/' + g.id, g.profile.name) + ` &nbsp;<button id=${g.id}>x</button></span>`).join(' ')
-    groupInfo.querySelectorAll('button').forEach(button => button.onclick = () => {
-      groups = groups.filter(g => g.id != button.id)
-      button.parentNode.remove()
-    })
-  }, 400)
+  await sleep(400)
+  foundGroups = await getJson('/api/v1/groups?' + new URLSearchParams({limit: 1, filter: 'type eq "OKTA_GROUP"', q: groupName.value}))
+  group = foundGroups[0]
+  if (group) {
+    if (!groups.find(g => g.id == group.id)) groups.push(group)
+    msg = ''
+  } else msg = 'No results found. '
+  groupInfo.innerHTML = msg + groups.map(g => '<span class=group>' + link('/admin/group/' + g.id, g.profile.name) + ` &nbsp;<button id=${g.id}>x</button></span>`).join(' ')
+  groupInfo.querySelectorAll('button').forEach(button => button.onclick = () => {
+    groups = groups.filter(g => g.id != button.id)
+    button.parentNode.remove()
+  })
 }
 save.onclick = async () => {
   body = {name: ruleName.value, conditions: {expression: {value: expression.value, type: 'urn:okta:expression:1.0'}}, actions: {assignUserToGroups: {groupIds: groups.map(g => g.id)}}, type: 'group_rule'}

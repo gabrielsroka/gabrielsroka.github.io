@@ -47,7 +47,7 @@ td {
 <div id=functionTable></div>
 <script id=code>
 (function () {
-  var cancel = false;
+  var cancel = false, timeout;
   const paths = location.pathname.split('/');
   const id = paths.pop() || paths.pop();
   const div = document.body.appendChild(document.createElement('div'));
@@ -187,7 +187,10 @@ for await (user of getObjects(url)) {\n
   }
   async function sleep(delay) /* delay in ms */ {
     statusBar.innerHTML = 'Sleeping ' + delay + ' ms';
-    return new Promise(r => setTimeout(r, delay));
+    return new Promise(resolve => timeout = setTimeout(resolve, delay));
+  }
+  function debounce() {
+    clearTimeout(timeout);
   }
   function link(url, text) {
     return `<a href="${url}" target=_blank>${text}</a>`;
@@ -209,15 +212,16 @@ for await (user of getObjects(url)) {\n
     rows = rows.map(row => toCSV(...Object.values(row))).join('\n');
     return hdr + rows;
   }
+  const zip = (a1, a2) => a1.map((a, i) => [a, a2[i]]);
   async function readCSV() {
     return new Promise(resolve => {
       results.innerHTML += '<input id=fileInput type=file accept=.csv>';
       fileInput.onchange = () => {
         const reader = new FileReader();
         reader.onload = () => {
-          const lines = reader.result.split(/\r\n|\r|\n/);
-          const headers = lines.shift().split(',');
-          resolve(lines.filter(line => line).map(line => Object.fromEntries(line.split(',').map((val, i) => [headers[i], val]))));
+          const lines = reader.result.split(/\r\n|\r|\n/).filter(l => l).map(l => l.split(','));
+          const headers = lines.shift();
+          resolve(lines.map(fields => Object.fromEntries(zip(headers, fields))));
         };
         reader.readAsText(fileInput.files[0]);
       };

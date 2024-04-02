@@ -493,9 +493,7 @@ userName.onkeyup = async event => {
     evalExpression()
     return
   }
-  debounce()
-  if (userName.value.length < 2) return
-  await sleep(400)
+  if (await debounce(userName)) return
   users = await getJson('/api/v1/users?' + new URLSearchParams({limit: 1, q: userName.value}))
   user = users[0]
   if (!user) {
@@ -505,9 +503,7 @@ userName.onkeyup = async event => {
   userInfo.innerHTML = link('/admin/user/profile/view/' + user.id, user.profile.firstName + ' ' + user.profile.lastName) + ', login: ' + user.profile.login + ', email: ' + user.profile.email
 }
 groupName.onkeyup = async () => {
-  debounce()
-  if (groupName.value.length < 2) return
-  await sleep(400)
+  if (await debounce(groupName)) return
   foundGroups = await getJson('/api/v1/groups?' + new URLSearchParams({limit: 1, filter: 'type eq "OKTA_GROUP"', q: groupName.value}))
   group = foundGroups[0]
   if (group) {

@@ -24,7 +24,7 @@ Usage:
     const schema = await r.json();
     const props = {...schema.definitions.base.properties, ...schema.definitions.custom.properties};
 
-    const popup = createPopup('Search users');
+    const popup = createPopup('Search Users');
     const statuses = {
         '': 'All',
         STAGED: 'Staged',
@@ -55,18 +55,19 @@ Usage:
                 popup.find('div.results').html('Loading... ' + users.length + ' users.');
             }
         }
-        users.sort((u1, u2) => 
+        const sortFn = 
             ['number', 'integer'].includes(props[attr.value].type) ?
-            (u1.profile[attr.value] === undefined ? -1 : u2.profile[attr.value] === undefined ? 1 : u1.profile[attr.value] - u2.profile[attr.value]) : 
-            (u1.profile[attr.value] ?? '').localeCompare(u2.profile[attr.value]));
+            (u1, u2) => (u1.profile[attr.value] === undefined ? -1 : u2.profile[attr.value] === undefined ? 1 : u1.profile[attr.value] - u2.profile[attr.value]) : 
+            (u1, u2) => (u1.profile[attr.value] ?? '').localeCompare(u2.profile[attr.value]);
         const re = new RegExp(form.find('input.search').val(), 'i');
         const pre = (p, ...ds) => p + ds.join(p);
         const found = users
-            .filter(user => re.test(user.profile[attr.value]))
-            .map(user => '<tr>' + pre('<td>', (user.profile.firstName + ' ' + user.profile.lastName).link('/admin/user/profile/view/' + user.id), user.profile.login, user.profile.email, statuses[user.status], user.profile[attr.value]));
+            .filter(u => re.test(u.profile[attr.value]))
+            .sort(sortFn)
+            .map(u => '<tr>' + pre('<td>', (u.profile.firstName + ' ' + u.profile.lastName).link('/admin/user/profile/view/' + u.id), u.profile.login, u.profile.email, statuses[u.status], u.profile[attr.value]));
         popup.find('div.results')
             .html(found.length + ` user${found.length == 1 ? '' : 's'} found` + 
-                (found.length ? `<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status<th>${attr.value}` + found.join('') + '</table>' : ''));
+                (found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status<th>' + attr.value + found.join('') + '</table>' : ''));
     });
 
     async function* getObjects(url) {
@@ -74,13 +75,13 @@ Usage:
             const r = await fetch(url);
             const objects = await r.json();
             for (const o of objects) yield o;
-            url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+            url = r.headers.get('link')?.match('<https://[^/]+([^>]+)>; rel="next"')?.[1];
         }
     }
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; ` +
                 `overflow: auto; background-color: white; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/SearchUsers.js' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
+            `${title}<div style='display: block; float: right;'><a href='https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/SearchUsers.js' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
             `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
         return $('<div></div>').appendTo(popup);
     }

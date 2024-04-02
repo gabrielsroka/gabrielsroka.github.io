@@ -189,8 +189,10 @@ for await (user of getObjects(url)) {\n
     statusBar.innerHTML = 'Sleeping ' + delay + ' ms';
     return new Promise(resolve => timeout = setTimeout(resolve, delay));
   }
-  function debounce() {
+  async function debounce(ctl) {
     clearTimeout(timeout);
+    if (ctl.value.length < 2) return true;
+    await sleep(400);
   }
   function link(url, text) {
     return `<a href="${url}" target=_blank>${text}</a>`;

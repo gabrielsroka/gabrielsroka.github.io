@@ -210,7 +210,7 @@ async function getFactors(user) {
 url = '/api/v1/devices?search=managementStatus eq "UNMAN"&expand=user&limit=20'
 for await (device of getObjects(url)) {
   for (user of device._embedded.users) {
-    log(device.id, user.managementStatus) // add more attrs...
+    log(device.id, user.managementStatus, user.user.id, user.user.profile.login) // add more attrs...
   }
 }
 ```

@@ -1,50 +1,34 @@
 async function main() {
-    var url = '/api/v1/apps';
+    const apps = [];
     const keys = {};
-    const out = [];
-    while (url) {
-        const response = await fetch(url);
-        const apps = await response.json();
-        for (const app of apps) {
-            const kid = app.credentials.signing.kid;
-            if (!kid) continue;
-            const key = keys[kid] || await getKey(app.id, kid);
-            out.push({appId: app.id, name: app.label, kid, exp: key.expiresAt, len: key.n.length, hash: key.hash, modLen: key.modLen, hack: key.hack});
-        }
-        console.log('found', out.length);
-        url = getNextUrl(response.headers.get('link'));
+    for await (const app of getObjects('/api/v1/apps')) {
+        const kid = app.credentials.signing.kid;
+        if (!kid) continue;
+        const key = keys[kid] || await getAppKey(app.id, kid);
+        apps.push({id: app.id, name: app.label, kid, exp: key.expiresAt, len: key.n.length, hash: key.hash, modLen: key.modLen, hack: key.hack});
+        console.log(apps.length, 'found');
     }
     console.clear();
-    console.table(out);
+    console.table(apps);
     
-    async function getKey(appId, kid) {
-        const r = await fetch(`/api/v1/apps/${appId}/credentials/keys/${kid}`);
+    async function getAppKey(id, kid) {
+        const r = await fetch(`/api/v1/apps/${id}/credentials/keys/${kid}`);
         const key = await r.json();
         const cert = new x509.X509Certificate(key.x5c[0]);
         key.hash = cert.signatureAlgorithm.hash.name;
         key.modLen = cert.publicKey.algorithm.modulusLength;
         const oid = atob(key.x5c[0]).charCodeAt(33); // https://redkestrel.co.uk/products/decoder/
-        key.hack = oid == 5 ? 'sha-1' : oid == 11 ? 'sha-256' : '?'; // 5 = sha1, 11 = sha256
+        key.hack = oid == 5 ? 'sha-1' : oid == 11 ? 'sha-256' : '?';
         keys[kid] = key;
         return key;
     }
-    function getNextUrl(linkHeader) {
-        const links = getLinks(linkHeader);
-        if (links.next) {
-            const nextUrl = new URL(links.next); /* links.next is an absolute URL; we need a relative URL. */
-            return nextUrl.pathname + nextUrl.search;
-        } else {
-            return null;
+    async function* getObjects(url) {
+        while (url) {
+            const r = await fetch(url);
+            const objects = await r.json();
+            for (const o of objects) yield o;
+            url = r.headers.get('link')?.match('<https://[^/]+([^>]+)>; rel="next"')?.[1];
         }
-    }
-    function getLinks(linkHeader) {
-        var headers = linkHeader.split(", ");
-        var links = {};
-        for (var i = 0; i < headers.length; i++) {
-            var [, url, name] = headers[i].match(/<(.*)>; rel="(.*)"/);
-            links[name] = url;
-        }
-        return links;
     }
 }
 

@@ -364,13 +364,14 @@ report(url, cols, 'groups')
 ```js
 // List SAML 2.0 apps using https://gabrielsroka.github.io/console
 
-apps = (await getAll('/api/v1/apps', 'apps')).filter(app => app.signOnMode == 'SAML_2_0')
+allApps = await getAll('/api/v1/apps', 'apps')
+apps = allApps.filter(app => app.signOnMode == 'SAML_2_0').sort(key('label'))
 apps.forEach(a => a.attributes = a.settings.signOn?.attributeStatements?.filter(s => s.type == 'EXPRESSION').map(s => s.values) || [])
-tableApps = apps.sort(key('label')).map(app => ({
-  Label: link('/admin/app/' + app.name + '/instance/' + app.id, app.label),
+results.innerHTML = apps.length + ' apps found<br><button id=exportCSV>Export CSV</button>'
+tableApps = apps.map(app => ({
+  App: link('/admin/app/' + app.name + '/instance/' + app.id, app.label),
   Attributes: app.attributes.join('<br>')
 }))
-results.innerHTML += '<br><button id=exportCSV>Export CSV</button>'
 table(tableApps)
 csvApps = csv(apps.map(app => ({id: app.id, name: app.name, label: app.label, attributes: app.attributes.join('\n')})))
 exportCSV.onclick = () => downloadCSV(csvApps, 'apps')

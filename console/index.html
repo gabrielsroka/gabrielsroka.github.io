@@ -89,14 +89,19 @@ for await (user of getObjects(url)) {\n
       [fileHandle] = await showOpenFilePicker();
       const file = await fileHandle.getFile();
       editor.value = await file.text();
-      fileName.innerText = file.name;
+      fileName.innerText = fileHandle.name;
     } catch { }
   };
   saveBtn.onclick = async () => {
-    if (!fileHandle) fileHandle = await showSaveFilePicker();
-    const writable = await fileHandle.createWritable();
-    await writable.write(editor.value);
-    await writable.close();
+    try {
+      if (!fileHandle) {
+        fileHandle = await showSaveFilePicker();
+        fileName.innerText = fileHandle.name;
+      }
+      const writable = await fileHandle.createWritable();
+      await writable.write(editor.value);
+      await writable.close();
+    } catch { }
   };
   closeBtn.onclick = () => document.body.removeChild(div);
   editor.onkeydown = function (event) {

@@ -33,7 +33,7 @@ td {
 <h2>Setup</h2>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>console v12</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>console v14</a> to the bookmarks toolbar.
 </ol>
 <h2>Usage</h2>
 <ol>
@@ -54,9 +54,12 @@ td {
   const style = `style='display: inline-block;'`;
   div.innerHTML = `<button id=run title='Ctrl+Enter' ${style}>Run</button>
    <button id=cancelBtn title=Esc ${style}>Cancel</button>
+   <button id=openBtn ${style}>Open</button>
+   <button id=saveBtn ${style}>Save</button>
    <button id=closeBtn ${style}>Close</button>
+   <span id=fileName>Untitled</span>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
-   <a href=https://gabrielsroka.github.io/console target=_blank>src v12</a>
+   <a href=https://gabrielsroka.github.io/console target=_blank>src v14</a>
    <span id=statusBar></span><br>
    <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 // List users using https://gabrielsroka.github.io/console\n
@@ -80,6 +83,21 @@ for await (user of getObjects(url)) {\n
     eval('(async function () {' + editor.value + '\n})()');
   };
   cancelBtn.onclick = () => cancel = true;
+  var fileHandle;
+  openBtn.onclick = async () => {
+    try {
+      [fileHandle] = await showOpenFilePicker();
+      const file = await fileHandle.getFile();
+      editor.value = await file.text();
+      fileName.innerText = file.name;
+    } catch { }
+  };
+  saveBtn.onclick = async () => {
+    if (!fileHandle) fileHandle = await showSaveFilePicker();
+    const writable = await fileHandle.createWritable();
+    await writable.write(editor.value);
+    await writable.close();
+  };
   closeBtn.onclick = () => document.body.removeChild(div);
   editor.onkeydown = function (event) {
     const ENTER = 13, ESC = 27;

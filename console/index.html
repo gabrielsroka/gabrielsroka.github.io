@@ -54,8 +54,9 @@ td {
   const style = `style='display: inline-block;'`;
   div.innerHTML = `<button id=run title='Ctrl+Enter' ${style}>Run</button>
    <button id=cancelBtn title=Esc ${style}>Cancel</button>
-   <button id=openBtn ${style}>Open</button>
-   <button id=saveBtn ${style}>Save</button>
+   <button id=newBtn ${style}>New</button>
+   <button id=openBtn title='Ctrl+O' ${style}>Open</button>
+   <button id=saveBtn title='Ctrl+S' ${style}>Save</button>
    <button id=closeBtn ${style}>Close</button>
    <span id=fileName>Untitled</span>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
@@ -84,6 +85,11 @@ for await (user of getObjects(url)) {\n
   };
   cancelBtn.onclick = () => cancel = true;
   var fileHandle;
+  newBtn.onclick = () => {
+    fileHandle = undefined;
+    editor.value = '';
+    fileName.innerText = 'Untitled';
+  };
   openBtn.onclick = async () => {
     try {
       [fileHandle] = await showOpenFilePicker();
@@ -110,6 +116,12 @@ for await (user of getObjects(url)) {\n
       run.onclick();
     } else if (event.keyCode == ESC) {
       cancelBtn.onclick();
+    } else if (event.ctrlKey && event.key == 'o') {
+      event.preventDefault();
+      openBtn.onclick();
+    } else if (event.ctrlKey && event.key == 's') {
+      event.preventDefault();
+      saveBtn.onclick();
     }
   };
   function log(...s) {

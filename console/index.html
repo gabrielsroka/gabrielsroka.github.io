@@ -128,11 +128,16 @@ for await (user of getObjects(url)) {\n
     debug.value += s.join(' ') + '\n';
     debug.scrollTo(0, debug.scrollHeight);
   }
-  function table(rows) {
+  function table(rows, cols, sort) {
     if (!Array.isArray(rows)) {
       rows = Object.entries(rows).map(([name, value]) => ({name, value}));
     }
     if (rows.length == 0) return;
+    if (cols) {
+      cols = cols.split(',');
+      rows = rows.map(obj => Object.fromEntries(cols.map(c => [c, dot(obj, c)])));
+    }
+    if (sort) rows.sort(key(sort));
     const pre = (p, ds) => ds.map(d => p + d).join('');
     const hdr = '<tr>' + pre('<th>', Object.keys(rows[0]));
     rows = pre('<tr>', rows.map(row => pre('<td>', Object.values(row))));
@@ -276,9 +281,10 @@ for await (user of getObjects(url)) {\n
     }
     return objs;
   }
-  async function report(url, cols, name, ui = true) {
+  async function report(url, cols, name, ui = true, sort) {
     cols = cols.split(',');
     const objs = (await getAll(url, name)).map(obj => Object.fromEntries(cols.map(c => [c, dot(obj, c)])));
+    if (sort) objs.sort(key(sort));
     if (ui) {
       results.innerHTML += '<br><button id=exportCSV>Export CSV</button>';
       table(objs);
@@ -286,14 +292,13 @@ for await (user of getObjects(url)) {\n
     } else {
       downloadCSV(csv(objs), name);
     }
-  
-    function dot(o, dots) {
-      for (const p of dots.split('.')) {
-        o = o[p];
-        if (o == null) break;
-      }
-      return o;
+  }
+  function dot(o, dots) {
+    for (const p of dots.split('.')) {
+      o = o[p];
+      if (o == null) break;
     }
+    return o;
   }
 })
 </script>

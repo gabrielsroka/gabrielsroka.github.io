@@ -39,12 +39,13 @@
             identityProviders();
         }
 
-        $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
-        $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
+        // $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
+        // $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
         var count = 0;
         const intervalID = setInterval(() => { // new admin
             if (count++ == 25) clearInterval(intervalID);
             if (!document.querySelector('[data-se=o-side-nav-item-APPLICATIONS] ul')) return;
+            $("<li><a class='nav-item--wrapper' href='/admin/groups#rules'><p class='nav-item--label'>Group Rules</p></a>").appendTo('[data-se=o-side-nav-item-DIRECTORY] ul');
             $("<li><a class='nav-item--wrapper' href='/admin/apps/add-app'><p class='nav-item--label'>Integration Network</p></a>").appendTo('[data-se=o-side-nav-item-APPLICATIONS] ul');
             $("<li><a class='nav-item--wrapper' href='/admin/access/api/tokens'><p class='nav-item--label'>API Tokens</p></a>").appendTo('[data-se=o-side-nav-item-SECURITY] ul');
             clearInterval(intervalID);
@@ -447,7 +448,7 @@
                     group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type));
             });
             createDiv("Export Groups with User and App Counts", mainPopup, function () {
-                startExport("Groups", "/api/v1/groups?expand=stats", "id,name,description,type,usersCount,appsCount", 
+                startExport("Groups", "/api/v1/groups?expand=stats&limit=1000", "id,name,description,type,usersCount,appsCount", 
                     group => toCSV(group.id, group.profile.name, group.profile.description || "", group.type, group._embedded.stats.usersCount, group._embedded.stats.appsCount), 'stats');
             });
             createDiv("Export Group Rules", mainPopup, function () {

@@ -57,11 +57,11 @@
   overflow: visible !important;
 }
 
-#maListe li::marker {
+#resultsList li::marker {
   color: transparent;
 }
 
-a#afficherPlus {
+a#showMore {
   display: block;
   text-align: right;
   margin-bottom: 10px;

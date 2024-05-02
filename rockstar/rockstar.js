@@ -1025,39 +1025,39 @@
 
     //Function show 10 more
     function displayMoreOrLess() {
-        var nbAffiches = 10; // Number of items initially displayed
-        var items = document.querySelectorAll("#maListe li");
+        var shownItemCount = 10; // Number of items initially displayed
+        var items = document.querySelectorAll("#resultsList li");
         var totalItems = items.length;
-        var bouton = document.getElementById("afficherPlus");
+        var bouton = document.getElementById("showMore");
         var isShowingMore = false; // Flag to track whether we show more elements or not
 
         function updateButtonLabel() {
             bouton.textContent = isShowingMore ? "Show less" : "Show more";
         }
 
-        function afficherItems() {
+        function displayItems() {
             for (var i = 0; i < totalItems; i++) {
-                items[i].style.display = i < nbAffiches ? 'list-item' : 'none';
+                items[i].style.display = i < shownItemCount ? 'list-item' : 'none';
             }
             updateButtonLabel();
         }
 
-        function toggleAffichage() {
+        function toggleDisplay() {
             if (isShowingMore) {
                 // If we currently show more elements, we reduce to 10
-                nbAffiches = 10;
+                shownItemCount = 10;
                 isShowingMore = false;
             } else {
                 // Else, show all other elements
-                nbAffiches = totalItems;
-                isShowingMore = nbAffiches < totalItems ? false : true; // Update depending on whether all items are shown or not
+                shownItemCount = totalItems;
+                isShowingMore = shownItemCount < totalItems ? false : true; // Update depending on whether all items are shown or not
             }
-            afficherItems();
+            displayItems();
         }
 
-        afficherItems(); // Initially displays items
+        displayItems(); // Initially displays items
 
-        bouton.addEventListener("click", toggleAffichage);
+        bouton.addEventListener("click", toggleDisplay);
     }
 
     // Time formatting function
@@ -1073,8 +1073,7 @@
 
     // Basic setup CONST
     const backuptaConfig = {
-        baseUrl: "https://demo-backupta-plugin-admin.okta.com/api/v1/logs",
-        apiToken: "00OxBrTD_SIqgrUJm4CKff3QF4Fp4wCYya8nsmx65k", // Assurez-vous de charger ce token de manière sécurisée
+        baseUrl: "/api/v1/logs",
         popupTitle: {
             users: "Last deleted users",
             groups: "Last deleted Groups",
@@ -1106,20 +1105,15 @@
         // const url = config.baseUrl;
         // Set date to ajax request
         var threeWeeksAgo = new Date();
-        threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21); // 3 semaines = 21 jours
+        threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21); // 3 weeks = 21 days
         var dateString = threeWeeksAgo.toISOString();
         var url = backuptaConfig.baseUrl + "?since=" + dateString; // adding the filter to the query
-        const apiToken = backuptaConfig.apiToken; // Improve token security
         const { userListPopup, searchInputHTML } = createPopupWithSearch(backuptaConfig.popupTitle[type], backuptaConfig.searchPlaceholder[type]);
 
         $.ajax({
             url: url,
             method: "GET",
-            headers: {
-                'Authorization': 'SSWS ' + apiToken,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
+            headers: headers,
             data: {
                 limit: 100,
                 q: backuptaConfig.query[type]
@@ -1127,10 +1121,10 @@
             success: function (data) {
                 displayResults(data, userListPopup, searchInputHTML);
                 displayMoreOrLess();
-                console.log("Données récupérées pour les logs de plus de 3 semaines:", data);
+                console.log("Logs fetched for last 3 weeks:", data);
             },
             error: function (xhr, status, error) {
-                console.error("Erreur lors de la récupération des logs :", error);
+                console.error("Error fetching logs :", error);
             }
         });
     }
@@ -1138,7 +1132,7 @@
     // Function to display results
     function displayResults(data, userListPopup, searchInputHTML) {
         data.reverse();
-        let targetHTML = "<ul id='maListe'>";
+        let targetHTML = "<ul id='resultsList'>";
 
         data.forEach(function (log) {
             if (log.target && log.target.length > 0) {
@@ -1158,7 +1152,7 @@
         });
 
         targetHTML += "</ul>";
-        targetHTML += "<a id='afficherPlus'>Afficher plus</a><div id='parent_link-button'><button id='link-button' name='btnRestore'>Restore with Backupta</button></div>";
+        targetHTML += "<a id='showMore'>Show more</a><div id='parent_link-button'><button id='link-button' name='btnRestore'>Restore with Backupta</button></div>";
         userListPopup.html(targetHTML);
         $(userListPopup).prepend(searchInputHTML);
 

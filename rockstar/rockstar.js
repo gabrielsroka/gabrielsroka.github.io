@@ -14,24 +14,24 @@
     $ = window.$ || window.jQueryCourage;
     const headers = {'X-Okta-User-Agent-Extended': 'rockstar'};
 
-    const logsListPopups = {
-        users: {
+    const logListPopups = {
+        deletedUsers: {
             menuTitle: 'Deleted Users',
-            title: "Last deleted users",
+            title: "Latest deleted users",
             searchPlaceholder: "User name...",
             oktaFilter: 'eventType eq "user.lifecycle.delete"',
             backuptaFilterBy: 'type:DELETE;component:USERS',
         },
-        groups: {
+        deletedGroups: {
             menuTitle: 'Deleted Groups',
-            title: "Last deleted groups",
+            title: "Latest deleted groups",
             searchPlaceholder: "Group name...",
             oktaFilter: 'eventType eq "group.lifecycle.delete"',
             backuptaFilterBy: 'type:DELETE;component:GROUPS',
         },
-        apps: {
+        deletedApps: {
             menuTitle: 'Deleted Apps',
-            title: "Last deleted apps",
+            title: "Latest deleted apps",
             searchPlaceholder: "App name...",
             oktaFilter: 'eventType eq "application.lifecycle.delete"',
             backuptaFilterBy: 'type:DELETE;component:APPS',
@@ -49,12 +49,12 @@
         quickUpdate();
         if (location.pathname == "/admin/users") {
             directoryPeople();
-            openLogsList('users');
+            openLogList('deletedUsers');
         } else if (location.pathname.match("/admin/user/")) {
             directoryPerson();
         } else if (location.pathname == "/admin/groups") {
             directoryGroups();
-            openLogsList('groups');
+            openLogList('deletedGroups');
         } else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
         } else if (location.pathname.match("/report/system_log_2")) {
@@ -63,6 +63,8 @@
             activeDirectory();
         } else if (location.pathname == "/admin/access/identity-providers") {
             identityProviders();
+        } else if (location.pathname == "/admin/apps/active") {
+            openLogList('deletedApps');
         }
 
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
@@ -498,8 +500,6 @@
                     return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, enduserAppNotes, adminAppNotes);
                 });
             });
-
-            openLogsList('apps');
 
             createDiv("Export App Sign On Policies (experimental)", mainPopup, function () {
                 startExport("App Sign On Policies", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
@@ -1097,11 +1097,11 @@
 
     // Generic function to create a popup with search bar
     function createPopupWithSearch(popupTitle, searchPlaceholder) {
-        const logsListPopup = createPopup(popupTitle);
-        $(logsListPopup).parent().attr('id', 'logsListPopup');
+        const logListPopup = createPopup(popupTitle);
+        $(logListPopup).parent().attr('id', 'logListPopup');
         const searchInputHTML = `<input type='text' id='userSearch' placeholder='${searchPlaceholder}'>`;
-        $(logsListPopup).prepend(searchInputHTML);
-        return { logsListPopup, searchInputHTML };
+        $(logListPopup).prepend(searchInputHTML);
+        return { logListPopup, searchInputHTML };
     }
 
     // Generic function to perform AJAX requests and display results
@@ -1110,8 +1110,8 @@
         // Set date to ajax request
         var sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 60);
-        var popupConfig = logsListPopups[type];
-        const { logsListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
+        var popupConfig = logListPopups[type];
+        const { logListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
 
         $.ajax({
             url: "/api/v1/logs",
@@ -1123,7 +1123,7 @@
                 filter: popupConfig.oktaFilter
             },
             success: function (data) {
-                displayResults(popupConfig, data, logsListPopup, searchInputHTML);
+                displayResults(popupConfig, data, logListPopup, searchInputHTML);
                 displayMoreOrLess();
                 // console.log("Logs fetched for last 3 weeks:", data);
             },
@@ -1134,7 +1134,7 @@
     }
 
     // Function to display results
-    function displayResults(popupConfig, data, logsListPopup, searchInputHTML) {
+    function displayResults(popupConfig, data, logListPopup, searchInputHTML) {
         data.reverse();
         let targetHTML = "<ul id='resultsList'>";
 
@@ -1157,8 +1157,8 @@
 
         targetHTML += "</ul>";
         targetHTML += "<a id='showMore'>Show more</a><div id='parent_link-button'><button id='btnRestore' name='btnRestore'>Restore with Backupta</button></div>";
-        logsListPopup.html(targetHTML);
-        $(logsListPopup).prepend(searchInputHTML);
+        logListPopup.html(targetHTML);
+        $(logListPopup).prepend(searchInputHTML);
 
         function backuptaRestore() {
             var items = document.querySelectorAll("#resultsList li input[type='checkbox']:checked");
@@ -1185,10 +1185,10 @@
     }
 
     // Main function to generate div and get logs.
-    function openLogsList(type) {
-        createDiv(logsListPopups[type].menuTitle, mainPopup, function () {
-            if ($("#logsListPopup").length) {
-                $("#logsListPopup").remove();
+    function openLogList(type) {
+        createDiv(logListPopups[type].menuTitle, mainPopup, function () {
+            if ($("#logListPopup").length) {
+                $("#logListPopup").remove();
                 return;
             }
             fetchDataAndDisplay(type);

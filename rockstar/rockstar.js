@@ -53,11 +53,11 @@
         exportObjects();
         //createPrefixA("<li>", "Export Objects", "#nav-admin-reports-2", exportObjects);
         apiExplorer();
+        openBackuptaConfigPopup();
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar", true);
         quickUpdate();
         userHome();
-        ouvreMoiCettePopup();
     //} else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/reference/api/")) {
     //    tryAPI();
     }
@@ -979,49 +979,54 @@
     ///////////// START BACKUPTA FUNCTIONS /////////////
     ////////////////////////////////////////////////////
 
-    // Sous-menu interface users -> to potentially delete, see with Geoffrey
+    var defaultOktaDomain;
 
-    // function ouvreMoiCettePopup() {
-    //     createDiv("Ouvre un sous-menu", mainPopup, function () {
-    //         // Vérifiez si le sous-menu existe déjà et le supprimez si c'est le cas
-    //         if ($("#sousMenu").length) {
-    //             $("#sousMenu").remove();
-    //             return;
-    //         }
+    function initializeOktaDomain() {
+        getJSON('/api/v1/domains').then(domains => {
+            var defaultDomain = domains.domains.find(domain => domain.id === 'default');
+            defaultOktaDomain = defaultDomain.domain;
+        });
+    }
+    initializeOktaDomain();
 
-    //         // Utilisation de la fonction createPopup pour créer la popup
-    //         var sousMenu = createPopup("Sous-menu");
-    //         $(sousMenu).parent().attr('id', 'sousMenu');
+    function getBackuptaBaseUrl() {
+        return localStorage.getItem('BackuptaBaseUrl') || 'http://localhost:4200';
+    }
 
-    //         // Div pour afficher l'URL actuelle
-    //         $("<div class='hoverDiv'>Afficher URL actuelle</div>").appendTo(sousMenu).click(function () {
-    //             alert("URL actuelle : " + window.location.href);
-    //         });
+    function setBackuptaBaseUrl(newValue) {
+        localStorage.setItem('BackuptaBaseUrl', newValue);
+    }
 
-    //         // Div pour saisir le nom d'utilisateur
-    //         var userDiv = $("<div class='hoverDiv'>Entrez votre login: </div>").appendTo(sousMenu);
-    //         $("<input type='text' placeholder='Login'>").appendTo(userDiv)
-    //             .on('keypress', function (e) {
-    //                 if (e.which == 13) {
-    //                     alert("Login saisi : " + $(this).val());
-    //                     e.preventDefault(); // Prévenir la propagation
-    //                 }
-    //             });
+    function getBackuptaTenantId() {
+        // return window.location.host.replaceAll('.', '_').replace('-admin', '');
+        return defaultOktaDomain.replaceAll('.', '_');
+    }
 
-    //         // Div pour saisir le mot de passe
-    //         var passDiv = $("<div class='hoverDiv'>Entrez votre mot de passe: </div>").appendTo(sousMenu);
-    //         $("<input type='password' placeholder='Mot de passe'>").appendTo(passDiv)
-    //             .on('keypress', function (e) {
-    //                 if (e.which == 13) {
-    //                     alert("Mot de passe saisi : " + $(this).val());
-    //                     e.preventDefault(); // Prévenir la propagation
-    //                 }
-    //             });
+    function openBackuptaConfigPopup() {
+        createDiv("Backupta Config", mainPopup, function () {
+            var backuptaConfigPopup = createPopup("Backupta Configuration");
+            $(backuptaConfigPopup).parent().attr('id', 'backupta-configuration');
 
-    //         // Affichage du sous-menu
-    //         $(sousMenu).show();
-    //     });
-    // }
+            // Div pour afficher l'URL actuelle
+            $(`<div>Tenant id: ${getBackuptaTenantId()}</div>`).appendTo(backuptaConfigPopup);
+
+            // Function to update the value
+            function setInputValue(newValue) {
+                popups.backuptaUrl = newValue;
+            }
+
+            // Create the input element and set the default value
+            var backuptaUrlDiv = $("<div class='hoverDiv'>Backupta base URL: </div>").appendTo(backuptaConfigPopup);
+            $("<input type='text' placeholder='Login'>")
+                .val(getBackuptaBaseUrl()) // Set the default value
+                .appendTo(backuptaUrlDiv)
+                .on('input', function () { // Listen for the 'input' event to capture changes
+                    setBackuptaBaseUrl($(this).val());
+                });
+
+            $(backuptaConfigPopup).show();
+        });
+    }
 
     //Function show 10 more
     function displayMoreOrLess() {
@@ -1072,27 +1077,24 @@
     }
 
     // Basic setup CONST
-    const backuptaConfig = {
-        backuptaUrl: "http://localhost:4200",
-        popups: {
-            users: {
-                title: "Last deleted users",
-                searchPlaceholder: "User name...",
-                query: 'Delete Okta user completed',
-                filterBy: 'type:DELETE;component:USERS',
-            },
-            groups: {
-                title: "Last deleted groups",
-                searchPlaceholder: "Group name...",
-                query: 'delete Okta group',
-                filterBy: 'type:DELETE;component:GROUPS',
-            },
-            apps: {
-                title: "Last deleted apps",
-                searchPlaceholder: "App name...",
-                query: 'delete application"',
-                filterBy: 'type:DELETE;component:APPS',
-            },
+    const popups = {
+        users: {
+            title: "Last deleted users",
+            searchPlaceholder: "User name...",
+            query: 'Delete Okta user completed',
+            backuptaFilterBy: 'type:DELETE;component:USERS',
+        },
+        groups: {
+            title: "Last deleted groups",
+            searchPlaceholder: "Group name...",
+            query: 'delete Okta group',
+            backuptaFilterBy: 'type:DELETE;component:GROUPS',
+        },
+        apps: {
+            title: "Last deleted apps",
+            searchPlaceholder: "App name...",
+            query: 'delete application"',
+            backuptaFilterBy: 'type:DELETE;component:APPS',
         },
     };
 
@@ -1113,7 +1115,7 @@
         threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21); // 3 weeks = 21 days
         var dateString = threeWeeksAgo.toISOString();
         var url = "/api/v1/logs?since=" + dateString; // adding the filter to the query
-        var popupConfig = backuptaConfig.popups[type];
+        var popupConfig = popups[type];
         const { userListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
 
         $.ajax({
@@ -1165,8 +1167,7 @@
         function backuptaRestore() {
             var items = document.querySelectorAll("#resultsList li input[type='checkbox']:checked");
             var ids = Array.from(items).map(item => item.id)
-            var tenantId = window.location.host.replaceAll('.', '_').replace('-admin', '');
-            var targetUrl = `${backuptaConfig.backuptaUrl}/${tenantId}/changes?filter_by=${popupConfig.filterBy};id:${ids.join(',')}`;
+            var targetUrl = `${getBackuptaBaseUrl()}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
             // console.log('Restore in backupta', targetUrl, ids);
             window.open(targetUrl, '_blank');
         }

@@ -1028,11 +1028,11 @@
         var shownItemCount = 10; // Number of items initially displayed
         var items = document.querySelectorAll("#resultsList li");
         var totalItems = items.length;
-        var bouton = document.getElementById("showMore");
+        var button = document.getElementById("showMore");
         var isShowingMore = false; // Flag to track whether we show more elements or not
 
         function updateButtonLabel() {
-            bouton.textContent = isShowingMore ? "Show less" : "Show more";
+            button.textContent = isShowingMore ? "Show less" : "Show more";
         }
 
         function displayItems() {
@@ -1057,7 +1057,7 @@
 
         displayItems(); // Initially displays items
 
-        bouton.addEventListener("click", toggleDisplay);
+        button.addEventListener("click", toggleDisplay);
     }
 
     // Time formatting function
@@ -1073,22 +1073,27 @@
 
     // Basic setup CONST
     const backuptaConfig = {
-        baseUrl: "/api/v1/logs",
-        popupTitle: {
-            users: "Last deleted users",
-            groups: "Last deleted Groups",
-            apps: "Last deleted Apps"
+        backuptaUrl: "http://localhost:4200",
+        popups: {
+            users: {
+                title: "Last deleted users",
+                searchPlaceholder: "User name...",
+                query: 'Delete Okta user completed',
+                filterBy: 'type:DELETE;component:USERS',
+            },
+            groups: {
+                title: "Last deleted groups",
+                searchPlaceholder: "Group name...",
+                query: 'delete Okta group',
+                filterBy: 'type:DELETE;component:GROUPS',
+            },
+            apps: {
+                title: "Last deleted apps",
+                searchPlaceholder: "App name...",
+                query: 'delete application"',
+                filterBy: 'type:DELETE;component:APPS',
+            },
         },
-        searchPlaceholder: {
-            users: "Nom d&apos;utilisateur...",
-            groups: "Group name...",
-            apps: "App name..."
-        },
-        query: {
-            users: 'Delete Okta user completed',
-            groups: 'delete Okta group',
-            apps: 'delete application"'
-        }
     };
 
     // Generic function to create a popup with search bar
@@ -1107,8 +1112,9 @@
         var threeWeeksAgo = new Date();
         threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21); // 3 weeks = 21 days
         var dateString = threeWeeksAgo.toISOString();
-        var url = backuptaConfig.baseUrl + "?since=" + dateString; // adding the filter to the query
-        const { userListPopup, searchInputHTML } = createPopupWithSearch(backuptaConfig.popupTitle[type], backuptaConfig.searchPlaceholder[type]);
+        var url = "/api/v1/logs?since=" + dateString; // adding the filter to the query
+        var popupConfig = backuptaConfig.popups[type];
+        const { userListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
 
         $.ajax({
             url: url,
@@ -1116,12 +1122,12 @@
             headers: headers,
             data: {
                 limit: 100,
-                q: backuptaConfig.query[type]
+                q: popupConfig.query
             },
             success: function (data) {
-                displayResults(data, userListPopup, searchInputHTML);
+                displayResults(popupConfig, data, userListPopup, searchInputHTML);
                 displayMoreOrLess();
-                console.log("Logs fetched for last 3 weeks:", data);
+                // console.log("Logs fetched for last 3 weeks:", data);
             },
             error: function (xhr, status, error) {
                 console.error("Error fetching logs :", error);
@@ -1130,7 +1136,7 @@
     }
 
     // Function to display results
-    function displayResults(data, userListPopup, searchInputHTML) {
+    function displayResults(popupConfig, data, userListPopup, searchInputHTML) {
         data.reverse();
         let targetHTML = "<ul id='resultsList'>";
 
@@ -1152,9 +1158,21 @@
         });
 
         targetHTML += "</ul>";
-        targetHTML += "<a id='showMore'>Show more</a><div id='parent_link-button'><button id='link-button' name='btnRestore'>Restore with Backupta</button></div>";
+        targetHTML += "<a id='showMore'>Show more</a><div id='parent_link-button'><button id='btnRestore' name='btnRestore'>Restore with Backupta</button></div>";
         userListPopup.html(targetHTML);
         $(userListPopup).prepend(searchInputHTML);
+
+        function backuptaRestore() {
+            var items = document.querySelectorAll("#resultsList li input[type='checkbox']:checked");
+            var ids = Array.from(items).map(item => item.id)
+            var tenantId = window.location.host.replaceAll('.', '_').replace('-admin', '');
+            var targetUrl = `${backuptaConfig.backuptaUrl}/${tenantId}/changes?filter_by=${popupConfig.filterBy};id:${ids.join(',')}`;
+            // console.log('Restore in backupta', targetUrl, ids);
+            window.open(targetUrl, '_blank');
+        }
+        
+        var restoreBtn = document.getElementById("btnRestore");
+        restoreBtn.addEventListener("click", backuptaRestore);
 
         $('#userSearch').on('keyup', function () {
             const searchVal = $(this).val().toLowerCase();

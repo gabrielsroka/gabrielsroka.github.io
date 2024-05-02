@@ -14,6 +14,30 @@
     $ = window.$ || window.jQueryCourage;
     const headers = {'X-Okta-User-Agent-Extended': 'rockstar'};
 
+    const logsListPopups = {
+        users: {
+            menuTitle: 'Deleted Users',
+            title: "Last deleted users",
+            searchPlaceholder: "User name...",
+            oktaFilter: 'eventType eq "user.lifecycle.delete"',
+            backuptaFilterBy: 'type:DELETE;component:USERS',
+        },
+        groups: {
+            menuTitle: 'Deleted Groups',
+            title: "Last deleted groups",
+            searchPlaceholder: "Group name...",
+            oktaFilter: 'eventType eq "group.lifecycle.delete"',
+            backuptaFilterBy: 'type:DELETE;component:GROUPS',
+        },
+        apps: {
+            menuTitle: 'Deleted Apps',
+            title: "Last deleted apps",
+            searchPlaceholder: "App name...",
+            oktaFilter: 'eventType eq "application.lifecycle.delete"',
+            backuptaFilterBy: 'type:DELETE;component:APPS',
+        },
+    };
+
     if (location.href == "https://gabrielsroka.github.io/rockstar/") {
         alert("To install rockstar, open your bookmark toolbar, then drag and drop it. To use it, login to Okta or Okta Admin, then click rockstar. See the Usage instructions on this page.");
         return;
@@ -25,11 +49,12 @@
         quickUpdate();
         if (location.pathname == "/admin/users") {
             directoryPeople();
+            openLogsList('users');
         } else if (location.pathname.match("/admin/user/")) {
             directoryPerson();
         } else if (location.pathname == "/admin/groups") {
             directoryGroups();
-            openDeletedList('groups', 'Group(s)');
+            openLogsList('groups');
         } else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
         } else if (location.pathname.match("/report/system_log_2")) {
@@ -474,7 +499,7 @@
                 });
             });
 
-            openDeletedList('apps', 'App(s)');
+            openLogsList('apps');
 
             createDiv("Export App Sign On Policies (experimental)", mainPopup, function () {
                 startExport("App Sign On Policies", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
@@ -975,9 +1000,9 @@
         }
     }
 
-    ////////////////////////////////////////////////////
-    ///////////// START BACKUPTA FUNCTIONS /////////////
-    ////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
+    ///////////// START LOGS LIST FUNCTIONS /////////////
+    /////////////////////////////////////////////////////
 
     var defaultOktaDomain;
 
@@ -1007,13 +1032,7 @@
             var backuptaConfigPopup = createPopup("Backupta Configuration");
             $(backuptaConfigPopup).parent().attr('id', 'backupta-configuration');
 
-            // Div pour afficher l'URL actuelle
             $(`<div>Tenant id: ${getBackuptaTenantId()}</div>`).appendTo(backuptaConfigPopup);
-
-            // Function to update the value
-            function setInputValue(newValue) {
-                popups.backuptaUrl = newValue;
-            }
 
             // Create the input element and set the default value
             var backuptaUrlDiv = $("<div class='hoverDiv'>Backupta base URL: </div>").appendTo(backuptaConfigPopup);
@@ -1076,58 +1095,35 @@
         return formattedDate;
     }
 
-    // Basic setup CONST
-    const popups = {
-        users: {
-            title: "Last deleted users",
-            searchPlaceholder: "User name...",
-            query: 'Delete Okta user completed',
-            backuptaFilterBy: 'type:DELETE;component:USERS',
-        },
-        groups: {
-            title: "Last deleted groups",
-            searchPlaceholder: "Group name...",
-            query: 'delete Okta group',
-            backuptaFilterBy: 'type:DELETE;component:GROUPS',
-        },
-        apps: {
-            title: "Last deleted apps",
-            searchPlaceholder: "App name...",
-            query: 'delete application"',
-            backuptaFilterBy: 'type:DELETE;component:APPS',
-        },
-    };
-
     // Generic function to create a popup with search bar
     function createPopupWithSearch(popupTitle, searchPlaceholder) {
-        const userListPopup = createPopup(popupTitle);
-        $(userListPopup).parent().attr('id', 'userListPopup');
+        const logsListPopup = createPopup(popupTitle);
+        $(logsListPopup).parent().attr('id', 'logsListPopup');
         const searchInputHTML = `<input type='text' id='userSearch' placeholder='${searchPlaceholder}'>`;
-        $(userListPopup).prepend(searchInputHTML);
-        return { userListPopup, searchInputHTML };
+        $(logsListPopup).prepend(searchInputHTML);
+        return { logsListPopup, searchInputHTML };
     }
 
     // Generic function to perform AJAX requests and display results
     function fetchDataAndDisplay(type) {
         // const url = config.baseUrl;
         // Set date to ajax request
-        var threeWeeksAgo = new Date();
-        threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21); // 3 weeks = 21 days
-        var dateString = threeWeeksAgo.toISOString();
-        var url = "/api/v1/logs?since=" + dateString; // adding the filter to the query
-        var popupConfig = popups[type];
-        const { userListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
+        var sinceDate = new Date();
+        sinceDate.setDate(sinceDate.getDate() - 60);
+        var popupConfig = logsListPopups[type];
+        const { logsListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
 
         $.ajax({
-            url: url,
+            url: "/api/v1/logs",
             method: "GET",
             headers: headers,
             data: {
+                since: sinceDate.toISOString(),
                 limit: 100,
-                q: popupConfig.query
+                filter: popupConfig.oktaFilter
             },
             success: function (data) {
-                displayResults(popupConfig, data, userListPopup, searchInputHTML);
+                displayResults(popupConfig, data, logsListPopup, searchInputHTML);
                 displayMoreOrLess();
                 // console.log("Logs fetched for last 3 weeks:", data);
             },
@@ -1138,7 +1134,7 @@
     }
 
     // Function to display results
-    function displayResults(popupConfig, data, userListPopup, searchInputHTML) {
+    function displayResults(popupConfig, data, logsListPopup, searchInputHTML) {
         data.reverse();
         let targetHTML = "<ul id='resultsList'>";
 
@@ -1161,8 +1157,8 @@
 
         targetHTML += "</ul>";
         targetHTML += "<a id='showMore'>Show more</a><div id='parent_link-button'><button id='btnRestore' name='btnRestore'>Restore with Backupta</button></div>";
-        userListPopup.html(targetHTML);
-        $(userListPopup).prepend(searchInputHTML);
+        logsListPopup.html(targetHTML);
+        $(logsListPopup).prepend(searchInputHTML);
 
         function backuptaRestore() {
             var items = document.querySelectorAll("#resultsList li input[type='checkbox']:checked");
@@ -1188,20 +1184,20 @@
         });
     }
 
-    // Main function to generate popup, div and get logs.
-    function openDeletedList(type, title) {
-        createDiv(`Deleted ${title}`, mainPopup, function () {
-            if ($("#userListPopup").length) {
-                $("#userListPopup").remove();
+    // Main function to generate div and get logs.
+    function openLogsList(type) {
+        createDiv(logsListPopups[type].menuTitle, mainPopup, function () {
+            if ($("#logsListPopup").length) {
+                $("#logsListPopup").remove();
                 return;
             }
             fetchDataAndDisplay(type);
         });
     }
 
-    //////////////////////////////////////////////////
-    ///////////// END BACKUPTA FUNCTIONS /////////////
-    //////////////////////////////////////////////////
+    ///////////////////////////////////////////////////
+    ///////////// END LOGS LIST FUNCTIONS /////////////
+    ///////////////////////////////////////////////////
 
     // API functions
     function apiExplorer() {

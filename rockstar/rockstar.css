@@ -53,7 +53,7 @@
   visibility: visible;
 }
 
-#userListPopup {
+#logsListPopup {
   overflow: visible !important;
 }
 
@@ -66,7 +66,7 @@ a#showMore {
   text-align: right;
   margin-bottom: 10px;
   cursor: pointer;
-  /* Cursor pointeur */
+  /* Cursor pointer */
   font-size: 12px;
   transition: transform 0.3s ease, background-color 0.3s ease;
 }

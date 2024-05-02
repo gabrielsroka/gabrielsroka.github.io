@@ -29,6 +29,7 @@
             directoryPerson();
         } else if (location.pathname == "/admin/groups") {
             directoryGroups();
+            openDeletedList('groups', 'Group(s)');
         } else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
         } else if (location.pathname.match("/report/system_log_2")) {
@@ -56,6 +57,7 @@
         mainPopup = createPopup("rockstar", true);
         quickUpdate();
         userHome();
+        ouvreMoiCettePopup();
     //} else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/reference/api/")) {
     //    tryAPI();
     }
@@ -471,6 +473,9 @@
                     return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, enduserAppNotes, adminAppNotes);
                 });
             });
+
+            openDeletedList('apps', 'App(s)');
+
             createDiv("Export App Sign On Policies (experimental)", mainPopup, function () {
                 startExport("App Sign On Policies", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
                     var response = await fetch(`/admin/app/instance/${app.id}/app-sign-on-policy-list`);
@@ -969,6 +974,221 @@
             qa.hidden = localStorage.rockstarQuickAccess;
         }
     }
+
+    ////////////////////////////////////////////////////
+    ///////////// START BACKUPTA FUNCTIONS /////////////
+    ////////////////////////////////////////////////////
+
+    // Sous-menu interface users -> to potentially delete, see with Geoffrey
+
+    // function ouvreMoiCettePopup() {
+    //     createDiv("Ouvre un sous-menu", mainPopup, function () {
+    //         // Vérifiez si le sous-menu existe déjà et le supprimez si c'est le cas
+    //         if ($("#sousMenu").length) {
+    //             $("#sousMenu").remove();
+    //             return;
+    //         }
+
+    //         // Utilisation de la fonction createPopup pour créer la popup
+    //         var sousMenu = createPopup("Sous-menu");
+    //         $(sousMenu).parent().attr('id', 'sousMenu');
+
+    //         // Div pour afficher l'URL actuelle
+    //         $("<div class='hoverDiv'>Afficher URL actuelle</div>").appendTo(sousMenu).click(function () {
+    //             alert("URL actuelle : " + window.location.href);
+    //         });
+
+    //         // Div pour saisir le nom d'utilisateur
+    //         var userDiv = $("<div class='hoverDiv'>Entrez votre login: </div>").appendTo(sousMenu);
+    //         $("<input type='text' placeholder='Login'>").appendTo(userDiv)
+    //             .on('keypress', function (e) {
+    //                 if (e.which == 13) {
+    //                     alert("Login saisi : " + $(this).val());
+    //                     e.preventDefault(); // Prévenir la propagation
+    //                 }
+    //             });
+
+    //         // Div pour saisir le mot de passe
+    //         var passDiv = $("<div class='hoverDiv'>Entrez votre mot de passe: </div>").appendTo(sousMenu);
+    //         $("<input type='password' placeholder='Mot de passe'>").appendTo(passDiv)
+    //             .on('keypress', function (e) {
+    //                 if (e.which == 13) {
+    //                     alert("Mot de passe saisi : " + $(this).val());
+    //                     e.preventDefault(); // Prévenir la propagation
+    //                 }
+    //             });
+
+    //         // Affichage du sous-menu
+    //         $(sousMenu).show();
+    //     });
+    // }
+
+    //Function show 10 more
+    function displayMoreOrLess() {
+        var nbAffiches = 10; // Number of items initially displayed
+        var items = document.querySelectorAll("#maListe li");
+        var totalItems = items.length;
+        var bouton = document.getElementById("afficherPlus");
+        var isShowingMore = false; // Flag to track whether we show more elements or not
+
+        function updateButtonLabel() {
+            bouton.textContent = isShowingMore ? "Show less" : "Show more";
+        }
+
+        function afficherItems() {
+            for (var i = 0; i < totalItems; i++) {
+                items[i].style.display = i < nbAffiches ? 'list-item' : 'none';
+            }
+            updateButtonLabel();
+        }
+
+        function toggleAffichage() {
+            if (isShowingMore) {
+                // If we currently show more elements, we reduce to 10
+                nbAffiches = 10;
+                isShowingMore = false;
+            } else {
+                // Else, show all other elements
+                nbAffiches = totalItems;
+                isShowingMore = nbAffiches < totalItems ? false : true; // Update depending on whether all items are shown or not
+            }
+            afficherItems();
+        }
+
+        afficherItems(); // Initially displays items
+
+        bouton.addEventListener("click", toggleAffichage);
+    }
+
+    // Time formatting function
+    function formatDate(param) {
+        var date = new Date(param);
+        var formattedDate = date.getFullYear() + "-" +
+            ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
+            ("0" + date.getDate()).slice(-2) + " " +
+            ("0" + date.getHours()).slice(-2) + ":" +
+            ("0" + date.getMinutes()).slice(-2);
+        return formattedDate;
+    }
+
+    // Basic setup CONST
+    const backuptaConfig = {
+        baseUrl: "https://demo-backupta-plugin-admin.okta.com/api/v1/logs",
+        apiToken: "00OxBrTD_SIqgrUJm4CKff3QF4Fp4wCYya8nsmx65k", // Assurez-vous de charger ce token de manière sécurisée
+        popupTitle: {
+            users: "Last deleted users",
+            groups: "Last deleted Groups",
+            apps: "Last deleted Apps"
+        },
+        searchPlaceholder: {
+            users: "Nom d&apos;utilisateur...",
+            groups: "Group name...",
+            apps: "App name..."
+        },
+        query: {
+            users: 'Delete Okta user completed',
+            groups: 'delete Okta group',
+            apps: 'delete application"'
+        }
+    };
+
+    // Generic function to create a popup with search bar
+    function createPopupWithSearch(popupTitle, searchPlaceholder) {
+        const userListPopup = createPopup(popupTitle);
+        $(userListPopup).parent().attr('id', 'userListPopup');
+        const searchInputHTML = `<input type='text' id='userSearch' placeholder='${searchPlaceholder}'>`;
+        $(userListPopup).prepend(searchInputHTML);
+        return { userListPopup, searchInputHTML };
+    }
+
+    // Generic function to perform AJAX requests and display results
+    function fetchDataAndDisplay(type) {
+        // const url = config.baseUrl;
+        // Set date to ajax request
+        var threeWeeksAgo = new Date();
+        threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21); // 3 semaines = 21 jours
+        var dateString = threeWeeksAgo.toISOString();
+        var url = backuptaConfig.baseUrl + "?since=" + dateString; // adding the filter to the query
+        const apiToken = backuptaConfig.apiToken; // Improve token security
+        const { userListPopup, searchInputHTML } = createPopupWithSearch(backuptaConfig.popupTitle[type], backuptaConfig.searchPlaceholder[type]);
+
+        $.ajax({
+            url: url,
+            method: "GET",
+            headers: {
+                'Authorization': 'SSWS ' + apiToken,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            data: {
+                limit: 100,
+                q: backuptaConfig.query[type]
+            },
+            success: function (data) {
+                displayResults(data, userListPopup, searchInputHTML);
+                displayMoreOrLess();
+                console.log("Données récupérées pour les logs de plus de 3 semaines:", data);
+            },
+            error: function (xhr, status, error) {
+                console.error("Erreur lors de la récupération des logs :", error);
+            }
+        });
+    }
+
+    // Function to display results
+    function displayResults(data, userListPopup, searchInputHTML) {
+        data.reverse();
+        let targetHTML = "<ul id='maListe'>";
+
+        data.forEach(function (log) {
+            if (log.target && log.target.length > 0) {
+                // Use a variable to determine if an "APP" type log is present
+                let containsAppType = log.target.some(target => target.type === "APP");
+
+                // Continue to the next iteration if an "APP" type log is found
+                if (containsAppType) {
+                    return; // Ignore this log and pass next
+                }
+                log.target.forEach(function (target) {
+                    targetHTML += `<li class='userListItem tooltip' data-displayname='${target.displayName}'><span class='tooltiptext'>` +
+                        `ID: ${target.id}<br>Type: ${target.type}<br>DisplayName: ${target.displayName}<br>Deleted by: ${log.actor.displayName}<br>Deleted at: ${formatDate(log.published)}</span>` +
+                        `<input type='checkbox' id='${target.id}'><label for='${target.id}'>${target.displayName}</label></li>`;
+                });
+            }
+        });
+
+        targetHTML += "</ul>";
+        targetHTML += "<a id='afficherPlus'>Afficher plus</a><div id='parent_link-button'><button id='link-button' name='btnRestore'>Restore with Backupta</button></div>";
+        userListPopup.html(targetHTML);
+        $(userListPopup).prepend(searchInputHTML);
+
+        $('#userSearch').on('keyup', function () {
+            const searchVal = $(this).val().toLowerCase();
+            $('.userListItem').each(function () {
+                const displayName = $(this).data('displayname').toLowerCase();
+                if (displayName.includes(searchVal)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    }
+
+    // Main function to generate popup, div and get logs.
+    function openDeletedList(type, title) {
+        createDiv(`Deleted ${title}`, mainPopup, function () {
+            if ($("#userListPopup").length) {
+                $("#userListPopup").remove();
+                return;
+            }
+            fetchDataAndDisplay(type);
+        });
+    }
+
+    //////////////////////////////////////////////////
+    ///////////// END BACKUPTA FUNCTIONS /////////////
+    //////////////////////////////////////////////////
 
     // API functions
     function apiExplorer() {

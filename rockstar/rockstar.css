@@ -26,5 +26,51 @@
     padding: 5px;
 }
 .hoverDiv:hover {
-    background-color: #f0f0f0;
+  background-color: #f0f0f0;
+}
+
+.tooltip {
+  position: relative;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  background: dodgerblue;
+  color: white;
+  width: max-content;
+  position: absolute;
+  left: 106%;
+  bottom: -30px;
+  border-radius: 6px;
+  z-index: 1;
+  display: block;
+  text-align: left;
+  padding: 10px;
+  font-size: 13px;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+#userListPopup {
+  overflow: visible !important;
+}
+
+#maListe li::marker {
+  color: transparent;
+}
+
+a#afficherPlus {
+  display: block;
+  text-align: right;
+  margin-bottom: 10px;
+  cursor: pointer;
+  /* Cursor pointeur */
+  font-size: 12px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+#userSearch {
+  margin: 10px;
 }

@@ -41,6 +41,7 @@ url = '/api/v1/groups/' + srcGroupId + '/users'
 for await (user of getObjects(url)) {
   log('adding member', user.id)
   await put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
+  if (cancel) break
 }
 ```
 
@@ -52,6 +53,7 @@ url = '/api/v1/groups/' + id + '/users/'
 for await (user of getObjects(url)) {
   log('removing group member', user.profile.login)
   await remove(url + user.id)
+  if (cancel) break
 }
 ```
 
@@ -167,6 +169,7 @@ for await (user of getObjects('/api/v1/users')) {
   factors = await getJson(`/api/v1/users/${user.id}/factors`)
   waFactors = factors.filter(f => f.factorType == 'webauthn' && f.profile).map(f => f.profile.authenticatorName)
   log(user.id, user.profile.login, waFactors.join('; '))
+  if (cancel) break
 }
 
 // in parallel, 10-20 times faster than in series:
@@ -175,6 +178,7 @@ limit = 15 // try 15, 35, or 75 for the limit, depending on the org.
 url = '/api/v1/users?limit=' + limit
 for await (user of getObjects(url)) {
   getFactors(user)
+  if (cancel) break
 }
 
 async function getFactors(user) {
@@ -192,6 +196,7 @@ log('id,login,factors')
 promises = []
 for await (user of getObjects(url)) {
   promises.push(getFactors(user))
+  if (cancel) break
 }
 await Promise.all(promises) // Wait until all calls are finished before downloading CSV.
 downloadCSV(debug.value, 'factors')
@@ -212,6 +217,7 @@ for await (device of getObjects(url)) {
   for (user of device._embedded.users) {
     log(device.id, user.managementStatus, user.user.id, user.user.profile.login) // add more attrs...
   }
+  if (cancel) break
 }
 ```
 

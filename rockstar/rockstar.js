@@ -1015,7 +1015,7 @@
     initializeOktaDomain();
 
     function getBackuptaBaseUrl() {
-        return localStorage.getItem('BackuptaBaseUrl') || 'http://localhost:4200';
+        return localStorage.getItem('BackuptaBaseUrl');
     }
 
     function setBackuptaBaseUrl(newValue) {
@@ -1161,9 +1161,14 @@
         $(logListPopup).prepend(searchInputHTML);
 
         function backuptaRestore() {
+            var baseUrl = getBackuptaBaseUrl();
+            if (!baseUrl) {
+                window.alert('Please configure your Backupta environment URL.');
+                return;
+            }
             var items = document.querySelectorAll("#resultsList li input[type='checkbox']:checked");
             var ids = Array.from(items).map(item => item.id)
-            var targetUrl = `${getBackuptaBaseUrl()}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
+            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
             // console.log('Restore in backupta', targetUrl, ids);
             window.open(targetUrl, '_blank');
         }

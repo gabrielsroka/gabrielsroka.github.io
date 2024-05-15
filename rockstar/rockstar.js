@@ -80,7 +80,7 @@
         exportObjects();
         //createPrefixA("<li>", "Export Objects", "#nav-admin-reports-2", exportObjects);
         apiExplorer();
-        openBackuptaConfigPopup();
+        backuptaConfigButton();
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar", true);
         quickUpdate();
@@ -1000,100 +1000,66 @@
         }
     }
 
-    /////////////////////////////////////////////////////
-    ///////////// START LOGS LIST FUNCTIONS /////////////
-    /////////////////////////////////////////////////////
+    // Start logs list functions
+    // Todo: Once the main function is an async function replace below with
+    //     const backuptaTenantId = await fetchBackuptaTenantId();
+    let backuptaTenantId;
+    const getBackuptaTenantId = async () => {
+        if (backuptaTenantId)
+            return backuptaTenantId;
+        const response = await fetch('/api/v1/domains');
+        const domains = (await response.json()).domains;
+        const defaultDomain = domains.find(domain => domain.id === 'default');
+        backuptaTenantId = defaultDomain.domain.replace(/\./g, '_');
+        return backuptaTenantId;
+    };
 
-    var defaultOktaDomain;
-
-    function initializeOktaDomain() {
-        getJSON('/api/v1/domains').then(domains => {
-            var defaultDomain = domains.domains.find(domain => domain.id === 'default');
-            defaultOktaDomain = defaultDomain.domain;
-        });
-    }
-    initializeOktaDomain();
-
-    function getBackuptaBaseUrl() {
-        return localStorage.getItem('BackuptaBaseUrl');
-    }
-
-    function setBackuptaBaseUrl(newValue) {
-        localStorage.setItem('BackuptaBaseUrl', newValue);
+    function backuptaConfigButton() {
+        createDiv("Backupta Config", mainPopup, openBackuptaConfigPopup);
     }
 
-    function getBackuptaTenantId() {
-        // return window.location.host.replaceAll('.', '_').replace('-admin', '');
-        return defaultOktaDomain.replaceAll('.', '_');
+    async function openBackuptaConfigPopup() {
+        const backuptaConfigPopup = createPopup("Backupta Configuration");
+        
+        $(`<div class="info-tooltip">
+            <div class="info-tooltip-icon">🛈</div>
+            <div class="info-tooltip-content">
+                If you want to know more about Backupta, <a href="https://www.backupta.com/#how-to-buy">contact us</a>.
+            </div>
+        </div>`).appendTo(backuptaConfigPopup);
+
+        $(`<div class='hoverDiv'>Tenant id: ${await getBackuptaTenantId()}</div>`).appendTo(backuptaConfigPopup);
+
+        // Create the input element and set the default value
+        const backuptaUrlDiv = $("<div class='hoverDiv'>Backupta base URL: </div>").appendTo(backuptaConfigPopup);
+        $("<input type='text' placeholder='https://...'>")
+            .val(localStorage.backuptaBaseUrl) // Set the default value
+            .appendTo(backuptaUrlDiv)
+            .on('input', function () { // Listen for the 'input' event to capture changes
+                localStorage.backuptaBaseUrl = $(this).val();
+            })
+            .focus();
     }
 
-    function openBackuptaConfigPopup() {
-        createDiv("Backupta Config", mainPopup, function () {
-            var backuptaConfigPopup = createPopup("Backupta Configuration");
-            $(backuptaConfigPopup).parent().attr('id', 'backupta-configuration');
+    // Display logic for showing 10 items or all items
+    function displayMoreOrLess(button, items) {
+        let isShowingMore = true;
 
-            $(`<div>Tenant id: ${getBackuptaTenantId()}</div>`).appendTo(backuptaConfigPopup);
+        const updateButtonLabel = () => {
+            button.text(isShowingMore ? "Show less" : "Show more");
+        };
 
-            // Create the input element and set the default value
-            var backuptaUrlDiv = $("<div class='hoverDiv'>Backupta base URL: </div>").appendTo(backuptaConfigPopup);
-            $("<input type='text' placeholder='Login'>")
-                .val(getBackuptaBaseUrl()) // Set the default value
-                .appendTo(backuptaUrlDiv)
-                .on('input', function () { // Listen for the 'input' event to capture changes
-                    setBackuptaBaseUrl($(this).val());
-                });
-
-            $(backuptaConfigPopup).show();
-        });
-    }
-
-    //Function show 10 more
-    function displayMoreOrLess() {
-        var shownItemCount = 10; // Number of items initially displayed
-        var items = document.querySelectorAll("#resultsList li");
-        var totalItems = items.length;
-        var button = document.getElementById("showMore");
-        var isShowingMore = false; // Flag to track whether we show more elements or not
-
-        function updateButtonLabel() {
-            button.textContent = isShowingMore ? "Show less" : "Show more";
-        }
-
-        function displayItems() {
-            for (var i = 0; i < totalItems; i++) {
-                items[i].style.display = i < shownItemCount ? 'list-item' : 'none';
-            }
+        const toggleDisplay = () => {
+            isShowingMore = !isShowingMore;
+            items.each((i, item) => {
+                $(item).css('display', i < 2 || isShowingMore ? 'list-item' : 'none');
+            });
             updateButtonLabel();
-        }
+        };
 
-        function toggleDisplay() {
-            if (isShowingMore) {
-                // If we currently show more elements, we reduce to 10
-                shownItemCount = 10;
-                isShowingMore = false;
-            } else {
-                // Else, show all other elements
-                shownItemCount = totalItems;
-                isShowingMore = shownItemCount < totalItems ? false : true; // Update depending on whether all items are shown or not
-            }
-            displayItems();
-        }
-
-        displayItems(); // Initially displays items
-
-        button.addEventListener("click", toggleDisplay);
-    }
-
-    // Time formatting function
-    function formatDate(param) {
-        var date = new Date(param);
-        var formattedDate = date.getFullYear() + "-" +
-            ("0" + (date.getMonth() + 1)).slice(-2) + "-" +
-            ("0" + date.getDate()).slice(-2) + " " +
-            ("0" + date.getHours()).slice(-2) + ":" +
-            ("0" + date.getMinutes()).slice(-2);
-        return formattedDate;
-    }
+        button.on("click", toggleDisplay);
+        toggleDisplay();  // Initially display limited items
+    };
 
     // Generic function to create a popup with search bar
     function createPopupWithSearch(popupTitle, searchPlaceholder) {
@@ -1104,34 +1070,23 @@
         return { logListPopup, searchInputHTML };
     }
 
-    // Generic function to perform AJAX requests and display results
-    function fetchDataAndDisplay(type) {
-        // const url = config.baseUrl;
-        // Set date to ajax request
-        var sinceDate = new Date();
+
+    // Fetch and display log data using utility functions
+    const fetchDataAndDisplay = async (type) => {
+        const popupConfig = logListPopups[type];
+        const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 60);
-        var popupConfig = logListPopups[type];
         const { logListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
 
-        $.ajax({
-            url: "/api/v1/logs",
-            method: "GET",
-            headers: headers,
-            data: {
-                since: sinceDate.toISOString(),
-                limit: 100,
-                filter: popupConfig.oktaFilter
-            },
-            success: function (data) {
-                displayResults(popupConfig, data, logListPopup, searchInputHTML);
-                displayMoreOrLess();
-                // console.log("Logs fetched for last 3 weeks:", data);
-            },
-            error: function (xhr, status, error) {
-                console.error("Error fetching logs :", error);
-            }
-        });
-    }
+        const response = await fetch(
+            `/api/v1/logs?since=${sinceDate.toISOString()}&limit=100&filter=${popupConfig.oktaFilter}`,
+            { headers }
+        );
+        const data = await response.json();
+
+        displayResults(popupConfig, data, logListPopup, searchInputHTML);
+        displayMoreOrLess($('#showMore'), $('#resultsList li'));
+    };
 
     // Function to display results
     function displayResults(popupConfig, data, logListPopup, searchInputHTML) {
@@ -1149,8 +1104,8 @@
                 }
                 log.target.forEach(function (target) {
                     targetHTML += `<li class='userListItem tooltip' data-displayname='${target.displayName}'><span class='tooltiptext'>` +
-                        `ID: ${target.id}<br>Type: ${target.type}<br>DisplayName: ${target.displayName}<br>Deleted by: ${log.actor.displayName}<br>Deleted at: ${formatDate(log.published)}</span>` +
-                        `<input type='checkbox' id='${target.id}'><label for='${target.id}'>${target.displayName}</label></li>`;
+                        `ID: ${target.id}<br>Type: ${target.type}<br>DisplayName: ${target.displayName}<br>Deleted by: ${log.actor.displayName}<br>Deleted at: ${log.published.substring(0, 16).replace('T', ' ')}</span>` +
+                        `<label><input type='checkbox' id='${target.id}'> ${target.displayName}</label></li>`;
                 });
             }
         });
@@ -1160,21 +1115,19 @@
         logListPopup.html(targetHTML);
         $(logListPopup).prepend(searchInputHTML);
 
-        function backuptaRestore() {
-            var baseUrl = getBackuptaBaseUrl();
+        var restoreBtn = document.getElementById("btnRestore");
+        restoreBtn.onclick = async function() {
+            var baseUrl = localStorage.backuptaBaseUrl;
             if (!baseUrl) {
-                window.alert('Please configure your Backupta environment URL.');
+                await openBackuptaConfigPopup(true);
                 return;
             }
             var items = document.querySelectorAll("#resultsList li input[type='checkbox']:checked");
             var ids = Array.from(items).map(item => item.id)
-            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
+            var targetUrl = `${baseUrl}/${backuptaTenantId}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
             // console.log('Restore in backupta', targetUrl, ids);
             window.open(targetUrl, '_blank');
         }
-        
-        var restoreBtn = document.getElementById("btnRestore");
-        restoreBtn.addEventListener("click", backuptaRestore);
 
         $('#userSearch').on('keyup', function () {
             const searchVal = $(this).val().toLowerCase();
@@ -1191,18 +1144,16 @@
 
     // Main function to generate div and get logs.
     function openLogList(type) {
-        createDiv(logListPopups[type].menuTitle, mainPopup, function () {
+        createDiv(logListPopups[type].menuTitle, mainPopup, async function () {
             if ($("#logListPopup").length) {
                 $("#logListPopup").remove();
                 return;
             }
-            fetchDataAndDisplay(type);
+            await fetchDataAndDisplay(type);
         });
     }
 
-    ///////////////////////////////////////////////////
-    ///////////// END LOGS LIST FUNCTIONS /////////////
-    ///////////////////////////////////////////////////
+    // End logs list functions
 
     // API functions
     function apiExplorer() {

@@ -1064,9 +1064,9 @@
     // Generic function to create a popup with search bar
     function createPopupWithSearch(popupTitle, searchPlaceholder) {
         const logListPopup = createPopup(popupTitle);
-        $(logListPopup).parent().attr('id', 'logListPopup');
+        logListPopup.parent().attr('id', 'logListPopup');
         const searchInputHTML = `<input type='text' id='userSearch' placeholder='${searchPlaceholder}'>`;
-        $(logListPopup).prepend(searchInputHTML);
+        logListPopup.prepend(searchInputHTML);
         return { logListPopup, searchInputHTML };
     }
 

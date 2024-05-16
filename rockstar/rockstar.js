@@ -1001,18 +1001,18 @@
     }
 
     // Start logs list functions
-    // Todo: Once the main function is an async function replace below with
-    //     const backuptaTenantId = await fetchBackuptaTenantId();
     let backuptaTenantId;
     const getBackuptaTenantId = async () => {
         if (backuptaTenantId)
             return backuptaTenantId;
-        const response = await fetch('/api/v1/domains');
-        const domains = (await response.json()).domains;
-        const defaultDomain = domains.find(domain => domain.id === 'default');
+        const response = await fetch('/api/v1/domains/default');
+        const defaultDomain = await response.json();
         backuptaTenantId = defaultDomain.domain.replace(/\./g, '_');
         return backuptaTenantId;
     };
+    // Next line was intentionnally written without `async`:
+    // we want to load the backupta tenant ID in the background without blocking the main thread.
+    getBackuptaTenantId();
 
     function backuptaConfigButton() {
         createDiv("Backupta Config", mainPopup, openBackuptaConfigPopup);
@@ -1052,7 +1052,7 @@
         const toggleDisplay = () => {
             isShowingMore = !isShowingMore;
             items.each((i, item) => {
-                $(item).css('display', i < 2 || isShowingMore ? 'list-item' : 'none');
+                $(item).css('display', i < 10 || isShowingMore ? 'list-item' : 'none');
             });
             updateButtonLabel();
         };

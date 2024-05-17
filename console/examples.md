@@ -65,7 +65,7 @@ for await (user of getObjects(url)) {
 regex = /germ/i  // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
 
 url = '/api/v1/groups'
-if (typeof groups == 'undefined') groups = await getAll(url, 'groups')
+if (typeof groups == 'undefined') groups = await getAll(url)
 found = groups
   .filter(g => g.profile.name.match(regex)) 
   .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
@@ -85,7 +85,7 @@ table(found)
 regex = /@gsroka.local/i   // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
 url = '/api/v1/users?filter=status eq "ACTIVE"'
 
-if (typeof users == 'undefined') users = await getAll(url, 'users')
+if (typeof users == 'undefined') users = await getAll(url)
 found = users
   .filter(u => u.profile.email.match(regex)) 
   .sort((u1, u2) => (u1.profile.firstName + u1.profile.lastName).localeCompare(u2.profile.firstName + u2.profile.lastName))
@@ -296,7 +296,7 @@ log(newRule.id, newRule.name)
 groupId = '...'
 
 url = '/api/v1/users' // maybe this should use: ?filter=status eq "ACTIVE"
-users = await getAll(url, 'users')
+users = await getAll(url)
 
 added = []
 for (user of users) {
@@ -320,7 +320,7 @@ log('Done.')
 
 url = '/api/v1/apps'
 cols = 'id,label,name,accessibility.selfService' // Add more attributes here
-await report(url, cols, 'apps')
+await report(url, cols)
 ```
 
 # Export Apps and Groups to CSV
@@ -360,7 +360,7 @@ limit = 1000 // The default is 10000, but that's sometimes too large and causes 
 
 url = '/api/v1/groups?expand=stats&limit=' + limit
 cols = 'id,profile.name,_embedded.stats.usersCount,_embedded.stats.appsCount,_embedded.stats.groupPushMappingsCount'
-report(url, cols, 'groups')
+report(url, cols)
 ```
 
 # Miscellaneous
@@ -370,7 +370,7 @@ report(url, cols, 'groups')
 ```js
 // List SAML 2.0 apps using https://gabrielsroka.github.io/console
 
-allApps = await getAll('/api/v1/apps', 'apps')
+allApps = await getAll('/api/v1/apps')
 apps = allApps.filter(app => app.signOnMode == 'SAML_2_0').sort(key('label'))
 apps.forEach(a => a.attributes = a.settings.signOn?.attributeStatements?.filter(s => s.type == 'EXPRESSION').map(s => s.values) || [])
 results.innerHTML = apps.length + ' apps found<br><button id=exportCSV>Export CSV</button>'
@@ -415,9 +415,9 @@ function addAppUser(appUserName, licenses, scope) {
 ```js
 // Switch apps to a different policy using https://gabrielsroka.github.io/console
 
-policies = await getAll('/api/v1/policies?type=ACCESS_POLICY', 'policies')
+policies = await getAll('/api/v1/policies?type=ACCESS_POLICY')
 policyOpts = policies.sort(key('name')).map(policy => `<option id=${policy.id}>${policy.name}</option>`).join('')
-apps = await getAll('/api/v1/apps', 'apps')
+apps = await getAll('/api/v1/apps')
 appChks = apps.sort(key('label')).map(app => `<label><input id=${app.id} title='${app.label}' type=checkbox checked>${app.label}</label><br>`).join('')
 results.innerHTML = 
   'Policy <select id=toPolicy>' + policyOpts + '</select><br>' + 
@@ -447,7 +447,7 @@ uncheckAll.onclick = () => results.querySelectorAll('input[type=checkbox]').forE
 // List groups and their apps using https://gabrielsroka.github.io/console
 
 url = '/api/v1/groups?filter=type eq "APP_GROUP"&expand=app'
-groups = (await getAll(url, 'groups'))
+groups = (await getAll(url))
 .map(group => ({
   'Group Name': '<img src=' + group._links.logo.find(l => l.name == 'medium').href + '> ' + link('/admin/group/' + group.id, group.profile.name),
   Description: group.profile.description || 'No description',

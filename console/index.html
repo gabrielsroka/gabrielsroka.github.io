@@ -274,6 +274,7 @@ for await (user of getObjects(url)) {\n
   async function getAll(url, name = '') {
     const objs = [];
     results.innerHTML = 'Loading...';
+    if (!name) name = url.split('?')[0].split('/').pop();
     for await (const obj of getObjects(url)) {
       objs.push(obj);
       results.innerHTML = objs.length + ' ' + name;

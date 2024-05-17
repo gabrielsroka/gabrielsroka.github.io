@@ -284,6 +284,7 @@ for await (user of getObjects(url)) {\n
   }
   async function report(url, cols, name, ui = true, sort) {
     cols = cols.split(',');
+    if (!name) name = url.split('?')[0].split('/').pop();
     const objs = (await getAll(url, name)).map(obj => Object.fromEntries(cols.map(c => [c, dot(obj, c)])));
     if (sort) objs.sort(key(sort));
     if (ui) {

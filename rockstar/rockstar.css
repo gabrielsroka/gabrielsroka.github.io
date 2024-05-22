@@ -29,52 +29,6 @@
   background-color: #f0f0f0;
 }
 
-.tooltip {
-  position: relative;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  background: dodgerblue;
-  color: white;
-  width: max-content;
-  position: absolute;
-  left: 106%;
-  bottom: -30px;
-  border-radius: 6px;
-  z-index: 1;
-  display: block;
-  text-align: left;
-  padding: 10px;
-  font-size: 13px;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-}
-
-#logListPopup {
-  overflow: visible !important;
-}
-
-#resultsList li::marker {
-  color: transparent;
-}
-
-a#showMore {
-  display: block;
-  text-align: right;
-  margin-bottom: 10px;
-  cursor: pointer;
-  /* Cursor pointer */
-  font-size: 12px;
-  transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-#userSearch {
-  margin: 10px;
-}
-
 .info-tooltip {
   background: azure;
   border-radius: 6px;
@@ -89,4 +43,8 @@ a#showMore {
 .info-tooltip .info-tooltip-icon {
   font-size: 1.5em;
   color: steelblue;
+}
+
+.data-list-table {
+  border: 1px solid #ddd;
 }

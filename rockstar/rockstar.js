@@ -18,21 +18,21 @@
         deletedUsers: {
             menuTitle: 'Deleted Users',
             title: "Latest deleted users",
-            searchPlaceholder: "User name...",
+            searchPlaceholder: "Search user...",
             oktaFilter: 'eventType eq "user.lifecycle.delete"',
             backuptaFilterBy: 'type:DELETE;component:USERS',
         },
         deletedGroups: {
             menuTitle: 'Deleted Groups',
             title: "Latest deleted groups",
-            searchPlaceholder: "Group name...",
+            searchPlaceholder: "Search group...",
             oktaFilter: 'eventType eq "group.lifecycle.delete"',
             backuptaFilterBy: 'type:DELETE;component:GROUPS',
         },
         deletedApps: {
             menuTitle: 'Deleted Apps',
             title: "Latest deleted apps",
-            searchPlaceholder: "App name...",
+            searchPlaceholder: "Search app...",
             oktaFilter: 'eventType eq "application.lifecycle.delete"',
             backuptaFilterBy: 'type:DELETE;component:APPS',
         },
@@ -131,7 +131,7 @@
                             var user = appUser._embedded.user;
                             rows += `<tr><td>${e(appUser.label)}<td>${e(user.credentials.userName)}<td>${e(user.profile.email)}`;
                         });
-                        adPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`);
+                        adPopup.html(`<table class='data-list-table'>${rows}</table>`);
                     });
                 }
                 createA("AD: " + e(user.credentials.provider.name), ".subheader", showADs);
@@ -448,7 +448,7 @@
                         var style = days < 30 ? "style='background-color: red; color: white'" : "";
                         rows += `<tr><td>${e(idp.name)}<td>${e(key.expiresAt)}<td ${style}}'>${days}`;
                     });
-                    idpPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`);
+                    idpPopup.html(`<table class='data-list-table'>${rows}</table>`);
                 });
             });
         });      
@@ -1005,7 +1005,7 @@
     const getBackuptaTenantId = async () => {
         if (backuptaTenantId)
             return backuptaTenantId;
-        const response = await fetch('/api/v1/domains/default');
+        const response = await fetch('https://' + window.location.host  + '/api/v1/domains/default');
         const defaultDomain = await response.json();
         backuptaTenantId = defaultDomain.domain.replace(/\./g, '_');
         return backuptaTenantId;
@@ -1051,9 +1051,8 @@
 
         const toggleDisplay = () => {
             isShowingMore = !isShowingMore;
-            items.each((i, item) => {
-                $(item).css('display', i < 10 || isShowingMore ? 'list-item' : 'none');
-            });
+            items.each((i, item) => 
+                (isShowingMore || i < 10) ? $(item).show() : $(item).hide());
             updateButtonLabel();
         };
 
@@ -1065,7 +1064,7 @@
     function createPopupWithSearch(popupTitle, searchPlaceholder) {
         const logListPopup = createPopup(popupTitle);
         logListPopup.parent().attr('id', 'logListPopup');
-        const searchInputHTML = `<input type='text' id='userSearch' placeholder='${searchPlaceholder}'>`;
+        const searchInputHTML = `<input type='text' id='userSearch' style='margin-bottom: 10px' placeholder='${searchPlaceholder}'>`;
         logListPopup.prepend(searchInputHTML);
         return { logListPopup, searchInputHTML };
     }
@@ -1085,13 +1084,17 @@
         const data = await response.json();
 
         displayResults(popupConfig, data, logListPopup, searchInputHTML);
-        displayMoreOrLess($('#showMore'), $('#resultsList li'));
+        displayMoreOrLess($('#showMore'), $('.data-list-table .data-list-item'));
     };
 
     // Function to display results
     function displayResults(popupConfig, data, logListPopup, searchInputHTML) {
         data.reverse();
-        let targetHTML = "<ul id='resultsList'>";
+        let targetHTML = "<table class='data-list-table'>";
+
+        targetHTML += "<thead><tr>";
+        targetHTML += "<th></th><th>Display Name</th><th>ID</th><th>Type</th><th>Deleted By</th><th>Deleted At</th>";
+        targetHTML += "</tr></thead><tbody>";
 
         data.forEach(function (log) {
             if (log.target && log.target.length > 0) {
@@ -1103,15 +1106,21 @@
                     return; // Ignore this log and pass next
                 }
                 log.target.forEach(function (target) {
-                    targetHTML += `<li class='userListItem tooltip' data-displayname='${target.displayName}'><span class='tooltiptext'>` +
-                        `ID: ${target.id}<br>Type: ${target.type}<br>DisplayName: ${target.displayName}<br>Deleted by: ${log.actor.displayName}<br>Deleted at: ${log.published.substring(0, 16).replace('T', ' ')}</span>` +
-                        `<label><input type='checkbox' id='${target.id}'> ${target.displayName}</label></li>`;
+                    targetHTML += `<tr class='data-list-item' data-displayname='${target.displayName}'>`;
+                    targetHTML += `<td><input type='checkbox' id='${target.id}'></td>`;
+                    targetHTML += `<td><label for='${target.id}'>${target.displayName}</label></td>`;
+                    targetHTML += `<td>${target.id}</td>`;
+                    targetHTML += `<td>${target.type}</td>`;
+                    targetHTML += `<td>${log.actor.displayName}</td>`;
+                    targetHTML += `<td>${log.published.substring(0, 16).replace('T', ' ')}</td>`;
+                    targetHTML += "</tr>";
                 });
             }
         });
 
-        targetHTML += "</ul>";
-        targetHTML += "<a id='showMore'>Show more</a><div id='parent_link-button'><button id='btnRestore' name='btnRestore'>Restore with Backupta</button></div>";
+        targetHTML += "</table>";
+        targetHTML += "<div style='text-align: right'><a href='#' id='showMore'>Show more</a></div>";
+        targetHTML += "<div id='parent_link-button'><button id='btnRestore' name='btnRestore'>Restore with Backupta</button></div>";
         logListPopup.html(targetHTML);
         $(logListPopup).prepend(searchInputHTML);
 
@@ -1122,7 +1131,7 @@
                 await openBackuptaConfigPopup(true);
                 return;
             }
-            var items = document.querySelectorAll("#resultsList li input[type='checkbox']:checked");
+            var items = document.querySelectorAll(".data-list-table input[type='checkbox']:checked");
             var ids = Array.from(items).map(item => item.id)
             var targetUrl = `${baseUrl}/${backuptaTenantId}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
             // console.log('Restore in backupta', targetUrl, ids);
@@ -1131,7 +1140,7 @@
 
         $('#userSearch').on('keyup', function () {
             const searchVal = $(this).val().toLowerCase();
-            $('.userListItem').each(function () {
+            $('.data-list-item').each(function () {
                 const displayName = $(this).data('displayname').toLowerCase();
                 if (displayName.includes(searchVal)) {
                     $(this).show();

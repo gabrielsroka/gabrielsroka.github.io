@@ -345,7 +345,7 @@
                 div.innerHTML = lo.title + '<br>' + (rows.length ? rows.sort().join('<br>') : '(none)') + '<br><br>';
             }
             async function getJson(url) {
-                const r = await fetch(url);
+                const r = await fetch(window.location.origin + url);
                 return r.json();
             }
         });
@@ -495,7 +495,7 @@
             });
             createDiv("Export App Notes (experimental)", mainPopup, function () {
                 startExport("App Notes", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,endUserAppNotes,adminAppNotes", async app => {
-                    var response = await fetch(`/admin/app/${app.name}/instance/${app.id}/settings/general`);
+                    var response = await fetch(`${window.location.origin}/admin/app/${app.name}/instance/${app.id}/settings/general`);
                     var html = await response.text();
                     var parser = new DOMParser();
                     var doc = parser.parseFromString(html, "text/html");
@@ -507,7 +507,7 @@
 
             createDiv("Export App Sign On Policies (experimental)", mainPopup, function () {
                 startExport("App Sign On Policies", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
-                    var response = await fetch(`/admin/app/instance/${app.id}/app-sign-on-policy-list`);
+                    var response = await fetch(`${window.location.origin}/admin/app/instance/${app.id}/app-sign-on-policy-list`);
                     var html = await response.text();
                     var parser = new DOMParser();
                     var doc = parser.parseFromString(html, "text/html");
@@ -970,7 +970,7 @@
         }
 
         createDiv("All Tiny Apps", mainPopup, async function () {
-            const response = await fetch(`/api/v1/users/me/appLinks`);
+            const response = await fetch(`${window.location.origin}/api/v1/users/me/appLinks`);
             const links = (await response.json())
                 .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1);
             const lis = links.map(link => `<li class='app-button-wrapper' style='width: 64px;'>` +
@@ -1009,7 +1009,7 @@
     const getBackuptaTenantId = async () => {
         if (backuptaTenantId)
             return backuptaTenantId;
-        const response = await fetch('https://' + window.location.host  + '/api/v1/domains/default');
+        const response = await fetch(`${window.location.origin}/api/v1/domains/default`);
         const defaultDomain = await response.json();
         backuptaTenantId = defaultDomain.domain.replace(/\./g, '_');
         return backuptaTenantId;
@@ -1072,7 +1072,7 @@
 
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 60);
-        const url = `/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}`;
+        const url = `${window.location.origin}/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}`;
         await fetchMore(url, 10);
     };
 
@@ -1390,21 +1390,23 @@
         return links;
     }
     function getJSON(url) {
-        return $.get({url, headers});
+        return $.get({url: window.location.origin + url, headers});
     }
     function postJSON(settings) {
+        settings.url = window.location.origin + settings.url;
         settings.contentType = "application/json";
         settings.data = JSON.stringify(settings.data);
         settings.headers = headers;
         return $.post(settings);
     }
     function requestJSON(settings) {
+        settings.url = window.location.origin + settings.url;
         settings.contentType = "application/json";
         settings.headers = headers;
         return $.ajax(settings);
     }
     function deleteJSON(url) {
-        return $.ajax({url, headers, method: "DELETE"});
+        return $.ajax({url: window.location.origin + url, headers, method: "DELETE"});
     }
     function searcher(object) { // TODO: Save search string in location.hash # in URL. Reload from there.
         function searchObjects() {

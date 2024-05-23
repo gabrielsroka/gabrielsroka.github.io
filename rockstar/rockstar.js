@@ -131,7 +131,7 @@
                             var user = appUser._embedded.user;
                             rows += `<tr><td>${e(appUser.label)}<td>${e(user.credentials.userName)}<td>${e(user.profile.email)}`;
                         });
-                        adPopup.html(`<table class='data-list-table'>${rows}</table>`);
+                        adPopup.html(`<table class='data-list-table rockstar'>${rows}</table>`);
                     });
                 }
                 createA("AD: " + e(user.credentials.provider.name), ".subheader", showADs);
@@ -448,7 +448,7 @@
                         var style = days < 30 ? "style='background-color: red; color: white'" : "";
                         rows += `<tr><td>${e(idp.name)}<td>${e(key.expiresAt)}<td ${style}}'>${days}`;
                     });
-                    idpPopup.html(`<table class='data-list-table'>${rows}</table>`);
+                    idpPopup.html(`<table class='data-list-table rockstar'>${rows}</table>`);
                 });
             });
         });      
@@ -1041,25 +1041,6 @@
             .focus();
     }
 
-    // Display logic for showing 10 items or all items
-    function displayMoreOrLess(button, items) {
-        let isShowingMore = true;
-
-        const updateButtonLabel = () => {
-            button.text(isShowingMore ? "Show less" : "Show more");
-        };
-
-        const toggleDisplay = () => {
-            isShowingMore = !isShowingMore;
-            items.each((i, item) => 
-                (isShowingMore || i < 10) ? $(item).show() : $(item).hide());
-            updateButtonLabel();
-        };
-
-        button.on("click", toggleDisplay);
-        toggleDisplay();  // Initially display limited items
-    };
-
     // Generic function to create a popup with search bar
     function createPopupWithSearch(popupTitle, searchPlaceholder) {
         const logListPopup = createPopup(popupTitle);
@@ -1073,29 +1054,31 @@
     // Fetch and display log data using utility functions
     const fetchDataAndDisplay = async (type) => {
         const popupConfig = logListPopups[type];
+        const { logListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
+        displayResultTable(popupConfig, logListPopup, searchInputHTML);
+
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 60);
-        const { logListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
+        const url = `/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}`;
+        await fetchMore(url, 10);
+    };
 
+    const fetchMore = async (url, limit) => {
         const response = await fetch(
-            `/api/v1/logs?since=${sinceDate.toISOString()}&limit=100&filter=${popupConfig.oktaFilter}`,
+            url.replace(/limit=\d+/, `limit=${limit}`),
             { headers }
         );
         const data = await response.json();
+        if (data.length === 0 || data.length < limit) {
+            $('#showMore').hide();
+        }
+        const links = getLinks(response.headers.get('Link'));
+        appendResults(data, links);
+    }
 
-        displayResults(popupConfig, data, logListPopup, searchInputHTML);
-        displayMoreOrLess($('#showMore'), $('.data-list-table .data-list-item'));
-    };
-
-    // Function to display results
-    function displayResults(popupConfig, data, logListPopup, searchInputHTML) {
+    function appendResults(data, links) {
         data.reverse();
-        let targetHTML = "<table class='data-list-table'>";
-
-        targetHTML += "<thead><tr>";
-        targetHTML += "<th></th><th>Display Name</th><th>ID</th><th>Type</th><th>Deleted By</th><th>Deleted At</th>";
-        targetHTML += "</tr></thead><tbody>";
-
+        let targetHTML = '';
         data.forEach(function (log) {
             if (log.target && log.target.length > 0) {
                 // Use a variable to determine if an "APP" type log is present
@@ -1117,10 +1100,20 @@
                 });
             }
         });
+        $('.data-list-table.rockstar tbody').append(targetHTML);
+        button = $('#showMore');
+        button.off("click");
+        button.on("click", () =>
+            fetchMore(links.next, 100));
+    }
 
-        targetHTML += "</table>";
-        targetHTML += "<div style='text-align: right'><a href='#' id='showMore'>Show more</a></div>";
-        targetHTML += "<div id='parent_link-button'><button id='btnRestore' name='btnRestore'>Restore with Backupta</button></div>";
+    // Function to display results
+    function displayResultTable(popupConfig, logListPopup, searchInputHTML) {
+        let targetHTML = "<table class='data-list-table rockstar'><thead><tr>";
+        targetHTML += "<th></th><th>Display Name</th><th>ID</th><th>Type</th><th>Deleted By</th><th>Deleted At</th>";
+        targetHTML += "</tr></thead><tbody></tbody></table>";
+        targetHTML += "<div style='float: right'><a href='#' id='showMore'>Show more</a></div>";
+        targetHTML += "<div id='parent_link-button' style='margin-top: 15px'><button id='btnRestore' name='btnRestore'>Restore with Backupta</button></div>";
         logListPopup.html(targetHTML);
         $(logListPopup).prepend(searchInputHTML);
 
@@ -1131,7 +1124,7 @@
                 await openBackuptaConfigPopup(true);
                 return;
             }
-            var items = document.querySelectorAll(".data-list-table input[type='checkbox']:checked");
+            var items = document.querySelectorAll(".data-list-table.rockstar input[type='checkbox']:checked");
             var ids = Array.from(items).map(item => item.id)
             var targetUrl = `${baseUrl}/${backuptaTenantId}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
             // console.log('Restore in backupta', targetUrl, ids);
@@ -1279,7 +1272,7 @@
         });
         const len = "(length: " + objects.length + ")\n\n";
         return {header: "<span id=table><b>Table</b> <a href=#json>JSON</a><br><br>" + len + "</span>",
-            body: "<br><table class='data-list-table' style='border: 1px solid #ddd; white-space: nowrap;'><tr><th>" + ths.join("<th>") + linkify(rows.join("")) + "</table><br>" +
+            body: "<br><table class='data-list-table rockstar' style='border: 1px solid #ddd; white-space: nowrap;'><tr><th>" + ths.join("<th>") + linkify(rows.join("")) + "</table><br>" +
                 "<div id=json><a href=#table>Table</a> <b>JSON</b></div><br>" + len};
     }
     function formatPre(s, url, addId) {

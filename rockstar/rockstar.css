@@ -48,3 +48,16 @@
 .data-list-table.rockstar {
   border: 1px solid #ddd;
 }
+
+.rockstarPopup {
+  position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto;
+  background-color: white; border: 1px solid #ddd;
+}
+
+.rockstarButtons a {
+  font-size: 18px; padding: 4px; cursor: pointer;
+}
+
+.rockstarButtons a svg {
+  height: 20px; vertical-align: text-top;
+}

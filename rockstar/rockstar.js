@@ -49,12 +49,10 @@
         quickUpdate();
         if (location.pathname == "/admin/users") {
             directoryPeople();
-            openLogList('deletedUsers');
         } else if (location.pathname.match("/admin/user/")) {
             directoryPerson();
         } else if (location.pathname == "/admin/groups") {
             directoryGroups();
-            openLogList('deletedGroups');
         } else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
         } else if (location.pathname.match("/report/system_log_2")) {
@@ -63,8 +61,6 @@
             activeDirectory();
         } else if (location.pathname == "/admin/access/identity-providers") {
             identityProviders();
-        } else if (location.pathname == "/admin/apps/active") {
-            openLogList('deletedApps');
         }
 
         $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
@@ -79,6 +75,15 @@
         }, 200);        
         exportObjects();
         //createPrefixA("<li>", "Export Objects", "#nav-admin-reports-2", exportObjects);
+
+        if (location.pathname == "/admin/users") {
+            openLogList('deletedUsers');
+        } else if (location.pathname == "/admin/groups") {
+            openLogList('deletedGroups');
+        } else if (location.pathname == "/admin/apps/active") {
+            openLogList('deletedApps');
+        }
+
         apiExplorer();
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar", true);

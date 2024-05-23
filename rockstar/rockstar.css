@@ -29,22 +29,6 @@
   background-color: #f0f0f0;
 }
 
-.info-tooltip {
-  background: azure;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  padding: 15px;
-  align-items: center;
-  margin: 0 15px 15px 15px;
-}
-
-.info-tooltip .info-tooltip-icon {
-  font-size: 1.5em;
-  color: steelblue;
-}
-
 .data-list-table.rockstar {
   border: 1px solid #ddd;
 }

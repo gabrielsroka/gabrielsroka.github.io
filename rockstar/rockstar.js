@@ -1021,14 +1021,14 @@
     async function openConfigPopup() {
         const configPopup = createPopup("Configuration");
         
-        $(`<div class="info-tooltip">
-            <div class="info-tooltip-icon">🛈</div>
-            <div class="info-tooltip-content">
+        $(`<div class="infobox clearfix infobox-info">
+            <span class="icon info-16"></span>
+            <div>
                 If you want to know more about Backupta, <a href="https://www.backupta.com/#how-to-buy">contact us</a>.
             </div>
         </div>`).appendTo(configPopup);
 
-        $(`<div style='padding: 5px'>Tenant id: ${await getBackuptaTenantId()}</div>`).appendTo(configPopup);
+        $(`<div style='padding: 20px 5px 5px 5px'>Tenant id: ${await getBackuptaTenantId()}</div>`).appendTo(configPopup);
 
         // Create the input element and set the default value
         const backuptaUrlDiv = $("<div style='padding: 5px'>Backupta base URL: </div>").appendTo(configPopup);

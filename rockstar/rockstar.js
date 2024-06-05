@@ -1013,7 +1013,7 @@
         backuptaTenantId = defaultDomain.domain.replace(/\./g, '_');
         return backuptaTenantId;
     }
-    // Next line was intentionnally written without `await`:
+    // Next line was intentionally written without `await`:
     // we want to load the backupta tenant ID in the background without blocking the main thread.
     getBackuptaTenantId();
 

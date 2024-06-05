@@ -135,7 +135,7 @@
                             var user = appUser._embedded.user;
                             rows += `<tr><td>${e(appUser.label)}<td>${e(user.credentials.userName)}<td>${e(user.profile.email)}`;
                         });
-                        adPopup.html(`<table class='data-list-table rockstar'>${rows}</table>`);
+                        adPopup.html(`<table class='data-list-table rockstar' style='border: 1px solid #ddd;'>${rows}</table>`);
                     });
                 }
                 createA("AD: " + e(user.credentials.provider.name), ".subheader", showADs);
@@ -345,7 +345,7 @@
                 div.innerHTML = lo.title + '<br>' + (rows.length ? rows.sort().join('<br>') : '(none)') + '<br><br>';
             }
             async function getJson(url) {
-                const r = await fetch(window.location.origin + url);
+                const r = await fetch(location.origin + url);
                 return r.json();
             }
         });
@@ -452,7 +452,7 @@
                         var style = days < 30 ? "style='background-color: red; color: white'" : "";
                         rows += `<tr><td>${e(idp.name)}<td>${e(key.expiresAt)}<td ${style}}'>${days}`;
                     });
-                    idpPopup.html(`<table class='data-list-table rockstar'>${rows}</table>`);
+                    idpPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`);
                 });
             });
         });      
@@ -495,7 +495,7 @@
             });
             createDiv("Export App Notes (experimental)", mainPopup, function () {
                 startExport("App Notes", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,endUserAppNotes,adminAppNotes", async app => {
-                    var response = await fetch(`${window.location.origin}/admin/app/${app.name}/instance/${app.id}/settings/general`);
+                    var response = await fetch(`${location.origin}/admin/app/${app.name}/instance/${app.id}/settings/general`);
                     var html = await response.text();
                     var parser = new DOMParser();
                     var doc = parser.parseFromString(html, "text/html");
@@ -507,7 +507,7 @@
 
             createDiv("Export App Sign On Policies (experimental)", mainPopup, function () {
                 startExport("App Sign On Policies", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
-                    var response = await fetch(`${window.location.origin}/admin/app/instance/${app.id}/app-sign-on-policy-list`);
+                    var response = await fetch(`${location.origin}/admin/app/instance/${app.id}/app-sign-on-policy-list`);
                     var html = await response.text();
                     var parser = new DOMParser();
                     var doc = parser.parseFromString(html, "text/html");
@@ -970,7 +970,7 @@
         }
 
         createDiv("All Tiny Apps", mainPopup, async function () {
-            const response = await fetch(`${window.location.origin}/api/v1/users/me/appLinks`);
+            const response = await fetch(`${location.origin}/api/v1/users/me/appLinks`);
             const links = (await response.json())
                 .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1);
             const lis = links.map(link => `<li class='app-button-wrapper' style='width: 64px;'>` +
@@ -1006,27 +1006,26 @@
 
     // Start logs list functions
     let backuptaTenantId;
-    const getBackuptaTenantId = async () => {
-        if (backuptaTenantId)
-            return backuptaTenantId;
-        const response = await fetch(`${window.location.origin}/api/v1/domains/default`);
+    async function getBackuptaTenantId() {
+        if (backuptaTenantId) return backuptaTenantId;
+        const response = await fetch(`${location.origin}/api/v1/domains/default`);
         const defaultDomain = await response.json();
         backuptaTenantId = defaultDomain.domain.replace(/\./g, '_');
         return backuptaTenantId;
-    };
-    // Next line was intentionnally written without `async`:
+    }
+    // Next line was intentionnally written without `await`:
     // we want to load the backupta tenant ID in the background without blocking the main thread.
     getBackuptaTenantId();
 
     async function openConfigPopup() {
         const configPopup = createPopup("Configuration");
         
-        $(`<div class="infobox clearfix infobox-info">
-            <span class="icon info-16"></span>
-            <div>
-                If you want to know more about Backupta, <a href="https://www.backupta.com/#how-to-buy">contact us</a>.
-            </div>
-        </div>`).appendTo(configPopup);
+        $(`<div class="infobox clearfix infobox-info">` +
+            `<span class="icon info-16"></span>` +
+            `<div>` +
+                `If you want to know more about Backupta, <a href="https://www.backupta.com/#how-to-buy">contact us</a>.` +
+            `</div>` +
+        `</div>`).appendTo(configPopup);
 
         $(`<div style='padding: 20px 5px 5px 5px'>Tenant id: ${await getBackuptaTenantId()}</div>`).appendTo(configPopup);
 
@@ -1040,7 +1039,7 @@
         const saveDiv = $("<div style='padding: 5px'></div>").appendTo(configPopup);
         $("<input type='submit' value='Save' class='button-primary link-button' />")
             .appendTo(saveDiv)
-            .on('click', function () {
+            .click(function () {
                 localStorage.backuptaBaseUrl = $('#backuptaUrlInput').val();
             });
     }
@@ -1048,10 +1047,10 @@
     async function openNewsPopup() {
         const newsPopup = createPopup("What's New");
         $(`<h1 style='padding: 5px'>V0.27</h1>`).appendTo(newsPopup);
-        $(`<div style='padding: 5px'>
-            • Added "deleted" categories for users, apps, groups.<br/>
-            • Added "restore with backupta" functionality for deleted items.
-        </div>`).appendTo(newsPopup);
+        $(`<div style='padding: 5px'>` +
+            `• Added "deleted" categories for users, apps, groups.<br/>` +
+            `• Added "restore with backupta" functionality for deleted items.` +
+        `</div>`).appendTo(newsPopup);
     }
 
     // Generic function to create a popup with search bar
@@ -1060,27 +1059,24 @@
         logListPopup.parent().attr('id', 'logListPopup');
         const searchInputHTML = `<input type='text' id='userSearch' style='margin-bottom: 10px' placeholder='${searchPlaceholder}'>`;
         logListPopup.prepend(searchInputHTML);
-        return { logListPopup, searchInputHTML };
+        return {logListPopup, searchInputHTML};
     }
 
 
     // Fetch and display log data using utility functions
-    const fetchDataAndDisplay = async (type) => {
+    async function fetchDataAndDisplay(type) {
         const popupConfig = logListPopups[type];
         const { logListPopup, searchInputHTML } = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
         displayResultTable(popupConfig, logListPopup, searchInputHTML);
 
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 60);
-        const url = `${window.location.origin}/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}`;
+        const url = `${location.origin}/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}`;
         await fetchMore(url, 10);
-    };
+    }
 
-    const fetchMore = async (url, limit) => {
-        const response = await fetch(
-            url.replace(/limit=\d+/, `limit=${limit}`),
-            { headers }
-        );
+    async function fetchMore(url, limit) {
+        const response = await fetch(url.replace(/limit=\d+/, `limit=${limit}`), {headers});
         const data = await response.json();
         if (data.length === 0 || data.length < limit) {
             $('#showMore').hide();
@@ -1102,19 +1098,19 @@
                     return; // Ignore this log and pass next
                 }
                 log.target.forEach(function (target) {
-                    targetHTML += `<tr class='data-list-item' data-displayname='${target.displayName}'>`;
-                    targetHTML += `<td><input type='checkbox' id='${target.id}'></td>`;
-                    targetHTML += `<td><label for='${target.id}'>${target.displayName}</label></td>`;
-                    targetHTML += `<td>${target.id}</td>`;
-                    targetHTML += `<td>${target.type}</td>`;
-                    targetHTML += `<td>${log.actor.displayName}</td>`;
-                    targetHTML += `<td>${log.published.substring(0, 16).replace('T', ' ')}</td>`;
-                    targetHTML += "</tr>";
+                    targetHTML += `<tr class='data-list-item' data-displayname='${e(target.displayName)}'>` +
+                        `<td><input type='checkbox' id='${e(target.id)}'></td>` +
+                        `<td><label for='${e(target.id)}'>${e(target.displayName)}</label></td>` +
+                        `<td>${e(target.id)}</td>` +
+                        `<td>${e(target.type)}</td>` +
+                        `<td>${e(log.actor.displayName)}</td>` +
+                        `<td>${log.published.substring(0, 16).replace('T', ' ')}</td>` +
+                        "</tr>";
                 });
             }
         });
         $('.data-list-table.rockstar tbody').append(targetHTML);
-        button = $('#showMore');
+        const button = $('#showMore');
         button.off("click");
         button.on("click", () =>
             fetchMore(links.next, 100));
@@ -1122,11 +1118,11 @@
 
     // Function to display results
     function displayResultTable(popupConfig, logListPopup, searchInputHTML) {
-        let targetHTML = "<table class='data-list-table rockstar'><thead><tr>";
-        targetHTML += "<th></th><th>Display Name</th><th>ID</th><th>Type</th><th>Deleted By</th><th>Deleted At</th>";
-        targetHTML += "</tr></thead><tbody></tbody></table>";
-        targetHTML += "<div style='float: right'><a href='#' id='showMore'>Show more</a></div>";
-        targetHTML += "<div id='parent_link-button' style='margin-top: 15px'><button id='btnRestore' name='btnRestore'>Restore with Backupta</button></div>";
+        let targetHTML = "<table class='data-list-table rockstar' style='border: 1px solid #ddd;'><thead><tr>" +
+            "<th /><th>Display Name</th><th>ID</th><th>Type</th><th>Deleted By</th><th>Deleted At</th>" +
+            "</tr></thead><tbody></tbody></table>" +
+            "<div style='float: right'><a href='#' id='showMore'>Show more</a></div>" +
+            "<div id='parent_link-button' style='margin-top: 15px'><button id='btnRestore' name='btnRestore'>Restore with Backupta</button></div>";
         logListPopup.html(targetHTML);
         $(logListPopup).prepend(searchInputHTML);
 
@@ -1138,7 +1134,7 @@
                 return;
             }
             var items = document.querySelectorAll(".data-list-table.rockstar input[type='checkbox']:checked");
-            var ids = Array.from(items).map(item => item.id)
+            var ids = Array.from(items).map(item => item.id);
             var targetUrl = `${baseUrl}/${backuptaTenantId}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
             // console.log('Restore in backupta', targetUrl, ids);
             window.open(targetUrl, '_blank');
@@ -1285,7 +1281,7 @@
         });
         const len = "(length: " + objects.length + ")\n\n";
         return {header: "<span id=table><b>Table</b> <a href=#json>JSON</a><br><br>" + len + "</span>",
-            body: "<br><table class='data-list-table rockstar' style='border: 1px solid #ddd; white-space: nowrap;'><tr><th>" + ths.join("<th>") + linkify(rows.join("")) + "</table><br>" +
+            body: "<br><table class='data-list-table' style='border: 1px solid #ddd; white-space: nowrap;'><tr><th>" + ths.join("<th>") + linkify(rows.join("")) + "</table><br>" +
                 "<div id=json><a href=#table>Table</a> <b>JSON</b></div><br>" + len};
     }
     function formatPre(s, url, addId) {
@@ -1390,23 +1386,23 @@
         return links;
     }
     function getJSON(url) {
-        return $.get({url: window.location.origin + url, headers});
+        return $.get({url: location.origin + url, headers});
     }
     function postJSON(settings) {
-        settings.url = window.location.origin + settings.url;
+        settings.url = location.origin + settings.url;
         settings.contentType = "application/json";
         settings.data = JSON.stringify(settings.data);
         settings.headers = headers;
         return $.post(settings);
     }
     function requestJSON(settings) {
-        settings.url = window.location.origin + settings.url;
+        settings.url = location.origin + settings.url;
         settings.contentType = "application/json";
         settings.headers = headers;
         return $.ajax(settings);
     }
     function deleteJSON(url) {
-        return $.ajax({url: window.location.origin + url, headers, method: "DELETE"});
+        return $.ajax({url: location.origin + url, headers, method: "DELETE"});
     }
     function searcher(object) { // TODO: Save search string in location.hash # in URL. Reload from there.
         function searchObjects() {

@@ -19,7 +19,7 @@
             menuTitle: 'Deleted Users',
             title: "Latest deleted users",
             searchPlaceholder: "Search user...",
-            oktaFilter: 'eventType eq "user.lifecycle.delete"',
+            oktaFilter: 'eventType eq "user.lifecycle.delete.completed"',
             backuptaFilterBy: 'type:DELETE;component:USERS',
         },
         deletedGroups: {
@@ -1031,17 +1031,24 @@
 
         // Create the input element and set the default value
         const backuptaUrlDiv = $("<div style='padding: 5px'>Backupta base URL: </div>").appendTo(configPopup);
+        
+        const saveDiv = $("<div style='padding: 5px'></div>").appendTo(configPopup);
+        const saveButton = $("<input type='submit' value='Save' class='button-primary link-button' disabled />")
+            .appendTo(saveDiv)
+            .click(function () {
+                const val = $('#backuptaUrlInput').val().replace(/\/$/, "");
+                $('#backuptaUrlInput').val(val);
+                localStorage.backuptaBaseUrl = $('#backuptaUrlInput').val();
+                saveButton.attr('disabled', true);
+            });
+
         $("<input type='text' id='backuptaUrlInput' placeholder='https://...'>")
             .val(localStorage.backuptaBaseUrl) // Set the default value
             .appendTo(backuptaUrlDiv)
+            .keyup(function() {
+                saveButton.attr('disabled', $(this).val() == localStorage.backuptaBaseUrl);
+            })
             .focus();
-        
-        const saveDiv = $("<div style='padding: 5px'></div>").appendTo(configPopup);
-        $("<input type='submit' value='Save' class='button-primary link-button' />")
-            .appendTo(saveDiv)
-            .click(function () {
-                localStorage.backuptaBaseUrl = $('#backuptaUrlInput').val();
-            });
     }
     
     async function openNewsPopup() {
@@ -1070,7 +1077,7 @@
         displayResultTable(popupConfig, logListPopup, searchInputHTML);
 
         const sinceDate = new Date();
-        sinceDate.setDate(sinceDate.getDate() - 60);
+        sinceDate.setDate(sinceDate.getDate() - 90);
         const url = `${location.origin}/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}`;
         await fetchMore(url, 10);
     }

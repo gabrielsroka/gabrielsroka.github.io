@@ -14,6 +14,30 @@
     $ = window.$ || window.jQueryCourage;
     const headers = {'X-Okta-User-Agent-Extended': 'rockstar'};
 
+    const logListPopups = {
+        deletedUsers: {
+            menuTitle: 'Deleted Users',
+            title: "Latest deleted users",
+            searchPlaceholder: "Search user...",
+            oktaFilter: 'eventType eq "user.lifecycle.delete.completed"',
+            backuptaFilterBy: 'type:DELETE;component:USERS',
+        },
+        deletedGroups: {
+            menuTitle: 'Deleted Groups',
+            title: "Latest deleted groups",
+            searchPlaceholder: "Search group...",
+            oktaFilter: 'eventType eq "group.lifecycle.delete"',
+            backuptaFilterBy: 'type:DELETE;component:GROUPS',
+        },
+        deletedApps: {
+            menuTitle: 'Deleted Apps',
+            title: "Latest deleted apps",
+            searchPlaceholder: "Search app...",
+            oktaFilter: 'eventType eq "application.lifecycle.delete"',
+            backuptaFilterBy: 'type:DELETE;component:APPS',
+        }
+    };
+
     if (location.href == "https://gabrielsroka.github.io/rockstar/") {
         alert("To install rockstar, open your bookmark toolbar, then drag and drop it. To use it, login to Okta or Okta Admin, then click rockstar. See the Usage instructions on this page.");
         return;
@@ -39,8 +63,6 @@
             identityProviders();
         }
 
-        // $("<li><a href='/admin/apps/add-app'>Integration Network</a>").appendTo("#nav-admin-apps-2");
-        // $("<li><a href='/admin/access/api/tokens'>API Tokens</a>").appendTo("#nav-admin-access-2");
         var count = 0;
         const intervalID = setInterval(() => { // new admin
             if (count++ == 25) clearInterval(intervalID);
@@ -52,6 +74,15 @@
         }, 200);        
         exportObjects();
         //createPrefixA("<li>", "Export Objects", "#nav-admin-reports-2", exportObjects);
+
+        if (location.pathname == "/admin/users") {
+            openLogList('deletedUsers');
+        } else if (location.pathname == "/admin/groups") {
+            openLogList('deletedGroups');
+        } else if (location.pathname == "/admin/apps/active") {
+            openLogList('deletedApps');
+        }
+
         apiExplorer();
     } else if (location.pathname == "/app/UserHome") { // User home page (non-admin)
         mainPopup = createPopup("rockstar", true);
@@ -59,6 +90,15 @@
         userHome();
     //} else if (location.host == "developer.okta.com" && location.pathname.startsWith("/docs/reference/api/")) {
     //    tryAPI();
+    }
+
+    function whatsNew() {
+        const newsPopup = createPopup("What's New");
+        $(`<h1 style='padding: 5px'>2024-06-11</h1>`).appendTo(newsPopup);
+        $(`<div style='padding: 5px'>` +
+            `• See Deleted Users, Apps, and Groups.<br/>` +
+            `• Restore Deleted Users, Apps, and Groups with Backupta.` +
+        `</div>`).appendTo(newsPopup);
     }
 
     function quickUpdate() {
@@ -313,7 +353,7 @@
                 div.innerHTML = lo.title + '<br>' + (rows.length ? rows.sort().join('<br>') : '(none)') + '<br><br>';
             }
             async function getJson(url) {
-                const r = await fetch(url);
+                const r = await fetch(location.origin + url);
                 return r.json();
             }
         });
@@ -463,7 +503,7 @@
             });
             createDiv("Export App Notes (experimental)", mainPopup, function () {
                 startExport("App Notes", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,endUserAppNotes,adminAppNotes", async app => {
-                    var response = await fetch(`/admin/app/${app.name}/instance/${app.id}/settings/general`);
+                    var response = await fetch(`${location.origin}/admin/app/${app.name}/instance/${app.id}/settings/general`);
                     var html = await response.text();
                     var parser = new DOMParser();
                     var doc = parser.parseFromString(html, "text/html");
@@ -472,9 +512,10 @@
                     return toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status, enduserAppNotes, adminAppNotes);
                 });
             });
+
             createDiv("Export App Sign On Policies (experimental)", mainPopup, function () {
                 startExport("App Sign On Policies", "/api/v1/apps?limit=2", "id,label,name,userNameTemplate,features,signOnMode,status,policies", async app => {
-                    var response = await fetch(`/admin/app/instance/${app.id}/app-sign-on-policy-list`);
+                    var response = await fetch(`${location.origin}/admin/app/instance/${app.id}/app-sign-on-policy-list`);
                     var html = await response.text();
                     var parser = new DOMParser();
                     var doc = parser.parseFromString(html, "text/html");
@@ -937,7 +978,7 @@
         }
 
         createDiv("All Tiny Apps", mainPopup, async function () {
-            const response = await fetch(`/api/v1/users/me/appLinks`);
+            const response = await fetch(`${location.origin}/api/v1/users/me/appLinks`);
             const links = (await response.json())
                 .sort((link1, link2) => link1.sortOrder < link2.sortOrder ? -1 : 1);
             const lis = links.map(link => `<li class='app-button-wrapper' style='width: 64px;'>` +
@@ -969,6 +1010,150 @@
         function quickAccess() {
             qa.hidden = localStorage.rockstarQuickAccess;
         }
+    }
+
+    // Start logs list functions
+    let backuptaTenantId;
+    async function getBackuptaTenantId() {
+        if (backuptaTenantId) return backuptaTenantId;
+        const response = await fetch(`${location.origin}/api/v1/domains/default`);
+        const defaultDomain = await response.json();
+        backuptaTenantId = defaultDomain.domain.replace(/\./g, '_');
+        return backuptaTenantId;
+    }
+    getBackuptaTenantId(); // don't await for this
+
+    async function settings() {
+        const configPopup = createPopup("Configuration");
+        
+        $(`<div class="infobox clearfix infobox-info">` +
+            `<span class="icon info-16"></span>` +
+            `<div>If you want to know more about Backupta, <a href="https://www.backupta.com/#how-to-buy" target=_blank>contact us</a>.</div>` +
+        `</div>`).appendTo(configPopup);
+
+        $(`<div style='padding: 20px 5px 5px 5px'>Tenant id: ${await getBackuptaTenantId()}</div>`).appendTo(configPopup);
+
+        // Create the input element and set the default value
+        const backuptaUrlDiv = $("<div style='padding: 5px'>Backupta base URL: </div>").appendTo(configPopup);
+        
+        const saveDiv = $("<div style='padding: 5px'></div>").appendTo(configPopup);
+        const saveButton = $("<input type='submit' value='Save' class='button-primary link-button' disabled />")
+            .appendTo(saveDiv)
+            .click(function () {
+                const val = $('#backuptaUrlInput').val().replace(/\/$/, "");
+                $('#backuptaUrlInput').val(val);
+                localStorage.backuptaBaseUrl = $('#backuptaUrlInput').val();
+                saveButton.attr('disabled', true);
+            });
+
+        $("<input type='text' id='backuptaUrlInput' placeholder='https://...'>")
+            .val(localStorage.backuptaBaseUrl) // Set the default value
+            .appendTo(backuptaUrlDiv)
+            .keyup(function () {
+                saveButton.attr('disabled', $(this).val() == localStorage.backuptaBaseUrl);
+            })
+            .focus();
+    }
+    
+    // Generic function to create a popup with search bar
+    function createPopupWithSearch(popupTitle, searchPlaceholder) {
+        const logListPopup = createPopup(popupTitle);
+        logListPopup.parent().attr('id', 'logListPopup');
+        const searchInputHTML = `<input type='text' id='userSearch' style='margin-bottom: 10px' placeholder='${searchPlaceholder}'>`;
+        logListPopup.prepend(searchInputHTML);
+        return {logListPopup, searchInputHTML};
+    }
+
+    // Fetch and display log data using utility functions
+    async function fetchDataAndDisplay(type) {
+        const popupConfig = logListPopups[type];
+        const {logListPopup, searchInputHTML} = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
+        displayResultTable(popupConfig, logListPopup, searchInputHTML);
+
+        const sinceDate = new Date();
+        sinceDate.setDate(sinceDate.getDate() - 90);
+        const url = `${location.origin}/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}`;
+        await fetchMore(url, 10);
+    }
+
+    async function fetchMore(url, limit) {
+        const response = await fetch(url.replace(/limit=\d+/, `limit=${limit}`), {headers});
+        const logs = await response.json();
+        if (logs.length === 0 || logs.length < limit) {
+            $('#showMore').hide();
+        }
+        const links = getLinks(response.headers.get('Link'));
+        appendResults(logs, links);
+    }
+
+    function appendResults(logs, links) {
+        logs.reverse();
+        let targetHTML = '';
+        logs.forEach(log => {
+            if (log.target && log.target.length > 0) {
+                if (log.target.some(target => target.type === "APP")) {
+                    return;
+                }
+                log.target.forEach(target => {
+                    targetHTML += `<tr class='data-list-item' data-displayname='${e(target.displayName)}'>` +
+                        `<td><input type='checkbox' id='${e(target.id)}'>` +
+                        `<td><label for='${e(target.id)}'>${e(target.displayName)}</label>` +
+                        `<td>${e(target.id)}` +
+                        `<td>${e(target.type)}` +
+                        `<td>${e(log.actor.displayName)}` +
+                        `<td>${log.published.substring(0, 19).replace('T', ' ')}`;
+                });
+            }
+        });
+        $('.data-list-table.rockstar tbody').append(targetHTML);
+        const button = $('#showMore');
+        button.off("click");
+        button.on("click", () => fetchMore(links.next, 100));
+    }
+
+    function displayResultTable(popupConfig, logListPopup, searchInputHTML) {
+        let targetHTML = "<table class='data-list-table rockstar' style='border: 1px solid #ddd;'><thead>" +
+            "<tr><th>&nbsp;<th>Display Name<th>ID<th>Type<th>Deleted By<th>Deleted On" +
+            "<tbody></tbody></table>" +
+            "<div style='float: right'><a href='#' id='showMore'>Show more</a></div>" +
+            "<div style='margin-top: 15px;'><button id='btnRestore'>Restore with Backupta</button></div>";
+        logListPopup.html(targetHTML);
+        $(logListPopup).prepend(searchInputHTML);
+
+        btnRestore.onclick = async function () {
+            var baseUrl = localStorage.backuptaBaseUrl;
+            if (!baseUrl) {
+                await openConfigPopup(true);
+                return;
+            }
+            var items = document.querySelectorAll(".data-list-table.rockstar input[type='checkbox']:checked");
+            var ids = Array.from(items).map(item => item.id);
+            var targetUrl = `${baseUrl}/${backuptaTenantId}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
+            open(targetUrl, '_blank');
+        };
+
+        $('#userSearch').on('keyup', function () {
+            const searchVal = $(this).val().toLowerCase();
+            $('.data-list-item').each(function () {
+                const displayName = $(this).data('displayname').toLowerCase();
+                if (displayName.includes(searchVal)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    }
+
+    // Main function to generate div and get logs.
+    function openLogList(type) {
+        createDiv(logListPopups[type].menuTitle, mainPopup, async function () {
+            if ($("#logListPopup").length) {
+                $("#logListPopup").remove();
+                return;
+            }
+            await fetchDataAndDisplay(type);
+        });
     }
 
     // API functions
@@ -1142,9 +1327,11 @@
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto; ` +
                 `background-color: white; border: 1px solid #ddd;'>` +
                 `${main ? "<span class=title><span style='font-size: 18px;'>≡</span> " : "<span style='font-weight: bold'>"}${title}</span>` +
-                `<div style='display: block; float: right;'>${main ? "<span class=toggleSide style='padding: 4px'> ⇄ </span><span class=minimize style='padding: 4px'> _ </span>" : ""} ` + 
-                `<a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener' style='font-size: 18px; padding: 4px'>?</a> ` + 
-                `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='font-size: 18px; cursor: pointer; padding: 4px'>X</a></div><br><br></div>`)
+                `<div class='rockstarButtons' style='display: block; float: right;'>${main ? "<span class=toggleSide style='padding: 4px'> ⇄ </span><span class=minimize style='padding: 4px'> _ </span>" : ""} ` + 
+                (main ? `<a class='whatsNew'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-wclassth="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg></a>` : '') +
+                (main ? `<a class='settings'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg></a> ` : '') + 
+                `<a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener'>?</a> ` + 
+                `<a onclick='document.body.removeChild(this.parentNode.parentNode)'>X</a></div><br><br></div>`)
             .appendTo(document.body);
         const popupBody = $("<div></div>").appendTo(popup);
         if (main) {
@@ -1157,6 +1344,8 @@
                 toggleSide();
                 localStorage.rockstarToggleSide = localStorage.rockstarToggleSide ? '' : 'true';
             });
+            popup.find('.whatsNew').click(whatsNew);
+            popup.find('.settings').click(settings);
             if (localStorage.rockstarClosed) toggleClosed();
             if (localStorage.rockstarToggleSide) toggleSide();
         }
@@ -1184,21 +1373,23 @@
         return links;
     }
     function getJSON(url) {
-        return $.get({url, headers});
+        return $.get({url: location.origin + url, headers});
     }
     function postJSON(settings) {
+        settings.url = location.origin + settings.url;
         settings.contentType = "application/json";
         settings.data = JSON.stringify(settings.data);
         settings.headers = headers;
         return $.post(settings);
     }
     function requestJSON(settings) {
+        settings.url = location.origin + settings.url;
         settings.contentType = "application/json";
         settings.headers = headers;
         return $.ajax(settings);
     }
     function deleteJSON(url) {
-        return $.ajax({url, headers, method: "DELETE"});
+        return $.ajax({url: location.origin + url, headers, method: "DELETE"});
     }
     function searcher(object) { // TODO: Save search string in location.hash # in URL. Reload from there.
         function searchObjects() {

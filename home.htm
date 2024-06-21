@@ -151,11 +151,12 @@ async function getWeather() {
     const forecast = await getForecast();
     const hi = Math.max(forecast.daily[0].temperature, forecast.daily[1].temperature);
     const lo = Math.min(forecast.daily[0].temperature, forecast.daily[1].temperature);
+    const icon = forecast.hourly.icon.replace(/,0/, '');
     weather.innerHTML = "<a href='https://www.google.com/search?q=weather'>" + 
         `${hi}° ↑ &nbsp; • &nbsp; ${lo}° ↓ (${forecast.upd})` +
         `<span style='float: right;'>${forecast.hourly.shortForecast}</span>` +
         `<div><span style='font-size: 64px;'>${forecast.hourly.temperature}°</span>` +
-        `<span style='float: right;'><img src='${forecast.hourly.icon.replace(/,0/, '')}' style='margin-top: 4px;'></span></div></a>`;
+        `<span style='float: right;'><img src='${icon.startsWith('http') ? icon : 'https://api.weather.gov' + icon}' style='margin-top: 4px;'></span></div></a>`;
 }
 
 async function getForecast() {

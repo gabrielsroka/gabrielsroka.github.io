@@ -270,7 +270,7 @@ for await (user of getObjects(url)) {\n
       };
     });
   }
-  const key = k => (o1, o2) => o1[k].localeCompare(o2[k]);
+  const key = k => (o1, o2) => dot(o1, k).localeCompare(dot(o2, k));
   async function getAll(url, name = '') {
     const objs = [];
     results.innerHTML = 'Loading...';

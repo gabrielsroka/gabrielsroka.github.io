@@ -68,7 +68,7 @@ url = '/api/v1/groups'
 if (typeof groups == 'undefined') groups = await getAll(url)
 found = groups
   .filter(g => g.profile.name.match(regex)) 
-  .sort((g1, g2) => g1.profile.name.localeCompare(g2.profile.name))
+  .sort(key('profile.name'))
   .map(g => ({
     Name: link('/admin/group/' + g.id, g.profile.name),
     Description: g.profile.description || ''
@@ -87,7 +87,7 @@ url = '/api/v1/users?filter=status eq "ACTIVE"'
 
 if (typeof users == 'undefined') users = await getAll(url)
 found = users
-  .filter(u => u.profile.email.match(regex)) 
+  .filter(u => u.profile.email.match(regex))
   .sort((u1, u2) => (u1.profile.firstName + u1.profile.lastName).localeCompare(u2.profile.firstName + u2.profile.lastName))
   .map(u => ({
     Name: link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName),

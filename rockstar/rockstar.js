@@ -1072,7 +1072,7 @@
 
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 90);
-        const url = `${location.origin}/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}`;
+        const url = `${location.origin}/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}&sortOrder=DESCENDING`;
         await fetchMore(url, 10);
     }
 
@@ -1087,7 +1087,6 @@
     }
 
     function appendResults(logs, links) {
-        logs.reverse();
         let targetHTML = '';
         logs.forEach(log => {
             if (log.target && log.target.length > 0) {

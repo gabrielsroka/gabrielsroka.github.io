@@ -1013,13 +1013,9 @@
     }
 
     // Start logs list functions
-    let backuptaTenantId;
-    async function getBackuptaTenantId() {
-        if (backuptaTenantId) return backuptaTenantId;
-        const response = await fetch(`${location.origin}/api/v1/domains/default`);
-        const defaultDomain = await response.json();
-        backuptaTenantId = defaultDomain.domain.replace(/\./g, '_');
-        return backuptaTenantId;
+    function getBackuptaTenantId() {
+        // remove https:// and trailing -admin from the domain, then replace . with _
+        return location.origin.substring(8).replace("-admin.",".").replace(/\./g,"_");
     }
     getBackuptaTenantId(); // don't await for this
 
@@ -1031,7 +1027,7 @@
             `<div>If you want to know more about Backupta, <a href="https://www.backupta.com/#how-to-buy" target=_blank>contact us</a>.</div>` +
         `</div>`).appendTo(configPopup);
 
-        $(`<div style='padding: 20px 5px 5px 5px'>Tenant id: ${await getBackuptaTenantId()}</div>`).appendTo(configPopup);
+        $(`<div style='padding: 20px 5px 5px 5px'>Tenant id: ${getBackuptaTenantId()}</div>`).appendTo(configPopup);
 
         // Create the input element and set the default value
         const backuptaUrlDiv = $("<div style='padding: 5px'>Backupta base URL: </div>").appendTo(configPopup);
@@ -1128,7 +1124,7 @@
             }
             var items = document.querySelectorAll(".data-list-table.rockstar input[type='checkbox']:checked");
             var ids = Array.from(items).map(item => item.id);
-            var targetUrl = `${baseUrl}/${backuptaTenantId}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
+            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
             open(targetUrl, '_blank');
         };
 

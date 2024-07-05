@@ -1123,7 +1123,7 @@
         btnRestore.onclick = async function () {
             var baseUrl = localStorage.backuptaBaseUrl;
             if (!baseUrl) {
-                await openConfigPopup(true);
+                await settings();
                 return;
             }
             var items = document.querySelectorAll(".data-list-table.rockstar input[type='checkbox']:checked");

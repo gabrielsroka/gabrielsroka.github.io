@@ -1017,7 +1017,6 @@
         // remove https:// and trailing -admin from the domain, then replace . with _
         return location.origin.substring(8).replace("-admin.",".").replace(/\./g,"_");
     }
-    getBackuptaTenantId(); // don't await for this
 
     async function settings() {
         const configPopup = createPopup("Configuration");

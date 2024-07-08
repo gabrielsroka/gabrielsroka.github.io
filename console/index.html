@@ -81,7 +81,7 @@ for await (user of getObjects(url)) {\n
       statusBar.innerHTML = '';
     }
     cancel = false;
-    eval('(async function () {' + editor.value + '\n})()');
+    eval('(async function () {\n' + editor.value + '\n})()');
   };
   cancelBtn.onclick = () => cancel = true;
   var fileHandle;

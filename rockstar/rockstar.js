@@ -1091,9 +1091,6 @@
         let targetHTML = '';
         logs.forEach(log => {
             if (log.target && log.target.length > 0) {
-                if (log.target.some(target => target.type === "APP")) {
-                    return;
-                }
                 log.target.forEach(target => {
                     targetHTML += `<tr class='data-list-item' data-displayname='${e(target.displayName)}'>` +
                         `<td><input type='checkbox' id='${e(target.id)}'>` +

@@ -372,7 +372,7 @@ report(url, cols)
 
 allApps = await getAll('/api/v1/apps')
 apps = allApps.filter(app => app.signOnMode == 'SAML_2_0').sort(key('label'))
-apps.forEach(a => a.attributes = a.settings.signOn?.attributeStatements?.filter(s => s.type == 'EXPRESSION').map(s => s.values) || [])
+apps.forEach(a => a.attributes = a.settings.signOn?.attributeStatements?.filter(s => s.type == 'EXPRESSION').map(s => s.name + ' = ' + s.values) || [])
 results.innerHTML = apps.length + ' apps found<br><button id=exportCSV>Export CSV</button>'
 tableApps = apps.map(app => ({
   App: link('/admin/app/' + app.name + '/instance/' + app.id, app.label),

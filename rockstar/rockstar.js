@@ -1013,17 +1013,11 @@
     }
 
     // Start logs list functions
-    let backuptaTenantId;
-    async function getBackuptaTenantId() {
-        if (backuptaTenantId) return backuptaTenantId;
-        const response = await fetch(`${location.origin}/api/v1/domains/default`);
-        const defaultDomain = await response.json();
-        backuptaTenantId = defaultDomain.domain.replace(/\./g, '_');
-        return backuptaTenantId;
+    function getBackuptaTenantId() {
+        return location.host.replace(/(-admin)?\./g, '_');
     }
-    getBackuptaTenantId(); // don't await for this
 
-    async function settings() {
+    function settings() {
         const configPopup = createPopup("Configuration");
         
         $(`<div class="infobox clearfix infobox-info">` +
@@ -1031,7 +1025,7 @@
             `<div>If you want to know more about Backupta, <a href="https://www.backupta.com/#how-to-buy" target=_blank>contact us</a>.</div>` +
         `</div>`).appendTo(configPopup);
 
-        $(`<div style='padding: 20px 5px 5px 5px'>Tenant id: ${await getBackuptaTenantId()}</div>`).appendTo(configPopup);
+        $(`<div style='padding: 20px 5px 5px 5px'>Tenant id: ${getBackuptaTenantId()}</div>`).appendTo(configPopup);
 
         // Create the input element and set the default value
         const backuptaUrlDiv = $("<div style='padding: 5px'>Backupta base URL: </div>").appendTo(configPopup);
@@ -1072,7 +1066,7 @@
 
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 90);
-        const url = `${location.origin}/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}`;
+        const url = `${location.origin}/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter}&sortOrder=DESCENDING`;
         await fetchMore(url, 10);
     }
 
@@ -1087,13 +1081,9 @@
     }
 
     function appendResults(logs, links) {
-        logs.reverse();
         let targetHTML = '';
         logs.forEach(log => {
             if (log.target && log.target.length > 0) {
-                if (log.target.some(target => target.type === "APP")) {
-                    return;
-                }
                 log.target.forEach(target => {
                     targetHTML += `<tr class='data-list-item' data-displayname='${e(target.displayName)}'>` +
                         `<td><input type='checkbox' id='${e(target.id)}'>` +
@@ -1120,15 +1110,15 @@
         logListPopup.html(targetHTML);
         $(logListPopup).prepend(searchInputHTML);
 
-        btnRestore.onclick = async function () {
+        btnRestore.onclick = function () {
             var baseUrl = localStorage.backuptaBaseUrl;
             if (!baseUrl) {
-                await openConfigPopup(true);
+                settings();
                 return;
             }
             var items = document.querySelectorAll(".data-list-table.rockstar input[type='checkbox']:checked");
             var ids = Array.from(items).map(item => item.id);
-            var targetUrl = `${baseUrl}/${backuptaTenantId}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
+            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
             open(targetUrl, '_blank');
         };
 
@@ -1331,9 +1321,10 @@
                 (main ? `<a class='whatsNew'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-wclassth="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" /></svg></a>` : '') +
                 (main ? `<a class='settings'><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg></a> ` : '') + 
                 `<a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener'>?</a> ` + 
-                `<a onclick='document.body.removeChild(this.parentNode.parentNode)'>X</a></div><br><br></div>`)
+                `<a class=close>X</a></div><br><br></div>`)
             .appendTo(document.body);
         const popupBody = $("<div></div>").appendTo(popup);
+        popup.find('.close').click(() => popup.remove());
         if (main) {
             popup.find('.title').click(toggleClosed);
             popup.find('.minimize').click(() => {

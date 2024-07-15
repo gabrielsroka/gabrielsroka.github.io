@@ -1014,8 +1014,8 @@
 
     // Start logs list functions
     function getBackuptaTenantId() {
-        // remove https:// and trailing -admin from the domain, then replace . with _
-        return location.origin.substring(8).replace("-admin.",".").replace(/\./g,"_");
+        // remove trailing -admin from the domain and replace . with _
+        return location.host.replace(/(-admin)?\./g,'_')
     }
 
     async function settings() {

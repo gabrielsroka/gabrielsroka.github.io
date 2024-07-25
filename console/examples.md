@@ -489,8 +489,10 @@ async function evalExpression() {
   infobox.innerHTML = '&nbsp;'
   body = [{targets: {user: user.id}, value: expression.value, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}]
   exp = (await postJson('/api/v1/internal/expression/eval', body))[0]
-  if (exp.error) h = err + 'We found some errors.<br>' + exp.error.errorCauses.map(c => c.errorSummary).join('<br>')
-  else if (exp.result == 'TRUE') h = '<span style="color: white; background-color: green">&nbsp;✓ </span>&nbsp; User matches rule'
+  if (exp.error) {
+    h = err + 'We found some errors.<br>' + exp.error.errorCauses.map(c => c.errorSummary).join('<br>')
+    if (expression.value.match(/[‘’“”]/)) h += '<br>Change smart (curly) quotes to straight quotes.'
+  } else if (exp.result == 'TRUE') h = '<span style="color: white; background-color: green">&nbsp;✓ </span>&nbsp; User matches rule'
   else h = err + "User doesn't match rule"
   infobox.innerHTML = h
 }

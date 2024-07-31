@@ -1471,7 +1471,7 @@
         return o;
     }
 
-    // Listen to message from background.js.
+    // Listen to message from service_worker.js.
     if (window.chrome && chrome.runtime.onMessage) chrome.runtime.onMessage.addListener(function (request, _, sendResponse) {
         getJSON("/api/v1/groups").then(groups => {
             groups = groups

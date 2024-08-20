@@ -9,7 +9,7 @@ A short (25-line) JavaScript snippet to call the Okta API from a browser UI -- l
 Or, copy this code to the browser Console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
 2. Go to Sources > Snippets, click New Snippet.
-3. Give it a name, eg, "SearchGroups.js".
+3. Give it a name, eg, "SearchGroups".
 4. Copy/paste the code from [https://gabrielsroka.github.io/SearchGroups.js](https://gabrielsroka.github.io/SearchGroups.js)
 5. Save (Ctrl+S, Windows).
 

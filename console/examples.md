@@ -39,8 +39,8 @@ dstGroupId = '00g...'
 
 url = '/api/v1/groups/' + srcGroupId + '/users'
 for await (user of getObjects(url)) {
-  log('adding member', user.)
-  await put('/api/v1/groups/' + dstGroupId + '/users/' + user.)
+  log('adding member', user.id)
+  await put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
   if (cancel) break
 }
 ```
@@ -49,10 +49,10 @@ for await (user of getObjects(url)) {
 ```js
 // Remove group members using https://gabrielsroka.github.io/console
 
-url = '/api/v1/groups/' +  + '/users/'
+url = '/api/v1/groups/' + id + '/users/'
 for await (user of getObjects(url)) {
   log('removing group member', user.profile.login)
-  await remove(url + user.)
+  await remove(url + user.id)
   if (cancel) break
 }
 ```
@@ -70,7 +70,7 @@ found = groups
   .filter(g => g.profile.name.match(regex)) 
   .sort(key('profile.name'))
   .map(g => ({
-    Name: link('/admin/group/' + g., g.profile.name),
+    Name: link('/admin/group/' + g.id, g.profile.name),
     Description: g.profile.description || ''
   }))
 results.innerHTML = found.length + ' found'
@@ -90,7 +90,7 @@ found = users
   .filter(u => u.profile.email.match(regex))
   .sort((u1, u2) => (u1.profile.firstName + u1.profile.lastName).localeCompare(u2.profile.firstName + u2.profile.lastName))
   .map(u => ({
-    Name: link('/admin/user/profile/view/' + u., u.profile.firstName + ' ' + u.profile.lastName),
+    Name: link('/admin/user/profile/view/' + u.id, u.profile.firstName + ' ' + u.profile.lastName),
     Username: u.profile.login,
     Email: u.profile.email
   }))
@@ -119,7 +119,7 @@ if (typeof users == 'undefined' ||
   }
 }
 
-exps = users.map(user => ({value, targets: {user: user.}, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}))
+exps = users.map(user => ({value, targets: {user: user.id}, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}))
 es = await postJson('/api/v1/internal/expression/eval', exps)
 for (u in users) {
   log(users[u].profile.login, es[u].error?.errorCauses.map(c => c.errorSummary).join('\n') || es[u].result)

@@ -19,7 +19,7 @@ Usage:
         "<tr><td>Label<td><input class=label style='width: 300px'>" + 
         "<tr><td>Login URL<td><input class=loginUrl value='https://LOGIN.oktapreview.com' style='width: 300px'></table>" + 
         "<button type=submit>Add</button></form>").appendTo(popup);
-    form.submit(async (event) => {
+    form.submit(async event => {
         event.preventDefault();
         popup.html("Getting user...");
         var me = await $.get("/api/v1/users/me");
@@ -40,26 +40,18 @@ Usage:
         };
         popup.html("Adding app...");
         /* https://developer.okta.com/docs/reference/api/apps/#add-custom-swa-application */
-        app = await postJson({
-            url: "/api/v1/apps",
-            data: app
-        });
+        app = await postJson("/api/v1/apps", app);
         var appUser = {
             id: me.id,
             scope: "USER"
         };
         popup.html("Assigning user to app...");
         /* https://developer.okta.com/docs/reference/api/apps/#assign-user-to-application-for-sso */
-        await postJson({
-            url: "/api/v1/apps/" + app.id + "/users",
-            data: appUser
-        });
+        await postJson("/api/v1/apps/" + app.id + "/users", appUser);
         popup.html(`Added app <a href='/admin/app/${app.name}/instance/${app.id}/'>${app.label}</a>.`);
     });
-    function postJson(settings) {
-        settings.contentType = "application/json";
-        settings.data = JSON.stringify(settings.data);
-        return $.post(settings);
+    async function postJson(url, data) {
+        return $.post({url, data: JSON.stringify(data), contentType: "application/json"});
     }
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +

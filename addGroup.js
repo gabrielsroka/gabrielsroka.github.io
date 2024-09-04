@@ -18,7 +18,8 @@ Usage:
     var form = $("<form><table>" +
         "<tr><td>Group Name<td><input class=name style='width: 300px'>" + 
         "<tr><td>Description<td><input class=description style='width: 300px'></table>" + 
-        "<button type=submit>Add</button></form>").appendTo(popup);
+        "<button type=submit>Add</button>" +
+        "<div class=results></div></form>").appendTo(popup);
     form.submit(async event => {
         event.preventDefault();
         var group = {
@@ -27,10 +28,15 @@ Usage:
                 description: form.find("input.description").val()
             }
         };
-        popup.html("Adding group...");
+        form.find('div.results').html("Adding group...");
         /* https://developer.okta.com/docs/api/openapi/okta-management/management/tag/Group/#tag/Group/operation/addGroup */
-        group = await postJson("/api/v1/groups", group);
-        popup.html(`Added group <a href='/admin/group/${group.id}'>${group.profile.name}</a>.`);
+        try {
+            group = await postJson("/api/v1/groups", group);
+            form.find('div.results').html(`Added group <a href='/admin/group/${group.id}'>${group.profile.name}</a>.`);
+        } catch (error) {
+            console.log(error.responseJSON.errorCauses);
+            form.find('div.results').html(error.responseJSON.errorCauses.map(c => c.errorSummary));
+        }
     });
     async function postJson(url, data) {
         return $.post({url, data: JSON.stringify(data), contentType: "application/json"});

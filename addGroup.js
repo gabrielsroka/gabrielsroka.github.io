@@ -34,7 +34,6 @@ Usage:
             group = await postJson("/api/v1/groups", group);
             form.find('div.results').html(`Added group <a href='/admin/group/${group.id}'>${group.profile.name}</a>.`);
         } catch (error) {
-            console.log(error.responseJSON.errorCauses);
             form.find('div.results').html(error.responseJSON.errorCauses.map(c => c.errorSummary));
         }
     });

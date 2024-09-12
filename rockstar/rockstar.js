@@ -50,6 +50,13 @@
             oktaFilter: 'eventType eq "security.authenticator.lifecycle.deactivate"',
             backuptaFilterBy: 'type:UPDATE;component:AUTHENTICATORS',
         },
+        deletedAuthenticatorsClassic: {
+            menuTitle: 'Deleted Authenticators',
+            title: "Latest deleted authenticators",
+            searchPlaceholder: "Search authenticator...",
+            oktaFilter: 'eventType eq "policy.lifecycle.delete" and target.detailEntry.policyType eq "OktaMfaEnroll"',
+            backuptaFilterBy: 'type:DELETE;component:MFA_ENROLL_POLICIES',
+        },
         deletedAuthenticationPolicies: {
             menuTitle: 'Deleted Authentication Policies',
             title: "Latest deleted authentication policies",
@@ -63,6 +70,13 @@
             searchPlaceholder: "Search policy...",
             oktaFilter: 'eventType eq "policy.lifecycle.delete" and target.detailEntry.policyType eq "OktaSignOn"',
             backuptaFilterBy: 'type:DELETE;component:SIGN_ON_POLICIES',
+        },
+        deletedGlobalSessionPoliciesClassic: {
+            menuTitle: 'Deleted Global Session Policies',
+            title: "Latest deleted global session policies",
+            searchPlaceholder: "Search policy...",
+            oktaFilter: 'eventType eq "policy.lifecycle.delete" and (target.detailEntry.policyType eq "Password" or target.detailEntry.policyType eq "OktaSignOn")',
+            backuptaFilterBy: 'type:DELETE;component:PASSWORD_POLICIES,SIGN_ON_POLICIES',
         },
         deletedProfileEnrollments:{
             menuTitle: 'Deleted Profile Enrollments',
@@ -150,6 +164,8 @@
             isOIE().then(isOIE => {
                 if (isOIE) {
                     openLogList('deletedAuthenticators');
+                } else {
+                    openLogList('deletedAuthenticatorsClassic');
                 }
             })
         } else if (location.pathname == "/admin/authn/authentication-policies") {
@@ -158,6 +174,8 @@
             isOIE().then(isOIE => {
                 if (isOIE) {
                     openLogList('deletedGlobalSessionPolicies');
+                } else {
+                    openLogList('deletedGlobalSessionPoliciesClassic');
                 }
             })
         } else if (location.pathname == "/admin/authn/policies") {

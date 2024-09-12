@@ -51,9 +51,9 @@
             backuptaFilterBy: 'type:UPDATE;component:AUTHENTICATORS',
         },
         deletedAuthenticatorsClassic: {
-            menuTitle: 'Deleted Authenticators',
-            title: "Latest deleted authenticators",
-            searchPlaceholder: "Search authenticator...",
+            menuTitle: 'Deleted Multifactor Policies',
+            title: "Latest deleted multifactor policies",
+            searchPlaceholder: "Search multifactor policies...",
             oktaFilter: 'eventType eq "policy.lifecycle.delete" and target.detailEntry.policyType eq "OktaMfaEnroll"',
             backuptaFilterBy: 'type:DELETE;component:MFA_ENROLL_POLICIES',
         },
@@ -72,8 +72,8 @@
             backuptaFilterBy: 'type:DELETE;component:SIGN_ON_POLICIES',
         },
         deletedGlobalSessionPoliciesClassic: {
-            menuTitle: 'Deleted Global Session Policies',
-            title: "Latest deleted global session policies",
+            menuTitle: 'Deleted Authentication Policies',
+            title: "Latest deleted authentication policies",
             searchPlaceholder: "Search policy...",
             oktaFilter: 'eventType eq "policy.lifecycle.delete" and (target.detailEntry.policyType eq "Password" or target.detailEntry.policyType eq "OktaSignOn")',
             backuptaFilterBy: 'type:DELETE;component:PASSWORD_POLICIES,SIGN_ON_POLICIES',

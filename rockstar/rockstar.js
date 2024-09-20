@@ -1274,7 +1274,7 @@
             }
             var items = document.querySelectorAll(".data-list-table.rockstar input[type='checkbox']:checked");
             var ids = Array.from(items).map(item => item.id);
-            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
+            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy}&search=${ids.join(',')}`;
             open(targetUrl, '_blank');
         };
 
@@ -1388,10 +1388,10 @@
         historyListPopup.find("#btnRestore").click(async function () {
             var baseUrl = localStorage.backuptaBaseUrl;
             if (!baseUrl) {
-                await openConfigPopup(true);
+                settings();
                 return;
             }
-            var targetUrl = `${baseUrl}/${backuptaTenantId}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${objectId}`;
+            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${objectId}`;
             open(targetUrl, '_blank');
         });
 

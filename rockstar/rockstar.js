@@ -117,21 +117,21 @@
             menuTitle: 'User History for',
             title: "User history",
             searchPlaceholder: "Search event...",
-            oktaFilter: '(eventType sw "user.lifecycle" or eventType sw "user.account") and target.id eq "${userId}"',
+            oktaFilter: '(eventType sw "user.lifecycle" or eventType sw "user.account") and target.id eq "${objectId}"',
             backuptaFilterBy: 'component:USERS',
         },
         groupObjectHistory: {
             menuTitle: 'Group History for',
             title: "Group history",
             searchPlaceholder: "Search event...",
-            oktaFilter: 'eventType sw "group." and target.id eq "${groupId}"',
+            oktaFilter: 'eventType sw "group." and target.id eq "${objectId}"',
             backuptaFilterBy: 'component:GROUPS',
         },
         appObjectHistory: {
             menuTitle: 'App History for',
             title: "App history",
             searchPlaceholder: "Search event...",
-            oktaFilter: '(eventType sw "application.lifecycle" or eventType sw "application.user_membership") and target.id eq "${appId}"',
+            oktaFilter: '(eventType sw "application.lifecycle" or eventType sw "application.user_membership") and target.id eq "${objectId}"',
             backuptaFilterBy: 'component:APPS',
         }
     };
@@ -1302,56 +1302,25 @@
         });
     }
 
-    function createObjectHistory(type, object) {
-        //Do not show history if a popup for this object is already opened, just place it on top of the others
-        const popup = $('#' + object.id + '.historyListPopup');
-        if (popup.length) {
-            popup.remove();
-            return;
-        }
+    function getObjectTitle(type, object) {
         switch (type) {
             case 'userObjectHistory':
-                createObjectHistoryForUser(object);
-                break;
+                return `${object.profile.firstName + " " + object.profile.lastName + " (" + object.id + ")"}`;
             case 'groupObjectHistory':
-                createObjectHistoryForGroup(object);
-                break;
+                return `${object.profile.name + " (" + object.id + ")"}`;
             case 'appObjectHistory':
-                createObjectHistoryForApp(object);
-                break;
+                return `${object.label + " (" + object.id + ")"}`, "Search event name...", `${object.id}`;
         }
     }
 
-    async function createObjectHistoryForUser(user) {
-        const {logListPopup, searchInputHTML} = createPopupWithSearch(`User History for ${user.profile.firstName + " " + user.profile.lastName + " (" + user.id + ")"}`, "Search event name...", `${user.id}`);
-        logListPopup.parent().attr('class', `historyListPopup`);
+    function createObjectHistory(type, object) {
+        const popupConfig = logListPopups[type];
+        const {logListPopup, searchInputHTML} = createPopupWithSearch(popupConfig.title + getObjectTitle(type, object), "Search event name...", `${object.id}`);
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 90);
-        const popupConfig = logListPopups['userObjectHistory'];
-        let historyTable = displayHistoryResultTable(popupConfig, logListPopup, searchInputHTML, user.id);
-        await fetchMoreHistory(`/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter.replaceAll("${userId}", user.id)}&sortOrder=DESCENDING`, 10, historyTable);
+        let historyTable = displayHistoryResultTable(popupConfig, logListPopup, searchInputHTML, object.id);
+        fetchMoreHistory(`/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter.replaceAll("${objectId}", object.id)}&sortOrder=DESCENDING`, 10, historyTable);
     }
-
-    async function createObjectHistoryForGroup(group) {
-        const {logListPopup, searchInputHTML} = createPopupWithSearch(`Group History for ${group.profile.name + " (" + group.id + ")"}`, "Search event name...", `${group.id}`);
-        logListPopup.parent().attr('class', `historyListPopup`);
-        const sinceDate = new Date();
-        sinceDate.setDate(sinceDate.getDate() - 90);
-        const popupConfig = logListPopups['groupObjectHistory'];
-        let historyTable = displayHistoryResultTable(logListPopups['groupObjectHistory'], logListPopup, searchInputHTML, group.id);
-        await fetchMoreHistory(`/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter.replaceAll("${groupId}", group.id)}&sortOrder=DESCENDING`, 10, historyTable);
-    }
-
-    async function createObjectHistoryForApp(app) {
-        const {logListPopup, searchInputHTML} = createPopupWithSearch(`App History for ${app.label + " (" + app.id + ")"}`, "Search event name...", `${app.id}`);
-        logListPopup.parent().attr('class', `historyListPopup`);
-        const sinceDate = new Date();
-        sinceDate.setDate(sinceDate.getDate() - 90);
-        const popupConfig = logListPopups['appObjectHistory'];
-        let historyTable = displayHistoryResultTable(logListPopups['appObjectHistory'], logListPopup, searchInputHTML, app.id);
-        await fetchMoreHistory(`/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter.replaceAll("${appId}", app.id)}&sortOrder=DESCENDING`, 10, historyTable);
-    }
-
 
     function displayHistoryResultTable(popupConfig, historyListPopup, searchInputHTML, objectId) {
         let targetHTML = `<table class='data-list-table history-table rockstar' id='${objectId}' style='border: 1px solid #ddd'><thead>` +
@@ -1371,7 +1340,7 @@
             open(targetUrl, '_blank');
         });
 
-        $(`#${objectId}.listSearch`).on('keyup', function () {
+        $('#userSearch').on('keyup', function () {
             const searchVal = $(this).val().toLowerCase();
             $('.data-list-item').each(function () {
                 const eventName = $(this).data('eventname').toLowerCase();

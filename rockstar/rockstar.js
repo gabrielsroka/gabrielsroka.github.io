@@ -116,21 +116,21 @@
         userObjectHistory: {
             menuTitle: 'User History for',
             title: "User history",
-            searchPlaceholder: "Search event...",
+            searchPlaceholder: "Search event name...",
             oktaFilter: '(eventType sw "user.lifecycle" or eventType sw "user.account") and target.id eq "${objectId}"',
             backuptaFilterBy: 'component:USERS',
         },
         groupObjectHistory: {
             menuTitle: 'Group History for',
             title: "Group history",
-            searchPlaceholder: "Search event...",
+            searchPlaceholder: "Search event name...",
             oktaFilter: 'eventType sw "group." and target.id eq "${objectId}"',
             backuptaFilterBy: 'component:GROUPS',
         },
         appObjectHistory: {
             menuTitle: 'App History for',
             title: "App history",
-            searchPlaceholder: "Search event...",
+            searchPlaceholder: "Search event name...",
             oktaFilter: '(eventType sw "application.lifecycle" or eventType sw "application.user_membership") and target.id eq "${objectId}"',
             backuptaFilterBy: 'component:APPS',
         }
@@ -1274,7 +1274,7 @@
             }
             var items = document.querySelectorAll(".data-list-table.rockstar input[type='checkbox']:checked");
             var ids = Array.from(items).map(item => item.id);
-            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy}&search=${ids.join(',')}`;
+            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${ids.join(',')}`;
             open(targetUrl, '_blank');
         };
 
@@ -1309,20 +1309,20 @@
             case 'groupObjectHistory':
                 return `${object.profile.name + " (" + object.id + ")"}`;
             case 'appObjectHistory':
-                return `${object.label + " (" + object.id + ")"}`, "Search event name...", `${object.id}`;
+                return `${object.label + " (" + object.id + ")"}`;
         }
     }
 
     function createObjectHistory(type, object) {
         const popupConfig = logListPopups[type];
-        const {logListPopup, searchInputHTML} = createPopupWithSearch(popupConfig.title + getObjectTitle(type, object), "Search event name...", `${object.id}`);
+        const {logListPopup} = createPopupWithSearch(popupConfig.title + getObjectTitle(type, object), popupConfig.searchPlaceholder, `${object.id}`);
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 90);
-        let historyTable = displayHistoryResultTable(popupConfig, logListPopup, searchInputHTML, object.id);
+        let historyTable = displayHistoryResultTable(popupConfig, logListPopup, object.id);
         fetchMoreHistory(`/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter.replaceAll("${objectId}", object.id)}&sortOrder=DESCENDING`, 10, historyTable);
     }
 
-    function displayHistoryResultTable(popupConfig, historyListPopup, searchInputHTML, objectId) {
+    function displayHistoryResultTable(popupConfig, historyListPopup, objectId) {
         let targetHTML = `<table class='data-list-table history-table rockstar' id='${objectId}' style='border: 1px solid #ddd'><thead>` +
             "<tr><th>&nbsp<th>Event Name<th>Actor Display Name<th>Context<th>Date" +
             "<tbody></tbody></table>" +
@@ -1330,7 +1330,7 @@
             "<div style='margin-top: 15px;'><button id='btnRestore'>More details with Backupta</button></div>";
         historyListPopup.append(targetHTML);
 
-        historyListPopup.find("#btnRestore").click(async function () {
+        historyListPopup.find("#btnRestore").click(function () {
             var baseUrl = localStorage.backuptaBaseUrl;
             if (!baseUrl) {
                 settings();

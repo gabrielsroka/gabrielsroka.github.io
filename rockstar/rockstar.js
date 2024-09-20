@@ -114,22 +114,22 @@
             backuptaFilterBy: 'type:DELETE;component:EVENT_HOOKS'
         },
         userObjectHistory: {
-            menuTitle: 'User History for',
-            title: "User history",
+            menuTitle: 'Show User History',
+            title: "User history for",
             searchPlaceholder: "Search event name...",
             oktaFilter: '(eventType sw "user.lifecycle" or eventType sw "user.account") and target.id eq "${objectId}"',
             backuptaFilterBy: 'component:USERS',
         },
         groupObjectHistory: {
-            menuTitle: 'Group History for',
-            title: "Group history",
+            menuTitle: 'Show Group History',
+            title: "Group history for",
             searchPlaceholder: "Search event name...",
             oktaFilter: 'eventType sw "group." and target.id eq "${objectId}"',
             backuptaFilterBy: 'component:GROUPS',
         },
         appObjectHistory: {
-            menuTitle: 'App History for',
-            title: "App history",
+            menuTitle: 'Show App History',
+            title: "App history for",
             searchPlaceholder: "Search event name...",
             oktaFilter: '(eventType sw "application.lifecycle" or eventType sw "application.user_membership") and target.id eq "${objectId}"',
             backuptaFilterBy: 'component:APPS',
@@ -152,13 +152,13 @@
         } else if (location.pathname == "/admin/groups") {
             directoryGroups();
         } else if (location.pathname.match("/admin/group/")) {
-            directoryGroup()
+            groupHistory()
         }else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
         } else if (location.pathname.match("/report/system_log_2")) {
             systemLog();
         } else if (location.pathname.match("/admin/app/")) {
-            directoryApp();
+            appHistory();
             if (location.pathname.match("/admin/app/active_directory")) {
                 activeDirectory();
             }
@@ -490,7 +490,7 @@
                 return r.json();
             }
         });
-        createDiv('Show User History', mainPopup, () => createObjectHistory('userObjectHistory', user));
+        createDiv(logListPopups.userObjectHistory.menuTitle, mainPopup, () => createObjectHistory('userObjectHistory', user));
     }
 
     function directoryGroups() {
@@ -539,26 +539,16 @@
         });
     }
 
-    async function directoryGroup() {
+    async function groupHistory() {
         var groupId = location.pathname.split("/")[3];
-        var group;
-        await getJSON(`/api/v1/groups/${groupId}`).then(aGroup => {
-            group = aGroup;
-        });
-        createDiv("Show Group History", mainPopup, () => createObjectHistory('groupObjectHistory', group));
+        const group = await getJSON(`/api/v1/groups/${groupId}`);
+        createDiv(logListPopups.groupObjectHistory.menuTitle, mainPopup, () => createObjectHistory('groupObjectHistory', group));
     }
 
-    async function directoryApp(){
+    async function appHistory(){
         var appId = location.pathname.split("/")[5];
-        console.log(appId);
-        var app;
-        await getJSON(`/api/v1/apps/${appId}`).then(anApp => {
-            app = anApp;
-            $(".subheader").html(e(app.label));
-            document.title += ` - ${e(app.label)}`;
-        });
-        createDiv("Show App History", mainPopup, () => createObjectHistory('appObjectHistory', app));
-
+        const app = await getJSON(`/api/v1/apps/${appId}`);
+        createDiv(logListPopups.appObjectHistory.menuTitle, mainPopup, () => createObjectHistory('appObjectHistory', app));
     }
 
     function securityAdministrators() {
@@ -1315,7 +1305,7 @@
 
     function createObjectHistory(type, object) {
         const popupConfig = logListPopups[type];
-        const {logListPopup} = createPopupWithSearch(popupConfig.title + getObjectTitle(type, object), popupConfig.searchPlaceholder, `${object.id}`);
+        const {logListPopup} = createPopupWithSearch(`${popupConfig.title} ${getObjectTitle(type, object)}`, popupConfig.searchPlaceholder, `${object.id}`);
         const sinceDate = new Date();
         sinceDate.setDate(sinceDate.getDate() - 90);
         let historyTable = displayHistoryResultTable(popupConfig, logListPopup, object.id);
@@ -1324,7 +1314,7 @@
 
     function displayHistoryResultTable(popupConfig, historyListPopup, objectId) {
         let targetHTML = `<table class='data-list-table history-table rockstar' id='${objectId}' style='border: 1px solid #ddd'><thead>` +
-            "<tr><th>&nbsp<th>Event Name<th>Actor Display Name<th>Context<th>Date" +
+            "<tr><th>&nbsp</th><th>Event date</th><th>Event name</th><th>Actor</th><th>Target(s)</th><th>Changed attributes</th>" +
             "<tbody></tbody></table>" +
             "<div style='float: right'><a href='#' id='showMore'>Show more</a></div>" +
             "<div style='margin-top: 15px;'><button id='btnRestore'>More details with Backupta</button></div>";
@@ -1369,22 +1359,12 @@
     function appendResultsHistory(logs, links, historyTable) {
         let targetHTML = '';
         logs.forEach(log => {
-            let context = '';
-            if(log.target.length > 1) {
-                // For apps events, the actor shows up in targets. So if an app edits another app, it would get added to the actor app history without this. The first target is the modified target
-                if(log.target[0].id !== historyTable.attr('id')) {
-                    return;
-                }
-                for (target of log.target) {
-                    if(target.id === historyTable.attr('id'))
-                        continue;
-                    context += 'target=' + target.displayName + ', ';
-                }
-                context = context.slice(0, -2);
+            // For apps events, the actor shows up in targets. So if an app edits another app, it would get added to the actor app history without this. The first target is the modified target
+            if(log.target[0].id !== historyTable.attr('id')) {
+                return;
             }
-            if(log.debugContext?.debugData?.changedAttributes !== undefined) {
-                context += 'changedAttributes=' + log.debugContext.debugData.changedAttributes;
-            }
+            const target = log.target.filter(target => target.id !== historyTable.attr('id')).map(target =>target.displayName).filter(v => !!v).join(', ');
+            const changedAttributes = log.debugContext?.debugData?.changedAttributes;
             let svgOutcome = '';
             if(log.outcome.result === "SUCCESS") {
                 svgOutcome = '<svg width="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
@@ -1399,11 +1379,12 @@
                     '</svg>'
             }
             targetHTML += `<tr class='data-list-item' data-eventname='${e(log.displayMessage)}'>`+
-                `<td style='text-align: center' title='${e(log.debugContext.debugData.errorMessage)}'>${svgOutcome}` +
-                `<td title='${e(log.eventType)}'>${e(log.displayMessage)}` +
-                `<td title='${e(log.actor.type) + " with id " + e(log.actor.id)}'>${e(log.actor.displayName)}` +
-                `<td>${e(context)}` +
-                `<td>${log.published.substring(0, 19).replace('T', ' ')}`;
+                `<td style='text-align: center' title='${e(log.debugContext.debugData.errorMessage)}'>${svgOutcome}</td>` +
+                `<td>${log.published.substring(0, 19).replace('T', ' ')}</td>` +
+                `<td title='${e(log.eventType)}'>${e(log.displayMessage)}</td>` +
+                `<td title='${e(log.actor.type) + " with id " + e(log.actor.id)}'>${e(log.actor.displayName)}</td>` +
+                `<td>${e(target)}</td>` +
+                `<td>${e(changedAttributes)}</td>`;
         });
         const tableBody = historyTable.find('tbody');
         tableBody.append(targetHTML);

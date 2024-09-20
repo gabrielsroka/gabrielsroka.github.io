@@ -56,13 +56,14 @@ Usage:
             }
         }
         const sortFn = 
-            ['number', 'integer'].includes(props[attr.value].type) ?
-            (u1, u2) => (u1.profile[attr.value] === undefined ? -1 : u2.profile[attr.value] === undefined ? 1 : u1.profile[attr.value] - u2.profile[attr.value]) : 
+            ['number', 'integer', 'boolean'].includes(props[attr.value].type) ?
+            (u1, u2) => (u1.profile[attr.value] === undefined ? 1 : u2.profile[attr.value] === undefined ? -1 : u1.profile[attr.value] - u2.profile[attr.value]) : 
             (u1, u2) => (u1.profile[attr.value] ?? '').localeCompare(u2.profile[attr.value]);
         const re = new RegExp(form.find('input.search').val(), 'i');
         const pre = (p, ...ds) => p + ds.join(p);
         const found = users
             .filter(u => re.test(u.profile[attr.value]))
+            .sort((u1, u2) => (u1.profile.firstName + ' ' + u1.profile.lastName).localeCompare(u2.profile.firstName + ' ' + u2.profile.lastName))
             .sort(sortFn)
             .map(u => '<tr>' + pre('<td>', (u.profile.firstName + ' ' + u.profile.lastName).link('/admin/user/profile/view/' + u.id), u.profile.login, u.profile.email, statuses[u.status], u.profile[attr.value]));
         popup.find('div.results')

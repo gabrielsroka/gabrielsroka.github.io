@@ -1206,10 +1206,10 @@
     }
     
     // Generic function to create a popup with search bar
-    function createPopupWithSearch(popupTitle, searchPlaceholder, id) {
+    function createPopupWithSearch(popupTitle, searchPlaceholder) {
         const logListPopup = createPopup(popupTitle);
-        logListPopup.parent().attr('id', id);
-        const searchInputHTML = `<input type='text' class='listSearch' id='${id}' style='margin-bottom: 10px' placeholder='${searchPlaceholder}'>`;
+        logListPopup.parent().attr('id', 'logListPopup');
+        const searchInputHTML = `<input type='text' id='userSearch' style='margin-bottom: 10px' placeholder='${searchPlaceholder}'>`;
         logListPopup.prepend(searchInputHTML);
         return {logListPopup, searchInputHTML};
     }
@@ -1217,7 +1217,7 @@
     // Fetch and display log data using utility functions
     async function fetchDataAndDisplay(type) {
         const popupConfig = logListPopups[type];
-        const {logListPopup, searchInputHTML} = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder, 'logListPopup');
+        const {logListPopup, searchInputHTML} = createPopupWithSearch(popupConfig.title, popupConfig.searchPlaceholder);
         displayResultTable(popupConfig, logListPopup, searchInputHTML);
 
         const sinceDate = new Date();
@@ -1278,7 +1278,7 @@
             open(targetUrl, '_blank');
         };
 
-        $('.listSearch').on('keyup', function () {
+        $('#userSearch').on('keyup', function () {
             const searchVal = $(this).val().toLowerCase();
             $('.data-list-item').each(function () {
                 const displayName = $(this).data('displayname').toLowerCase();

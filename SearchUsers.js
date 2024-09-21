@@ -36,24 +36,35 @@ Usage:
         SUSPENDED: 'Suspended',
         DEPROVISIONED: 'Deactivated'
     };
-    const form = $('<form><select id=attr>' + Object.keys(props).sort().map(n => `<option>${n}`).join('') + '</select> ' +
+    const form = $('<form><select id=attr>' + Object.keys(props).sort().map(k => `<option>${k}`).join('') + '</select> ' +
        'Contains <input class=search style="width: 250px" placeholder="Search"> ' + 
-       'Status <select id=searchStatus>' + Object.entries(statuses).map(([n, v]) => `<option value='${n}'>${v}`).join('') + '</select> ' +
+       'Status <select id=searchStatus>' + Object.entries(statuses).map(([k, v]) => `<option value='${k}'>${v}`).join('') + '</select> ' +
        '<button type=submit>Search</button></form><br>' + 
        '<div class=results></div>').appendTo(popup);
     form.find('input.search').focus();
     var users = [];
     var oldSearchStatus = '';
+    var cancel = false;
+    var searching = false;
     form.submit(async event => {
         event.preventDefault();
+        if (searching) {
+            cancel = true;
+            return;
+        }
         if (!users.length || oldSearchStatus != searchStatus.value) {
-            users = [];
             oldSearchStatus = searchStatus.value;
+            users = [];
             popup.find('div.results').html('Loading...');
+            searching = true;
+            cancel = false;
             for await (const user of getObjects('/api/v1/users' + (searchStatus.value ? `?search=status eq "${searchStatus.value}"` : ''))) {
+                user.displayName = user.profile.firstName + ' ' + user.profile.lastName;
                 users.push(user);
-                popup.find('div.results').html('Loading... ' + users.length + ' users.');
+                popup.find('div.results').html('Loading... ' + users.length + ' users');
+                if (cancel) break;
             }
+            searching = false;
         }
         const sortFn = 
             ['number', 'integer', 'boolean'].includes(props[attr.value].type) ?
@@ -63,9 +74,9 @@ Usage:
         const pre = (p, ...ds) => p + ds.join(p);
         const found = users
             .filter(u => re.test(u.profile[attr.value]))
-            .sort((u1, u2) => (u1.profile.firstName + ' ' + u1.profile.lastName).localeCompare(u2.profile.firstName + ' ' + u2.profile.lastName))
+            .sort((u1, u2) => u1.displayName.localeCompare(u2.displayName))
             .sort(sortFn)
-            .map(u => '<tr>' + pre('<td>', (u.profile.firstName + ' ' + u.profile.lastName).link('/admin/user/profile/view/' + u.id), u.profile.login, u.profile.email, statuses[u.status], u.profile[attr.value]));
+            .map(u => '<tr>' + pre('<td>', link('/admin/user/profile/view/' + u.id, u.displayName), u.profile.login, u.profile.email, statuses[u.status], u.profile[attr.value]));
         popup.find('div.results')
             .html(found.length + ` user${found.length == 1 ? '' : 's'} found` + 
                 (found.length ? '<table class=data-list-table><tr><th>Name<th>Username<th>Email<th>Status<th>' + attr.value + found.join('') + '</table>' : ''));
@@ -78,6 +89,9 @@ Usage:
             for (const o of objects) yield o;
             url = r.headers.get('link')?.match('<https://[^/]+([^>]+)>; rel="next"')?.[1];
         }
+    }
+    function link(url, text) {
+        return `<a href="${url}" target=_blank>${text}</a>`;
     }
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; ` +

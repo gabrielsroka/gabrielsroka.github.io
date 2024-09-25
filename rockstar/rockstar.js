@@ -1226,6 +1226,20 @@
         appendResults(logs, links);
     }
 
+    function formatDateLocale(date) {
+        return new Date(date).toLocaleString(undefined, {
+            month: 'short',  // Short month name
+            day: 'numeric',   // Numeric day without leading zero
+            hour: '2-digit', // Two-digit hour
+            minute: '2-digit', // Two-digit minute
+            second: '2-digit' // Two-digit second
+        });
+    }
+
+    function formatDateUTC(date) {
+        return new Date(date).toUTCString();
+    }
+
     function appendResults(logs, links) {
         let targetHTML = '';
         logs.forEach(log => {
@@ -1237,7 +1251,7 @@
                         `<td>${e(target.id)}` +
                         `<td>${e(target.type)}` +
                         `<td>${e(log.actor.displayName)}` +
-                        `<td>${log.published.substring(0, 19).replace('T', ' ')}`;
+                        `<td title="${formatDateUTC(log.published)}">${formatDateLocale(log.published)}`;
                 });
             }
         });
@@ -1380,7 +1394,7 @@
             }
             targetHTML += `<tr class='data-list-item' data-eventname='${e(log.displayMessage)}'>`+
                 `<td style='text-align: center' title='${e(log.debugContext.debugData.errorMessage)}'>${svgOutcome}</td>` +
-                `<td>${log.published.substring(0, 19).replace('T', ' ')}</td>` +
+                `<td title="${formatDateUTC(log.published)}">${formatDateLocale(log.published)}</td>` +
                 `<td title='${e(log.eventType)}'>${e(log.displayMessage)}</td>` +
                 `<td title='${e(log.actor.type) + " with id " + e(log.actor.id)}'>${e(log.actor.displayName)}</td>` +
                 `<td>${e(target)}</td>` +

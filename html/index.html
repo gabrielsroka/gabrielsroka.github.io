@@ -1,5 +1,10 @@
 <meta name=viewport content='width=device-width'/>
-<textarea onkeyup='results.innerHTML=this.value' style='width: 100%; height: 200px;'>
+<title>HTML Editor</title>
+<textarea id=editor style='width: 100%; height: 200px;'>
 <a href=/><img src=/logo.png>Home</a>
 </textarea>
 <div id=results></div>
+<script>
+onload = () => editor.value = localStorage.html || '';
+editor.onkeyup = () => localStorage.html = results.innerHTML = editor.value;
+</script>

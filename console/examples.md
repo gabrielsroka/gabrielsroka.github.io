@@ -461,7 +461,7 @@ table(groups)
 ```js
 // Add and activate a Group Rule using https://gabrielsroka.github.io/console
 
-results.innerHTML = '<style>.rockstarTable td {padding: 8px;} .group {border: solid 1px gray; padding: 10px; margin: 4px; text-wrap: nowrap;} .removeGroup {margin: 8px 0;}</style>' +
+results.innerHTML = '<style>.rockstarTable td {padding: 8px;} .group {border: solid 1px gray; padding: 10px; margin: 4px; text-wrap: nowrap;}</style>' +
   '<table class=rockstarTable style="width: 100%">' +
   '<tr><td colspan=2><h2>Add Rule</h2>' +
   '<tr><td>Name<td><input id=ruleName>' +

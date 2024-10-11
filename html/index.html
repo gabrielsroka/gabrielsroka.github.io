@@ -18,6 +18,7 @@ var timeout;
 
 onload = () => {
     results.innerHTML = editor.value = localStorage.html || '<a href=/><img src=/logo.png>Home</a>';
+    editor.focus();
 };
 
 editor.onkeyup = () => {

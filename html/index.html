@@ -16,11 +16,12 @@ body {
 <script>
 var timeout;
 
-onload = () => results.innerHTML = editor.value = localStorage.html || '<a href=/><img src=/logo.png>Home</a>';
+onload = () => {
+    results.innerHTML = editor.value = localStorage.html || '<a href=/><img src=/logo.png>Home</a>';
+};
 
-editor.onkeyup = async () => {
-  clearTimeout(timeout);
-  await new Promise(resolve => timeout = setTimeout(resolve, 400));
-  localStorage.html = results.innerHTML = editor.value;
+editor.onkeyup = () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => localStorage.html = results.innerHTML = editor.value, 400);
 };
 </script>

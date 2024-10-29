@@ -206,6 +206,10 @@ for await (user of getObjects(url)) {\n
   async function remove(url) /* not <code>delete()</code> */ {
     return fetchLimit(url, 'DELETE');
   }
+  async function removeJson(url) /* not <code>deleteJson()</code> */ {
+    const r = fetchLimit(url, 'DELETE');
+    return r.json();
+  }
   async function fetchLimit(url, method, body) {
     const TOO_MANY_REQUESTS = 429;
     const init = {method, headers, body: JSON.stringify(body)};

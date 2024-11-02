@@ -203,11 +203,11 @@ for await (user of getObjects(url)) {\n
     const r = await patch(url, body);
     return r.json();
   }
-  async function remove(url) /* not <code>delete()</code> */ {
-    return fetchLimit(url, 'DELETE');
+  async function remove(url, body) /* not <code>delete()</code> */ {
+    return fetchLimit(url, 'DELETE', body);
   }
-  async function removeJson(url) /* not <code>deleteJson()</code> */ {
-    const r = fetchLimit(url, 'DELETE');
+  async function removeJson(url, body) /* not <code>deleteJson()</code> */ {
+    const r = fetchLimit(url, 'DELETE', body);
     return r.json();
   }
   async function fetchLimit(url, method, body) {

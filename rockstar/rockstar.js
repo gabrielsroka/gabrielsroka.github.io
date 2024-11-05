@@ -1004,6 +1004,7 @@
             }
             function getSSO(url) {
                 ssoPopup.html("Loading ...");
+                url = url.replace(location.origin, '');
                 getJSON(url).then(response => {
                     function unentity(s) {
                         return s.replace(/&#(x..?);/g, (m, p1) => String.fromCharCode("0" + p1));

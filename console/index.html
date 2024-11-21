@@ -255,7 +255,7 @@ for await (user of getObjects(url)) {\n
   }
   function csv(rows) {
     if (rows.length == 0) return;
-    const hdr = Object.keys(rows[0]).join(',') + '\n';
+    const hdr = '\uFEFF' + Object.keys(rows[0]).join(',') + '\n';
     rows = rows.map(row => toCSV(...Object.values(row))).join('\n');
     return hdr + rows;
   }

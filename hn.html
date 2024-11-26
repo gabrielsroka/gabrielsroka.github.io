@@ -32,7 +32,7 @@ a:visited {
     padding: 4px;
 }
 .item {
-    font-size: 0.8em;
+    font-size: 1em;
     padding-bottom: 1em;
     border-bottom: 1px solid silver;
     margin-bottom: 1em;
@@ -84,11 +84,11 @@ if (localStorage.user) {
     };
 }
 function setUser() {
-    user.innerHTML = anc(`${hnBaseUrl}/threads?id=${localStorage.user}`, localStorage.user) + ' | <a id=submissions>submissions</a>';
+    user.innerHTML = link(`${hnBaseUrl}/threads?id=${localStorage.user}`, localStorage.user) + ' | <a id=submissions>submissions</a>';
     submissions.onclick = async () => {
         const r = await fetch(`${alBaseUrl}/api/v1/search_by_date?tags=story,author_${localStorage.user}`);
         const u = await r.json();
-        const items = u.hits.map(item => '<div class=item>' + anc(`${hnBaseUrl}/item?id=${item.objectID}`, item.title + '<br>' + 
+        const items = u.hits.map(item => '<div class=item>' + link(`${hnBaseUrl}/item?id=${item.objectID}`, item.title + '<br>' + 
             new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(item.created_at_i * 1000)) + ' | ' + 
             plu(item.points, 'point')) + '</div>');
         contents.innerHTML = `<br>${localStorage.user}'s submissions<br><br>` + items.join('');
@@ -113,17 +113,17 @@ async function getItems() {
         if (item.url) {
             const url = new URL(item.url);
             var site = url.hostname.replace(/^www\./, '');
-            var web = ' | ' + anc(`https://www.google.com/search?q=${encodeURIComponent(item.title)}+site:${site}`, 'web');
+            var web = ' | ' + link(`https://www.google.com/search?q=${encodeURIComponent(item.title)}+site:${site}`, 'web');
             if (site.includes('twitter.com')) {
                 var lsite = site + '/' + url.pathname.split('/')[1];
-                web += ' | ' + anc(item.url.replace('twitter.com', 'nitter.net'), 'nitter');
+                web += ' | ' + link(item.url.replace('twitter.com', 'nitter.net'), 'nitter');
             } else {
                 lsite = site;
             }
-            var ln1 = `${anc(item.url, item.title)} (${anc(`${hnBaseUrl}/from?site=${lsite}`, lsite)})`;
+            var ln1 = `${link(item.url, item.title)} (${link(`${hnBaseUrl}/from?site=${lsite}`, lsite)})`;
         } else {
             web = '';
-            ln1 = anc(hnItemUrl, item.title);
+            ln1 = link(hnItemUrl, item.title);
         }
         var ago = new Date() / 1000 - item.time; // in seconds, 60 s == 1 min, 3600 s = 1 hr, etc.
         if (ago < 3600) {
@@ -133,15 +133,15 @@ async function getItems() {
         } else {
             ago = plu(Math.round(ago / 3600 / 24), 'day');
         }
-        ago = anc(hnItemUrl, ago + ' ago');
+        ago = link(hnItemUrl, ago + ' ago');
         if (item.type == 'job') {
             var pts = '';
             var by = '';
             var ln2 = ago;
         } else {
             pts = plu(item.score, 'point');
-            by = 'by ' + anc(`${hnBaseUrl}/user?id=${item.by}`, item.by);
-            ln2 = ago + ' | ' + anc(hnItemUrl, item.descendants == 0 ? 'discuss' : plu(item.descendants, 'comment')) + web;
+            by = 'by ' + link(`${hnBaseUrl}/user?id=${item.by}`, item.by);
+            ln2 = ago + ' | ' + link(hnItemUrl, item.descendants == 0 ? 'discuss' : plu(item.descendants, 'comment')) + web;
         }
         if (small) {
             contents.innerHTML += `<div class=item>${ln1}<br>${ln2}</div>`;
@@ -196,7 +196,7 @@ async function getItems() {
 function plu(n, s) {
     return n + ' ' + (n == 1 ? s : s + 's');
 }
-function anc(href, text) {
+function link(href, text) {
     return `<a href="${href}" target='_blank' rel='noopener'>${text}</a>`;
 }
 </script>

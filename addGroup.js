@@ -1,7 +1,7 @@
 javascript:
 /* 
 name: /Add Group#
-url: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/addGroup.js
+https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/addGroup.js
 
 Add a new group.
 
@@ -42,8 +42,9 @@ Usage:
     }
     function createPopup(title) {
         var popup = $(`<div style='position: absolute; z-index: 1000; left: 4px; top: 4px; background-color: white; padding: 8px; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io' target='_blank' rel='noopener'>&nbsp;?&nbsp;</a> ` + 
-            `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer'>&nbsp;X&nbsp;</a></div><br><br></div>`).appendTo(document.body);
+            `${title}<div style='display: block; float: right;'><a href='https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/addGroup.js' target='_blank' rel='noopener'>&nbsp;?&nbsp;</a> ` + 
+            `<a class=close style='cursor: pointer'>&nbsp;X&nbsp;</a></div><br><br></div>`).appendTo(document.body);
+        popup.find('a.close').click(() => popup.remove());
         return $("<div></div>").appendTo(popup);
     }
 })();

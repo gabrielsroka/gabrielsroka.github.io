@@ -1,6 +1,7 @@
 javascript:
 /*
 Bookmark name: /Update Users#
+https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/ImportGroupsFromCSV.js
 
 Setup:
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox/IE, right-click in the title bar and click Bookmarks Toolbar.
@@ -85,8 +86,9 @@ id,login,email
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto; ` +
                 `background-color: white; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a target='_blank' href='https://gabrielsroka.github.io/rockstar/' rel='noopener' style='padding: 4px'>?</a> ` + 
-            `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
+            `${title}<div style='display: block; float: right;'><a target='_blank' href='https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/UpdateUsers.js' rel='noopener' style='padding: 4px'>?</a> ` + 
+            `<a class=close style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
+        popup.find('a.close').click(() => popup.remove());
         return $("<div></div>").appendTo(popup);
     }
 })();

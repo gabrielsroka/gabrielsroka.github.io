@@ -1,6 +1,7 @@
 javascript:
 /* 
 Bookmarklet name: /Import Users CSV#
+https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/snippets/ImportUsersFromCSV.js
 
 Setup:
 Drag/drop or copy/paste all of this to your bookmark toolbar. Or:
@@ -88,8 +89,9 @@ addgroupJS@okta.com,add,group,addgroup@okta.com,"00gp70td8aRPYVumf0h7;00gp70td8a
     function createPopup(title) {
         const popup = $(`<div style='position: absolute; z-index: 1000; top: 0px; max-height: calc(100% - 28px); max-width: calc(100% - 28px); padding: 8px; margin: 4px; overflow: auto; ` +
                 `background-color: white; border: 1px solid #ddd;'>` +
-            `${title}<div style='display: block; float: right;'><a href='https://gabrielsroka.github.io/rockstar/' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
-            `<a onclick='document.body.removeChild(this.parentNode.parentNode)' style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
+            `${title}<div style='display: block; float: right;'><a href='https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/snippets/ImportUsersFromCSV.js' target='_blank' rel='noopener' style='padding: 4px'>?</a> ` + 
+            `<a class=close style='cursor: pointer; padding: 4px'>X</a></div><br><br></div>`).appendTo(document.body);
+        popup.find('a.close').click(() => popup.remove());
         return $("<div></div>").appendTo(popup);
     }
 })();

@@ -27,7 +27,7 @@
         "https://*.okta-gov.com/*",
         "https://*.okta.mil/*"
       ],
-      "js": ["jquery-1.12.4.min.PATCHED.js", "rockstar.js"],
+      "js": ["dompurify-3.2.3.min.js","jquery-1.12.4.min.PATCHED.js", "rockstar.js"],
       "css": ["rockstar.css"]
     }
   ]

@@ -104,9 +104,6 @@ editor.focus();
 editor.onkeydown = function (event) {
     if (event.ctrlKey && event.key == 'Enter') {
         runProgram.onclick();
-    } else if (event.ctrlKey && event.key == 'n') {
-        event.preventDefault();
-        newProgram.onclick();
     } else if (event.ctrlKey && event.key == 's') {
         event.preventDefault();
         saveProgram.onclick();

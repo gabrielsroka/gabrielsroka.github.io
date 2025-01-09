@@ -111,10 +111,9 @@ for await (user of getObjects(url)) {\n
   };
   closeBtn.onclick = () => document.body.removeChild(div);
   editor.onkeydown = function (event) {
-    const ENTER = 13, ESC = 27;
-    if (event.ctrlKey && event.keyCode == ENTER) {
+    if (event.ctrlKey && event.key == 'Enter') {
       run.onclick();
-    } else if (event.keyCode == ESC) {
+    } else if (event.key == 'Escape') {
       cancelBtn.onclick();
     } else if (event.ctrlKey && event.key == 'o') {
       event.preventDefault();

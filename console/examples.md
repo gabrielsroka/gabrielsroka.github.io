@@ -20,11 +20,9 @@
 ```js
 // Send activation email to pending users using https://gabrielsroka.github.io/console
 
-url = '/api/v1/users?filter=status eq "PROVISIONED"'
-for await (user of getObjects(url)) {
+for await (user of getObjects('/api/v1/users?filter=status eq "PROVISIONED"')) {
   log(user.id, user.profile.login, user.profile.email)
-  url = '/api/v1/users/' + user.id + '/lifecycle/reactivate?sendEmail=true'
-  await post(url)
+  await post('/api/v1/users/' + user.id + '/lifecycle/reactivate?sendEmail=true')
   if (cancel) break
 }
 ```
@@ -37,8 +35,7 @@ for await (user of getObjects(url)) {
 srcGroupId = '00g...'
 dstGroupId = '00g...'
 
-url = '/api/v1/groups/' + srcGroupId + '/users'
-for await (user of getObjects(url)) {
+for await (user of getObjects('/api/v1/groups/' + srcGroupId + '/users')) {
   log('adding member', user.id)
   await put('/api/v1/groups/' + dstGroupId + '/users/' + user.id)
   if (cancel) break
@@ -49,10 +46,9 @@ for await (user of getObjects(url)) {
 ```js
 // Remove group members using https://gabrielsroka.github.io/console
 
-url = '/api/v1/groups/' + id + '/users/'
-for await (user of getObjects(url)) {
+for await (user of getObjects('/api/v1/groups/' + id + '/users')) {
   log('removing group member', user.profile.login)
-  await remove(url + user.id)
+  await remove('/api/v1/groups/' + id + '/users/' + user.id)
   if (cancel) break
 }
 ```
@@ -64,8 +60,7 @@ for await (user of getObjects(url)) {
 // Set this:
 regex = /germ/i  // You can use JavaScript regular expressions. The 'i' at the end means case-Insensitive.
 
-url = '/api/v1/groups'
-if (typeof groups == 'undefined') groups = await getAll(url)
+if (typeof groups == 'undefined') groups = await getAll('/api/v1/groups')
 found = groups
   .filter(g => g.profile.name.match(regex)) 
   .sort(key('profile.name'))
@@ -175,8 +170,7 @@ for await (user of getObjects('/api/v1/users')) {
 // in parallel, 10-20 times faster than in series:
 limit = 15 // try 15, 35, or 75 for the limit, depending on the org.
 // see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
-url = '/api/v1/users?limit=' + limit
-for await (user of getObjects(url)) {
+for await (user of getObjects('/api/v1/users?limit=' + limit)) {
   getFactors(user)
   if (cancel) break
 }
@@ -191,10 +185,9 @@ async function getFactors(user) {
 limit = 15 // Try 15, 35, or 75 for the limit, depending on the org.
 // see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
 
-url = '/api/v1/users?limit=' + limit
 log('id,login,factors')
 promises = []
-for await (user of getObjects(url)) {
+for await (user of getObjects('/api/v1/users?limit=' + limit)) {
   promises.push(getFactors(user))
   if (cancel) break
 }
@@ -212,8 +205,7 @@ async function getFactors(user) {
 ```js
 // List unmanaged devices and user info using https://gabrielsroka.github.io/console
 
-url = '/api/v1/devices?search=managementStatus eq "UNMAN"&expand=user&limit=20'
-for await (device of getObjects(url)) {
+for await (device of getObjects('/api/v1/devices?search=managementStatus eq "UNMAN"&expand=user&limit=20')) {
   for (user of device._embedded.users) {
     log(device.id, user.managementStatus, user.user.id, user.user.profile.login) // add more attrs...
   }
@@ -236,10 +228,8 @@ deleteOldRule = false // true or false - false will rename old rule
 activateNewRule = true // true or false
 
 log('Searching rule(s)...')
-baseUrl = '/api/v1/groups/rules/'
-url = baseUrl + '?expand=groupIdToGroupNameMap&search=' + groupRuleName
 count = 0
-for await (rule of getObjects(url)) {
+for await (rule of getObjects('/api/v1/groups/rules?expand=groupIdToGroupNameMap&search=' + groupRuleName)) {
   log(rule.id, rule.name, '-', rule.conditions.expression.value)
   log('groupIds = [')
   for ([groupId, name] of Object.entries(rule._embedded.groupIdToGroupNameMap)) {
@@ -261,18 +251,17 @@ if (showGroupIdsAndQuit) {
 }
 
 // Deactivate and rename/delete old rule.
-url = baseUrl + rule.id
-await post(url + '/lifecycle/deactivate')
+await post('/api/v1/groups/rules/' + rule.id + '/lifecycle/deactivate')
 if (deleteOldRule) {
-  await remove(url)
+  await remove('/api/v1/groups/rules/' + rule.id)
   log('Deleted old rule.')
 } else {
   ruleName = rule.name
   rule.name += ' - old'
-  r = await put(url, rule)
-  if (!r.ok) {
-     e = await r.json()
-     log('Error.', e.errorCauses.map(e => e.errorSummary))
+  res = await put('/api/v1/groups/rules/' + rule.id, rule)
+  if (!res.ok) {
+     err = await res.json()
+     log('Error.', err.errorCauses.map(e => e.errorSummary))
      return
   }
   log('Renamed old rule to:', rule.name)
@@ -281,8 +270,8 @@ if (deleteOldRule) {
 
 // Create new rule and activate it.
 rule.actions.assignUserToGroups.groupIds = groupIds
-newRule = await postJson(baseUrl, rule)
-if (activateNewRule) await post(baseUrl + newRule.id + '/lifecycle/activate')
+newRule = await postJson('/api/v1/groups/rules', rule)
+if (activateNewRule) await post('/api/v1/groups/rules/' + newRule.id + '/lifecycle/activate')
 log()
 log('New rule:')
 log(newRule.id, newRule.name)
@@ -295,8 +284,7 @@ log(newRule.id, newRule.name)
 // Set this:
 groupId = '...'
 
-url = '/api/v1/users' // maybe this should use: ?filter=status eq "ACTIVE"
-users = await getAll(url)
+users = await getAll('/api/v1/users') // maybe this should use: ?filter=status eq "ACTIVE"
 
 added = []
 for (user of users) {
@@ -446,8 +434,7 @@ uncheckAll.onclick = () => results.querySelectorAll('input[type=checkbox]').forE
 ```js
 // List groups and their apps using https://gabrielsroka.github.io/console
 
-url = '/api/v1/groups?filter=type eq "APP_GROUP"&expand=app'
-groups = (await getAll(url))
+groups = (await getAll('/api/v1/groups?filter=type eq "APP_GROUP"&expand=app'))
 .map(group => ({
   'Group Name': '<img src=' + group._links.logo.find(l => l.name == 'medium').href + '> ' + link('/admin/group/' + group.id, group.profile.name),
   Description: group.profile.description || 'No description',
@@ -474,11 +461,10 @@ results.innerHTML = '<style>.rockstarTable td {padding: 8px;} .group {border: so
   '</table>'
 ruleName.focus()
 
-ENTER = 13
 user = {}
 groups = []
 expression.onkeydown = event => {
-  if (event.ctrlKey && event.keyCode == ENTER) evalExpression()
+  if (event.ctrlKey && event.key == 'Enter') evalExpression()
 }
 async function evalExpression() {
   err = '<span style="color: white; background-color: red">&nbsp;! </span>&nbsp;'
@@ -498,7 +484,7 @@ async function evalExpression() {
 }
 userName.onkeyup = async event => {
   infobox.innerHTML = '&nbsp;'
-  if (event.keyCode == ENTER) {
+  if (event.key == 'Enter') {
     evalExpression()
     return
   }

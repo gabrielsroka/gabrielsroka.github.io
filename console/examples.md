@@ -348,7 +348,7 @@ limit = 1000 // The default is 10000, but that's sometimes too large and causes 
 
 url = '/api/v1/groups?expand=stats&limit=' + limit
 cols = 'id,profile.name,_embedded.stats.usersCount,_embedded.stats.appsCount,_embedded.stats.groupPushMappingsCount'
-report(url, cols)
+await report(url, cols)
 ```
 
 # Miscellaneous

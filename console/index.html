@@ -309,7 +309,8 @@ for await (user of getObjects(url)) {\n
   function dot(o, dots) {
     for (const p of dots.split('.')) {
       o = o[p];
-      if (o == null) break;
+      if (o == null) {o = ''; break;}
+      if (Array.isArray(o)) o = o.join(', ');
     }
     return o;
   }

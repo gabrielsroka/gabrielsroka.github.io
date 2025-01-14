@@ -205,7 +205,12 @@ async function getFactors(user) {
 ```js
 // List unmanaged devices and user info using https://gabrielsroka.github.io/console
 
-for await (device of getObjects('/api/v1/devices?search=managementStatus eq "UNMAN"&expand=user&limit=20')) {
+params = new URLSearchParams({
+  search: 'managementStatus eq "UNMAN"', // or "MAN"
+  expand: 'userSummary', // or user
+  limit: 20
+})
+for await (device of getObjects('/api/v1/devices?' + params)) {
   for (user of device._embedded.users) {
     log(device.id, user.managementStatus, user.user.id, user.user.profile.login) // add more attrs...
   }

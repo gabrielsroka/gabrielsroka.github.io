@@ -206,7 +206,7 @@ for await (user of getObjects(url)) {\n
     return fetchLimit(url, 'DELETE', body);
   }
   async function removeJson(url, body) /* not <code>deleteJson()</code> */ {
-    const r = fetchLimit(url, 'DELETE', body);
+    const r = await fetchLimit(url, 'DELETE', body);
     return r.json();
   }
   async function fetchLimit(url, method, body) {

@@ -15,11 +15,11 @@ function run(lines) {
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         const tLine = line.trim();
-        if (tLine.startsWith('for ')) {
+        if (tLine.startsWith('for ') || tLine.startsWith('async for ')) {
             line = line
                 .replace('for', 'for (var')
-                .replace(' in ', ' of ');
-            line += ')';
+                .replace('async for', 'for await')
+                .replace(' in ', ' of ') + ')';
         } else if (tLine.startsWith('while ')) {
             line = line.replace('while ', 'while (') + ')';
         } else if (tLine.startsWith('def ') || tLine.startsWith('async def ')) {
@@ -29,11 +29,9 @@ function run(lines) {
         } else if (tLine.startsWith('if ') || tLine.startsWith('else if ') || tLine.startsWith('elif ')) {
             line = line
                 .replace('elif', 'else if')
-                .replace('if ', 'if (');
-            line += ')';
+                .replace('if ', 'if (') + ')';
         } else if (tLine.startsWith('catch ')) {
-            line = line.replace('catch ', 'catch (');
-            line += ')';
+            line = line.replace('catch ', 'catch (') + ')';
         } else if (tLine.startsWith('#')) {
             line = line.replace('#', '//');
         } else if (tLine.startsWith('print ') || tLine.startsWith('?')) {

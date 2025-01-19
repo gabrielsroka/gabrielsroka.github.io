@@ -160,9 +160,9 @@ async function getItems() {
     for (const id in seen) {
         if (!newSeen[id]) newSeen[id] = now;
     }
-    const sevenDays = 1000 * 3600 * 24 * 7;
+    const tenDays = 1000 * 3600 * 24 * 10;
     for (const id in newSeen) {
-        if (now - newSeen[id] > sevenDays) delete newSeen[id];
+        if (now - newSeen[id] > tenDays) delete newSeen[id];
     }
     localStorage.seen = JSON.stringify(newSeen);
     itemsSeen.innerHTML = Object.keys(newSeen).length + ' seen';

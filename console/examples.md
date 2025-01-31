@@ -321,7 +321,7 @@ await report(url, cols)
 // Export apps and groups using https://gabrielsroka.github.io/console
 
 appGroups = []
-for await (app of getObjects('/api/v1/apps')) {
+for await (app of getObjects('/api/v1/apps?limit=200')) {
     count = 0
     log('Fetching', app.label)
     for await (appGroup of getObjects(`/api/v1/apps/${app.id}/groups?limit=20`, '&expand=group')) {
@@ -333,8 +333,8 @@ for await (app of getObjects('/api/v1/apps')) {
     if (cancel) break
 }
 log('Done')
-table(appGroups)
-downloadCSV(csv(appGroups), 'apps and groups')
+reportUI(appGroups, '', 'apps and groups')
+
 function addGroup(appGroupName) {
     appGroups.push({  // Add more attributes here
         appId: app.id,

@@ -274,11 +274,11 @@ for await (user of getObjects(url)) {\n
     });
   }
   const key = k => (o1, o2) => dot(o1, k).localeCompare(dot(o2, k));
-  async function getAll(url, name = '') {
+  async function getAll(url, params) {
     const objs = [];
     results.innerHTML = 'Loading...';
-    if (!name) name = url.split('?')[0].split('/').pop();
-    for await (const obj of getObjects(url)) {
+    const name = url.split('?')[0].split('/').pop();
+    for await (const obj of getObjects(url, params)) {
       objs.push(obj);
       results.innerHTML = objs.length + ' ' + name;
       if (cancel) break;

@@ -320,28 +320,19 @@ await report(url, cols)
 ```js
 // Export apps and groups using https://gabrielsroka.github.io/console
 
-appGroups = []
-for await (app of getObjects('/api/v1/apps?limit=200')) {
-    count = 0
-    log('Fetching', app.label)
-    for await (appGroup of getObjects(`/api/v1/apps/${app.id}/groups?limit=20`, '&expand=group')) {
-        addGroup(appGroup._embedded.group.profile.name)
-        count++
-        if (cancel) break
-    }
-    if (count == 0) addGroup('(no groups)')
-    if (cancel) break
+apps = await getAll('/api/v1/apps?limit=200')
+for (app of apps) {
+    app.groups = await getAll(`/api/v1/apps/${app.id}/groups?limit=20`, '&expand=group')
+    app.groupNames = app.groups.length ? app.groups.map(g => g._embedded.group.profile.name) : ['(none)']
 }
-log('Done')
-reportUI(appGroups, '', 'apps and groups')
+results.innerHTML = apps.length + ' apps'
 
-function addGroup(appGroupName) {
-    appGroups.push({  // Add more attributes here
-        appId: app.id,
-        appLabel: app.label,
-        appGroupName
-    })
-}
+// 1 app per row
+reportUI(apps, 'id,label,groupNames', 'apps and groups')
+
+// 1 group per row
+flat = a => a.groupNames.map(groupName => ({id: a.id, label: a.label, groupName}))
+// reportUI(apps.flatMap(flat), '', 'apps and groups')
 ```
 
 # Export Groups and Counts to CSV

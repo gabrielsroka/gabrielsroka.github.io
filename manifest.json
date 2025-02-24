@@ -3,6 +3,8 @@
   "name": "rockstar",
   "version": "3.2",
   "description": "rockstar adds a bunch of great features to Okta, like exporting to a CSV.",
+  "homepage_url": "https://github.com/opragel/okta-rockstar",
+  "minimum_chrome_version": "123",
   "omnibox": {
     "keyword": "rs"
   },

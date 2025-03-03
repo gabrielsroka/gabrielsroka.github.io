@@ -20,7 +20,7 @@ onload = async function () {
     const hash = {};
 
     // Parse OpenAPI spec for paths.
-    const r = await fetch('https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/spec.json');
+    const r = await fetch('https://raw.githubusercontent.com/okta/okta-management-openapi-spec/master/dist/legacy-v1-swagger/spec.json');
     const spec = await r.json();
 
     for (const [path, methods] of Object.entries(spec.paths)) {
@@ -31,29 +31,30 @@ onload = async function () {
     }
     version.innerHTML = `OpenAPI v. ${spec.info.version}`.link('https://github.com/okta/okta-management-openapi-spec') + ' ' + paths.length + ' paths.';
 
-    // Search docs for additional paths.
-    var url = 'https://api.github.com/search/code?q=repo:okta/okta-developer-docs+ApiOperation+extension:md';
-    while (url) {
-        const r = await fetch(url);
-        const page = await r.json();
-        if (!page.items.length) version.innerHTML += '<br>Unable to search https://github.com/okta/okta-developer-docs';
-        await Promise.all(page.items.filter(i => !i.path.match('/asa/')).map(async item => {
-            const r = await fetch('https://raw.githubusercontent.com/okta/okta-developer-docs/master/' + item.path);
-            const lines = (await r.text()).split('\n');
-            lines.forEach(line => {
-                if (match = line.match(/ApiOperation method="(.*?)" url="(.*?)"/)) {
-                    var [, method, path] = match;
-                    method = method.toLowerCase();
-                    path = path.replace(/\${/g, '{').replace('{baseUrl}', '').replace('https://{yourOktaDomain}', '').trim();
-                    if (path.startsWith('/v1')) path = '/api' + path;
-                    if (!hash[method + path.replace(/\{(.*?)\}/g, '{}')]) {
-                        paths.push({method, path});
-                    }
-                }
-            });
-        }));
-        url = r.headers.get('link')?.match('<(.*)>; rel="next"')?.[1];
-    }
+    // TODO: search needs auth or private api...
+    // // Search docs for additional paths.
+    // var url = 'https://api.github.com/search/code?q=repo:okta/okta-developer-docs+ApiOperation+extension:md';
+    // while (url) {
+    //     const r = await fetch(url);
+    //     const page = await r.json();
+    //     if (!page.items.length) version.innerHTML += '<br>Unable to search https://github.com/okta/okta-developer-docs';
+    //     await Promise.all(page.items.filter(i => !i.path.match('/asa/')).map(async item => {
+    //         const r = await fetch('https://raw.githubusercontent.com/okta/okta-developer-docs/master/' + item.path);
+    //         const lines = (await r.text()).split('\n');
+    //         lines.forEach(line => {
+    //             if (match = line.match(/ApiOperation method="(.*?)" url="(.*?)"/)) {
+    //                 var [, method, path] = match;
+    //                 method = method.toLowerCase();
+    //                 path = path.replace(/\${/g, '{').replace('{baseUrl}', '').replace('https://{yourOktaDomain}', '').trim();
+    //                 if (path.startsWith('/v1')) path = '/api' + path;
+    //                 if (!hash[method + path.replace(/\{(.*?)\}/g, '{}')]) {
+    //                     paths.push({method, path});
+    //                 }
+    //             }
+    //         });
+    //     }));
+    //     url = r.headers.get('link')?.match('<(.*)>; rel="next"')?.[1];
+    // }
 
     const base = 'https://gsroka-neto.oktapreview.com';
     const headers = {Authorization: 'Bearer invalidToken'};

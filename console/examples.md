@@ -14,6 +14,7 @@
 - [Export apps to CSV](#export-apps-to-csv)
 - [Export apps and groups to CSV](#export-apps-and-groups-to-csv)
 - [Export groups and counts to CSV](#export-groups-and-counts-to-csv)
+- [Export groups and users with attributes to CSV](#Export Groups and Users with attributes to CSV)
 - [Miscellaneous](#miscellaneous)
 
 # Send Activation Email
@@ -346,7 +347,94 @@ url = '/api/v1/groups?expand=stats&limit=' + limit
 cols = 'id,profile.name,_embedded.stats.usersCount,_embedded.stats.appsCount,_embedded.stats.groupPushMappingsCount'
 await report(url, cols)
 ```
+# Export Groups and Users with attributes to CSV
+```js
+// Export Okta Group users with specified attributes
+// Use with https://gabrielsroka.github.io/console
 
+(async function() {
+    // Configure the group prefix here - change this to match the groups you want to export
+    const groupPrefix = "TableauCloud-Group-";
+    
+    const users = [];
+    
+    // Fetch groups that match our prefix directly using the API filter
+    log("Fetching groups starting with: " + groupPrefix);
+    const matchingGroups = [];
+    
+    // Using the filter to match groups that start with our prefix
+    for await (const group of getObjects(`/api/v1/groups?filter=profile.name sw "${groupPrefix}"`)) {
+        matchingGroups.push(group);
+        log("Found group: " + group.profile.name);
+    }
+    
+    log(`Found ${matchingGroups.length} matching groups`);
+    
+    // Track users per group for summary
+    const groupUserCounts = {};
+    
+    // Now fetch users for each group
+    for (const group of matchingGroups) {
+        log(`Fetching users for ${group.profile.name}`);
+        let userCount = 0;
+        
+        for await (const membership of getObjects(`/api/v1/groups/${group.id}/users`)) {
+            // Fetch detailed user information to get all the attributes
+            const user = await fetch(`/api/v1/users/${membership.id}`)
+                .then(response => response.json());
+            
+            // NOTE: Customize the attributes below to match your Okta instance requirements
+            // You can add or remove attributes based on what's available in your user profiles
+            // Access additional custom attributes using user.profile.customAttributeName
+            users.push({
+                "Group Name": group.profile.name,
+                "Username": user.profile.login,
+                "First Name": user.profile.firstName,
+                "Last Name": user.profile.lastName,
+                "Primary Email": user.profile.email,
+                "Title": user.profile.title || "",
+                "Division": user.profile.division || "",
+                "Department": user.profile.department || "",
+                "Company": user.profile.company || ""
+                // Add additional attributes as needed, for example:
+                // "Manager": user.profile.manager || "",
+                // "Location": user.profile.location || "",
+                // "Custom Field": user.profile.customField || ""
+            });
+            
+            userCount++;
+            
+            // Optional: Add a cancel check if you want to support cancellation
+            if (typeof cancel !== 'undefined' && cancel) break;
+        }
+        
+        // Store the user count for this group
+        groupUserCounts[group.profile.name] = userCount;
+        log(`Added ${userCount} users from ${group.profile.name}`);
+        
+        // Optional: Add a cancel check for the outer loop as well
+        if (typeof cancel !== 'undefined' && cancel) break;
+    }
+    
+    // Display summary of results with detailed counts per group
+    log(`======= SUMMARY =======`);
+    log(`Total groups found: ${matchingGroups.length}`);
+    log(`Users per group:`);
+    for (const groupName in groupUserCounts) {
+        log(`- ${groupName}: ${groupUserCounts[groupName]} users`);
+    }
+    log(`Total users across all groups: ${users.length}`);
+    log(`======================`);
+    
+    // IMPORTANT: Table display is commented out to prevent browser performance issues
+    // with large datasets. Uncomment only for small test runs (less than 100 users)
+    // table(users);
+    
+    // Download as CSV - this will include the header row with column titles
+    const fileName = `${groupPrefix.replace(/[^a-zA-Z0-9]/g, '-')}-Users`;
+    downloadCSV(csv(users), fileName);
+})();
+```
 # Miscellaneous
 
 ## Apps

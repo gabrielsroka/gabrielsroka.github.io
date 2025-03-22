@@ -242,7 +242,7 @@ for await (user of getObjects(url)) {\n
     return `<a href="${url}" target=_blank>${text}</a>`;
   }
   function toCSV(...fields) {
-    return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join(',');
+    return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join();
   }
   function downloadCSV(lines, filename) {
     const a = document.body.appendChild(document.createElement('a'));
@@ -254,7 +254,7 @@ for await (user of getObjects(url)) {\n
   }
   function csv(rows) {
     if (rows.length == 0) return;
-    const hdr = '\uFEFF' + Object.keys(rows[0]).join(',') + '\n';
+    const hdr = '\uFEFF' + Object.keys(rows[0]).join() + '\n';
     rows = rows.map(row => toCSV(...Object.values(row))).join('\n');
     return hdr + rows;
   }

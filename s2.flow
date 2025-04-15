@@ -1,0 +1,625 @@
+{
+    "type": "flopack",
+    "version": "1.5.0",
+    "created": "2025-04-15T16:14:11.568Z",
+    "flags": {
+        "auto-transform": true,
+        "looseBooleans": true,
+        "looseStrings": true,
+        "looseNulls": true
+    },
+    "data": {
+        "flos": {
+            "e6f627bf-11ab-4a94-b111-83a37b262a80": {
+                "id": "e6f627bf-11ab-4a94-b111-83a37b262a80",
+                "name": "s1",
+                "description": "",
+                "data": {
+                    "id": null,
+                    "uuid": "e6f627bf-11ab-4a94-b111-83a37b262a80",
+                    "display": {
+                        "preview": [
+                            {
+                                "module": "control",
+                                "name": "callable",
+                                "kernel": true
+                            },
+                            {
+                                "module": "math",
+                                "name": "add",
+                                "kernel": true
+                            }
+                        ],
+                        "eventConnecterName": "Helper Flow",
+                        "isCallable": true
+                    },
+                    "tree": {
+                        "id": 2,
+                        "name": "empty",
+                        "description": "This flow has been build w/o a tree and uses the newer, async, Addressing module."
+                    },
+                    "methods": [
+                        {
+                            "joins": {},
+                            "address": "root:kernel:control:0.0.1:callable",
+                            "parents": {
+                                "version": {
+                                    "address": "root:kernel:control:0.0.1",
+                                    "key": "0.0.1",
+                                    "data": {
+                                        "name": "0.0.1"
+                                    }
+                                },
+                                "channel": {
+                                    "address": "root:kernel:control",
+                                    "key": "control",
+                                    "data": {
+                                        "name": "control"
+                                    }
+                                }
+                            },
+                            "uuid": "U2GB6LAzh",
+                            "branches": {},
+                            "node": {
+                                "key": "callable",
+                                "data": {
+                                    "name": "Helper Flow"
+                                },
+                                "model": {
+                                    "type": "method",
+                                    "_v": 2,
+                                    "key": "callable",
+                                    "executable": false,
+                                    "displayed": true,
+                                    "async": false,
+                                    "cooperative": false,
+                                    "mirrored": true,
+                                    "inlined": false,
+                                    "dependencies": [],
+                                    "timeout": 30000,
+                                    "idempotent": false,
+                                    "monitor": false,
+                                    "webhook": false,
+                                    "webhookList": false,
+                                    "webhookConditions": false,
+                                    "mobile": false,
+                                    "hooks": {},
+                                    "policy": {
+                                        "error": {
+                                            "type": "finish"
+                                        }
+                                    },
+                                    "metadata": {
+                                        "id": null,
+                                        "name": "Helper Flow",
+                                        "description": "Start a Flow that executes on-demand, i.e. called by another Flow or via the Invoke API."
+                                    },
+                                    "meta": {},
+                                    "config": null,
+                                    "partnerChannelKeys": null,
+                                    "inputs": {
+                                        "extensible": true,
+                                        "rules": {
+                                            "*": {
+                                                "types": [
+                                                    "*"
+                                                ],
+                                                "collection": "*"
+                                            }
+                                        },
+                                        "groupRules": {
+                                            "body": {
+                                                "type": "object",
+                                                "reserved": {},
+                                                "extensible": true
+                                            },
+                                            "headers": {
+                                                "type": "object",
+                                                "reserved": {
+                                                    "Content-Type": "string"
+                                                },
+                                                "extensible": true
+                                            },
+                                            "query": {
+                                                "type": "object",
+                                                "reserved": {},
+                                                "extensible": true
+                                            }
+                                        },
+                                        "data": {
+                                            "Nfz0897lY7": {
+                                                "id": "Nfz0897lY7",
+                                                "group": "context",
+                                                "key": "index",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": "number",
+                                                    "collection": false,
+                                                    "data": null,
+                                                    "available": []
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "Index",
+                                                    "index": 0
+                                                },
+                                                "required": false,
+                                                "flags": "d"
+                                            },
+                                            "k3QllNLwle": {
+                                                "id": "k3QllNLwle",
+                                                "group": "context",
+                                                "key": "parent",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": {
+                                                        "id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "method": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "execution_id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "wf_id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "root_execution_id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "root_wf_id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        }
+                                                    },
+                                                    "collection": false,
+                                                    "data": null,
+                                                    "available": []
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "Caller",
+                                                    "collapsed": true,
+                                                    "index": 1
+                                                },
+                                                "required": false,
+                                                "flags": "d"
+                                            },
+                                            "g6NxbV6EII": {
+                                                "id": "g6NxbV6EII",
+                                                "group": "context",
+                                                "key": "error",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": {
+                                                        "message": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "method": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "flo": {
+                                                            "type": "number",
+                                                            "collection": false
+                                                        },
+                                                        "execution": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        }
+                                                    },
+                                                    "collection": false,
+                                                    "data": null,
+                                                    "available": []
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "Error",
+                                                    "collapsed": true,
+                                                    "index": 2
+                                                },
+                                                "required": false,
+                                                "flags": "d"
+                                            },
+                                            "RkO9_yIoUK": {
+                                                "id": "RkO9_yIoUK",
+                                                "group": "context",
+                                                "key": "execution_id",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": "string",
+                                                    "collection": false,
+                                                    "data": null,
+                                                    "available": []
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "Execution ID",
+                                                    "index": 3
+                                                },
+                                                "required": false,
+                                                "flags": "d"
+                                            },
+                                            "8ySRoEfFAB": {
+                                                "id": "8ySRoEfFAB",
+                                                "group": null,
+                                                "key": "var",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": "number",
+                                                    "collection": false,
+                                                    "data": 0,
+                                                    "available": [
+                                                        "string",
+                                                        "number",
+                                                        "boolean",
+                                                        "Date",
+                                                        "Array",
+                                                        "object",
+                                                        "file",
+                                                        "flo",
+                                                        "folder"
+                                                    ]
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "index": 4,
+                                                    "custom": true
+                                                },
+                                                "required": false,
+                                                "flags": "d"
+                                            }
+                                        }
+                                    },
+                                    "outputs": {
+                                        "extensible": true,
+                                        "rules": {
+                                            "*": {
+                                                "types": [
+                                                    "*"
+                                                ],
+                                                "collection": "*"
+                                            }
+                                        },
+                                        "data": {
+                                            "6Q-k26jOA": {
+                                                "id": "6Q-k26jOA",
+                                                "group": "context",
+                                                "key": "index",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": "number",
+                                                    "collection": false,
+                                                    "data": null,
+                                                    "available": []
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "Index",
+                                                    "index": 0
+                                                }
+                                            },
+                                            "vDjCKBFEWi": {
+                                                "id": "vDjCKBFEWi",
+                                                "group": "context",
+                                                "key": "parent",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": {
+                                                        "id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "method": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "execution_id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "wf_id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "root_execution_id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "root_wf_id": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        }
+                                                    },
+                                                    "collection": false,
+                                                    "data": null,
+                                                    "available": []
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "Caller",
+                                                    "collapsed": true,
+                                                    "index": 1
+                                                }
+                                            },
+                                            "qxQL6ihiys": {
+                                                "id": "qxQL6ihiys",
+                                                "group": "context",
+                                                "key": "error",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": {
+                                                        "message": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "method": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        },
+                                                        "flo": {
+                                                            "type": "number",
+                                                            "collection": false
+                                                        },
+                                                        "execution": {
+                                                            "type": "string",
+                                                            "collection": false
+                                                        }
+                                                    },
+                                                    "collection": false,
+                                                    "data": null,
+                                                    "available": []
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "Error",
+                                                    "collapsed": true,
+                                                    "index": 2
+                                                }
+                                            },
+                                            "QCe3Z_7eYY": {
+                                                "id": "QCe3Z_7eYY",
+                                                "group": "context",
+                                                "key": "execution_id",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": "string",
+                                                    "collection": false,
+                                                    "data": null,
+                                                    "available": []
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "Execution ID",
+                                                    "index": 3
+                                                }
+                                            },
+                                            "65Nz9pJ1a": {
+                                                "id": "65Nz9pJ1a",
+                                                "group": null,
+                                                "key": "var",
+                                                "value": {
+                                                    "error": false,
+                                                    "type": "number",
+                                                    "collection": false,
+                                                    "data": 0,
+                                                    "available": [
+                                                        "string",
+                                                        "number",
+                                                        "boolean",
+                                                        "Date",
+                                                        "Array",
+                                                        "object",
+                                                        "file",
+                                                        "flo",
+                                                        "folder"
+                                                    ]
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "index": 4,
+                                                    "custom": true
+                                                },
+                                                "_used": true
+                                            }
+                                        },
+                                        "groupRules": {
+                                            "context": {
+                                                "extensible": false
+                                            }
+                                        }
+                                    },
+                                    "runtime": {}
+                                }
+                            },
+                            "pins": {
+                                "65Nz9pJ1a": {
+                                    "K8YQIIshX": [
+                                        {
+                                            "input": "urPUoTDaxO",
+                                            "transform": null
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "joins": {},
+                            "address": "root:kernel:math:0.0.1:add",
+                            "parents": {
+                                "version": {
+                                    "address": "root:kernel:math:0.0.1",
+                                    "key": "0.0.1",
+                                    "data": {
+                                        "name": "0.0.1"
+                                    }
+                                },
+                                "channel": {
+                                    "address": "root:kernel:math",
+                                    "key": "math",
+                                    "data": {
+                                        "name": "math"
+                                    }
+                                }
+                            },
+                            "uuid": "K8YQIIshX",
+                            "branches": {},
+                            "node": {
+                                "key": "add",
+                                "data": {
+                                    "name": "Add"
+                                },
+                                "model": {
+                                    "type": "method",
+                                    "_v": 2,
+                                    "key": "add",
+                                    "executable": false,
+                                    "displayed": true,
+                                    "async": false,
+                                    "cooperative": false,
+                                    "mirrored": false,
+                                    "inlined": false,
+                                    "dependencies": [],
+                                    "timeout": 90000,
+                                    "idempotent": false,
+                                    "monitor": false,
+                                    "webhook": false,
+                                    "webhookList": false,
+                                    "webhookConditions": false,
+                                    "mobile": false,
+                                    "hooks": {},
+                                    "policy": {
+                                        "error": {
+                                            "type": "finish"
+                                        }
+                                    },
+                                    "metadata": {
+                                        "id": null,
+                                        "name": "Add",
+                                        "description": "Add two or more numbers together."
+                                    },
+                                    "meta": {},
+                                    "config": null,
+                                    "partnerChannelKeys": null,
+                                    "inputs": {
+                                        "extensible": true,
+                                        "rules": {
+                                            "*": {
+                                                "types": [
+                                                    "number"
+                                                ],
+                                                "collection": false
+                                            }
+                                        },
+                                        "groupRules": {},
+                                        "data": {
+                                            "urPUoTDaxO": {
+                                                "id": "urPUoTDaxO",
+                                                "group": null,
+                                                "key": "a",
+                                                "value": {
+                                                    "type": "number",
+                                                    "collection": false,
+                                                    "data": 0,
+                                                    "available": [],
+                                                    "error": false
+                                                },
+                                                "required": true,
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "number 1",
+                                                    "index": 0
+                                                },
+                                                "flags": "d"
+                                            },
+                                            "1W0-XiI4pI": {
+                                                "id": "1W0-XiI4pI",
+                                                "group": null,
+                                                "key": "b",
+                                                "value": {
+                                                    "type": "number",
+                                                    "collection": false,
+                                                    "data": 1,
+                                                    "available": [],
+                                                    "error": false
+                                                },
+                                                "required": true,
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "number 2",
+                                                    "index": 1
+                                                },
+                                                "flags": "d"
+                                            }
+                                        }
+                                    },
+                                    "outputs": {
+                                        "extensible": false,
+                                        "data": {
+                                            "l0oEpDjxro": {
+                                                "id": "l0oEpDjxro",
+                                                "group": null,
+                                                "key": "output",
+                                                "value": {
+                                                    "type": "number",
+                                                    "collection": false,
+                                                    "data": null
+                                                },
+                                                "ref": false,
+                                                "metadata": {
+                                                    "displayname": "total",
+                                                    "index": 0
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runtime": {}
+                                }
+                            },
+                            "pins": {}
+                        }
+                    ],
+                    "model": {},
+                    "orderings": {
+                        "DsYjxsnV6": [
+                            "U2GB6LAzh",
+                            "K8YQIIshX"
+                        ]
+                    },
+                    "cron": {},
+                    "security_level": null,
+                    "log": true,
+                    "inheritLog": true,
+                    "scheduled": false,
+                    "group": "db432bf6-00ef-45b3-9556-fc3d7629b783",
+                    "templateName": null,
+                    "connector_method_meta": {
+                        "inputs": {},
+                        "outputs": {},
+                        "options": {}
+                    },
+                    "monitor_flo": false,
+                    "actionId": null
+                }
+            }
+        },
+        "configs": {},
+        "tables": {},
+        "groups": {}
+    }
+}

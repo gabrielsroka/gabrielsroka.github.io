@@ -42,6 +42,7 @@ javascript:
 - [Chrome Snippets](https://developer.chrome.com/docs/devtools/javascript/snippets/) [4]
 - [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) user scripts
 - [Chrome](https://developer.chrome.com/docs/extensions/) or [Firefox](https://developer.mozilla.org/en-US/Add-ons/WebExtensions) browser extensions
+- [Brave Scriptlets](https://www.reddit.com/r/okta/comments/1iloetv/brave_browser_v175_supports_javascript_scriptlets/)
 
 <br>
 [1] Address Bar

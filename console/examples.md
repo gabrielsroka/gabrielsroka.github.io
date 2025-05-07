@@ -416,7 +416,7 @@ switchPolicies.onclick = async () => {
     r = await put(`/api/v1/apps/${app.id}/policies/${policy.id}`)
     b = await r.json()
     if (r.ok) log('Switched', app.id, app.title)
-    else log('Error:', b.errorCauses.map(e => e.errorSummary))
+    else log('Error:', b.errorSummary, b.errorCauses.map(e => e.errorSummary))
     if (cancel) break
   }
   log('Done')

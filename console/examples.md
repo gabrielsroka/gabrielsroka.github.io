@@ -413,10 +413,10 @@ switchPolicies.onclick = async () => {
   policy = toPolicy.selectedOptions[0]
   checkedApps = results.querySelectorAll('input[type=checkbox]:checked')
   for (app of checkedApps) { // one at a time -- don't use forEach
+    log('Switching', app.id, app.title)
     r = await put(`/api/v1/apps/${app.id}/policies/${policy.id}`)
     b = await r.json()
-    if (r.ok) log('Switched', app.id, app.title)
-    else log('Error:', b.errorSummary, b.errorCauses.map(e => e.errorSummary))
+    if (!r.ok) log('Error:', b.errorSummary, b.errorCauses.map(e => e.errorSummary))
     if (cancel) break
   }
   log('Done')

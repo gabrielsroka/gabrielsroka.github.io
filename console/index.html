@@ -33,7 +33,7 @@ td {
 <h2>Setup</h2>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>console v15</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>console v16</a> to the bookmarks toolbar.
 </ol>
 <h2>Usage</h2>
 <ol>
@@ -60,7 +60,7 @@ td {
    <button id=closeBtn ${style}>Close</button>
    <span id=fileName>Untitled</span>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
-   <a href=https://gabrielsroka.github.io/console target=_blank>console v15</a>
+   <a href=https://gabrielsroka.github.io/console target=_blank>console v16</a>
    <span id=statusBar></span><br>
    <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
 // List users using https://gabrielsroka.github.io/console\n
@@ -91,24 +91,34 @@ for await (user of getObjects(url)) {\n
     fileName.innerText = 'Untitled';
   };
   openBtn.onclick = async () => {
-    try {
-      [fileHandle] = await showOpenFilePicker();
-      const file = await fileHandle.getFile();
-      editor.value = await file.text();
-      fileName.innerText = fileHandle.name;
-    } catch { }
+    fileHandle = await openFile();
+    const file = await fileHandle.getFile();
+    editor.value = await file.text();
+    fileName.innerText = fileHandle.name;
   };
   saveBtn.onclick = async () => {
-    try {
-      if (!fileHandle) {
-        fileHandle = await showSaveFilePicker();
-        fileName.innerText = fileHandle.name;
-      }
-      const writable = await fileHandle.createWritable();
-      await writable.write(editor.value);
-      await writable.close();
-    } catch { }
+    if (!fileHandle) {
+      fileHandle = await saveFile();
+      fileName.innerText = fileHandle.name;
+    }
+    await writeFile(fileHandle, editor.value);
   };
+  async function openFile() {
+    try {
+      const [handle] = await showOpenFilePicker();
+      return handle;
+    } catch { }
+  }
+  async function saveFile(suggestedName) {
+    try {
+      return showSaveFilePicker({suggestedName});
+    } catch { }
+  }
+  async function writeFile(fileHandle, text) {
+    const writable = await fileHandle.createWritable();
+    await writable.write(text);
+    await writable.close();
+  }
   closeBtn.onclick = () => document.body.removeChild(div);
   editor.onkeydown = function (event) {
     if (event.ctrlKey && event.key == 'Enter') {

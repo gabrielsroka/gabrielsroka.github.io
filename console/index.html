@@ -91,29 +91,22 @@ for await (user of getObjects(url)) {\n
     fileName.innerText = 'Untitled';
   };
   openBtn.onclick = async () => {
-    fileHandle = await openFile();
-    const file = await fileHandle.getFile();
-    editor.value = await file.text();
-    fileName.innerText = fileHandle.name;
+    try {
+      [fileHandle] = await showOpenFilePicker();
+      const file = await fileHandle.getFile();
+      editor.value = await file.text();
+      fileName.innerText = fileHandle.name;
+    } catch { }
   };
   saveBtn.onclick = async () => {
-    if (!fileHandle) {
-      fileHandle = await saveFile();
-      fileName.innerText = fileHandle.name;
-    }
-    await writeFile(fileHandle, editor.value);
+    try {
+      if (!fileHandle) {
+        fileHandle = await showSaveFilePicker();
+        fileName.innerText = fileHandle.name;
+      }
+      await writeFile(fileHandle, editor.value);
+    } catch { }
   };
-  async function openFile() {
-    try {
-      const [handle] = await showOpenFilePicker();
-      return handle;
-    } catch { }
-  }
-  async function saveFile(suggestedName) {
-    try {
-      return showSaveFilePicker({suggestedName});
-    } catch { }
-  }
   async function writeFile(fileHandle, text) {
     const writable = await fileHandle.createWritable();
     await writable.write(text);

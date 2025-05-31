@@ -138,6 +138,8 @@
             activeDirectory();
         } else if (location.pathname == "/admin/access/identity-providers") {
             identityProviders();
+        } else if (location.pathname == "/admin/tasks") {
+            dashboardTasks();
         }
 
         var count = 0;
@@ -571,6 +573,13 @@
                 });
             });
         });      
+    }
+    function dashboardTasks() {
+        createDiv("Select All Bookmark Apps", mainPopup, () => {
+            // Select all checkboxes in rows that contain "Bookmark App"
+            $('li.deprovision-instance-row').has('.task-instance-name:contains("Bookmark App")')
+            .find('.deprovision-instance-row-checkbox').prop('checked', true);
+        });
     }
 
     function exportObjects() {

@@ -17,7 +17,8 @@
     "service_worker": "service_worker.js",
     "type": "module"
   },
-  "permissions": ["declarativeContent"],
+  "permissions": ["declarativeContent",
+  "storage"],
   "content_scripts": [
     {
       "matches": [

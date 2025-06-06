@@ -1,4 +1,11 @@
 (function () {
+        chrome?.storage?.local.get({ autoPopup: true }, function (result) {
+        if (!result.autoPopup) return; // Exit early if popup is disabled
+        continueExecution();
+    });
+    return; // prevent the rest of the script from running until continueExecution is explicitly called
+
+    function continueExecution() {
     // What does rockstar do?
     //   Export Objects to CSV: Users, Groups, Group Members, Directory Users, App Users, App Groups, Apps, App Notes, Network Zones, Admins, etc.
     //   User home page: Show SSO (SAML assertion, etc)
@@ -9,7 +16,6 @@
     //   API: API Explorer, Pretty Print JSON
     //   Many: enhanced menus
     // and more to come...
-
     var mainPopup;
     $ = window.$ || window.jQueryCourage;
     const headers = {'X-Okta-User-Agent-Extended': 'rockstar'};
@@ -1596,4 +1602,5 @@
         });
         return true; // Indicates that sendResponse will be called asynchronously.
     });
+}
 })();

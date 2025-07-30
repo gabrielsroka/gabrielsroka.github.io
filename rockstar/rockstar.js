@@ -112,6 +112,27 @@
             searchPlaceholder: "Search hook...",
             oktaFilter: 'eventType eq "event_hook.deleted"',
             backuptaFilterBy: 'type:DELETE;component:EVENT_HOOKS'
+        },
+        userObjectHistory: {
+            menuTitle: 'Show User History',
+            title: "User history for",
+            searchPlaceholder: "Search event name...",
+            oktaFilter: '(eventType sw "user.lifecycle" or eventType sw "user.account") and target.id eq "${objectId}"',
+            backuptaFilterBy: 'component:USERS',
+        },
+        groupObjectHistory: {
+            menuTitle: 'Show Group History',
+            title: "Group history for",
+            searchPlaceholder: "Search event name...",
+            oktaFilter: 'eventType sw "group." and target.id eq "${objectId}"',
+            backuptaFilterBy: 'component:GROUPS',
+        },
+        appObjectHistory: {
+            menuTitle: 'Show App History',
+            title: "App history for",
+            searchPlaceholder: "Search event name...",
+            oktaFilter: '(eventType sw "application.lifecycle" or eventType sw "application.user_membership") and target.id eq "${objectId}"',
+            backuptaFilterBy: 'component:APPS',
         }
     };
 
@@ -130,12 +151,17 @@
             directoryPerson();
         } else if (location.pathname == "/admin/groups") {
             directoryGroups();
-        } else if (location.pathname == "/admin/access/admins") {
+        } else if (location.pathname.match("/admin/group/")) {
+            groupHistory()
+        }else if (location.pathname == "/admin/access/admins") {
             securityAdministrators();
         } else if (location.pathname.match("/report/system_log_2")) {
             systemLog();
-        } else if (location.pathname.match("/admin/app/active_directory")) {
-            activeDirectory();
+        } else if (location.pathname.match("/admin/app/")) {
+            appHistory();
+            if (location.pathname.match("/admin/app/active_directory")) {
+                activeDirectory();
+            }
         } else if (location.pathname == "/admin/access/identity-providers") {
             identityProviders();
         }
@@ -464,6 +490,7 @@
                 return r.json();
             }
         });
+        createDiv(logListPopups.userObjectHistory.menuTitle, mainPopup, () => createObjectHistory('userObjectHistory', user));
     }
 
     function directoryGroups() {
@@ -511,7 +538,19 @@
             searcher(object);
         });
     }
-    
+
+    async function groupHistory() {
+        var groupId = location.pathname.split("/")[3];
+        const group = await getJSON(`/api/v1/groups/${groupId}`);
+        createDiv(logListPopups.groupObjectHistory.menuTitle, mainPopup, () => createObjectHistory('groupObjectHistory', group));
+    }
+
+    async function appHistory(){
+        var appId = location.pathname.split("/")[5];
+        const app = await getJSON(`/api/v1/apps/${appId}`);
+        createDiv(logListPopups.appObjectHistory.menuTitle, mainPopup, () => createObjectHistory('appObjectHistory', app));
+    }
+
     function securityAdministrators() {
         createDiv("Export Administrators", mainPopup, function () { // TODO: consider merging into exportObjects(). Will the Link headers be a problem?
             const adminsPopup = createPopup("Administrators");
@@ -1188,6 +1227,20 @@
         appendResults(logs, links);
     }
 
+    function formatDateLocale(date) {
+        return new Date(date).toLocaleString(undefined, {
+            month: 'short',  // Short month name
+            day: 'numeric',   // Numeric day without leading zero
+            hour: '2-digit', // Two-digit hour
+            minute: '2-digit', // Two-digit minute
+            second: '2-digit' // Two-digit second
+        });
+    }
+
+    function formatDateUTC(date) {
+        return new Date(date).toUTCString();
+    }
+
     function appendResults(logs, links) {
         let targetHTML = '';
         logs.forEach(log => {
@@ -1199,7 +1252,7 @@
                         `<td>${e(target.id)}` +
                         `<td>${e(target.type)}` +
                         `<td>${e(log.actor.displayName)}` +
-                        `<td>${log.published.substring(0, 19).replace('T', ' ')}`;
+                        `<td title="${formatDateUTC(log.published)}">${formatDateLocale(log.published)}`;
                 });
             }
         });
@@ -1252,6 +1305,123 @@
             }
             await fetchDataAndDisplay(type);
         });
+    }
+
+    function getObjectTitle(type, object) {
+        switch (type) {
+            case 'userObjectHistory':
+                return `${object.profile.firstName + " " + object.profile.lastName + " (" + object.id + ")"}`;
+            case 'groupObjectHistory':
+                return `${object.profile.name + " (" + object.id + ")"}`;
+            case 'appObjectHistory':
+                return `${object.label + " (" + object.id + ")"}`;
+        }
+    }
+
+    function createObjectHistory(type, object) {
+        const popupConfig = logListPopups[type];
+        const {logListPopup} = createPopupWithSearch(`${popupConfig.title} ${getObjectTitle(type, object)}`, popupConfig.searchPlaceholder, `${object.id}`);
+        const sinceDate = new Date();
+        sinceDate.setDate(sinceDate.getDate() - 90);
+        let historyTable = displayHistoryResultTable(popupConfig, logListPopup, object.id);
+        fetchMoreHistory(`/api/v1/logs?since=${sinceDate.toISOString()}&limit=10&filter=${popupConfig.oktaFilter.replaceAll("${objectId}", object.id)}&sortOrder=DESCENDING`, 10, historyTable);
+    }
+
+    function displayHistoryResultTable(popupConfig, historyListPopup, objectId) {
+        let targetHTML = `<table class='data-list-table history-table rockstar' id='${objectId}' style='border: 1px solid #ddd'><thead>` +
+            "<tr><th>&nbsp</th><th>Event date</th><th>Event name</th><th>Actor</th><th>Target(s)</th><th>Changed attributes</th>" +
+            "<tbody></tbody></table>" +
+            "<div style='float: right'><a href='#' id='showMore'>Show more</a></div>" +
+            "<div style='margin-top: 15px;'><button id='btnRestore'>More details with Backupta</button></div>";
+        historyListPopup.append(targetHTML);
+
+        historyListPopup.find("#btnRestore").click(function () {
+            var baseUrl = localStorage.backuptaBaseUrl;
+            if (!baseUrl) {
+                settings();
+                return;
+            }
+            var targetUrl = `${baseUrl}/${getBackuptaTenantId()}/changes?filter_by=${popupConfig.backuptaFilterBy};id:${objectId}`;
+            open(targetUrl, '_blank');
+        });
+
+        $('#userSearch').on('keyup', function () {
+            const searchVal = $(this).val().toLowerCase();
+            $('.data-list-item').each(function () {
+                const eventName = $(this).data('eventname').toLowerCase();
+                if (eventName.includes(searchVal)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+        return $('#' + objectId + '.history-table');
+    }
+
+    async function fetchMoreHistory(url, limit, historyTable) {
+        const response = await fetch(url.replace(/limit=\d+/, `limit=${limit}`), {headers});
+        const logs = await response.json();
+        if (logs.length === 0 || logs.length < limit) {
+            historyTable.parent().find('#showMore').hide();
+        } else {
+            historyTable.parent().find('#showMore').show();
+        }
+        const links = getLinks(response.headers.get('Link'));
+        appendResultsHistory(logs, links, historyTable);
+    }
+
+    const heroIconUser = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>';
+    const heroIconUsers = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>';
+    const heroIconSquare2x2 = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" /></svg>';
+    const heroIconUserGroup = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" /></svg>';
+    const heroIconCog6Tooth = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>';
+
+    const targetTypeIcon = {
+        User: heroIconUser,
+        UserGroup: heroIconUsers,
+        Group: heroIconUserGroup,
+        AppInstance: heroIconSquare2x2,
+    }
+
+    function appendResultsHistory(logs, links, historyTable) {
+        let targetHTML = '';
+        logs.forEach(log => {
+            // For apps events, the actor shows up in targets. So if an app edits another app, it would get added to the actor app history without this. The first target is the modified target
+            if(log.target[0].id !== historyTable.attr('id')) {
+                return;
+            }
+            const target = log.target.filter(target => target.id !== historyTable.attr('id')).map(target => {
+                const icon = targetTypeIcon[target.type] ?? heroIconCog6Tooth;
+                return `${e(target.displayName)} (<span title="${target.type}" style="vertical-align: text-bottom; display: inline-block; width: 1.25rem; height: 1.25rem;">${icon}</span>)`;
+            }).filter(v => !!v).join('<br />');
+            const changedAttributes = log.debugContext?.debugData?.changedAttributes;
+            let svgOutcome = '';
+            if(log.outcome.result === "SUCCESS") {
+                svgOutcome = '<svg width="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
+                    '<circle cx="12" cy="12" r="10" stroke="green" stroke-width="1.5"/>\n' +
+                    '<path d="M8.5 12.5L10.5 14.5L15.5 9.5" stroke="green" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>\n' +
+                    '</svg>'
+            } else {
+                svgOutcome = '<svg width="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">\n' +
+                    '<circle cx="12" cy="12" r="10" stroke="red" stroke-width="1.5"/>\n' +
+                    '<path d="M12 7V13" stroke="red" stroke-width="1.5" stroke-linecap="round"/>\n' +
+                    '<circle cx="12" cy="16" r="1" fill="red"/>\n' +
+                    '</svg>'
+            }
+            targetHTML += `<tr class='data-list-item' data-eventname='${e(log.displayMessage)}'>`+
+                `<td style='text-align: center' title='${e(log.debugContext.debugData.errorMessage)}'>${svgOutcome}</td>` +
+                `<td title="${formatDateUTC(log.published)}">${formatDateLocale(log.published)}</td>` +
+                `<td title='${e(log.eventType)}'>${e(log.displayMessage)}</td>` +
+                `<td title='${e(log.actor.type) + " with id " + e(log.actor.id)}'>${e(log.actor.displayName)}</td>` +
+                `<td>${target}</td>` +
+                `<td>${e(changedAttributes)}</td>`;
+        });
+        const tableBody = historyTable.find('tbody');
+        tableBody.append(targetHTML);
+        const button = historyTable.parent().find('#showMore');
+        button.off("click");
+        button.on("click", () => fetchMoreHistory(links.next, 100, historyTable));
     }
 
     // API functions
@@ -1572,7 +1742,7 @@
         a[0].click();
     }
     function e(s) {
-        return s == null ? '' : s.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return s == null ? '' : s.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&apos;').replace(/"/g, '&quot;');
     }
     function dot(o, dots) {
         var ps = dots.split(".");

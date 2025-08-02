@@ -26,3 +26,6 @@ To test:
 
 # Greasemonkey script
 https://gabrielsroka.github.io/rockstar/rockstar.user.js
+
+# Bookmarklet
+https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/rockstar/rockstar_bm.js

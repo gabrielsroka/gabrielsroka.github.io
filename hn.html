@@ -111,14 +111,15 @@ async function getItems() {
         const hnItemUrl = `${hnBaseUrl}/item?id=${item.id}`;
         item.title = item.title.replace(/</g, '&lt;');
         if (item.url) {
+            if (item.url.includes('old.reddit.com')) {
+                item.url = item.url.replace('old.reddit.com', 'www.reddit.com');
+            }
             const url = new URL(item.url);
             var site = url.hostname.replace(/^www\./, '');
             var web = ' | ' + link(`https://www.google.com/search?q=${encodeURIComponent(item.title)}+site:${site}`, 'web');
             if (site.includes('twitter.com')) {
                 var lsite = site + '/' + url.pathname.split('/')[1];
                 web += ' | ' + link(item.url.replace('twitter.com', 'nitter.net'), 'nitter');
-            } else if (item.url.includes('old.reddit.com')) {
-                item.url = item.url.replace('old.reddit.com', 'www.reddit.com')
             } else {
                 lsite = site;
             }

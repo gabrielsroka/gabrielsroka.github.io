@@ -117,6 +117,8 @@ async function getItems() {
             if (site.includes('twitter.com')) {
                 var lsite = site + '/' + url.pathname.split('/')[1];
                 web += ' | ' + link(item.url.replace('twitter.com', 'nitter.net'), 'nitter');
+            } else if (item.url.includes('old.reddit.com')) {
+                item.url = item.url.replace('old.reddit.com', 'www.reddit.com')
             } else {
                 lsite = site;
             }

@@ -4,11 +4,11 @@
 <title>BASIC</title>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
-<meta name="author" content="Gabriel Sroka">
-<meta name="copyright" content="Copyright 2007-2019 Gabriel Sroka">
-<meta name="keywords" content="BASIC, BASIC editor">
-<meta name="description" content="BASIC editor">
+<meta name="copyright" content="Copyright 2007-2025 Gabriel Sroka">
 <style>
+body {
+    font-family: sans-serif;
+}
 @media (prefers-color-scheme: dark) {
     body {
         background-color: #121212;
@@ -18,10 +18,12 @@
 </style>
 </head>
 <body>
-<h1><a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/webpages/BASIC.html target=_blank>BASIC</a></h1>
-<button id=run accesskey="R" title="Run (Ctrl + Enter or F2)">Run</button>
-<button id=newProgram accesskey="N" title="New">New</button>
+<h1>BASIC</h1>
+<button id=run accesskey=R title='Ctrl + Enter'>Run</button>
+<button id=newProgram accesskey=N>New</button>
+<button id=cancelBtn title=Esc>Cancel</button>
 <select id=prognames></select>
+<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/webpages/BASIC.html target=_blank>src</a>
 <br><br>
 <textarea id="editor" style="width: 99%;" cols="80" rows="15" spellcheck="false" autocapitalize="none"></textarea>
 <textarea id="debug" style="width: 99%;" cols="80" rows="12" spellcheck="false" autocapitalize="none"></textarea>
@@ -32,6 +34,7 @@
 
 var programs;
 var progname;
+var cancel = false;
 
 if (localStorage.basicPrograms) {
     programs = JSON.parse(localStorage.basicPrograms);
@@ -96,9 +99,9 @@ run.onclick = function () {
             line = line.replace('end if', '}');
         } else if (tLine.startsWith("print ") || tLine.startsWith('?')) {
             if (tLine.endsWith(';')) {
-                line = line.replace(/(print|\?) ?/, "print(").replace(';', '') + ")";
+                line = line.replace(/(print|\?) ?/, "await print(").replace(';', '') + ")";
             } else {
-                line = line.replace(/(print|\?) ?/, "println(") + ")";
+                line = line.replace(/(print|\?) ?/, "await println(") + ")";
             }
         } else if (tLine.startsWith('then ')) { // .then for Promises.
             line = line.replace('then ', '.then(') + ' => {';
@@ -111,7 +114,8 @@ run.onclick = function () {
     }
     lines = lines.join('\n');
     console.log(lines);
-    eval(lines);
+    cancel = false;
+    eval('(async function () {\n' + lines + '\n})()');
     //document.body.appendChild(document.createElement("script")).innerHTML = lines;
 };
 
@@ -125,6 +129,8 @@ newProgram.onclick = function () {
     }
 };
 
+cancelBtn.onclick = () => cancel = true;
+
 prognames.onchange = function () {
     editor.value = this.value;
     progname = this.options[this.selectedIndex].text;
@@ -133,9 +139,10 @@ prognames.onchange = function () {
 
 editor.focus();
 editor.onkeydown = function (event) {
-    var ENTER = 13, F2 = 113;
-    if (event.keyCode == F2 || (event.keyCode == ENTER && event.ctrlKey)) {
+    if (event.key == 'Enter' && event.ctrlKey) {
         run.onclick();
+    } else if (event.key == 'Escape') {
+        cancelBtn.onclick();
     }
 };
 
@@ -145,16 +152,18 @@ debug.log = debug.print = function (s, nl = true) {
 };
     
 debug.clear = function () {
-    debug.value = "";
+    debug.value = '';
     results.innerHTML = '';
 };
 
-function print(...args) {
-    debug.print(args.join(" "), false);
+async function print(...args) {
+    debug.print(args.join(' '), false);
+    await sleep(0);
 }
 
-function println(...args) {
-    debug.print(args.join(" "));
+async function println(...args) {
+    debug.print(args.join(' '));
+    await sleep(0);
 }
 
 function save() {
@@ -169,20 +178,27 @@ function save() {
 }
 
 function addOption(name, value) {
-    var option = document.createElement("option");
+    var option = document.createElement('option');
     option.text = name;
     option.value = value;
     prognames.add(option);
 }
 
-// standard library
-function len(s$) {
-    return s$.length;
+sleep = async delay => new Promise(r => setTimeout(r, delay));
+
+function graphics() {
+    debug.style.display = 'none';
+    results.innerHTML += '<canvas id=canvas width=320 height=200></canvas>';
+    ctx = canvas.getContext('2d');
+    dot = (x, y) => ctx.fillRect(x, y, 1, 1);
 }
 
-function mid$(s$, i, ln) {
-    return s$.slice(i - 1, i + ln - 1);
-}
+// standard library
+len = s$ => s$.length;
+mid$ = (s$, i, ln) => s$.slice(i - 1, i + ln - 1);
+
+rnd = Math.random;
+sin = Math.sin;
 </script>
 </body>
 </html>

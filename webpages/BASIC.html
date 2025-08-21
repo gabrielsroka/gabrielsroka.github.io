@@ -10,7 +10,7 @@ body {
     font-family: sans-serif;
 }
 @media (prefers-color-scheme: dark) {
-    body {
+    body, * {
         background-color: #121212;
         color: #888;
     }
@@ -31,6 +31,7 @@ body {
 <script>
 // 5/26/19 - 10:10 - 10:40
 // 5/27/19 - 9:30 - 11, 1-3
+// 8/20/25 - still here :)
 
 var programs;
 var progname;
@@ -50,13 +51,17 @@ if (localStorage.basicPrograms) {
 
 j = 1
 for i = 1 to 10
-    if j = 0 then
-        print i
-        j = 1
-    else
-        j = 0
-    end if
-next i`;
+  if j = 0 then
+    print i
+    j = 1
+  else
+    j = 0
+  end if
+next i
+
+for i = 1 to 1000
+  print rnd() < 0.5 ? '/' : '\\\\';
+next`;
     progname = "First BASIC program";
     addOption(progname, editor.value);
     save();
@@ -86,7 +91,7 @@ run.onclick = function () {
                 line += "; " + v + "++) {";
             }
         } else if (tLine.startsWith("next")) {
-            line = line.replace('next', '} //');
+            line = line.replace('next', 'if (cancel) break\n} //');
         } else if (tLine.startsWith("if ") || tLine.startsWith("else if ")) {
             line = line
                 .replace("else", "} else")
@@ -116,7 +121,6 @@ run.onclick = function () {
     console.log(lines);
     cancel = false;
     eval('(async function () {\n' + lines + '\n})()');
-    //document.body.appendChild(document.createElement("script")).innerHTML = lines;
 };
 
 newProgram.onclick = function () {
@@ -191,14 +195,18 @@ function graphics() {
     results.innerHTML += '<canvas id=canvas width=320 height=200></canvas>';
     ctx = canvas.getContext('2d');
     dot = (x, y) => ctx.fillRect(x, y, 1, 1);
+    color = c => ctx.fillStyle = c;
 }
 
 // standard library
 len = s$ => s$.length;
 mid$ = (s$, i, ln) => s$.slice(i - 1, i + ln - 1);
 
+cos = Math.cos;
 rnd = Math.random;
+PI = Math.PI;
 sin = Math.sin;
+sqr = Math.sqrt;
 </script>
 </body>
 </html>

@@ -20,8 +20,8 @@ body {
 <body>
 <h1>BASIC</h1>
 <button id=run accesskey=R title='Ctrl + Enter'>Run</button>
-<button id=newProgram accesskey=N>New</button>
 <button id=cancelBtn title=Esc>Cancel</button>
+<button id=newProgram accesskey=N>New</button>
 <select id=prognames></select>
 <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/webpages/BASIC.html target=_blank>src</a>
 <br><br>
@@ -202,7 +202,9 @@ function graphics() {
 len = s$ => s$.length;
 mid$ = (s$, i, ln) => s$.slice(i - 1, i + ln - 1);
 
+abs = Math.abs;
 cos = Math.cos;
+int = Math.floor;
 rnd = Math.random;
 PI = Math.PI;
 sin = Math.sin;

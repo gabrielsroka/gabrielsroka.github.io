@@ -19,7 +19,7 @@ body {
 </head>
 <body>
 <h1>BASIC</h1>
-<button id=run accesskey=R title='Ctrl + Enter'>Run</button>
+<button id=runProgram accesskey=R title='Ctrl + Enter'>Run</button>
 <button id=cancelBtn title=Esc>Cancel</button>
 <button id=newProgram accesskey=N>New</button>
 <select id=prognames></select>
@@ -68,15 +68,19 @@ next`;
 }
 
 if (!navigator.userAgent.match("Android")) {
-    run.innerHTML = "<u>R</u>un";
+    runProgram.innerHTML = "<u>R</u>un";
     newProgram.innerHTML = "<u>N</u>ew";
 }
 
-run.onclick = function () {
+runProgram.onclick = function () {
     debug.clear();
     console.clear();
     save();
-    var lines = editor.value.split('\n');
+    run(editor.value);
+};
+
+function run(lines) {
+    lines = lines.split('\n');
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         const tLine = line.trim();
@@ -121,7 +125,7 @@ run.onclick = function () {
     console.log(lines);
     cancel = false;
     eval('(async function () {\n' + lines + '\n})()');
-};
+}
 
 newProgram.onclick = function () {
     progname = prompt("Program name");
@@ -144,7 +148,7 @@ prognames.onchange = function () {
 editor.focus();
 editor.onkeydown = function (event) {
     if (event.key == 'Enter' && event.ctrlKey) {
-        run.onclick();
+        runProgram.onclick();
     } else if (event.key == 'Escape') {
         cancelBtn.onclick();
     }

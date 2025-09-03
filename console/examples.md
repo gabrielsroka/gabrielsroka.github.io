@@ -444,13 +444,14 @@ table(groups)
 ```js
 // Add and activate a Group Rule using https://gabrielsroka.github.io/console
 
-results.innerHTML = '<style>.rockstarTable td {padding: 8px;} .group {border: solid 1px gray; padding: 10px; margin: 4px; text-wrap: nowrap;}</style>' +
-  '<table class=rockstarTable style="width: 100%">' +
+results.innerHTML = '<' + 'style>.rockstarTable td {padding: 8px;} .group {border: solid 1px gray; padding: 10px; margin: 4px; text-wrap: nowrap;}</style>' +
+  '<' + 'table class=rockstarTable style="width: 100%">' +
   '<tr><td colspan=2><h2>Add Rule</h2>' +
-  '<tr><td>Name<td><input id=ruleName>' +
+  '<tr><td>Name<td><input id=ruleName><td><button id=openRule>Open Rule</button>' +
   `<tr><td>Expression<td style='width: 100%' colspan=2><textarea id=expression style='width: 100%; height: 100px; font-family: monospace;'></textarea>` +
     'Press Ctrl+Enter to Preview - ' + link('https://developer.okta.com/reference/okta_expression_language', 'Expression Language Reference') +
-  '<tr><td>Assign to<td><input id=groupName placeholder=Group><td style="width: 100%"><span id=groupInfo></span>' +
+  '<tr><td>Assign to<td><input id=groupName placeholder=Group><td style="width: 100%"><button id=newGroup>New Group</button> <span id=groupInfo></span>' +
+  '<tr><td>Except<td colspan=2><span id=exceptions></span>' +
   '<tr><td>Preview<td colspan=2><input id=userName placeholder=User> <span id=userInfo></span>' +
   '<tr><td colspan=3><div id=infobox>&nbsp;</div>' +
   '<tr><td colspan=2><button id=save class="button button-primary">Save and Activate</button>' +
@@ -459,24 +460,46 @@ ruleName.focus()
 
 user = {}
 groups = []
-expression.onkeydown = event => {
-  if (event.ctrlKey && event.key == 'Enter') evalExpression()
-}
-async function evalExpression() {
-  err = '<span style="color: white; background-color: red">&nbsp;! </span>&nbsp;'
-  if (!user?.id) {
-    infobox.innerHTML = err + 'Select a user to preview'
+exclude = []
+err = '<span style="color: white; background-color: red">&nbsp;! </span>&nbsp;'
+userLink = user => link('/admin/user/profile/view/' + user.id, user.profile.firstName + ' ' + user.profile.lastName)
+openRule.onclick = async () => {
+  rules = await getJson('/api/v1/groups/rules?' + new URLSearchParams({expand: 'groupIdToGroupNameMap', limit: 1, search: ruleName.value}))
+  if (rules.length == 0) {
+    infobox.innerHTML = ruleName.value + ' not found'
     return
   }
   infobox.innerHTML = '&nbsp;'
-  body = [{targets: {user: user.id}, value: expression.value, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}]
-  exp = (await postJson('/api/v1/internal/expression/eval', body))[0]
-  if (exp.error) {
-    h = err + 'We found some errors.<br>' + exp.error.errorCauses.map(c => c.errorSummary).join('<br>')
-    if (expression.value.match(/[‘’“”]/)) h += '<br>Change smart (curly) quotes to straight quotes.'
-  } else if (exp.result == 'TRUE') h = '<span style="color: white; background-color: green">&nbsp;✓ </span>&nbsp; User matches rule'
-  else h = err + "User doesn't match rule"
-  infobox.innerHTML = h
+  rule = rules[0]
+  ruleName.value = rule.name
+  expression.value = rule.conditions.expression.value
+  groups = rule.actions.assignUserToGroups.groupIds.map(id => ({id, profile: {name: rule._embedded.groupIdToGroupNameMap[id]}}))
+  updateGroupInfo()
+  exclude = rule.conditions.people?.users.exclude || []
+  exceptions.innerHTML = exclude.length ? (await getJson('/api/v1/users?search=' + exclude.map(id => `id eq "${id}"`).join(' or '))).map(userLink).join(', ') : ''
+}
+expression.onkeydown = event => {
+  if (event.ctrlKey && event.key == 'Enter') evalExpression()
+}
+groupName.onkeyup = async () => {
+  if (await debounce(groupName)) return
+  foundGroups = await getJson('/api/v1/groups?' + new URLSearchParams({limit: 1, filter: 'type eq "OKTA_GROUP"', q: groupName.value}))
+  group = foundGroups[0]
+  if (group) {
+    if (!groups.find(g => g.id == group.id)) groups.push(group)
+    msg = ''
+  } else msg = 'No results found. '
+  updateGroupInfo(msg)
+}
+newGroup.onclick = async () => {
+  group = await postJson('/api/v1/groups', {profile: {name: groupName.value}})
+  if (group.id) {
+    infobox.innerHTML = 'Added group ' + link('/admin/group/' + group.id, group.profile.name)
+    groups.push(group)
+    updateGroupInfo()
+  } else {
+    infobox.innerHTML = err + group.errorCauses.map(c => c.errorSummary)
+  }
 }
 userName.onkeyup = async event => {
   infobox.innerHTML = '&nbsp;'
@@ -491,24 +514,18 @@ userName.onkeyup = async event => {
     userInfo.innerHTML = 'No results found'
     return
   }
-  userInfo.innerHTML = link('/admin/user/profile/view/' + user.id, user.profile.firstName + ' ' + user.profile.lastName) + ', login: ' + user.profile.login + ', email: ' + user.profile.email
-}
-groupName.onkeyup = async () => {
-  if (await debounce(groupName)) return
-  foundGroups = await getJson('/api/v1/groups?' + new URLSearchParams({limit: 1, filter: 'type eq "OKTA_GROUP"', q: groupName.value}))
-  group = foundGroups[0]
-  if (group) {
-    if (!groups.find(g => g.id == group.id)) groups.push(group)
-    msg = ''
-  } else msg = 'No results found. '
-  groupInfo.innerHTML = msg + groups.map(g => '<span class=group>' + link('/admin/group/' + g.id, g.profile.name) + ` &nbsp;<button id=${g.id}>x</button></span>`).join(' ')
-  groupInfo.querySelectorAll('button').forEach(button => button.onclick = () => {
-    groups = groups.filter(g => g.id != button.id)
-    button.parentNode.remove()
-  })
+  userInfo.innerHTML = userLink(user) + ', login: ' + user.profile.login + ', email: ' + user.profile.email
 }
 save.onclick = async () => {
-  body = {name: ruleName.value, conditions: {expression: {value: expression.value, type: 'urn:okta:expression:1.0'}}, actions: {assignUserToGroups: {groupIds: groups.map(g => g.id)}}, type: 'group_rule'}
+  body = {
+    name: ruleName.value,
+    conditions: {
+      expression: {value: expression.value, type: 'urn:okta:expression:1.0'},
+      people: {users: {exclude}}
+    },
+    actions: {assignUserToGroups: {groupIds: groups.map(g => g.id)}},
+    type: 'group_rule'
+  }
   rule = await postJson('/api/v1/groups/rules', body)
   if (rule.id) {
     await post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
@@ -516,5 +533,27 @@ save.onclick = async () => {
   } else {
     infobox.innerHTML = 'Error: ' + rule.errorSummary + '<br>' + rule.errorCauses.map(c => c.errorSummary).join('<br>')
   }
+}
+async function evalExpression() {
+  if (!user?.id) {
+    infobox.innerHTML = err + 'Select a user to preview'
+    return
+  }
+  infobox.innerHTML = '&nbsp;'
+  body = [{targets: {user: user.id}, value: expression.value, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}]
+  exp = (await postJson('/api/v1/internal/expression/eval', body))[0]
+  if (exp.error) {
+    h = err + 'We found some errors.<br>' + exp.error.errorCauses.map(c => c.errorSummary).join('<br>')
+    if (expression.value.match(/[‘’“”]/)) h += '<br>Change smart (curly) quotes to straight quotes.'
+  } else if (exp.result == 'TRUE') h = '<span style="color: white; background-color: green">&nbsp;✓ </span>&nbsp; User matches rule'
+  else h = err + "User doesn't match rule"
+  infobox.innerHTML = h
+}
+function updateGroupInfo(msg = '') {
+  groupInfo.innerHTML = msg + groups.map(g => '<span class=group>' + link('/admin/group/' + g.id, g.profile.name) + ` &nbsp;<button id=${g.id}>x</button></span>`).join(' ')
+  groupInfo.querySelectorAll('button').forEach(button => button.onclick = () => {
+    groups = groups.filter(g => g.id != button.id)
+    button.parentNode.remove()
+  })
 }
 ```

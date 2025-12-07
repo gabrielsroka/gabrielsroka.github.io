@@ -229,12 +229,14 @@ for await (user of getObjects(url)) {\n
         await sleep(delay);
       }
     } while (r.status == TOO_MANY_REQUESTS);
-    statusBar.innerHTML = '';
     return r;
   }
   async function sleep(delay) /* delay in ms */ {
     statusBar.innerHTML = 'Sleeping ' + delay + ' ms';
-    return new Promise(resolve => timeout = setTimeout(resolve, delay));
+    return new Promise(resolve => timeout = setTimeout(() => {
+      statusBar.innerHTML = '';
+      resolve();
+    }, delay));
   }
   async function debounce(ctl) {
     clearTimeout(timeout);

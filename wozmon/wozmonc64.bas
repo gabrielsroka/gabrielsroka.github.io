@@ -8,9 +8,9 @@
 
 3 print:input i$:print:m=0:y=0:rem getline/nextchar/setmode
 
-4 y=y+1
+4 y=y+1:rem blskip
 5 if y>len(i$) goto 3
-6 c$=mid$(i$,y,1):if c$<"-" goto 4:rem nextitem/blskip
+6 c$=mid$(i$,y,1):if c$<"-" goto 4:rem nextitem
 7 if c$="-" then m=1:goto 4
 8 if c$="=" then m=2:goto 4
 9 if c$="r" then sys x:goto 4:rem run
@@ -34,5 +34,5 @@
 22 c=z/16 and 15:gosub 24:rem prbyte
 23 c=z and 15:gosub 24:return
 
-24 if c>9 then c=c+7
-25 print chr$(48+c);:return
+24 if c>9 then c=c+7:rem prhex
+25 print chr$(48+c);:return:rem echo-ish

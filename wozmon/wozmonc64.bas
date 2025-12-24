@@ -25,8 +25,8 @@
 16 if m=0 then s=h:x=h:rem notstor/setadr
 17 a=0:if m goto 20
 
-18 if a=0 then print:z=x/256 and 255:gosub 22:z=x-z*256:gosub 22:print ": ";:rem nxtprnt
-19 z=peek(x):gosub 22:print " ";:rem prdata
+18 if a=0 then print:z=x/256 and 255:gosub 22:z=x-z*256:gosub 22:print ":";:rem nxtprnt
+19 print " ";:z=peek(x):gosub 22:rem prdata
 20 m=0:if x<h then x=x+1:a=x-32768 and 7:goto 18:rem xamnext/mod8chk
 
 21 goto 5

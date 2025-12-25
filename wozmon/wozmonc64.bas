@@ -1,6 +1,7 @@
-!-  mine: c000=a9 41 20 d2 ff 60 r
-!- woz's: c000=a9 20 aa 20 d2 ff e8 8a c9 5b d0 f6 60 r
-!-    or: c000=a9 20 aa 20 d2 ff e8 8a c9 5b d0 f6 4c 00 c0 r
+!-    mine: c000=a9 41 20 d2 ff 60 r
+!-   woz's: c000=a9 20 aa 20 d2 ff e8 8a c9 5b d0 f6 60 r
+!-      or: c000=a9 20 aa 20 d2 ff e8 8a c9 5b d0 f6 4c 00 c0 r
+!- 10print: c000=a9 80 8d 0f d4 8d 12 d4 ad 1b d4 29 01 69 6d 20 d2 ff d0 f4 r
 
 1 poke 19,1:rem turn off "?" during input
 

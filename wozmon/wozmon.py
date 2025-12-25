@@ -22,7 +22,7 @@ while True:
             while y < len(inp):
                 c = inp[y] # nexthex
                 if c.isdigit() or 'a' <= c <= 'f':
-                    hx = hx * 16 + int(c, base=16) # dig
+                    hx = hx * 16 + int(c, 16) # dig
                 else:
                     break
                 y += 1

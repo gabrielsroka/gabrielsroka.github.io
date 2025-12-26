@@ -7,7 +7,7 @@
 
 2 print "/";:rem escape
 
-3 print:input i$:print:m=0:y=0:rem getline/nextchar/setmode
+3 print:input i$:print:y=0:m=0:rem getline/nextchar/setmode
 
 4 y=y+1:rem blskip
 5 if y>len(i$) goto 3:rem nextitem
@@ -36,4 +36,4 @@
 23 c=z:rem fall thru to next gosub
 
 24 c=c and 15:if c>9 then c=c+7:rem prhex
-25 print chr$(48+c);:return:rem echo
+25 print chr$(c+48);:return:rem echo

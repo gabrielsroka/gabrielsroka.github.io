@@ -19,12 +19,12 @@
 
 11 c$=mid$(i$,y,1):if (c$<"0" or c$>"9") and (c$<"a" or c$>"f") goto 14:rem nexthex
 12 c=asc(c$)-48:if c>9 then c=c-7:rem dig
-13 h=h*16+c:y=y+1:goto 11
+13 h=h*16+c:y=y+1:goto 11:rem hexshift
 
 14 if y=v goto 2:rem nothex
 15 if m=2 then poke s,h:s=s+1:goto 5
-16 if m=0 then s=h:x=h:rem notstor/setadr
-17 a=0:if m goto 20
+16 if m goto 20:rem notstor
+17 s=h:x=h:a=0:rem setadr
 
 18 if a=0 then print:z=x/256 and 255:gosub 22:z=x-z*256:gosub 22:print ":";:rem nxtprnt
 19 print " ";:z=peek(x):gosub 22:rem prdata

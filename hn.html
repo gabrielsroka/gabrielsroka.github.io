@@ -86,11 +86,15 @@ if (localStorage.user) {
 function setUser() {
     user.innerHTML = link(`${hnBaseUrl}/threads?id=${localStorage.user}`, localStorage.user) + ' | <a id=submissions>submissions</a>';
     submissions.onclick = async () => {
-        const r = await fetch(`${alBaseUrl}/api/v1/search_by_date?tags=story,author_${localStorage.user}`);
-        const u = await r.json();
-        const items = u.hits.map(item => '<div class=item>' + link(`${hnBaseUrl}/item?id=${item.objectID}`, item.title + '<br>' + 
-            new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(item.created_at_i * 1000)) + ' | ' + 
-            plu(item.points, 'point')) + '</div>');
+        const items = [];
+        var page = 0;
+        do {
+            const r = await fetch(`${alBaseUrl}/api/v1/search_by_date?tags=story,author_${localStorage.user}&page=${page++}`);
+            var search = await r.json();
+            search.hits.forEach(item => items.push('<div class=item>' + link(`${hnBaseUrl}/item?id=${item.objectID}`, item.title + '<br>' + 
+                new Intl.DateTimeFormat(undefined, {dateStyle: 'full', timeStyle: 'long'}).format(new Date(item.created_at_i * 1000)) + ' | ' + 
+                plu(item.points, 'point')) + '</div>'));
+        } while (items.length < search.nbHits);
         contents.innerHTML = `<br>${localStorage.user}'s submissions<br><br>` + items.join('');
     };
 }

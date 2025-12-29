@@ -69,7 +69,6 @@ filter = 'filter=profile.lastName eq "Doe"'\n
 url = '/api/v1/users?' + filter\n
 for await (user of getObjects(url)) {\n
   log(user.id, user.profile.login)\n
-  if (cancel) break\n
 }</textarea><br>
    <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>
    <div id=results></div>`;
@@ -288,7 +287,6 @@ for await (user of getObjects(url)) {\n
     for await (const obj of getObjects(url, params)) {
       objs.push(obj);
       results.innerHTML = objs.length + ' ' + name;
-      if (cancel) break;
     }
     results.innerHTML = objs.length + ' ' + name;
     return objs;

@@ -143,7 +143,7 @@ function print(...args) {
 }
 
 function o2j(o, i = 2) {
-    return JSON.stringify(o, null, i);
+    return JSON.stringify(o, null, i).replace(/""/g, "''").replace(/"/g, '');
 }
 
 function button(html, onclick) {

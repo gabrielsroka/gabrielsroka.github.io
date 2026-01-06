@@ -58,12 +58,14 @@ Usage:
             popup.find('div.results').html('Loading...');
             searching = true;
             cancel = false;
+            form.find('button').html('Cancel');
             for await (const user of getObjects('/api/v1/users' + (searchStatus.value ? `?search=status eq "${searchStatus.value}"` : ''))) {
                 user.displayName = user.profile.firstName + ' ' + user.profile.lastName;
                 users.push(user);
                 popup.find('div.results').html('Loading... ' + users.length + ' users');
                 if (cancel) break;
             }
+            form.find('button').html('Search');
             searching = false;
         }
         const sortFn = 
@@ -86,7 +88,7 @@ Usage:
         while (url) {
             const r = await fetch(url);
             const objects = await r.json();
-            for (const o of objects) yield o;
+            yield* objects;
             url = r.headers.get('link')?.match('<https://[^/]+([^>]+)>; rel="next"')?.[1];
         }
     }

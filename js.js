@@ -210,26 +210,6 @@ String.prototype.right = function (length) {
     return this.substr(this.length - length);
 };
 
-String.prototype.startsWith = function (value) {
-/// <param name="value" type="String"></param>
-/// <returns type="Boolean">true if string starts with value</returns>
-
-    return this.left(value.length) == value;
-};
-
-String.prototype.endsWith = function (value) {
-/// <param name="value" type="String"></param>
-/// <returns type="Boolean">true if string ends with value</returns>
-
-    return this.right(value.length) == value;
-};
-
-String.prototype.contains = function (value) {
-/// <param name="value" type="String"></param>
-/// <returns type="Boolean">true if value occurs within this string</returns>
-    return this.indexOf(value) >= 0;
-};
-
 String.prototype.parseQueryString = function (delim, assign) {
 /// <summary>Convert query string to hashtable, e.g. "a1=v1&a2=v2&a3=v3" to {a1: "v1", a2: "v2", a3: "v3"}.</summary>
 /// <returns type="Object">Hashtable</returns>

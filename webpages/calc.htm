@@ -5,7 +5,7 @@
 <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: sans-serif;
     font-size: 10pt;
 }
 th {
@@ -17,6 +17,7 @@ th {
 </style>
 </head>
 <body>
+<div id=formulaBar>&nbsp;</div>
 <table id="calc"></table>
 <script src="scripts/js.js" type="text/javascript"></script>
 <script type="text/javascript">
@@ -46,9 +47,9 @@ function sum(a) {
 }
 
 onload = function () {
-    var rows = 10, cols = 5, row, col;
+    var rows = 10, cols = 5;
     var places = 2;
-    var delim = ";", assign = ":", args, input;
+    var delim = ";", assign = ":";
     function encodedHash() {return location.href.split("#")[1];}
     function colLetter(col) {
         if (col > 26) {
@@ -59,7 +60,7 @@ onload = function () {
     }
     
     if (location.hash) {
-        args = encodedHash().parseQueryString(delim, assign);
+        var args = encodedHash().parseQueryString(delim, assign);
         rows = args.rows || rows;
         cols = args.cols || cols;
         delete args.rows;
@@ -68,27 +69,28 @@ onload = function () {
     
     var table = document.getElementById("calc");
     table.appendChild(document.createElement("tbody"));
-    var tr = table.createTHead().insertRow(-1);
+    var tr = table.createTHead().insertRow();
     tr.appendChild(document.createElement("th")).innerHTML = "&nbsp;";
-    for (col = 1; col <= cols; col++) {
+    for (var col = 1; col <= cols; col++) {
         tr.appendChild(document.createElement("th")).innerHTML = colLetter(col);
     }
     
-    for (row = 1; row <= rows; row++) {
-        tr = table.tBodies[0].insertRow(-1);
+    for (var row = 1; row <= rows; row++) {
+        tr = table.tBodies[0].insertRow();
         tr.appendChild(document.createElement("th")).innerHTML = row;
         for (col = 1; col <= cols; col++) {
-            input = tr.insertCell(-1).appendChild(document.createElement("input"));
+            var input = tr.insertCell().appendChild(document.createElement("input"));
             input.c = colLetter(col);
             input.r = row;
             input.id = input.c + input.r;
             window[input.c] = [];
             input.onfocus = function () {
-                if (this.formula) this.value = "=" + this.formula;
-                if (this.pipe) this.value = "|" + this.formula;
+                formulaBar.innerHTML = '&nbsp;';
+                if (this.formula) formulaBar.innerHTML = this.value = "=" + this.formula;
+                if (this.pipe) formulaBar.innerHTML = this.value = "|" + this.formula;
                 this.style.textAlign = "left";
             };
-            input.onblur = function (event, setHash) {
+            input.onblur = function (event) {
                 function formulate(pipe) {
                     this.formula = value.substr(1);
                     fValue = eValue = eval(this.formula);
@@ -97,7 +99,7 @@ onload = function () {
                     } else if (eValue.toDateString) {
                         fValue = eValue.toDateString();
                     }
-                    if (this.formula.contains("=")) {
+                    if (this.formula.includes("=")) {
                         var n = this.formula.split("=")[0];
                         if (pipe) {
 							window[n] = window[this.c];
@@ -140,7 +142,7 @@ onload = function () {
                 // Create global variables for other formulas to use.
                 window[this.c][this.r] = window[this.id] = eValue;
                 this.style.textAlign = isNaN(eValue) ? "left" : "right";
-                if (event || setHash) {
+                if (event) {
                     args = ((location.hash ? encodedHash() + delim : "") + this.id + assign + value).parseQueryString(delim, assign);
                     var hash = [];
                     for (var id in args) {
@@ -157,7 +159,7 @@ onload = function () {
             for (var id in args) {
                 input = document.getElementById(id);
                 input.value = decodeURIComponent(args[id]);
-                input.onblur(null, false);
+                input.onblur(null);
             }
         }
     } else {

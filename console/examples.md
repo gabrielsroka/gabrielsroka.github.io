@@ -197,18 +197,15 @@ async function getFactors(user) {
 
 # List Devices
 ```js
-// List unmanaged devices and user info using https://gabrielsroka.github.io/console
+// Export devices and users using https://gabrielsroka.github.io/console
+// updated 2025-07-30
 
-params = new URLSearchParams({
-  search: 'managementStatus eq "UNMAN"', // or "MAN"
-  expand: 'userSummary', // or user
-  limit: 20
-})
-for await (device of getObjects('/api/v1/devices?' + params)) {
-  for (user of device._embedded.users) {
-    log(device.id, user.managementStatus, user.user.id, user.user.profile.login) // add more attrs...
-  }
-}
+// Set this:
+cols = 'profile.displayName,user.user.profile.login,profile.platform,profile.udid,profile.osVersion,status,user.managementStatus'
+
+devices = await getAll('/api/v1/devices?expand=userSummary&limit=20') // can also add '&search=managementStatus eq "UNMAN"'
+flat = device => (device._embedded.users || [{}]).map(user => ({...device, user}))
+reportUI(devices.flatMap(flat), cols, 'devices and users')
 ```
 
 # Clone Group Rule

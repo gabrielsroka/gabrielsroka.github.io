@@ -35,7 +35,7 @@ if polls.message
     app.innerHTML = polls.message
 else
     app.innerHTML = `<table id=table><thead></thead><tbody></tbody></table><br><a href=?page=${+page + 1}>Next ></a>`
-    | 'Title<th>Created At<th>Author<th>Points<th>Num Comments'
+    | Title | Created At | Author | Points | Num Comments
     for p in polls.hits
         d = p.created_at.replace(/(T|\.000Z)/g, ' ')
         + `<a href=hnpoll.html?id=${p.objectID} target=_blank>${p.title}</a><td>${d}<td>${p.author}<td align=right>${p.points}<td align=right>${p.num_comments}`

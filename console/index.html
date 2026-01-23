@@ -45,6 +45,8 @@ td {
 <p>See <a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/examples.md>https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/console/examples.md</a>
 <h2 id=functions>Functions</h2>
 <div id=functionTable></div>
+<h2>Source</h2>
+<textarea id=src style='width: 1500px; height: 600px;'></textarea>
 <script id=code>
 (function () {
   var cancel = false, timeout;
@@ -323,7 +325,8 @@ for await (user of getObjects(url)) {\n
 })
 </script>
 <script>
-bm.href = 'javascript:' + code.innerText + '();';
+src.value = 'javascript:' + code.innerText + '();';
+bm.href = src.value;
 functionTable.innerHTML = '<table>' + 
     code.innerText.split('\n')
     .map(ln => ln.match(/^ *((async )?function.*) \{/)?.[1])

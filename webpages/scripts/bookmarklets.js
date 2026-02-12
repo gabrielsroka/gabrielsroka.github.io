@@ -185,12 +185,20 @@ function parseCode(s, format) {
     var indo = false; // inside a "do" loop
     var ic = false;   // inside a "case" or "default" statement
 
-    // "n" = no space after
-    var keywords = {"toString" : 0, "valueOf" : 0,
-        "break" : "n", "case" : 1, "catch" : 1, "continue" : "n", "default" : "n", "delete" : 1, "do" : "n", "else" : "n",
-        "false" : "n", "finally" : "n", "for" : 1, "function" : 1, "if" : 1, "in" : 1, "instanceof" : 1,
-        "new" : 1, "null" : "n", "return" : "n", "switch" : 1, "this" : "n", "throw" : 1,
-        "true" : "n", "try" : "n", "typeof" : 1, "var" : 1, "void" : 1, "while" : 1, "with" : 1
+    // "n" = no space after, "1" = 1 space, "0" = ignore [?]
+    const keywords = {
+        // Special cases / methods
+        "toString" : 0, "valueOf" : 0,
+    
+        // Keywords in alpha order
+        "async": 1, "await": 1, "break": "n", "case": 1, "catch": 1, 
+        "class": 1, "const": 1, "continue": "n", "debugger": "n", "default": "n", 
+        "delete": 1, "do": "n", "else": "n", "export": 1, "extends": 1, 
+        "false": "n", "finally": "n", "for": 1, "function": 1, "if": 1, 
+        "import": 1, "in": 1, "instanceof": 1, "let": 1, "new": 1, 
+        "null": "n", "return": "n", "static": 1, "super": "n", "switch": 1, 
+        "this": "n", "throw": 1, "true": "n", "try": "n", "typeof": 1, 
+        "var": 1, "void": 1, "while": 1, "with": 1, "yield": 1
     };
 
     function getNext() {
@@ -297,7 +305,7 @@ function parseCode(s, format) {
             o += endSpan();
         } else if (c2 == "==" || c2 == "!=" || c2 == "&&" || c2 == "||" || c2 == "<=" || c2 == ">=" || c2 == "+=" || 
                    c2 == "-=" || c2 == "*=" || c2 == "/=" || c2 == "%=" || c2 == "&=" || c2 == "|=" || c2 == "^=" || 
-                   c2 == "<<" || c2 == ">>" || c2 == '=>') {
+                   c2 == "<<" || c2 == ">>" || c2 == '=>' || c2 == '??' || c2 == '**') {
             getNext();
             o += ps + c2;
             if ((c2 == "==" || c2 == "!=") && n == "=") { // "===" and "!=="
@@ -306,7 +314,7 @@ function parseCode(s, format) {
             }
             ns = n == " " ? "" : " ";
             o += ns;
-        } else if (c2 == "++" || c2 == "--") {
+        } else if (c2 == "++" || c2 == "--" || c2 == '?.') {
             getNext();
             o += c2;
         } else if (c == "=" || c == "+" || c == "-" || c == "<" || c == ">" || c == "*" || c == "/" || c == "?" || 

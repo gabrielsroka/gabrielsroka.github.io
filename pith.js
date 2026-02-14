@@ -15,6 +15,7 @@ function run(lines) {
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         const tLine = line.trim();
+        if (tLine == '') continue;
         if (tLine.startsWith('for ') || tLine.startsWith('async for ')) {
             line = line
                 .replace('for', 'for (var')
@@ -92,5 +93,5 @@ function sum(it) {
 }
 
 async function sleep(delay) {
-    return new Promise(res => setTimeout(res, delay));
+    return new Promise(resolve => setTimeout(resolve, delay));
 }

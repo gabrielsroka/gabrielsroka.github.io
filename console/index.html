@@ -136,7 +136,7 @@ for await (user of getObjects(url)) {\n
       rows = Object.entries(rows).map(([name, value]) => ({name, value}));
     }
     if (rows.length == 0) return;
-    if (sort) rows.sort(key(sort));
+    if (sort) sort.split(',').reverse().forEach(sort => rows.sort(key(sort)));
     if (cols) {
       cols = cols.split(',');
       rows = rows.map(obj => Object.fromEntries(cols.map(c => [c, dot(obj, c)])));

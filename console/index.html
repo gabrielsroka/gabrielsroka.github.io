@@ -298,7 +298,7 @@ for await (user of getObjects(url)) {\n
     cols = cols.split(',');
     if (!name) name = url.split('?')[0].split('/').pop();
     const objs = (await getAll(url)).map(obj => Object.fromEntries(cols.map(c => [c, dot(obj, c)])));
-    if (sort) objs.sort(key(sort));
+    if (sort) sort.split(',').reverse().forEach(sort => objs.sort(key(sort)));
     if (ui) {
       reportUI(objs, '', name);
     } else {

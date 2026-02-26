@@ -325,6 +325,7 @@
             }
             const html = factors.map(f => f.radio).join('');
             verifyPopup.html("<form id=factorForm>" + html + "<br><button class='link-button'>Next</button></form>");
+            const factorForm = document.getElementById('factorForm');
             if (factors.length > 1) {
                 factorForm.factor[0].checked = "checked";
             } else {
@@ -355,6 +356,8 @@
                     const verifyForm = verifyPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
                     verifyForm.innerHTML = factor.name + '<br><div id=error></div>' + factor.html + ` <br><input id=answer type=${factor.inputType} autocomplete=off><br>` +
                         "<button class='link-button'>Verify</button>";
+                    const error = document.getElementById('error');
+                    const answer = document.getElementById('answer');
                     answer.focus(); // Cuz "autofocus" didn't work.
                     verifyForm.onsubmit = function () {
                         const data = {};
@@ -423,6 +426,7 @@
             const passwordPopup = createPopup("Set Password");
             const passwordForm = passwordPopup[0].appendChild(document.createElement("form")); // Cuz "<form>" didn't work.
             passwordForm.innerHTML = "<input id=newPassword type=password><br><button class='link-button'>Set</button>";
+            const newPassword = document.getElementById('newPassword');
             newPassword.focus(); // Cuz "autofocus" didn't work.
             passwordForm.onsubmit = function (event) {
                 const url = `/api/v1/users/${userId}`; // TODO: `/api/v1/users/${userId}/lifecycle/expire_password?tempPassword=false`
@@ -470,7 +474,7 @@
         createDiv("Search Groups", mainPopup, function () {
             var popup = createPopup("Search Groups with Name Containing");
             var form = $("<form>Name <input class=name style='width: 300px'> " + 
-                "<input type=submit value=Search></form><br><div class=results></div>").appendTo(popup);
+                '<input type=submit value=Search></form><br><div class=results></div>').appendTo(popup);
             form.submit(event => {
                 popup.find("div.results").html("Loading...");
                 getJSON("/api/v1/groups").then(groups => {
@@ -551,7 +555,7 @@
             function exportOUs(type) {
                 var els = document.querySelectorAll("." + type + "outreenode.tree-element-chosen");
                 if (!els.length) els = document.querySelectorAll("#ad-import-ou-" + type + "-picker input:checked.ou-checkbox-tree-item");
-                els.forEach(el => ous.push(toCSV(el.value, type)));
+                els.forEach(el => ous.push(toCSV(el.value, type) + '\n'));
             }
         });           
     }
@@ -565,7 +569,7 @@
                         var key = keys.find(key => key.kid == idp.protocol.credentials.trust.kid);
                         var days = Math.trunc((new Date(key.expiresAt) - new Date()) / 1000 / 60 / 60 / 24);
                         var style = days < 30 ? "style='background-color: red; color: white'" : "";
-                        rows += `<tr><td>${e(idp.name)}<td>${e(key.expiresAt)}<td ${style}}'>${days}`;
+                        rows += `<tr><td>${e(idp.name)}<td>${e(key.expiresAt)}<td ${style}>${days}`;
                     });
                     idpPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'>${rows}</table>`);
                 });
@@ -1261,6 +1265,7 @@
             var form = apiPopup[0].appendChild(document.createElement("form"));
             form.innerHTML = "<select id=method><option>GET<option>POST<option>PUT<option>PATCH<option>DELETE</select> " +
                 "<input id=url list=urls> "; // HACK: input.list is read-only, must set it at create time. :(
+            const url = document.getElementById('url');
             url.style.width = "700px";
             url.placeholder = "URL";
             url.focus();
@@ -1286,7 +1291,7 @@
                     var id = location.pathname.match("/group/") ? parts[3] : parts[5];
                     url = url.replace(/\${[^}]+}/g, id);
                 }
-                requestJSON({url, method: method.value, data: data.value}).then((objects, status, jqXHR) => {
+                requestJSON({url, method: document.getElementById('method').value, data: data.value}).then((objects, status, jqXHR) => {
                     $(results).html("<br>");
                     var linkHeader = jqXHR.getResponseHeader("Link"); // TODO: maybe show X-Rate-Limit-* headers, too.
                     if (linkHeader) {

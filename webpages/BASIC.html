@@ -35,6 +35,7 @@ body {
 var programs;
 var progname;
 var cancel = false;
+var width = 0;
 
 if (localStorage.basicPrograms) {
     programs = JSON.parse(localStorage.basicPrograms);
@@ -154,7 +155,7 @@ editor.onkeydown = function (event) {
 };
 
 debug.log = debug.print = function (s, nl = true) {
-    debug.value += (s ? s.toString() : s) + (nl ? "\r\n" : '');
+    debug.value += (s ? s.toString() : s) + (nl ? '\n' : '');
     debug.scrollTo(0, debug.scrollHeight);
 };
     
@@ -164,11 +165,11 @@ debug.clear = function () {
 };
 
 function print(...args) {
-    debug.print(args.join(' '), false);
+    debug.print(args.map(arg => arg.toString().padStart(width)).join(' '), false);
 }
 
 function println(...args) {
-    debug.print(args.join(' '));
+    debug.print(args.map(arg => arg.toString().padStart(width)).join(' '));
 }
 
 function save() {

@@ -50,12 +50,12 @@ td {
 <script id=code>
 (function () {
   async function main() {
-    // List users using https://gabrielsroka.github.io/console
+    /* List users using https://gabrielsroka.github.io/console */
 
-    filter = 'filter=profile.lastName eq "Doe"'
-    url = '/api/v1/users?' + filter
+    filter = 'filter=profile.lastName eq "Doe"';
+    url = '/api/v1/users?' + filter;
     for await (user of getObjects(url)) {
-      log(user.id, user.profile.login)
+      log(user.id, user.profile.login);
     }
   }
   var cancel = false, timeout;

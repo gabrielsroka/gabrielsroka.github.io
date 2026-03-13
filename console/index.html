@@ -33,7 +33,7 @@ td {
 <h2>Setup</h2>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>console v17</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>console v18</a> to the bookmarks toolbar.
 </ol>
 <h2>Usage</h2>
 <ol>
@@ -49,32 +49,44 @@ td {
 <textarea id=src style='width: 1500px; height: 600px;'></textarea>
 <script id=code>
 (function () {
+  async function main() {
+    // List users using https://gabrielsroka.github.io/console
+
+    filter = 'filter=profile.lastName eq "Doe"'
+    url = '/api/v1/users?' + filter
+    for await (user of getObjects(url)) {
+      log(user.id, user.profile.login)
+    }
+  }
   var cancel = false, timeout;
   const paths = location.pathname.split('/');
   const id = paths.pop() || paths.pop();
   const div = document.body.appendChild(document.createElement('div'));
-  const style = `style='display: inline-block;'`;
-  div.innerHTML = `<button id=run title='Ctrl+Enter' ${style}>Run</button>
-   <button id=cancelBtn title=Esc ${style}>Cancel</button>
-   <button id=newBtn ${style}>New</button>
-   <button id=openBtn title='Ctrl+O' ${style}>Open</button>
-   <button id=saveBtn title='Ctrl+S' ${style}>Save</button>
-   <button id=closeBtn ${style}>Close</button>
+  div.innerHTML = `<button id=run title='Ctrl+Enter'>Run</button>
+   <button id=cancelBtn title=Esc>Cancel</button>
+   <button id=newBtn>New</button>
+   <button id=openBtn title='Ctrl+O'>Open</button>
+   <button id=saveBtn title='Ctrl+S'>Save</button>
+   <button id=closeBtn>Close</button>
    <span id=fileName>Untitled</span>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
-   <a href=https://gabrielsroka.github.io/console target=_blank>console v17</a>
+   <a href=https://gabrielsroka.github.io/console target=_blank>console v18</a>
    <span id=statusBar></span><br>
-   <textarea id=editor style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none>
+   <textarea id=editor spellcheck=false autocapitalize=none>
 // List users using https://gabrielsroka.github.io/console\n
 \n
 filter = 'filter=profile.lastName eq "Doe"'\n
 url = '/api/v1/users?' + filter\n
 for await (user of getObjects(url)) {\n
   log(user.id, user.profile.login)\n
-}</textarea><br>
-   <textarea id=debug style='width: 100%; height: 300px; font-family: monospace;' spellcheck=false autocapitalize=none></textarea>
+}
+   </textarea><br>
+   <textarea id=debug spellcheck=false autocapitalize=none></textarea>
    <div id=results></div>`;
   div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
+  const debug = document.getElementById('debug');
+  editor.style.cssText = debug.style.cssText = 'width: 100%; height: 300px; font-family: monospace;';
+  run.style.cssText = cancelBtn.style.cssText = newBtn.style.cssText = openBtn.style.cssText = saveBtn.style.cssText = closeBtn.style.cssText = 'display: inline-block;';
   run.onclick = function () {
     if (!preserveLog.checked) {
       debug.value = '';
@@ -83,6 +95,7 @@ for await (user of getObjects(url)) {\n
     }
     cancel = false;
     eval('(async function () {\n' + editor.value + '\n})()');
+    /* main(); */
   };
   cancelBtn.onclick = () => cancel = true;
   var fileHandle;

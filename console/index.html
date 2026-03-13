@@ -58,6 +58,16 @@ td {
       log(user.id, user.profile.login);
     }
   }
+  function runCode() {
+    if (!preserveLog.checked) {
+      debug.value = '';
+      results.innerHTML = '';
+      statusBar.innerHTML = '';
+    }
+    cancel = false;
+    eval('(async function () {\n' + editor.value + '\n})()');
+    /* main(); */
+  }
   var cancel = false, timeout;
   const paths = location.pathname.split('/');
   const id = paths.pop() || paths.pop();
@@ -87,16 +97,7 @@ for await (user of getObjects(url)) {\n
   const debug = document.getElementById('debug');
   editor.style.cssText = debug.style.cssText = 'width: 100%; height: 300px; font-family: monospace;';
   run.style.cssText = cancelBtn.style.cssText = newBtn.style.cssText = openBtn.style.cssText = saveBtn.style.cssText = closeBtn.style.cssText = 'display: inline-block;';
-  run.onclick = function () {
-    if (!preserveLog.checked) {
-      debug.value = '';
-      results.innerHTML = '';
-      statusBar.innerHTML = '';
-    }
-    cancel = false;
-    eval('(async function () {\n' + editor.value + '\n})()');
-    /* main(); */
-  };
+  run.onclick = runCode;
   cancelBtn.onclick = () => cancel = true;
   var fileHandle;
   newBtn.onclick = () => {

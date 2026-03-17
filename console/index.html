@@ -95,7 +95,7 @@ for await (user of getObjects(url)) {\n
    <div id=results></div>`;
   div.style.cssText = 'position: absolute; padding: 8px; width: 100%; top: 0px; background-color: white; z-index: 1001;';
   const debug = document.getElementById('debug');
-  editor.style.cssText = debug.style.cssText = 'width: 100%; height: 300px; font-family: monospace;';
+  editor.style.cssText = debug.style.cssText = 'width: 100%; height: 300px; font-family: monospace; border: 1px solid #cbcbcb;';
   run.style.cssText = cancelBtn.style.cssText = newBtn.style.cssText = openBtn.style.cssText = saveBtn.style.cssText = closeBtn.style.cssText = 'display: inline-block;';
   run.onclick = runCode;
   cancelBtn.onclick = () => cancel = true;

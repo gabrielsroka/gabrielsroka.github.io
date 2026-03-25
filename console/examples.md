@@ -432,33 +432,40 @@ table(groups)
 ```js
 // Add and activate a Group Rule using https://gabrielsroka.github.io/console
 
-results.innerHTML = '<style>.rockstarTable td {padding: 8px;} .group {border: solid 1px gray; padding: 10px; margin: 4px; text-wrap: nowrap;}</style>' +
-  '<table class=rockstarTable style="width: 100%">' +
-  '<tr><td colspan=2><h2>Add Rule</h2>' +
-  '<tr><td>Name<td><input id=ruleName><td><button id=openRule>Open Rule</button>' +
-  `<tr><td>Expression<td style='width: 100%' colspan=2><textarea id=expression style='width: 100%; height: 100px; font-family: monospace;'></textarea>` +
-    'Press Ctrl+Enter to Preview - ' + link('https://developer.okta.com/reference/okta_expression_language', 'Expression Language Reference') +
-  '<tr><td>Assign to<td><input id=groupName placeholder=Group><td style="width: 100%"><button id=newGroup>New Group</button> <span id=groupInfo></span>' +
-  '<tr><td>Except<td colspan=2><span id=exceptions></span>' +
-  '<tr><td>Preview<td colspan=2><input id=userName placeholder=User> <span id=userInfo></span>' +
-  '<tr><td colspan=3><div id=infobox>&nbsp;</div>' +
-  '<tr><td colspan=2><button id=save class="button button-primary">Save and Activate</button>' +
-  '</table>'
+s = document.createElement('style')
+s.textContent = `h2, div {padding: 8px;}
+ .group {border: solid 1px gray; padding: 10px; margin: 4px; text-wrap: nowrap;}
+ #expression {width: 100%; height: 100px; font-family: monospace;}
+ .grid {display: grid; grid-template-columns: auto 1fr; gap: 1rem;}
+ .error {color: white; background-color: red;}
+ .good {color: white; background-color: green;}`
+s.nonce = document.querySelector('script[nonce]').nonce
+document.head.appendChild(s)
+
+results.innerHTML = '<h2>Add Rule</h2>' +
+  grid(`Name  | <input id=ruleName> <button id=openRule>Open Rule</button>
+   Expression | <textarea id=expression></textarea>
+   &nbsp;     | Press Ctrl+Enter to Preview - <a href=https://developer.okta.com/reference/okta_expression_language target=_blank>Expression Language Reference</a>
+   Assign to  | <input id=groupName placeholder=Group> <button id=newGroup>New Group</button> <span id=groupInfo></span>
+   Except     | <span id=exceptions></span>
+   Preview    | <input id=userName placeholder=User> <span id=userInfo></span>`) +
+  '<div id=infobox>&nbsp;</div>' +
+  '<button id=save class="button button-primary">Save and Activate</button>'
 ruleName.focus()
 
 user = {}
 groups = []
 exclude = []
-err = '<span style="color: white; background-color: red">&nbsp;! </span>&nbsp;'
+err = '<span class=error>&nbsp;! </span>&nbsp;'
 userLink = user => link('/admin/user/profile/view/' + user.id, user.profile.firstName + ' ' + user.profile.lastName)
 openRule.onclick = async () => {
   rules = await getJson('/api/v1/groups/rules?' + new URLSearchParams({expand: 'groupIdToGroupNameMap', limit: 1, search: ruleName.value}))
-  if (rules.length == 0) {
-    infobox.innerHTML = ruleName.value + ' not found'
+  rule = rules[0]
+  if (!rule) {
+    infobox.innerHTML = err + ruleName.value + ' not found'
     return
   }
   infobox.innerHTML = '&nbsp;'
-  rule = rules[0]
   ruleName.value = rule.name
   expression.value = rule.conditions.expression.value
   groups = rule.actions.assignUserToGroups.groupIds.map(id => ({id, profile: {name: rule._embedded.groupIdToGroupNameMap[id]}}))
@@ -498,11 +505,7 @@ userName.onkeyup = async event => {
   if (await debounce(userName)) return
   users = await getJson('/api/v1/users?' + new URLSearchParams({limit: 1, q: userName.value}))
   user = users[0]
-  if (!user) {
-    userInfo.innerHTML = 'No results found'
-    return
-  }
-  userInfo.innerHTML = userLink(user) + ', login: ' + user.profile.login + ', email: ' + user.profile.email
+  userInfo.innerHTML = user ? `${userLink(user)}, login: ${user.profile.login}, email: ${user.profile.email}` : 'No results found'
 }
 save.onclick = async () => {
   body = {
@@ -519,22 +522,23 @@ save.onclick = async () => {
     await post(`/api/v1/groups/rules/${rule.id}/lifecycle/activate`)
     infobox.innerHTML = 'Added ' + ruleName.value
   } else {
-    infobox.innerHTML = 'Error: ' + rule.errorSummary + '<br>' + rule.errorCauses.map(c => c.errorSummary).join('<br>')
+    infobox.innerHTML = err + 'Error: ' + rule.errorSummary + '<br>' + rule.errorCauses.map(c => c.errorSummary).join('<br>')
   }
 }
 async function evalExpression() {
   if (!user?.id) {
-    infobox.innerHTML = err + 'Select a user to preview'
-    return
+    user = await getJson('/api/v1/users/me')
+    userInfo.innerHTML = `${userLink(user)}, login: ${user.profile.login}, email: ${user.profile.email}`
   }
   infobox.innerHTML = '&nbsp;'
   body = [{targets: {user: user.id}, value: expression.value, type: 'urn:okta:expression:1.0', operation: 'CONDITION'}]
   exp = (await postJson('/api/v1/internal/expression/eval', body))[0]
-  if (exp.error) {
+  if (exp.result == 'TRUE') h = '<span class=good>&nbsp;✓ </span>&nbsp; User matches rule'
+  else if (exp.result == 'FALSE') h = err + "User doesn't match rule"
+  else {
     h = err + 'We found some errors.<br>' + exp.error.errorCauses.map(c => c.errorSummary).join('<br>')
     if (expression.value.match(/[‘’“”]/)) h += '<br>Change smart (curly) quotes to straight quotes.'
-  } else if (exp.result == 'TRUE') h = '<span style="color: white; background-color: green">&nbsp;✓ </span>&nbsp; User matches rule'
-  else h = err + "User doesn't match rule"
+  }
   infobox.innerHTML = h
 }
 function updateGroupInfo(msg = '') {
@@ -543,5 +547,8 @@ function updateGroupInfo(msg = '') {
     groups = groups.filter(g => g.id != button.id)
     button.parentNode.remove()
   })
+}
+function grid(s) {
+  return '<div class=grid>' + s.split('\n').map(ln => ln.replace(' | ', '<span>') + '</span>').join('\n') + '</div>';
 }
 ```

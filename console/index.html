@@ -33,7 +33,7 @@ td {
 <h2>Setup</h2>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>console v18</a> to the bookmarks toolbar.
+<li>Drag/drop this <a id=bm>console v19</a> to the bookmarks toolbar.
 </ol>
 <h2>Usage</h2>
 <ol>
@@ -80,7 +80,7 @@ td {
    <button id=closeBtn>Close</button>
    <span id=fileName>Untitled</span>
    <label><input id=preserveLog type=checkbox> Preserve Log</label>
-   <a href=https://gabrielsroka.github.io/console target=_blank>console v18</a>
+   <a href=https://gabrielsroka.github.io/console target=_blank>console v19</a>
    <span id=statusBar></span><br>
    <textarea id=editor spellcheck=false autocapitalize=none>
 // List users using https://gabrielsroka.github.io/console\n
@@ -268,13 +268,15 @@ for await (user of getObjects(url)) {\n
     return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join();
   }
   function downloadCSV(lines, filename) {
-    const a = document.body.appendChild(document.createElement('a'));
-    a.href = URL.createObjectURL(new Blob([lines], {type: 'text/csv'}));
-    const date = new Date().toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);
-    a.download = `${filename} ${date}.csv`;
-    a.click();
-    document.body.removeChild(a);
+    downloadFile(lines, `${filename} {datetime()}.csv`, 'text/csv');
   }
+  function downloadFile(file, name, type) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([file], {type}));
+    a.download = name;
+    a.click();
+  }
+  function datetime() {return new Date().toISOString().replace(/T/, ' ').replace(/:/g, '-').slice(0, 19);}
   function csv(rows) {
     if (rows.length == 0) return;
     const hdr = '\uFEFF' + Object.keys(rows[0]).join() + '\n';

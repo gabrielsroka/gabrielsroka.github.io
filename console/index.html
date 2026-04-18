@@ -268,7 +268,7 @@ for await (user of getObjects(url)) {\n
     return fields.map(field => `"${field == undefined ? '' : field.toString().replace(/"/g, '""')}"`).join();
   }
   function downloadCSV(lines, filename) {
-    downloadFile(lines, `${filename} {datetime()}.csv`, 'text/csv');
+    downloadFile(lines, `${filename} ${datetime()}.csv`, 'text/csv');
   }
   function downloadFile(file, name, type) {
     const a = document.createElement('a');

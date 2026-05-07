@@ -164,8 +164,8 @@ for await (user of getObjects('/api/v1/users')) {
 }
 
 // in parallel, 10-20 times faster than in series:
-limit = 15 // try 15, 35, or 75 for the limit, depending on the org.
-// see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
+limit = 35 // try 35 or 75 for the limit, depending on the org.
+// see https://developer.okta.com/docs/reference/rl2-concurrency/
 for await (user of getObjects('/api/v1/users?limit=' + limit)) {
   getFactors(user)
 }
@@ -177,8 +177,8 @@ async function getFactors(user) {
 }
 
 // export to CSV in parallel:
-limit = 15 // Try 15, 35, or 75 for the limit, depending on the org.
-// see https://developer.okta.com/docs/reference/rl-additional-limits/#concurrent-rate-limits
+limit = 35 // Try 35 or 75 for the limit, depending on the org.
+// see https://developer.okta.com/docs/reference/rl2-concurrency/
 
 log('id,login,factors')
 promises = []

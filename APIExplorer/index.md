@@ -4,7 +4,7 @@ A short (25-line) JavaScript snippet to call the Okta API from a browser UI -- l
 
 # Setup
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-2. Drag all of [https://gabrielsroka.github.io/SearchGroups.js](https://gabrielsroka.github.io/SearchGroups.js) to the bookmarks toolbar.
+2. Copy all of [https://gabrielsroka.github.io/SearchGroups.js](https://gabrielsroka.github.io/SearchGroups.js) to a bookmark.
 
 Or, copy this code to the browser Console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
@@ -31,7 +31,7 @@ Browsers have gotten better at this, too. Chrome, for example, has a fairly comp
 # How
 There are a few options for running your JavaScript on someone else's website:
 - the address bar using the `javascript:` scheme. For example, `javascript:alert('hi')` [1]. Note that some browsers remove the `javascript:` part if you paste it in, and some browsers or sites block these.
-- bookmarklets - like regular bookmarks, but they can run JavaScript [2]. These even work on mobile browsers, which usually don't have DevTools! You can host them on sites like GitHub so you can share them, update them, etc. For example, drag this to your bookmark toolbar, then click it: 
+- bookmarklets - like regular bookmarks, but they can run JavaScript [2]. These even work on mobile browsers, which usually don't have DevTools! You can host them on sites like GitHub so you can share them, update them, etc. For example, copy this to a bookmark, then click it: 
 ```js
 javascript:
 (function () {

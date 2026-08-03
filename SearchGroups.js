@@ -5,7 +5,7 @@ URL: https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/SearchGr
 
 Setup:
 1. Show your bookmarks toolbar. In Chrome, ... > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-2. Select all and drag/drop or copy/paste to the bookmark toolbar.
+2. Select all copy/paste to the bookmark toolbar.
 
 Or, copy this code to the browser console, or, if using Chrome, to a Snippet:
 1. Press F12 (Windows) to open DevTools.
@@ -42,7 +42,7 @@ Usage:
         while (url) {
             const r = await fetch(url);
             const objects = await r.json();
-            for (const o of objects) yield o;
+            yield* objects;
             url = r.headers.get('link')?.match('<https://[^/]+([^>]+)>; rel="next"')?.[1];
         }
     }

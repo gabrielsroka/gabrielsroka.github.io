@@ -1,7 +1,7 @@
 async function main() {
     const apps = [];
     const keys = {};
-    for await (const app of getObjects('/api/v1/apps')) {
+    for await (const app of getObjects('/api/v1/apps?limit=200')) {
         const kid = app.credentials.signing.kid;
         if (!kid) continue;
         const key = keys[kid] || await getAppKey(app.id, kid);

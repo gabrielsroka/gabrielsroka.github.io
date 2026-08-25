@@ -607,6 +607,7 @@
                     rule => toCSV(rule.id, rule.name, rule.status, rule.conditions.expression.value, rule.actions.assignUserToGroups.groupIds.join(";"), rule.conditions.people ? rule.conditions.people.users.exclude.length : 0));
             });
         } else if (location.pathname == "/admin/apps/active") {
+            createDiv("Push All Apps Push Groups (Unofficial)", mainPopup, pushAllAppsGroupMappings);
             createDiv("Export Apps", mainPopup, function () {
                 startExport("Apps", "/api/v1/apps", "id,label,name,userNameTemplate,features,signOnMode,status,embedLinks", 
                     app => toCSV(app.id, app.label, app.name, app.credentials.userNameTemplate.template, app.features.join(', '), app.signOnMode, app.status,
@@ -734,7 +735,7 @@
                         atos(appGroup.profile.roles), appGroup.profile.role, atos(appGroup.profile.salesforceGroups),
                         atos(appGroup.profile.featureLicenses), atos(appGroup.profile.publicGroups)), 'group');
             });
-            createDiv("Push App Push Groups", mainPopup, () => pushGroupMappings(appId));
+            createDiv("Push App Push Groups (Unofficial)", mainPopup, () => pushGroupMappings(appId));
         } else if (groupId = getGroupId()) {
             createDiv("Export Group Members", mainPopup, function () {
                 startExport("Group Members", `/api/v1/groups/${groupId}/users`, "id,login,firstName,lastName,status", 
@@ -959,16 +960,31 @@
             }
         }
     }
+    function errorMessage(jqXHR) {
+        return jqXHR.responseJSON ? jqXHR.responseJSON.errorSummary : jqXHR.statusText;
+    }
+    async function mapLimit(items, limit, fn) {
+        const results = new Array(items.length);
+        let next = 0;
+        async function worker() {
+            while (next < items.length) {
+                const i = next++;
+                results[i] = await fn(items[i], i);
+            }
+        }
+        await Promise.all(Array.from({length: Math.min(limit, items.length)}, worker));
+        return results;
+    }
+    let pushInProgress = false; // Guards against overlapping pushMappings() runs, eg, from double-clicking a push menu item.
     async function pushGroupMappings(appId) {
         // List: GET /api/v1/apps/{appId}/group-push/mappings (public API). Mapping fields: id, status, sourceGroupId, targetGroupId.
-        // Push: POST /api/internal/instance/{appId}/grouppush/{id} {"action":"PUSH"} (internal API, no public equivalent).
         const pushPopup = createPopup("Push Group Mappings");
         pushPopup.html("Loading...");
         let mappings;
         try {
             mappings = await getAllPages(`/api/v1/apps/${appId}/group-push/mappings?limit=200`);
         } catch (jqXHR) {
-            pushPopup.html("Error: " + e(jqXHR.responseJSON ? jqXHR.responseJSON.errorSummary : jqXHR.statusText));
+            pushPopup.html("Error: " + e(errorMessage(jqXHR)));
             return;
         }
         const targets = mappings.filter(m => m.status == "ACTIVE");
@@ -980,48 +996,83 @@
             pushPopup.html("Cancelled.");
             return;
         }
-        const groupIds = [...new Set(targets.flatMap(m => [m.sourceGroupId, m.targetGroupId]))];
-        const groupNames = {};
-        await Promise.all(groupIds.map(async groupId => {
-            try {
-                groupNames[groupId] = (await getJSON(`/api/v1/groups/${groupId}`)).profile.name;
-            } catch (jqXHR) {
-                groupNames[groupId] = groupId; // Fall back to the id, eg, if the group was deleted.
-            }
-        }));
-        const results = [];
-        for (let i = 0; i < targets.length; i++) {
-            const m = targets[i];
-            const label = `${groupNames[m.sourceGroupId]} -> ${groupNames[m.targetGroupId]}`;
-            pushPopup.html(`Pushing ${i + 1} / ${targets.length}...<br>${e(label)}`);
-            try {
-                await postJSON({url: `/api/internal/instance/${appId}/grouppush/${m.id}`, data: {action: "PUSH"}});
-                results.push({label, status: "OK"});
-            } catch (jqXHR) {
-                results.push({label, status: jqXHR.responseJSON ? jqXHR.responseJSON.errorSummary : jqXHR.statusText});
-            }
-            if (i < targets.length - 1) await sleep(400);
+        await pushMappings(pushPopup, targets.map(mapping => ({appId, mapping})));
+    }
+    async function pushAllAppsGroupMappings() {
+        const pushPopup = createPopup("Push All Apps Push Groups");
+        pushPopup.html("This can take a while — checking every app for push groups...");
+        let apps;
+        try {
+            apps = await getAllPages(`/api/v1/apps?limit=200`);
+        } catch (jqXHR) {
+            pushPopup.html("Error: " + e(errorMessage(jqXHR)));
+            return;
         }
-        const rows = results.map(r => `<tr><td>${e(r.label)}<td>${e(r.status)}`).join('');
-        pushPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'><tr><th>Mapping<th>Result${rows}</table>`);
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+        apps = apps.filter(app => app.features && app.features.includes("GROUP_PUSH")); // Only apps with group push configured have this feature.
+        const jobs = [];
+        for (let i = 0; i < apps.length; i++) {
+            const app = apps[i];
+            pushPopup.html(`This can take a while — checking every app for push groups...<br>App ${i + 1} / ${apps.length}: ${e(app.label)}`);
+            try {
+                const mappings = await getAllPages(`/api/v1/apps/${app.id}/group-push/mappings?limit=200`);
+                mappings.filter(m => m.status == "ACTIVE").forEach(mapping => jobs.push({appId: app.id, appLabel: app.label, mapping}));
+            } catch (jqXHR) {
+                // App doesn't support group push, or we don't have access to it. Skip it.
+            }
+            if (i < apps.length - 1) await sleep(150); // Pace the scan; there can be hundreds of apps.
         }
-        async function getAllPages(url) {
-            const all = [];
-            while (url) {
-                const {data, link} = await getJSON(url).then((data, status, jqXHR) => ({data, link: jqXHR.getResponseHeader("Link")}));
-                all.push(...data);
-                const links = link ? getLinks(link) : null;
-                if (links && links.next) {
-                    const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
-                    url = nextUrl.pathname + nextUrl.search;
-                } else {
-                    url = null;
+        if (!jobs.length) {
+            pushPopup.html(`Checked ${apps.length} app(s); found no active push group mappings.`);
+            return;
+        }
+        const appCount = new Set(jobs.map(job => job.appId)).size;
+        if (!confirm(`Push ${jobs.length} active group push mapping(s) across ${appCount} app(s) now? This can take a while.`)) {
+            pushPopup.html("Cancelled.");
+            return;
+        }
+        await pushMappings(pushPopup, jobs);
+    }
+    // Shared by pushGroupMappings() and pushAllAppsGroupMappings().
+    // jobs: [{appId, appLabel (optional), mapping}]. Push: POST /api/internal/instance/{appId}/grouppush/{mapping.id} {"action":"PUSH"} (internal API, no public equivalent).
+    async function pushMappings(popup, jobs) {
+        if (pushInProgress) {
+            popup.html("Another push is already running. Please wait for it to finish.");
+            return;
+        }
+        pushInProgress = true;
+        try {
+            const groupIds = [...new Set(jobs.flatMap(job => [job.mapping.sourceGroupId, job.mapping.targetGroupId]))];
+            const groupNames = {};
+            let resolved = 0;
+            popup.html(`Resolving ${groupIds.length} group name(s)...`);
+            await mapLimit(groupIds, 5, async groupId => {
+                try {
+                    groupNames[groupId] = (await getJSON(`/api/v1/groups/${groupId}`)).profile.name;
+                } catch (jqXHR) {
+                    groupNames[groupId] = groupId; // Fall back to the id, eg, if the group was deleted.
                 }
+                popup.html(`Resolving group name(s)... ${++resolved} / ${groupIds.length}`);
+            });
+            let cancelled = false;
+            const results = [];
+            for (let i = 0; i < jobs.length && !cancelled; i++) {
+                const {appId, appLabel, mapping: m} = jobs[i];
+                const label = (appLabel ? appLabel + ": " : "") + `${groupNames[m.sourceGroupId]} -> ${groupNames[m.targetGroupId]}`;
+                popup.html(`Pushing ${i + 1} / ${jobs.length}...<br>${e(label)}`);
+                createDivA("Cancel", popup, () => cancelled = true);
+                try {
+                    await postJSON({url: `/api/internal/instance/${appId}/grouppush/${m.id}`, data: {action: "PUSH"}});
+                    results.push({label, status: "OK"});
+                } catch (jqXHR) {
+                    results.push({label, status: errorMessage(jqXHR)});
+                }
+                if (!cancelled && i < jobs.length - 1) await sleep(400);
             }
-            return all;
+            const rows = results.map(r => `<tr><td>${e(r.label)}<td>${e(r.status)}`).join('');
+            popup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'><tr><th>Mapping<th>Result${rows}</table>` +
+                (cancelled ? `<br>Cancelled after ${results.length} / ${jobs.length}.` : ''));
+        } finally {
+            pushInProgress = false;
         }
     }
 
@@ -1549,6 +1600,24 @@
     }
     function getJSON(url) {
         return $.get({url: location.origin + url, headers});
+    }
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function getAllPages(url) {
+        const all = [];
+        while (url) {
+            const {data, link} = await getJSON(url).then((data, status, jqXHR) => ({data, link: jqXHR.getResponseHeader("Link")}));
+            all.push(...data);
+            const links = link ? getLinks(link) : null;
+            if (links && links.next) {
+                const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+                url = nextUrl.pathname + nextUrl.search;
+            } else {
+                url = null;
+            }
+        }
+        return all;
     }
     function postJSON(settings) {
         settings.url = location.origin + settings.url;

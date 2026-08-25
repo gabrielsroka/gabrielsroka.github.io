@@ -728,12 +728,13 @@
                         appUser.profile.firstName, appUser.profile.lastName, appUser.syncState, atos(appUser.profile.salesforceGroups), atos(appUser.profile.samlRoles), appUser._links.group?.name));
             });
             createDiv("Export App Groups", mainPopup, function () {
-                startExport("App Groups", `/api/v1/apps/${appId}/groups?expand=group`, 
-                    "id,name,licenses,roles,role,salesforceGroups,featureLicenses,publicGroups", 
-                    appGroup => toCSV(appGroup.id, appGroup._embedded.group.profile.name, atos(appGroup.profile.licenses), 
-                        atos(appGroup.profile.roles), appGroup.profile.role, atos(appGroup.profile.salesforceGroups), 
+                startExport("App Groups", `/api/v1/apps/${appId}/groups?expand=group`,
+                    "id,name,licenses,roles,role,salesforceGroups,featureLicenses,publicGroups",
+                    appGroup => toCSV(appGroup.id, appGroup._embedded.group.profile.name, atos(appGroup.profile.licenses),
+                        atos(appGroup.profile.roles), appGroup.profile.role, atos(appGroup.profile.salesforceGroups),
                         atos(appGroup.profile.featureLicenses), atos(appGroup.profile.publicGroups)), 'group');
             });
+            createDiv("Push App Push Groups", mainPopup, () => pushGroupMappings(appId));
         } else if (groupId = getGroupId()) {
             createDiv("Export Group Members", mainPopup, function () {
                 startExport("Group Members", `/api/v1/groups/${groupId}/users`, "id,login,firstName,lastName,status", 
@@ -956,6 +957,71 @@
             if (path.match("admin/group") && (pathparts.length == 4)) {
                 return pathparts[3];
             }
+        }
+    }
+    async function pushGroupMappings(appId) {
+        // List: GET /api/v1/apps/{appId}/group-push/mappings (public API). Mapping fields: id, status, sourceGroupId, targetGroupId.
+        // Push: POST /api/internal/instance/{appId}/grouppush/{id} {"action":"PUSH"} (internal API, no public equivalent).
+        const pushPopup = createPopup("Push Group Mappings");
+        pushPopup.html("Loading...");
+        let mappings;
+        try {
+            mappings = await getAllPages(`/api/v1/apps/${appId}/group-push/mappings?limit=200`);
+        } catch (jqXHR) {
+            pushPopup.html("Error: " + e(jqXHR.responseJSON ? jqXHR.responseJSON.errorSummary : jqXHR.statusText));
+            return;
+        }
+        const targets = mappings.filter(m => m.status == "ACTIVE");
+        if (!targets.length) {
+            pushPopup.html(mappings.length + " mapping(s) found, none are ACTIVE.");
+            return;
+        }
+        if (!confirm(`Push ${targets.length} active group push mapping(s) now?`)) {
+            pushPopup.html("Cancelled.");
+            return;
+        }
+        const groupIds = [...new Set(targets.flatMap(m => [m.sourceGroupId, m.targetGroupId]))];
+        const groupNames = {};
+        await Promise.all(groupIds.map(async groupId => {
+            try {
+                groupNames[groupId] = (await getJSON(`/api/v1/groups/${groupId}`)).profile.name;
+            } catch (jqXHR) {
+                groupNames[groupId] = groupId; // Fall back to the id, eg, if the group was deleted.
+            }
+        }));
+        const results = [];
+        for (let i = 0; i < targets.length; i++) {
+            const m = targets[i];
+            const label = `${groupNames[m.sourceGroupId]} -> ${groupNames[m.targetGroupId]}`;
+            pushPopup.html(`Pushing ${i + 1} / ${targets.length}...<br>${e(label)}`);
+            try {
+                await postJSON({url: `/api/internal/instance/${appId}/grouppush/${m.id}`, data: {action: "PUSH"}});
+                results.push({label, status: "OK"});
+            } catch (jqXHR) {
+                results.push({label, status: jqXHR.responseJSON ? jqXHR.responseJSON.errorSummary : jqXHR.statusText});
+            }
+            if (i < targets.length - 1) await sleep(400);
+        }
+        const rows = results.map(r => `<tr><td>${e(r.label)}<td>${e(r.status)}`).join('');
+        pushPopup.html(`<table class='data-list-table' style='border: 1px solid #ddd;'><tr><th>Mapping<th>Result${rows}</table>`);
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        async function getAllPages(url) {
+            const all = [];
+            while (url) {
+                const {data, link} = await getJSON(url).then((data, status, jqXHR) => ({data, link: jqXHR.getResponseHeader("Link")}));
+                all.push(...data);
+                const links = link ? getLinks(link) : null;
+                if (links && links.next) {
+                    const nextUrl = new URL(links.next); // links.next is an absolute URL; we need a relative URL.
+                    url = nextUrl.pathname + nextUrl.search;
+                } else {
+                    url = null;
+                }
+            }
+            return all;
         }
     }
 
@@ -1328,6 +1394,7 @@
     }
     function formatJSON() {
         let pre = document.getElementsByTagName("pre")[0]; // Don't use jQuery.
+        if (!pre) return; // Not a raw JSON response, eg, an authorize/login page.
         let objects = JSON.parse(pre.innerHTML);
         let json = linkify(e(JSON.stringify(objects, null, 4))); // Pretty Print the JSON.
         if (objects.errorCode == "E0000005") json = "Are you signed in? <a href=/>Sign in</a>\n\n" + json;

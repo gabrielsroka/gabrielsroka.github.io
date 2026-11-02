@@ -111,16 +111,13 @@ Object.entries(o.details).forEach(([k, v]) => {if (v?.length == 44) ds[k] = true
     /* helper code */
     function init() {
         const [team, path, projectName] = location.pathname.split('/').slice(2);
-        const cookies = Object.fromEntries(document.cookie.split('; ').map(c => c.split('=')).map(([key, val]) => [key, JSON.parse(decodeURIComponent(val))]));
-        const token = cookies['SFT_logged-in_store_' + team].token;
+        const token = JSON.parse(decodeURIComponent(document.cookie.split('; ').map(c => c.split('=')).find(([key, val]) => key == 'SFT_logged-in_store_' + team)[1])).token;
         const headers = {authorization: 'Bearer ' + token};
         return {team, path, projectName, headers};
     }
     async function* getObjects(url) {
         for await (const page of getPages('/v1/teams/' + team + url)) {
-            for (const o of page.list) {
-                yield o;
-            }
+            yield* page.list;
         }
     }
     async function* getPages(url) {
@@ -132,7 +129,7 @@ Object.entries(o.details).forEach(([k, v]) => {if (v?.length == 44) ds[k] = true
         }
     }
     async function get(url) {
-        return fetch(url, {method: 'get', headers});
+        return fetch(url, {method: 'GET', headers});
     }
     function toCSV(...fields) {
         return fields.map(field => {

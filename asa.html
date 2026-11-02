@@ -42,7 +42,7 @@ pre {
 </ol>
 <script id=code>
 (async function () {
-    const {team, path, projectName, headers} = init(); /* Call this first! */
+    const {team, path, projectName, headers} = await init(); /* Call this first! */
 
     const projectNames = [];
     if (path == 'project') {
@@ -109,7 +109,7 @@ Object.entries(o.details).forEach(([k, v]) => {if (v?.length == 44) ds[k] = true
 
 
     /* helper code */
-    function init() {
+    async function init() {
         const [team, path, projectName] = location.pathname.split('/').slice(2);
         const token = JSON.parse(decodeURIComponent((await cookieStore.get('SFT_logged-in_store_' + team)).value)).token;
         const headers = {authorization: 'Bearer ' + token};
